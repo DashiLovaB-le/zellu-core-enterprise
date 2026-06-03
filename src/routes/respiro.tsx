@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MobileShell, Icon } from "@/components/MobileShell";
 
 export const Route = createFileRoute("/respiro")({
@@ -19,8 +19,29 @@ const SOUNDS = [
   { name: "Ondas", icon: "waves", color: "var(--clay-cta)" },
 ];
 
+const BREATH_PHASES = [
+  { text: "Inspire…", duration: 2800 },
+  { text: "Segure…", duration: 1200 },
+  { text: "Expire…", duration: 2000 },
+];
+
 function RespiroPage() {
   const [active, setActive] = useState<string | null>(null);
+  const [phaseIndex, setPhaseIndex] = useState(0);
+  const [fadeIn, setFadeIn] = useState(true);
+
+  useEffect(() => {
+    const phase = BREATH_PHASES[phaseIndex];
+    const hideTimer = setTimeout(() => setFadeIn(false), phase.duration - 200);
+    const nextTimer = setTimeout(() => {
+      setPhaseIndex((prev) => (prev + 1) % BREATH_PHASES.length);
+      setFadeIn(true);
+    }, phase.duration);
+    return () => {
+      clearTimeout(hideTimer);
+      clearTimeout(nextTimer);
+    };
+  }, [phaseIndex]);
 
   return (
     <MobileShell>
@@ -66,7 +87,12 @@ function RespiroPage() {
                 "0 30px 60px rgba(142,163,193,0.35), inset 8px 8px 20px rgba(255,255,255,0.9), inset -8px -8px 20px rgba(142,163,193,0.18)",
             }}
           />
-          <p className="relative font-display text-2xl text-[var(--clay-title)]">Segure…</p>
+          <p
+            className="relative font-display text-2xl text-[var(--clay-title)] transition-all duration-300"
+            style={{ opacity: fadeIn ? 1 : 0, transform: `scale(${fadeIn ? 1 : 0.85})` }}
+          >
+            {BREATH_PHASES[phaseIndex].text}
+          </p>
         </div>
         <p className="mt-4 text-xs text-[var(--clay-text)]/70">Siga o ritmo do círculo</p>
       </div>

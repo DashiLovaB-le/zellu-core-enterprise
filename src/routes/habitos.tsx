@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { MobileShell, Icon } from "@/components/MobileShell";
 
 export const Route = createFileRoute("/habitos")({
@@ -21,8 +21,56 @@ const MEALS = [
 
 function HabitosPage() {
   const [water, setWater] = useState(1200);
+  const [isWaterDragging, setIsWaterDragging] = useState(false);
+  const [sleepQuality, setSleepQuality] = useState(70);
+  const [sleepBounce, setSleepBounce] = useState(false);
   const goal = 2000;
   const pct = Math.min(100, (water / goal) * 100);
+  const barRef = useRef<HTMLDivElement>(null);
+  const sleepBarRef = useRef<HTMLDivElement>(null);
+
+  const getWaterFromEvent = (clientX: number) => {
+    if (!barRef.current) return;
+    const rect = barRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+    return Math.round((x / rect.width) * goal);
+  };
+
+  useEffect(() => {
+    if (!isWaterDragging) return;
+    const onMove = (e: MouseEvent | TouchEvent) => {
+      const cx = "touches" in e ? e.touches[0].clientX : e.clientX;
+      const val = getWaterFromEvent(cx);
+      if (val !== undefined) setWater(val);
+    };
+    const onUp = () => setIsWaterDragging(false);
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("touchmove", onMove);
+    window.addEventListener("touchend", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onUp);
+    };
+  }, [isWaterDragging]);
+
+  const handleSleepChange = (clientX: number) => {
+    if (!sleepBarRef.current) return;
+    const rect = sleepBarRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+    setSleepQuality(Math.round((x / rect.width) * 100));
+    setSleepBounce(true);
+    setTimeout(() => setSleepBounce(false), 300);
+  };
+
+  const getSleepLabel = (val: number) => {
+    if (val < 25) return "Cansado";
+    if (val < 50) return "Moderado";
+    if (val < 75) return "Revigorante";
+    return "Radiante";
+  };
 
   return (
     <MobileShell>
@@ -59,23 +107,35 @@ function HabitosPage() {
           </div>
         </div>
 
-        <div className="relative h-5 w-full overflow-hidden rounded-full bg-white/60 shadow-inner">
+        <div
+          ref={barRef}
+          className="relative h-5 w-full overflow-hidden rounded-full bg-white/60 shadow-inner cursor-pointer"
+          onMouseDown={(e) => {
+            setIsWaterDragging(true);
+            const val = getWaterFromEvent(e.clientX);
+            if (val !== undefined) setWater(val);
+          }}
+          onTouchStart={(e) => {
+            setIsWaterDragging(true);
+            const val = getWaterFromEvent(e.touches[0].clientX);
+            if (val !== undefined) setWater(val);
+          }}
+        >
           <div
-            className="h-full rounded-full transition-all duration-500"
+            className="h-full rounded-full transition-all duration-150"
             style={{
               width: `${pct}%`,
               background: "linear-gradient(90deg, #A9C7E9, #C5D9F1)",
               boxShadow: "inset 1px 1px 2px rgba(255,255,255,0.6)",
             }}
           />
-          <button
-            onClick={() => setWater((w) => Math.min(goal, w + 200))}
-            className="absolute top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full clay-cta"
+          <div
+            className="absolute top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full clay-cta cursor-grab active:cursor-grabbing"
             style={{ left: `calc(${pct}% - 16px)` }}
-            aria-label="Adicionar água"
+            aria-label="Ajustar hidratação"
           >
             <Icon name="water_drop" filled className="text-[16px]" />
-          </button>
+          </div>
         </div>
       </section>
 
@@ -108,7 +168,7 @@ function HabitosPage() {
             <div>
               <p className="text-xs text-[var(--clay-text)]/70">Qualidade da noite</p>
               <p className="font-display text-xl" style={{ color: "var(--clay-self)" }}>
-                Revigorante
+                {getSleepLabel(sleepQuality)}
               </p>
             </div>
             <div className="flex h-10 w-10 items-center justify-center rounded-full clay-soft">
@@ -116,8 +176,13 @@ function HabitosPage() {
             </div>
           </div>
 
-          <div className="relative mt-4 h-24">
-            <svg viewBox="0 0 200 80" className="absolute inset-0 h-full w-full">
+          <div
+            ref={sleepBarRef}
+            className="relative mt-4 h-24 cursor-pointer"
+            onMouseDown={(e) => handleSleepChange(e.clientX)}
+            onTouchStart={(e) => handleSleepChange(e.touches[0].clientX)}
+          >
+            <svg viewBox="0 0 200 80" className="pointer-events-none absolute inset-0 h-full w-full">
               <path
                 d="M 10 70 Q 100 0 190 70"
                 fill="none"
@@ -127,10 +192,15 @@ function HabitosPage() {
               />
             </svg>
             <div
-              className="absolute -top-1 right-4 flex h-10 w-10 items-center justify-center rounded-full clay-cta"
-              style={{ background: "linear-gradient(135deg, #D7CBE8, #C5D9F1)" }}
+              className={`absolute -top-1 flex h-10 w-10 items-center justify-center rounded-full clay-cta transition-all duration-200 ${
+                sleepBounce ? "scale-125" : "scale-100"
+              }`}
+              style={{
+                left: `calc(${10 + sleepQuality * 0.8}%)`,
+                background: "linear-gradient(135deg, #D7CBE8, #C5D9F1)",
+              }}
             >
-              <span className="text-lg">🌙</span>
+              <span className="select-none text-lg">🌙</span>
             </div>
           </div>
 
