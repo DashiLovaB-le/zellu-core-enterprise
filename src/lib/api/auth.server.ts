@@ -32,14 +32,14 @@ export const getProfile = createServerFn({ method: "POST" })
     const supabase = await createClient(data.accessToken);
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getUser(data.accessToken);
     if (!user) return null;
 
     const { data: profile } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     return profile ?? null;
   });
@@ -62,7 +62,7 @@ export const updateProfile = createServerFn({ method: "POST" })
       const supabase = await createClient(data.accessToken);
       const {
         data: { user },
-      } = await supabase.auth.getUser();
+      } = await supabase.auth.getUser(data.accessToken);
       if (!user) return { error: "Unauthorized" };
 
       const payload: Record<string, unknown> = {};
@@ -96,7 +96,7 @@ export const updateEmail = createServerFn({ method: "POST" })
       const supabase = await createClient(data.accessToken);
       const {
         data: { user },
-      } = await supabase.auth.getUser();
+      } = await supabase.auth.getUser(data.accessToken);
       if (!user) return { error: "Unauthorized" };
 
       const { error } = await supabase.auth.updateUser({ email: data.email });

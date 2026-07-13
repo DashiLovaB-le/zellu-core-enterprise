@@ -75,7 +75,7 @@ export const getTodaysCheckin = createServerFn({ method: "POST" })
     const supabase = await createClient(data.accessToken);
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getUser(data.accessToken);
     if (!user) return { data: null, error: null };
 
     const todayStart = new Date();

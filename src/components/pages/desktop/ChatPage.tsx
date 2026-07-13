@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { DesktopShell } from "@/components/DesktopShell";
 import { Avatar } from "@/components/Avatar";
 import type { Msg } from "@/data";
@@ -14,7 +14,36 @@ interface ChatPageProps {
   onQuickReply: (label: string) => void;
 }
 
-const QUICK_REPLIES = ["Suave", "Médio", "Forte"];
+const MAIN_MOODS = [
+  { emoji: "😊", label: "Feliz", value: "feliz" },
+  { emoji: "😌", label: "Calmo", value: "calmo" },
+  { emoji: "😐", label: "Neutro", value: "neutro" },
+  { emoji: "😟", label: "Ansioso", value: "ansioso" },
+  { emoji: "😢", label: "Triste", value: "triste" },
+  { emoji: "😤", label: "Irritado", value: "irritado" },
+];
+
+const EXTRA_MOODS = [
+  { emoji: "🥳", label: "Animado", value: "animado" },
+  { emoji: "😃", label: "Contente", value: "contente" },
+  { emoji: "🤗", label: "Grato", value: "grato" },
+  { emoji: "🧘", label: "Sereno", value: "sereno" },
+  { emoji: "💪", label: "Motivado", value: "motivado" },
+  { emoji: "🎯", label: "Focado", value: "focado" },
+  { emoji: "🙏", label: "Esperançoso", value: "esperancoso" },
+  { emoji: "🤩", label: "Entusiasmado", value: "entusiasmado" },
+  { emoji: "☺️", label: "Orgulhoso", value: "orgulhoso" },
+  { emoji: "🤔", label: "Pensativo", value: "pensativo" },
+  { emoji: "🫤", label: "Confuso", value: "confuso" },
+  { emoji: "😴", label: "Cansado", value: "cansado" },
+  { emoji: "🫂", label: "Acolhido", value: "acolhido" },
+  { emoji: "😰", label: "Preocupado", value: "preocupado" },
+  { emoji: "😥", label: "Inseguro", value: "inseguro" },
+  { emoji: "😞", label: "Desanimado", value: "desanimado" },
+  { emoji: "😡", label: "Bravo", value: "bravo" },
+  { emoji: "🤯", label: "Sobrecarregado", value: "sobrecarregado" },
+  { emoji: "🥺", label: "Carente", value: "carente" },
+];
 
 export function DesktopChatPage({
   messages,
@@ -27,34 +56,48 @@ export function DesktopChatPage({
   onQuickReply,
 }: ChatPageProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [showAllMoods, setShowAllMoods] = useState(false);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isAiThinking]);
+
+  const visibleMoods = showAllMoods ? [...MAIN_MOODS, ...EXTRA_MOODS] : MAIN_MOODS;
 
   return (
     <DesktopShell>
       <div className="flex gap-6">
         <aside className="hidden w-64 shrink-0 lg:block">
           <div className="sticky top-24 rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">
-            <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
-              Como você está?
-            </h3>
-            <div className="flex flex-col gap-2">
-              {QUICK_REPLIES.map((label) => (
+            {messages.length === 0 && (
+              <>
+                <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
+                  Como você se sente?
+                </h3>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {visibleMoods.map((m) => (
+                    <button
+                      key={m.value}
+                      onClick={() => onQuickReply(m.label)}
+                      disabled={isAiThinking}
+                      className="flex flex-col items-center gap-0.5 rounded-xl bg-white/50 p-2 text-center shadow-sm transition-all active:translate-y-px hover:bg-white/70 disabled:opacity-50"
+                    >
+                      <span className="text-xl">{m.emoji}</span>
+                      <span className="text-[9px] font-semibold text-[var(--clay-text)]">{m.label}</span>
+                    </button>
+                  ))}
+                </div>
                 <button
-                  key={label}
-                  onClick={() => onQuickReply(label)}
-                  disabled={isAiThinking}
-                  className="rounded-xl bg-white/50 p-3 text-center text-sm font-semibold text-[var(--clay-text)] shadow-sm active:translate-y-px disabled:opacity-50"
+                  onClick={() => setShowAllMoods(!showAllMoods)}
+                  className="mt-2 w-full rounded-lg bg-white/30 px-3 py-1.5 text-[10px] font-semibold text-[var(--clay-title)]/60 transition-all hover:bg-white/50"
                 >
-                  {label}
+                  {showAllMoods ? "▲ Mostrar menos" : `▼ Ver +${EXTRA_MOODS.length} humores`}
                 </button>
-              ))}
-            </div>
+              </>
+            )}
             {aiSuggestion && (
               <>
-                <h3 className="mb-3 mt-5 text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
+                <h3 className="mb-3 mt-4 text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
                   Sugestão
                 </h3>
                 <button

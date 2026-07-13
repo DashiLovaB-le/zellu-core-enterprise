@@ -91,7 +91,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       const supabase = await createClient(data.accessToken);
       const {
         data: { user },
-      } = await supabase.auth.getUser();
+      } = await supabase.auth.getUser(data.accessToken);
       if (!user) return { error: "Unauthorized" };
 
       const config = await getActiveLlmConfig();
@@ -101,7 +101,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
         .from("profiles")
         .select("display_name")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
       const name = profile?.display_name ?? data.context.userName ?? user.email?.split("@")[0] ?? "Ana";
       const greeting = getGreeting();
 
@@ -207,17 +207,23 @@ export const getContextualGreeting = createServerFn({ method: "POST" })
       const supabase = await createClient(data.accessToken);
       const {
         data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return { greeting: `Bom dia! Que bom ter você aqui hoje.` };
+      } = await supabase.auth.getUser(data.accessToken);
+      if (!user) {
+        const fallbackName = data.context.userName ?? "Ana";
+        return { greeting: `${getGreeting()}, ${fallbackName}! Que bom ter você aqui hoje.` };
+      }
 
       const config = await getActiveLlmConfig();
-      if (!config.api_key) return { greeting: `Bom dia! Que bom ter você aqui hoje.` };
+      if (!config.api_key) {
+        const fallbackName = data.context.userName ?? "Ana";
+        return { greeting: `${getGreeting()}, ${fallbackName}! Que bom ter você aqui hoje.` };
+      }
 
       const { data: profile } = await supabase
         .from("profiles")
         .select("display_name")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
       const name = profile?.display_name ?? data.context.userName ?? user.email?.split("@")[0] ?? "Ana";
       const greeting = getGreeting();
 

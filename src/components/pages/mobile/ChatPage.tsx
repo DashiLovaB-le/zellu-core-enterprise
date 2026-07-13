@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
 import type { Msg } from "@/data";
@@ -14,7 +14,36 @@ interface ChatPageProps {
   onQuickReply: (label: string) => void;
 }
 
-const QUICK_REPLIES = ["Suave", "Médio", "Forte"];
+const MAIN_MOODS = [
+  { emoji: "😊", label: "Feliz", value: "feliz" },
+  { emoji: "😌", label: "Calmo", value: "calmo" },
+  { emoji: "😐", label: "Neutro", value: "neutro" },
+  { emoji: "😟", label: "Ansioso", value: "ansioso" },
+  { emoji: "😢", label: "Triste", value: "triste" },
+  { emoji: "😤", label: "Irritado", value: "irritado" },
+];
+
+const EXTRA_MOODS = [
+  { emoji: "🥳", label: "Animado", value: "animado" },
+  { emoji: "😃", label: "Contente", value: "contente" },
+  { emoji: "🤗", label: "Grato", value: "grato" },
+  { emoji: "🧘", label: "Sereno", value: "sereno" },
+  { emoji: "💪", label: "Motivado", value: "motivado" },
+  { emoji: "🎯", label: "Focado", value: "focado" },
+  { emoji: "🙏", label: "Esperançoso", value: "esperancoso" },
+  { emoji: "🤩", label: "Entusiasmado", value: "entusiasmado" },
+  { emoji: "☺️", label: "Orgulhoso", value: "orgulhoso" },
+  { emoji: "🤔", label: "Pensativo", value: "pensativo" },
+  { emoji: "🫤", label: "Confuso", value: "confuso" },
+  { emoji: "😴", label: "Cansado", value: "cansado" },
+  { emoji: "🫂", label: "Acolhido", value: "acolhido" },
+  { emoji: "😰", label: "Preocupado", value: "preocupado" },
+  { emoji: "😥", label: "Inseguro", value: "inseguro" },
+  { emoji: "😞", label: "Desanimado", value: "desanimado" },
+  { emoji: "😡", label: "Bravo", value: "bravo" },
+  { emoji: "🤯", label: "Sobrecarregado", value: "sobrecarregado" },
+  { emoji: "🥺", label: "Carente", value: "carente" },
+];
 
 export function MobileChatPage({
   messages,
@@ -27,10 +56,13 @@ export function MobileChatPage({
   onQuickReply,
 }: ChatPageProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [showAllMoods, setShowAllMoods] = useState(false);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isAiThinking]);
+
+  const visibleMoods = showAllMoods ? [...MAIN_MOODS, ...EXTRA_MOODS] : MAIN_MOODS;
 
   return (
     <MobileShell>
@@ -60,54 +92,64 @@ export function MobileChatPage({
           </div>
         )}
 
+        {messages.length === 0 && !isAiThinking && (
+          <div className="space-y-1.5">
+            <div className="grid grid-cols-3 gap-1.5">
+              {visibleMoods.map((m) => (
+                <button
+                  key={m.value}
+                  onClick={() => onQuickReply(m.label)}
+                  className="flex flex-col items-center gap-0.5 rounded-xl bg-white/70 p-2 text-center shadow-sm active:translate-y-px"
+                >
+                  <span className="text-lg">{m.emoji}</span>
+                  <span className="text-[8px] font-semibold text-[var(--clay-text)]">{m.label}</span>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowAllMoods(!showAllMoods)}
+              className="w-full rounded-xl bg-white/60 px-3 py-2 text-[11px] font-bold text-[var(--clay-title)]/70 shadow-sm active:translate-y-px"
+            >
+              {showAllMoods ? "▲ Mostrar menos" : `▼ Ver +${EXTRA_MOODS.length} humores`}
+            </button>
+          </div>
+        )}
+
+        {!isAiThinking && messages.length > 0 && messages[messages.length - 1]?.from === "ai" && aiSuggestion && (
+          <button
+            onClick={() =>
+              onQuickReply(
+                aiSuggestion === "respirar"
+                  ? "Vamos respirar"
+                  : aiSuggestion === "agua"
+                    ? "Beber água"
+                    : aiSuggestion === "pausa"
+                      ? "Fazer uma pausa"
+                      : aiSuggestion === "movimento"
+                        ? "Fazer um alongamento"
+                        : "Como está meu humor",
+              )
+            }
+            className="w-full rounded-lg bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 px-4 py-2 text-xs font-semibold text-[var(--clay-title)] shadow-sm active:translate-y-px"
+          >
+            {aiSuggestion === "respirar"
+              ? "🌬️ Respirar"
+              : aiSuggestion === "agua"
+                ? "💧 Beber água"
+                : aiSuggestion === "pausa"
+                  ? "☕ Fazer pausa"
+                  : aiSuggestion === "movimento"
+                    ? "🤸 Alongar"
+                    : aiSuggestion === "humor"
+                      ? "📊 Ver humor"
+                      : aiSuggestion === "sono"
+                        ? "🌙 Ver sono"
+                        : "Sugestão"}
+          </button>
+        )}
+
         <div ref={bottomRef} />
       </main>
-
-      {!isAiThinking && messages.length > 0 && messages[messages.length - 1]?.from === "ai" && (
-        <div className="mt-3 flex flex-wrap justify-center gap-2">
-          {QUICK_REPLIES.map((label) => (
-            <button
-              key={label}
-              onClick={() => onQuickReply(label)}
-              className="rounded-lg bg-white/70 px-4 py-2 text-xs font-semibold text-[var(--clay-text)] shadow-sm active:translate-y-px"
-            >
-              {label}
-            </button>
-          ))}
-          {aiSuggestion && (
-            <button
-              onClick={() =>
-                onQuickReply(
-                  aiSuggestion === "respirar"
-                    ? "Vamos respirar"
-                    : aiSuggestion === "agua"
-                      ? "Beber água"
-                      : aiSuggestion === "pausa"
-                        ? "Fazer uma pausa"
-                        : aiSuggestion === "movimento"
-                          ? "Fazer um alongamento"
-                          : "Como está meu humor",
-                )
-              }
-              className="rounded-lg bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 px-4 py-2 text-xs font-semibold text-[var(--clay-title)] shadow-sm active:translate-y-px"
-            >
-              {aiSuggestion === "respirar"
-                ? "🌬️ Respirar"
-                : aiSuggestion === "agua"
-                  ? "💧 Beber água"
-                  : aiSuggestion === "pausa"
-                    ? "☕ Fazer pausa"
-                    : aiSuggestion === "movimento"
-                      ? "🤸 Alongar"
-                      : aiSuggestion === "humor"
-                        ? "📊 Ver humor"
-                        : aiSuggestion === "sono"
-                          ? "🌙 Ver sono"
-                          : "Sugestão"}
-            </button>
-          )}
-        </div>
-      )}
 
       <div className="fixed bottom-[88px] left-1/2 z-40 w-[calc(100%-2.5rem)] max-w-[400px] -translate-x-1/2">
         <form
