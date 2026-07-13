@@ -1,7 +1,10 @@
 import { Link, useRouterState, type LinkProps } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Icon } from "./Icon";
+import { Avatar } from "./Avatar";
 import { BRANDING } from "@/lib/branding";
+import { useAuth } from "@/lib/auth-context";
+import logo from "@/assets/logo.png";
 
 interface NavItem {
   to: LinkProps["to"];
@@ -10,8 +13,9 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
-  { to: "/", icon: "chat_bubble", label: "Chat" },
+  { to: "/chat", icon: "chat_bubble", label: "Chat" },
   { to: "/checkin", icon: "checklist", label: "Check-in" },
+  { to: "/", icon: "monitoring", label: "Dashboard" },
   { to: "/diario", icon: "auto_stories", label: "Diário" },
   { to: "/meu-bem-estar", icon: "favorite", label: "Bem-estar" },
   { to: "/respiro", icon: "air", label: "Respiro" },
@@ -20,9 +24,22 @@ const NAV: NavItem[] = [
 
 export function MobileShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { user } = useAuth();
 
   return (
-    <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-[440px] flex-col px-5 pb-28 pt-6">
+    <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-[440px] flex-col px-5 pb-28">
+      <header className="sticky top-0 z-50 -mx-5 mb-4 flex items-center justify-between bg-background/70 px-5 py-3 backdrop-blur-lg">
+        <Link to="/" className="flex items-center gap-2">
+          <img src={logo} alt={BRANDING.appName} className="h-8 w-8" />
+          <span className="font-display text-sm text-[var(--clay-title)]">
+            {BRANDING.shortName}
+          </span>
+        </Link>
+        <Link to="/perfil">
+          <Avatar name={user?.user_metadata?.avatar_url} size={32} />
+        </Link>
+      </header>
+
       {children}
 
       <footer className="fixed bottom-[76px] left-1/2 z-40 -translate-x-1/2 text-center">

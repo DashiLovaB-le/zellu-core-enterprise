@@ -15,7 +15,7 @@ export interface BrandingConfig {
 export const BRANDING: BrandingConfig = {
   appName: "Mundo Mental Companion",
   tagline: "Saúde emocional para o seu dia a dia",
-  shortName: "MM Companion",
+  shortName: "Mundo Mental Care",
   description: "Um espaço que acolhe sua mente, dia após dia.",
   themeColor: "#F3EEE1",
   socialImage:

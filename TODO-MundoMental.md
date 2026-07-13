@@ -2,7 +2,7 @@
 
 > Plano de implementação baseado em `P-MundoMental-v1.md.MD`
 > Status atual: ~85% do caminho para apresentação comercial
-> Última atualização: Fase 5 concluída ✅
+> Última atualização: Fase 9 concluída ✅
 
 ---
 
@@ -82,36 +82,36 @@
 
 ---
 
-## Fase 7 — "Hábitos" → "Meu Bem-estar"
+## Fase 7 — "Hábitos" → "Meu Bem-estar" ✅
 
-- [ ] **7.1** Renomear rota `/habitos` → `/meu-bem-estar` (com redirect)
-- [ ] **7.2** Unificar módulos em uma única tela integrada:
-  - [ ] 7.2.1 Água (já existe, integrar)
-  - [ ] 7.2.2 Sono (já existe, integrar)
-  - [ ] 7.2.3 Humor (já existe no diário, integrar)
-  - [ ] 7.2.4 Movimento (novo)
-  - [ ] 7.2.5 Respiração (já existe em `/respiro`, integrar)
-  - [ ] 7.2.6 Energia (novo)
-  - [ ] 7.2.7 Alimentação (já existe, integrar)
-- [ ] **7.3** Criar visão consolidada do dia com todos os indicadores
-
----
-
-## Fase 8 — Diário → Timeline
-
-- [ ] **8.1** Reformular página `/diario` para formato de Timeline
-- [ ] **8.2** Cada entrada da timeline deve conter: emoticon, eventos do dia (conversou com Amora, dormiu 7h, etc.)
-- [ ] **8.3** Manter calendário de humor existente, mas integrado à timeline
-- [ ] **8.4** Frase gerada por IA no topo: "IA percebe evolução."
+- [X] **7.1** Renomear rota `/habitos` → `/meu-bem-estar` (com redirect) — rota `/habitos` redireciona para `/meu-bem-estar`, navegação já aponta para a nova rota
+- [X] **7.2** Unificar módulos em uma única tela integrada — `BemEstarPage` (mobile + desktop) com todos os cards:
+  - [X] 7.2.1 Água (já existe, integrar) — `WaterCard` com slider + botões ±, meta 2000ml
+  - [X] 7.2.2 Sono (já existe, integrar) — `SleepCard` com barra estática e legenda de qualidade
+  - [X] 7.2.3 Humor (já existe no diário, integrar) — `MoodCard` com 6 opções (Feliz, Calmo, Neutro, Ansioso, Triste, Irritado)
+  - [X] 7.2.4 Movimento (novo) — `MovementCard` com slider 0-120 min
+  - [X] 7.2.5 Respiração (já existe em `/respiro`, integrar) — `RespiroCard` com link para `/respiro`
+  - [X] 7.2.6 Energia (novo) — `EnergyCard` com slider e classificação Baixa/Média/Alta
+  - [X] 7.2.7 Alimentação (já existe, integrar) — `MealsCard` com toggle de refeições (Café da Manhã, Almoço, Lanche, Jantar)
+- [X] **7.3** Criar visão consolidada do dia com todos os indicadores — todos os cards em tela única, dados integrados com check-in matinal, botão "Salvar dia" para persistência
 
 ---
 
-## Fase 9 — Dashboard Emocional
+## Fase 8 — Diário → Timeline ✅
 
-- [ ] **9.1** Criar novo dashboard focado em **evolução** (não apenas dados isolados)
-- [ ] **9.2** Métricas como: "Você teve +18% menos ansiedade nos últimos 30 dias"
-- [ ] **9.3** Gráficos de progresso semanal/mensal (recharts já disponível)
-- [ ] **9.4** Comparação de períodos (semana atual vs anterior)
+- [X] **8.1** Reformular página `/diario` para formato de Timeline — novos componentes `MobileTimelinePage` e `DesktopTimelinePage` com dados agregados de `diary_entries`, `checkins`, `habits` e `chat_messages` via `getTimelineData` server function
+- [X] **8.2** Cada entrada da timeline contém: emoticon (baseado no humor do dia), eventos do dia (💬 Conversou com Amora, 🛌 Dormiu 7h, 💧 Bebeu 1500ml, 🏃 Movimento, ⚡ Energia, 🍽️ Refeições, 📝 texto do diário)
+- [X] **8.3** Calendário de humor de 14 dias mantido e integrado à timeline — grid dinâmico com cores mapeadas do banco de dados, destacando o dia atual
+- [X] **8.4** Frase gerada por IA no topo: "IA percebe evolução." — insight dinâmico gerado por análise de padrões (humor predominante, consistência de sono/hidratação/movimento, tom do dia atual), com fallback para mensagens contextuais
+
+---
+
+## Fase 9 — Dashboard Emocional ✅
+
+- [X] **9.1** Criar novo dashboard focado em **evolução** — rota `/dashboard-emocional`, dados agregados de `checkins`, `habits` e `diary_entries` dos últimos 60 dias, com componentes `MobileDashboardEmocionalPage` e `DesktopDashboardEmocionalPage`
+- [X] **9.2** Métricas como: "Você teve +18% menos ansiedade" — insight dinâmico calculando delta de dias ansiosos entre semana atual e anterior; cartões de resumo com dias tracked, humor predominante, média de sono
+- [X] **9.3** Gráficos de progresso semanal/mensal com recharts — `BarChart` (distribuição de humor, comparativo semanal, média semanal), `LineChart` (tendência de humor 30d, tendência de sono 30d)
+- [X] **9.4** Comparação de períodos (semana atual vs anterior) — `BarChart` agrupado comparando sono, água e movimento entre as duas semanas, mais distribuição de humor lado a lado
 
 ---
 

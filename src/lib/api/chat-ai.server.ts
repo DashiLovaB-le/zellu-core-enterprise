@@ -97,7 +97,12 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       const config = await getActiveLlmConfig();
       if (!config.api_key) return { error: "OpenRouter não configurado" };
 
-      const name = data.context.userName ?? user.email?.split("@")[0] ?? "Ana";
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", user.id)
+        .single();
+      const name = profile?.display_name ?? data.context.userName ?? user.email?.split("@")[0] ?? "Ana";
       const greeting = getGreeting();
 
       const systemContent = `${config.system_prompt}
@@ -208,7 +213,12 @@ export const getContextualGreeting = createServerFn({ method: "POST" })
       const config = await getActiveLlmConfig();
       if (!config.api_key) return { greeting: `Bom dia! Que bom ter você aqui hoje.` };
 
-      const name = data.context.userName ?? user.email?.split("@")[0] ?? "Ana";
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", user.id)
+        .single();
+      const name = profile?.display_name ?? data.context.userName ?? user.email?.split("@")[0] ?? "Ana";
       const greeting = getGreeting();
 
       const prompt = `Você é um assistente de bem-estar. Gere uma saudação curta (1 frase) e calorosa para ${name} neste ${greeting.toLowerCase()}.

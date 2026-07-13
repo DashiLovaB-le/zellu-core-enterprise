@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { Icon } from "./Icon";
 import { Avatar } from "./Avatar";
 import { BRANDING } from "@/lib/branding";
+import { useAuth } from "@/lib/auth-context";
+import logo from "@/assets/logo.png";
 
 interface NavItem {
   to: LinkProps["to"];
@@ -19,6 +21,7 @@ const NAV: NavItem[] = [
 
 export function ManagerShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { user } = useAuth();
 
   return (
     <>
@@ -26,12 +29,15 @@ export function ManagerShell({ children }: { children: ReactNode }) {
       <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-[440px] flex-col px-5 pb-28 pt-6 md:hidden">
         <header className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Avatar size={32} />
+            <img src={logo} alt={BRANDING.appName} className="h-8 w-8" />
             <div>
               <span className="font-display text-sm text-[var(--clay-title)]">Painel RH</span>
               <p className="text-[10px] text-[var(--clay-title)]/50">{BRANDING.shortName}</p>
             </div>
           </div>
+          <Link to="/perfil">
+            <Avatar name={user?.user_metadata?.avatar_url} size={32} />
+          </Link>
         </header>
 
         {children}
@@ -79,14 +85,14 @@ export function ManagerShell({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-50 border-b border-border/30 bg-background/70 backdrop-blur-lg">
           <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
             <Link to="/manager" className="flex items-center gap-2">
-              <Avatar size={32} />
+              <img src={logo} alt={BRANDING.appName} className="h-8 w-8" />
               <span className="font-display text-base text-[var(--clay-title)]">
                 {BRANDING.shortName}
               </span>
             </Link>
             <span className="text-xs text-[var(--clay-title)]/50">Painel RH</span>
             <Link to="/perfil">
-              <Avatar size={32} />
+              <Avatar name={user?.user_metadata?.avatar_url} size={32} />
             </Link>
           </div>
         </header>

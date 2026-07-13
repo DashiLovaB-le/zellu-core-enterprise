@@ -1,29 +1,25 @@
-export const MEALS = [
-  {
-    name: "Café da Manhã",
-    emoji: "🥞",
-    tint: "var(--clay-anxiety)",
-    textColor: "#c44a2a",
-  },
-  {
-    name: "Almoço",
-    emoji: "🥗",
-    tint: "var(--clay-joy)",
-    textColor: "#2a6b3a",
-  },
-  {
-    name: "Lanche",
-    emoji: "🍎",
-    tint: "var(--clay-stress)",
-    textColor: "#8a6a1a",
-  },
-  {
-    name: "Jantar",
-    emoji: "🍲",
-    tint: "var(--clay-self)",
-    textColor: "#5a3a8a",
-  },
+export const MAIN_MEALS = [
+  { name: "Café da Manhã", emoji: "🥞" },
+  { name: "Almoço", emoji: "🥗" },
+  { name: "Lanche", emoji: "🍎" },
+  { name: "Jantar", emoji: "🍲" },
 ];
+
+export const EXTRA_MEALS = [
+  { name: "Café Reforçado", emoji: "🥣" },
+  { name: "Brunch", emoji: "🥪" },
+  { name: "Smoothie", emoji: "🥤" },
+  { name: "Café da Tarde", emoji: "☕" },
+  { name: "Chá", emoji: "🍵" },
+  { name: "Salada", emoji: "🥬" },
+  { name: "Sanduíche", emoji: "🥖" },
+  { name: "Petisco", emoji: "🥜" },
+  { name: "Ceia", emoji: "🍿" },
+  { name: "Sobremesa", emoji: "🍫" },
+  { name: "Refeição Livre", emoji: "🍕" },
+];
+
+export const MEALS = [...MAIN_MEALS, ...EXTRA_MEALS];
 
 export const WATER_GOAL = 2000;
 

@@ -15,7 +15,9 @@ import { Route as MeuBemEstarRouteImport } from './routes/meu-bem-estar'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HabitosRouteImport } from './routes/habitos'
 import { Route as DiarioRouteImport } from './routes/diario'
+import { Route as DashboardEmocionalRouteImport } from './routes/dashboard-emocional'
 import { Route as CheckinRouteImport } from './routes/checkin'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ManagerIndexRouteImport } from './routes/manager/index'
 import { Route as DashitecnologyIndexRouteImport } from './routes/dashitecnology/index'
@@ -53,9 +55,19 @@ const DiarioRoute = DiarioRouteImport.update({
   path: '/diario',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardEmocionalRoute = DashboardEmocionalRouteImport.update({
+  id: '/dashboard-emocional',
+  path: '/dashboard-emocional',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckinRoute = CheckinRouteImport.update({
   id: '/checkin',
   path: '/checkin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -91,7 +103,9 @@ const DashitecnologyPainelDevRoute = DashitecnologyPainelDevRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/checkin': typeof CheckinRoute
+  '/dashboard-emocional': typeof DashboardEmocionalRoute
   '/diario': typeof DiarioRoute
   '/habitos': typeof HabitosRoute
   '/login': typeof LoginRoute
@@ -106,7 +120,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/checkin': typeof CheckinRoute
+  '/dashboard-emocional': typeof DashboardEmocionalRoute
   '/diario': typeof DiarioRoute
   '/habitos': typeof HabitosRoute
   '/login': typeof LoginRoute
@@ -122,7 +138,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/checkin': typeof CheckinRoute
+  '/dashboard-emocional': typeof DashboardEmocionalRoute
   '/diario': typeof DiarioRoute
   '/habitos': typeof HabitosRoute
   '/login': typeof LoginRoute
@@ -139,7 +157,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/chat'
     | '/checkin'
+    | '/dashboard-emocional'
     | '/diario'
     | '/habitos'
     | '/login'
@@ -154,7 +174,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/chat'
     | '/checkin'
+    | '/dashboard-emocional'
     | '/diario'
     | '/habitos'
     | '/login'
@@ -169,7 +191,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/chat'
     | '/checkin'
+    | '/dashboard-emocional'
     | '/diario'
     | '/habitos'
     | '/login'
@@ -185,7 +209,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChatRoute: typeof ChatRoute
   CheckinRoute: typeof CheckinRoute
+  DashboardEmocionalRoute: typeof DashboardEmocionalRoute
   DiarioRoute: typeof DiarioRoute
   HabitosRoute: typeof HabitosRoute
   LoginRoute: typeof LoginRoute
@@ -243,11 +269,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiarioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard-emocional': {
+      id: '/dashboard-emocional'
+      path: '/dashboard-emocional'
+      fullPath: '/dashboard-emocional'
+      preLoaderRoute: typeof DashboardEmocionalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkin': {
       id: '/checkin'
       path: '/checkin'
       fullPath: '/checkin'
       preLoaderRoute: typeof CheckinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -297,7 +337,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChatRoute: ChatRoute,
   CheckinRoute: CheckinRoute,
+  DashboardEmocionalRoute: DashboardEmocionalRoute,
   DiarioRoute: DiarioRoute,
   HabitosRoute: HabitosRoute,
   LoginRoute: LoginRoute,

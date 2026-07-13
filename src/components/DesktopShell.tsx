@@ -3,16 +3,19 @@ import type { ReactNode } from "react";
 import { Icon } from "./Icon";
 import { Avatar } from "./Avatar";
 import { BRANDING } from "@/lib/branding";
+import { useAuth } from "@/lib/auth-context";
+import logo from "@/assets/logo.png";
 
 interface NavItem {
-  to: "/" | "/diario" | "/respiro" | "/meu-bem-estar" | "/checkin";
+  to: "/" | "/chat" | "/diario" | "/respiro" | "/meu-bem-estar" | "/checkin";
   icon: string;
   label: string;
 }
 
 const NAV: NavItem[] = [
+  { to: "/", icon: "monitoring", label: "Dashboard" },
   { to: "/checkin", icon: "checklist", label: "Check-in" },
-  { to: "/", icon: "chat_bubble", label: "Chat" },
+  { to: "/chat", icon: "chat_bubble", label: "Chat" },
   { to: "/diario", icon: "auto_stories", label: "Diário" },
   { to: "/meu-bem-estar", icon: "favorite", label: "Bem-estar" },
   { to: "/respiro", icon: "air", label: "Respiro" },
@@ -20,13 +23,14 @@ const NAV: NavItem[] = [
 
 export function DesktopShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 border-b border-border/30 bg-background/70 backdrop-blur-lg">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2">
-            <Avatar size={32} />
+            <img src={logo} alt={BRANDING.appName} className="h-8 w-8" />
             <span className="font-display text-base text-[var(--clay-title)] hidden sm:inline">
               {BRANDING.shortName}
             </span>
@@ -53,7 +57,7 @@ export function DesktopShell({ children }: { children: ReactNode }) {
           </nav>
 
           <Link to="/perfil">
-            <Avatar size={32} />
+            <Avatar name={user?.user_metadata?.avatar_url} size={32} />
           </Link>
         </div>
       </header>

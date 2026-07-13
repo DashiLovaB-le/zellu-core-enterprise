@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
-import { MobileDiarioPage } from "@/components/pages/mobile/DiarioPage";
-import { DesktopDiarioPage } from "@/components/pages/desktop/DiarioPage";
+import { MobileTimelinePage } from "@/components/pages/mobile/TimelinePage";
+import { DesktopTimelinePage } from "@/components/pages/desktop/TimelinePage";
 import { BRANDING } from "@/lib/branding";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
 import { Icon } from "@/components/Icon";
-import { loadDiaryEntries, saveEntry, type DiaryEntry } from "@/lib/services/diario-service";
+import { loadTimeline, type TimelineData } from "@/lib/services/timeline-service";
+import { saveEntry } from "@/lib/services/diario-service";
 
 export const Route = createFileRoute("/diario")({
   head: () => ({
@@ -21,32 +22,35 @@ export const Route = createFileRoute("/diario")({
 function DiarioPage() {
   const { isAuthorized, loading: authLoading } = useRequireAuth("companion");
   const { session } = useAuth();
-  const [entries, setEntries] = useState<DiaryEntry[]>([]);
+  const [timelineData, setTimelineData] = useState<TimelineData | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   const accessToken = session?.access_token ?? null;
 
+  const loadData = useCallback(async () => {
+    if (!accessToken) return;
+    const data = await loadTimeline(accessToken);
+    setTimelineData(data);
+    setLoaded(true);
+  }, [accessToken]);
+
   useEffect(() => {
     if (!accessToken || loaded) return;
-    (async () => {
-      const data = await loadDiaryEntries(accessToken);
-      setEntries(data);
-      setLoaded(true);
-    })();
-  }, [accessToken, loaded]);
+    loadData();
+  }, [accessToken, loaded, loadData]);
 
   const handleSaveEntry = useCallback(
     async (content: string, mood?: string) => {
       if (!accessToken) return;
       const result = await saveEntry(accessToken, { content, mood });
       if (result.data) {
-        setEntries((prev) => [result.data!, ...prev]);
+        loadData();
       }
     },
-    [accessToken],
+    [accessToken, loadData],
   );
 
-  if (authLoading || !isAuthorized) {
+  if (authLoading || !isAuthorized || !timelineData) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center">
         <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
@@ -57,10 +61,10 @@ function DiarioPage() {
   return (
     <>
       <div className="block md:hidden">
-        <MobileDiarioPage entries={entries} onSaveEntry={handleSaveEntry} />
+        <MobileTimelinePage data={timelineData} onSaveEntry={handleSaveEntry} />
       </div>
       <div className="hidden md:block">
-        <DesktopDiarioPage entries={entries} onSaveEntry={handleSaveEntry} />
+        <DesktopTimelinePage data={timelineData} onSaveEntry={handleSaveEntry} />
       </div>
     </>
   );

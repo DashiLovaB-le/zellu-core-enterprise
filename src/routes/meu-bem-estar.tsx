@@ -1,12 +1,12 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useState, useEffect, useCallback } from "react";
 import { MobileBemEstarPage } from "@/components/pages/mobile/BemEstarPage";
 import { DesktopBemEstarPage } from "@/components/pages/desktop/BemEstarPage";
 import { BRANDING } from "@/lib/branding";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
 import { Icon } from "@/components/Icon";
-import { loadHabits, persistHabits } from "@/lib/services/habitos-service";
+import { loadBemEstar, saveBemEstar } from "@/lib/services/habitos-service";
 
 export const Route = createFileRoute("/meu-bem-estar")({
   head: () => ({
@@ -21,7 +21,6 @@ export const Route = createFileRoute("/meu-bem-estar")({
 function BemEstarPage() {
   const { isAuthorized, loading: authLoading } = useRequireAuth("companion");
   const { session } = useAuth();
-  const navigate = useNavigate();
 
   const [water, setWater] = useState(0);
   const [sleepQuality, setSleepQuality] = useState(50);
@@ -30,88 +29,55 @@ function BemEstarPage() {
   const [energyLevel, setEnergyLevel] = useState(50);
   const [meals, setMeals] = useState<string[]>([]);
   const [goal, setGoal] = useState(2000);
+  const [fromCheckin, setFromCheckin] = useState({ water: false, sleep: false, mood: false });
+  const [hasCheckin, setHasCheckin] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
 
   const accessToken = session?.access_token ?? null;
 
   useEffect(() => {
     if (!accessToken || loaded) return;
     (async () => {
-      const data = await loadHabits(accessToken);
-      setWater(data.water);
-      setSleepQuality(data.sleepQuality);
-      setMood(data.mood);
-      setMovementMinutes(data.movementMinutes);
-      setEnergyLevel(data.energyLevel);
-      setMeals(data.meals);
-      setGoal(data.goal);
+      const state = await loadBemEstar(accessToken);
+      setWater(state.water);
+      setSleepQuality(state.sleepQuality);
+      setMood(state.mood);
+      setMovementMinutes(state.movementMinutes);
+      setEnergyLevel(state.energyLevel);
+      setMeals(state.meals);
+      setGoal(state.goal);
+      setFromCheckin(state.fromCheckin);
+      setHasCheckin(state.hasCheckin);
       setLoaded(true);
     })();
   }, [accessToken, loaded]);
 
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const handleSave = useCallback(async () => {
+    if (!accessToken) return;
+    setSaving(true);
+    try {
+      const payload: Parameters<typeof saveBemEstar>[1] = {};
 
-  const persist = useCallback(
-    (partial: Parameters<typeof persistHabits>[1]) => {
-      if (!accessToken) return;
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        persistHabits(accessToken, partial);
-      }, 800);
-    },
-    [accessToken],
-  );
+      if (!fromCheckin.water) payload.waterMl = water;
+      if (!fromCheckin.sleep) payload.sleepQuality = sleepQuality;
+      if (!fromCheckin.mood) payload.mood = mood;
+      payload.movementMinutes = movementMinutes;
+      payload.energyLevel = energyLevel;
+      payload.meals = meals;
 
-  const handleWaterChange = useCallback(
-    (val: number) => {
-      setWater(val);
-      persist({ waterMl: val });
-    },
-    [persist],
-  );
+      await saveBemEstar(accessToken, payload);
+      setLastSaved(new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }));
+    } catch {
+      // silent
+    } finally {
+      setSaving(false);
+    }
+  }, [accessToken, water, sleepQuality, mood, movementMinutes, energyLevel, meals, fromCheckin]);
 
-  const handleSleepChange = useCallback(
-    (val: number) => {
-      setSleepQuality(val);
-      persist({ sleepQuality: val });
-    },
-    [persist],
-  );
-
-  const handleMoodChange = useCallback(
-    (val: string) => {
-      setMood(val);
-      persist({ mood: val });
-    },
-    [persist],
-  );
-
-  const handleMovementChange = useCallback(
-    (val: number) => {
-      setMovementMinutes(val);
-      persist({ movementMinutes: val });
-    },
-    [persist],
-  );
-
-  const handleEnergyChange = useCallback(
-    (val: number) => {
-      setEnergyLevel(val);
-      persist({ energyLevel: val });
-    },
-    [persist],
-  );
-
-  const handleMealToggle = useCallback(
-    (meal: string) => {
-      setMeals((prev) => {
-        const next = prev.includes(meal) ? prev.filter((m) => m !== meal) : [...prev, meal];
-        persist({ meals: next });
-        return next;
-      });
-    },
-    [persist],
-  );
+  const hasEdits = !fromCheckin.water || !fromCheckin.sleep || !fromCheckin.mood ||
+    movementMinutes > 0 || energyLevel !== 50 || meals.length > 0;
 
   if (authLoading || !isAuthorized) {
     return (
@@ -132,12 +98,20 @@ function BemEstarPage() {
           energyLevel={energyLevel}
           meals={meals}
           goal={goal}
-          onWaterChange={handleWaterChange}
-          onSleepChange={handleSleepChange}
-          onMoodChange={handleMoodChange}
-          onMovementChange={handleMovementChange}
-          onEnergyChange={handleEnergyChange}
-          onMealToggle={handleMealToggle}
+          fromCheckin={fromCheckin}
+          hasCheckin={hasCheckin}
+          saving={saving}
+          lastSaved={lastSaved}
+          hasEdits={hasEdits}
+          onSave={handleSave}
+          onWaterChange={setWater}
+          onSleepChange={setSleepQuality}
+          onMoodChange={setMood}
+          onMovementChange={setMovementMinutes}
+          onEnergyChange={setEnergyLevel}
+          onMealToggle={(meal) => setMeals((prev) =>
+            prev.includes(meal) ? prev.filter((m) => m !== meal) : [...prev, meal]
+          )}
         />
       </div>
       <div className="hidden md:block">
@@ -149,12 +123,20 @@ function BemEstarPage() {
           energyLevel={energyLevel}
           meals={meals}
           goal={goal}
-          onWaterChange={handleWaterChange}
-          onSleepChange={handleSleepChange}
-          onMoodChange={handleMoodChange}
-          onMovementChange={handleMovementChange}
-          onEnergyChange={handleEnergyChange}
-          onMealToggle={handleMealToggle}
+          fromCheckin={fromCheckin}
+          hasCheckin={hasCheckin}
+          saving={saving}
+          lastSaved={lastSaved}
+          hasEdits={hasEdits}
+          onSave={handleSave}
+          onWaterChange={setWater}
+          onSleepChange={setSleepQuality}
+          onMoodChange={setMood}
+          onMovementChange={setMovementMinutes}
+          onEnergyChange={setEnergyLevel}
+          onMealToggle={(meal) => setMeals((prev) =>
+            prev.includes(meal) ? prev.filter((m) => m !== meal) : [...prev, meal]
+          )}
         />
       </div>
     </>
