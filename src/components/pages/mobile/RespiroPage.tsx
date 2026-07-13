@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { MobileShell } from "@/components/MobileShell";
+import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 import { SOUNDS, BREATH_PHASES } from "@/data";
 import { BRANDING } from "@/lib/branding";
@@ -30,51 +31,29 @@ export function MobileRespiroPage({ activeSound, onSoundToggle }: RespiroPagePro
     <MobileShell>
       <header className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full clay-cta">
-            <Icon name="cloud" filled />
-          </div>
-          <span className="font-display text-lg text-[var(--clay-title)]">{BRANDING.shortName}</span>
+          <Avatar size={32} />
+          <span className="font-display text-sm text-[var(--clay-title)]">{BRANDING.shortName}</span>
         </div>
-        <button className="flex h-10 w-10 items-center justify-center rounded-full clay-soft text-[var(--clay-title)]">
-          <Icon name="person" filled />
-        </button>
       </header>
 
-      <h1 className="font-display text-3xl text-[var(--clay-title)]">Espaço do Respiro</h1>
-      <p className="mt-1 text-sm text-[var(--clay-text)]/80">
+      <h1 className="font-display text-xl text-[var(--clay-title)]">Espaço do Respiro</h1>
+      <p className="mt-1 text-xs text-[var(--clay-text)]/70">
         Faça uma pausa. O mundo pode esperar um minuto.
       </p>
 
-      <button
-        className="mt-5 flex w-full items-center gap-4 p-4 text-left clay-soft active:translate-y-px"
-        style={{
-          background: "linear-gradient(135deg, rgba(245,214,193,0.55), rgba(249,231,181,0.5))",
-        }}
-      >
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/90 shadow-inner">
-          <Icon name="favorite" filled className="text-[#c44545]" />
-        </div>
-        <div>
-          <p className="font-display text-base text-[#a14a2a]">Precisa de ajuda agora?</p>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[#a14a2a]/70">
-            (Botão do pânico)
-          </p>
-        </div>
-      </button>
-
-      <div className="my-10 flex flex-col items-center">
-        <div className="relative flex h-64 w-64 items-center justify-center">
+      <div className="my-8 flex flex-col items-center">
+        <div className="relative flex h-56 w-56 items-center justify-center">
           <div
             className="absolute inset-0 rounded-full animate-breathe"
             style={{
               background:
-                "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(169,199,233,0.55) 60%, rgba(169,199,233,0.25) 100%)",
+                "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(153,190,229,0.4) 60%, rgba(153,190,229,0.15) 100%)",
               boxShadow:
-                "0 30px 60px rgba(142,163,193,0.35), inset 8px 8px 20px rgba(255,255,255,0.9), inset -8px -8px 20px rgba(142,163,193,0.18)",
+                "0 20px 40px rgba(74,106,138,0.15), inset 4px 4px 12px rgba(255,255,255,0.7), inset -4px -4px 12px rgba(74,106,138,0.08)",
             }}
           />
           <p
-            className="relative font-display text-2xl text-[var(--clay-title)] transition-all duration-300"
+            className="relative font-display text-xl text-[var(--clay-title)] transition-all duration-300"
             style={{
               opacity: fadeIn ? 1 : 0,
               transform: `scale(${fadeIn ? 1 : 0.85})`,
@@ -83,35 +62,32 @@ export function MobileRespiroPage({ activeSound, onSoundToggle }: RespiroPagePro
             {BREATH_PHASES[phaseIndex].text}
           </p>
         </div>
-        <p className="mt-4 text-xs text-[var(--clay-text)]/70">Siga o ritmo do círculo</p>
+        <p className="mt-3 text-[10px] text-[var(--clay-title)]/60">Siga o ritmo do círculo</p>
       </div>
 
       <section>
-        <h3 className="mb-3 font-display text-base text-[var(--clay-title)]">
-          Sons para sintonizar
+        <h3 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
+          Sons
         </h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           {SOUNDS.map((s) => {
             const isActive = activeSound === s.name;
             return (
               <button
                 key={s.name}
                 onClick={() => onSoundToggle(isActive ? null : s.name)}
-                className={`flex flex-col items-center gap-2 p-4 transition-all ${
-                  isActive ? "clay-pressed" : "clay-soft"
+                className={`flex items-center gap-2 rounded-xl p-3 transition-all ${
+                  isActive
+                    ? "bg-white/80 shadow-sm"
+                    : "bg-white/50 shadow-sm"
                 }`}
               >
                 <span
-                  className="flex h-12 w-12 items-center justify-center rounded-full"
-                  style={{
-                    background: `linear-gradient(135deg, ${s.color}, color-mix(in oklab, ${s.color} 60%, white))`,
-                    boxShadow:
-                      "inset 2px 2px 4px rgba(255,255,255,0.7), inset -2px -2px 4px rgba(142,163,193,0.15)",
-                  }}
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/70 shadow-sm"
                 >
-                  <Icon name={s.icon} filled className="text-[var(--clay-text)]" />
+                  <Icon name={s.icon} filled className="text-sm text-[var(--clay-text)]" />
                 </span>
-                <span className="text-sm font-semibold text-[var(--clay-text)]">{s.name}</span>
+                <span className="text-xs font-semibold text-[var(--clay-text)]">{s.name}</span>
               </button>
             );
           })}

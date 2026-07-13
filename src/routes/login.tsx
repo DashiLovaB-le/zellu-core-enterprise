@@ -1,0 +1,147 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { useAuth, type UserRole } from "@/lib/auth-context";
+import { Avatar } from "@/components/Avatar";
+import { Icon } from "@/components/Icon";
+
+export const Route = createFileRoute("/login")({
+  head: () => ({
+    meta: [
+      { title: "Entrar" },
+      { name: "description", content: "Acesse sua conta." },
+    ],
+  }),
+  component: LoginPage,
+});
+
+function LoginPage() {
+  const { signIn, signUp, loading, user, role } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserRole>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  if (user && role) {
+    const target = role === "manager" ? "/manager" : "/";
+    navigate({ to: target, replace: true });
+    return null;
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (isSignUp) {
+      if (!selectedRole) {
+        setError("Selecione seu tipo de acesso.");
+        return;
+      }
+      const result = await signUp(email, password, selectedRole);
+      if (result.error) setError(result.error);
+    } else {
+      const result = await signIn(email, password);
+      if (result.error) setError(result.error);
+    }
+  };
+
+  return (
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center px-6">
+      <div className="mb-8 flex flex-col items-center gap-3">
+        <Avatar size={56} />
+        <h1 className="font-display text-xl text-[var(--clay-title)]">Mundo Mental</h1>
+        <p className="text-center text-sm text-[var(--clay-text)]/70">
+          {isSignUp ? "Crie sua conta para começar" : "Acesse sua conta"}
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-3">
+        <div>
+          <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
+            E-mail
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full rounded-xl bg-white/70 px-3 py-2.5 text-sm text-[var(--clay-text)] outline-none shadow-sm placeholder:text-[var(--clay-title)]/50"
+            placeholder="seu@email.com"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
+            Senha
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+            className="w-full rounded-xl bg-white/70 px-3 py-2.5 text-sm text-[var(--clay-text)] outline-none shadow-sm placeholder:text-[var(--clay-title)]/50"
+            placeholder="mínimo 6 caracteres"
+          />
+        </div>
+
+        {isSignUp && (
+          <div>
+            <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
+              Tipo de acesso
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedRole("companion")}
+                className={`flex-1 rounded-xl p-3 text-center text-xs font-semibold transition-all ${
+                  selectedRole === "companion"
+                    ? "bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] text-[oklch(0.25_0.04_254)] shadow-sm"
+                    : "bg-white/50 text-[var(--clay-text)] shadow-sm"
+                }`}
+              >
+                <Icon name="person" className="mb-1 block text-base" />
+                Colaborador
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedRole("manager")}
+                className={`flex-1 rounded-xl p-3 text-center text-xs font-semibold transition-all ${
+                  selectedRole === "manager"
+                    ? "bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] text-[oklch(0.25_0.04_254)] shadow-sm"
+                    : "bg-white/50 text-[var(--clay-text)] shadow-sm"
+                }`}
+              >
+                <Icon name="business" className="mb-1 block text-base" />
+                RH / Gestor
+              </button>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <p className="text-center text-xs text-red-500">{error}</p>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-xl bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] py-2.5 text-sm font-bold text-[oklch(0.25_0.04_254)] shadow-sm active:translate-y-px disabled:opacity-50"
+        >
+          {loading ? "Entrando..." : isSignUp ? "Criar conta" : "Entrar"}
+        </button>
+      </form>
+
+      <p className="mt-5 text-xs text-[var(--clay-title)]/60">
+        {isSignUp ? "Já tem conta?" : "Não tem conta?"}{" "}
+        <button
+          onClick={() => { setIsSignUp(!isSignUp); setError(null); }}
+          className="font-semibold text-[var(--clay-cta)] underline"
+        >
+          {isSignUp ? "Fazer login" : "Criar conta"}
+        </button>
+      </p>
+    </div>
+  );
+}

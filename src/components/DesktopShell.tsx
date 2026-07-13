@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Icon } from "./Icon";
+import { Avatar } from "./Avatar";
 import { BRANDING } from "@/lib/branding";
 
 interface NavItem {
@@ -21,13 +22,11 @@ export function DesktopShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-lg">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+      <header className="sticky top-0 z-50 border-b border-border/30 bg-background/70 backdrop-blur-lg">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full clay-cta">
-              <Icon name="cloud" filled />
-            </div>
-            <span className="font-display text-lg text-[var(--clay-title)] hidden sm:inline">
+            <Avatar size={32} />
+            <span className="font-display text-base text-[var(--clay-title)] hidden sm:inline">
               {BRANDING.shortName}
             </span>
           </Link>
@@ -39,27 +38,29 @@ export function DesktopShell({ children }: { children: ReactNode }) {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
-                    active ? "clay-cta" : "text-[var(--clay-title)] hover:bg-white/40"
+                  className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
+                    active
+                      ? "bg-white/70 text-[var(--clay-title)] shadow-sm"
+                      : "text-[var(--clay-title)]/60 hover:bg-white/40"
                   }`}
                 >
-                  <Icon name={item.icon} filled={active} />
+                  <Icon name={item.icon} filled={active} className="text-base" />
                   <span className="hidden sm:inline">{item.label}</span>
                 </Link>
               );
             })}
           </nav>
 
-          <button className="flex h-9 w-9 items-center justify-center rounded-full clay-soft text-[var(--clay-title)]">
-            <Icon name="person" filled />
-          </button>
+          <Link to="/perfil">
+            <Avatar size={32} />
+          </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+      <main className="mx-auto max-w-6xl px-6 py-6">{children}</main>
 
       <footer className="border-t border-border/20 py-3 text-center">
-        <p className="text-[10px] text-[var(--clay-title)]/40">{BRANDING.poweredBy}</p>
+        <p className="text-[10px] text-[var(--clay-title)]/30">{BRANDING.poweredBy}</p>
       </footer>
     </div>
   );

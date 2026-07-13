@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { DesktopShell } from "@/components/DesktopShell";
-import { Icon } from "@/components/Icon";
+import { Avatar } from "@/components/Avatar";
 import type { Msg } from "@/data";
 
 interface ChatPageProps {
@@ -19,9 +19,9 @@ export function DesktopChatPage({ messages, draft, onDraftChange, onSend }: Chat
     <DesktopShell>
       <div className="flex gap-6">
         {showPanel && (
-          <aside className="hidden w-72 shrink-0 lg:block">
-            <div className="sticky top-24 p-5 clay-card">
-              <h3 className="mb-3 font-display text-sm font-bold uppercase tracking-wider text-[var(--clay-title)]">
+          <aside className="hidden w-64 shrink-0 lg:block">
+            <div className="sticky top-24 rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">
+              <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
                 Sugestões
               </h3>
               <div className="flex flex-col gap-2">
@@ -33,21 +33,21 @@ export function DesktopChatPage({ messages, draft, onDraftChange, onSend }: Chat
                   <button
                     key={s}
                     onClick={() => onSend(s)}
-                    className="rounded-xl p-3 text-left text-sm text-[var(--clay-text)] clay-soft hover:bg-white/60 active:translate-y-px"
+                    className="rounded-xl bg-white/50 p-3 text-left text-sm text-[var(--clay-text)] shadow-sm active:translate-y-px"
                   >
                     {s}
                   </button>
                 ))}
               </div>
-              <h3 className="mb-3 mt-6 font-display text-sm font-bold uppercase tracking-wider text-[var(--clay-title)]">
-                Escala de Intensidade
+              <h3 className="mb-3 mt-5 text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
+                Intensidade
               </h3>
               <div className="flex flex-col gap-2">
                 {QUICK_REPLIES.map((label) => (
                   <button
                     key={label}
                     onClick={() => onSend(label)}
-                    className="rounded-xl p-3 text-center text-sm font-semibold text-[var(--clay-text)] clay-soft hover:bg-white/60 active:translate-y-px"
+                    className="rounded-xl bg-white/50 p-3 text-center text-sm font-semibold text-[var(--clay-text)] shadow-sm active:translate-y-px"
                   >
                     {label}
                   </button>
@@ -58,19 +58,19 @@ export function DesktopChatPage({ messages, draft, onDraftChange, onSend }: Chat
         )}
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="mb-6 flex items-center gap-4 rounded-2xl p-5 clay-card">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full clay-cta">
-              <Icon name="cloud" filled className="text-[28px]" />
-            </div>
+          <header className="mb-5 flex items-center gap-4 rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">
+            <Avatar size={48} />
             <div className="flex-1">
-              <h1 className="font-display text-xl text-[var(--clay-title)]">Bom dia, Ana</h1>
-              <p className="text-sm text-[var(--clay-text)]/70">Que bom ter você aqui hoje</p>
+              <h1 className="font-display text-lg text-[var(--clay-title)]">Bom dia, Ana</h1>
+              <p className="text-sm text-[var(--clay-title)]/60">Que bom ter você aqui hoje</p>
             </div>
             <button
               onClick={() => setShowPanel(!showPanel)}
-              className="hidden h-9 w-9 items-center justify-center rounded-full clay-soft lg:flex"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/60 shadow-sm lg:flex"
             >
-              <Icon name={showPanel ? "close" : "menu"} />
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--clay-title)]">
+                {showPanel ? <path d="M18 6L6 18M6 6l12 12" /> : <path d="M4 6h16M4 12h16M4 18h16" />}
+              </svg>
             </button>
           </header>
 
@@ -85,30 +85,22 @@ export function DesktopChatPage({ messages, draft, onDraftChange, onSend }: Chat
               e.preventDefault();
               onSend(draft);
             }}
-            className="mt-4 flex items-center gap-3 rounded-2xl p-2 clay-card"
+            className="mt-4 flex items-center gap-3 rounded-2xl bg-white/80 p-2 shadow-sm backdrop-blur-md"
           >
-            <button
-              type="button"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--clay-title)]"
-            >
-              <Icon name="add" />
-            </button>
             <input
               value={draft}
               onChange={(e) => onDraftChange(e.target.value)}
               placeholder="Como você está se sentindo agora?"
-              className="h-11 flex-1 bg-transparent text-sm text-[var(--clay-text)] outline-none placeholder:text-[var(--clay-title)]/70"
+              className="h-10 flex-1 bg-transparent px-3 text-sm text-[var(--clay-text)] outline-none placeholder:text-[var(--clay-title)]/60"
             />
             <button
               type="submit"
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white"
-              style={{
-                background: "linear-gradient(135deg, #D7CBE8, #A9C7E9)",
-                boxShadow:
-                  "inset 2px 2px 4px rgba(255,255,255,0.5), inset -2px -2px 4px rgba(142,163,193,0.2), 0 6px 14px rgba(142,163,193,0.25)",
-              }}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] text-white shadow-sm"
             >
-              <Icon name="mic" filled />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 2L11 13" />
+                <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+              </svg>
             </button>
           </form>
         </div>
@@ -122,24 +114,13 @@ function Bubble({ msg }: { msg: Msg }) {
   return (
     <div className={`flex ${isAi ? "justify-start" : "justify-end"}`}>
       <div
-        className={`max-w-[70%] p-4 text-[15px] leading-relaxed clay-soft ${
+        className={`max-w-[65%] p-3 text-sm leading-relaxed ${
           isAi
-            ? "rounded-t-3xl rounded-br-3xl rounded-bl-md"
-            : "rounded-t-3xl rounded-bl-3xl rounded-br-md"
+            ? "rounded-2xl rounded-bl-md bg-white/70 shadow-sm text-[var(--clay-text)]"
+            : "rounded-2xl rounded-br-md bg-gradient-to-br from-[#C8E6C9]/60 to-[#D7CBE8]/50 shadow-sm text-[var(--clay-text)]"
         }`}
-        style={
-          isAi
-            ? {
-                background:
-                  "linear-gradient(135deg, rgba(169,199,233,0.55), rgba(197,217,241,0.55))",
-              }
-            : {
-                background:
-                  "linear-gradient(135deg, rgba(200,230,201,0.6), rgba(215,203,232,0.55))",
-              }
-        }
       >
-        <p className="text-[var(--clay-text)]">{msg.text}</p>
+        {msg.text}
       </div>
     </div>
   );

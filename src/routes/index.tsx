@@ -4,6 +4,8 @@ import { MobileChatPage } from "@/components/pages/mobile/ChatPage";
 import { DesktopChatPage } from "@/components/pages/desktop/ChatPage";
 import { INITIAL_MESSAGES, AI_RESPONSE } from "@/data";
 import type { Msg } from "@/data";
+import { useRequireAuth } from "@/lib/use-require-auth";
+import { Icon } from "@/components/Icon";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -16,8 +18,17 @@ export const Route = createFileRoute("/")({
 });
 
 function ChatPage() {
+  const { isAuthorized, loading } = useRequireAuth("companion");
   const [messages, setMessages] = useState<Msg[]>(INITIAL_MESSAGES);
   const [draft, setDraft] = useState("");
+
+  if (loading || !isAuthorized) {
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center">
+        <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+      </div>
+    );
+  }
 
   const send = (text: string) => {
     if (!text.trim()) return;

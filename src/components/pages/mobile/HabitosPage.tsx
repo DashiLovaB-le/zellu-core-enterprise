@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { MobileShell } from "@/components/MobileShell";
+import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 import { MEALS, WATER_GOAL, getSleepLabel } from "@/data";
 
@@ -61,44 +62,32 @@ export function MobileHabitosPage({
 
   return (
     <MobileShell>
-      <header className="mb-5 p-5 text-center clay-card">
-        <h1 className="font-display text-2xl text-[var(--clay-title)]">Meus Hábitos</h1>
-        <p className="mt-1 text-sm text-[var(--clay-text)]/80">
-          Cuidar do corpo é o primeiro passo para acolher a mente.
-        </p>
-      </header>
-
-      <section
-        className="mb-6 p-5 clay-card"
-        style={{
-          background: "linear-gradient(160deg, rgba(211,228,255,0.7), rgba(255,255,255,0.85))",
-        }}
-      >
-        <div className="text-center">
-          <h2 className="font-display text-xl text-[var(--clay-title)]">
-            Dê um gole na sua hidratação.
-          </h2>
-          <p className="mt-1 text-sm font-semibold text-[var(--clay-cta)]">
-            {water} ml inseridos hoje
+      <header className="mb-4 flex items-center gap-3">
+        <Avatar size={36} />
+        <div>
+          <h1 className="font-display text-xl text-[var(--clay-title)]">Meus Hábitos</h1>
+          <p className="text-xs text-[var(--clay-text)]/70">
+            Cuidar do corpo é o primeiro passo para acolher a mente.
           </p>
         </div>
+      </header>
 
-        <div className="my-5 flex justify-center">
-          <div className="relative h-32 w-24 overflow-hidden rounded-2xl border-2 border-white/80 bg-white/50 shadow-inner">
-            <div
-              className="absolute bottom-0 left-0 right-0 transition-all duration-500"
-              style={{
-                height: `${pct}%`,
-                background: "linear-gradient(180deg, #C5D9F1, #A9C7E9 80%)",
-                boxShadow: "inset 2px 4px 8px rgba(255,255,255,0.6)",
-              }}
-            />
+      <section className="mb-5 rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-display text-base text-[var(--clay-title)]">Hidratação</h2>
+            <p className="mt-0.5 text-xs font-semibold text-[var(--clay-cta)]">
+              {water} ml de {WATER_GOAL} ml
+            </p>
+          </div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/60 shadow-sm">
+            <Icon name="water_drop" filled className="text-sm text-[var(--clay-cta)]" />
           </div>
         </div>
 
         <div
           ref={barRef}
-          className="relative h-5 w-full overflow-hidden rounded-full bg-white/60 shadow-inner cursor-pointer"
+          className="relative mt-3 h-2 w-full overflow-hidden rounded-full bg-white/50 shadow-inner cursor-pointer"
           onMouseDown={(e) => {
             setIsWaterDragging(true);
             const val = getWaterFromEvent(e.clientX);
@@ -111,40 +100,26 @@ export function MobileHabitosPage({
           }}
         >
           <div
-            className="h-full rounded-full transition-all duration-150"
-            style={{
-              width: `${pct}%`,
-              background: "linear-gradient(90deg, #A9C7E9, #C5D9F1)",
-              boxShadow: "inset 1px 1px 2px rgba(255,255,255,0.6)",
-            }}
+            className="h-full rounded-full transition-all duration-150 bg-gradient-to-r from-[#99BEE5] to-[#C5D9F1]"
+            style={{ width: `${pct}%` }}
           />
-          <div
-            className="absolute top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full clay-cta cursor-grab active:cursor-grabbing"
-            style={{ left: `calc(${pct}% - 16px)` }}
-            aria-label="Ajustar hidratação"
-          >
-            <Icon name="water_drop" filled className="text-[16px]" />
-          </div>
         </div>
       </section>
 
-      <section className="mb-6">
-        <h3 className="mb-3 font-display text-base text-[var(--clay-title)]">
-          Alimentação Afetiva
+      <section className="mb-5">
+        <h3 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
+          Alimentação
         </h3>
-        <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-2">
+        <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
           {MEALS.map((m) => (
             <button
               key={m.name}
-              className="flex w-32 shrink-0 flex-col items-center gap-3 p-4 clay-soft"
-              style={{
-                background: `linear-gradient(160deg, color-mix(in oklab, ${m.tint} 80%, white), rgba(255,255,255,0.7))`,
-              }}
+              className="flex w-28 shrink-0 flex-col items-center gap-2 rounded-xl bg-white/60 p-3 shadow-sm"
             >
-              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/80 text-3xl shadow-inner">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/70 text-xl shadow-sm">
                 {m.emoji}
               </span>
-              <span className="text-sm font-bold" style={{ color: m.textColor }}>
+              <span className="text-xs font-semibold" style={{ color: m.textColor }}>
                 {m.name}
               </span>
             </button>
@@ -153,54 +128,48 @@ export function MobileHabitosPage({
       </section>
 
       <section>
-        <h3 className="mb-3 font-display text-base text-[var(--clay-title)]">
-          Monitoramento do Sono
+        <h3 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
+          Sono
         </h3>
-        <div className="p-5 clay-card">
+        <div className="rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs text-[var(--clay-text)]/70">Qualidade da noite</p>
-              <p className="font-display text-xl" style={{ color: "var(--clay-self)" }}>
+              <p className="text-xs text-[var(--clay-title)]/60">Qualidade da noite</p>
+              <p className="font-display text-lg" style={{ color: "var(--clay-self)" }}>
                 {getSleepLabel(sleepQuality)}
               </p>
             </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full clay-soft">
-              <Icon name="bedtime" filled className="text-[var(--clay-self)]" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/60 shadow-sm">
+              <Icon name="bedtime" filled className="text-sm text-[var(--clay-self)]" />
             </div>
           </div>
 
           <div
             ref={sleepBarRef}
-            className="relative mt-4 h-24 cursor-pointer"
+            className="relative mt-3 h-20 cursor-pointer"
             onMouseDown={(e) => handleSleepChange(e.clientX)}
             onTouchStart={(e) => handleSleepChange(e.touches[0].clientX)}
           >
-            <svg
-              viewBox="0 0 200 80"
-              className="pointer-events-none absolute inset-0 h-full w-full"
-            >
+            <svg viewBox="0 0 200 70" className="pointer-events-none absolute inset-0 h-full w-full">
               <path
-                d="M 10 70 Q 100 0 190 70"
+                d="M 10 60 Q 100 0 190 60"
                 fill="none"
-                stroke="rgba(142,163,193,0.3)"
-                strokeWidth="3"
+                stroke="rgba(142,163,193,0.2)"
+                strokeWidth="2"
                 strokeLinecap="round"
               />
             </svg>
             <div
-              className={`absolute -top-1 flex h-10 w-10 items-center justify-center rounded-full clay-cta transition-all duration-200 ${
+              className={`absolute -top-1 flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#D7CBE8] to-[#C5D9F1] shadow-sm transition-all duration-200 ${
                 sleepBounce ? "scale-125" : "scale-100"
               }`}
-              style={{
-                left: `calc(${10 + sleepQuality * 0.8}%)`,
-                background: "linear-gradient(135deg, #D7CBE8, #C5D9F1)",
-              }}
+              style={{ left: `calc(${10 + sleepQuality * 0.8}%)` }}
             >
-              <span className="select-none text-lg">🌙</span>
+              <span className="select-none text-sm">🌙</span>
             </div>
           </div>
 
-          <div className="mt-2 flex justify-between text-xs text-[var(--clay-text)]/70">
+          <div className="mt-1 flex justify-between text-[10px] text-[var(--clay-title)]/60">
             <span>Cansado</span>
             <span>Radiante</span>
           </div>

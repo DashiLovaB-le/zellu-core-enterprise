@@ -47,14 +47,14 @@
 }
 
 :root {
-  --radius: 1.25rem;
+  --radius: 1rem;
 
-  /* Clay palette */
+  /* Clay palette — refined for premium */
   --clay-cream: oklch(0.945 0.022 84);          /* #F3EEE1 */
-  --clay-title: oklch(0.71 0.045 254);          /* #8EA3C1 */
-  --clay-text: oklch(0.48 0.03 260);            /* #5A677D */
-  --clay-cta: oklch(0.82 0.05 250);             /* #A9C7E9 */
-  --clay-cta-2: oklch(0.88 0.035 250);          /* #C5D9F1 */
+  --clay-title: oklch(0.55 0.04 254);           /* #4A6A8A — mais contraste */
+  --clay-text: oklch(0.38 0.025 260);           /* #3D4A5C — mais legível */
+  --clay-cta: oklch(0.78 0.045 250);            /* #99BEE5 */
+  --clay-cta-2: oklch(0.85 0.03 250);           /* #C5D9F1 */
   --clay-anxiety: oklch(0.88 0.045 50);         /* #F5D6C1 */
   --clay-stress: oklch(0.93 0.06 95);           /* #F9E7B5 */
   --clay-self: oklch(0.84 0.05 305);            /* #D7CBE8 */
@@ -67,13 +67,13 @@
   --popover: oklch(1 0 0);
   --popover-foreground: var(--clay-text);
   --primary: var(--clay-cta);
-  --primary-foreground: oklch(0.3 0.05 254);
+  --primary-foreground: oklch(0.25 0.04 254);
   --secondary: var(--clay-self);
   --secondary-foreground: oklch(0.3 0.05 290);
   --muted: oklch(0.92 0.018 84);
   --muted-foreground: var(--clay-title);
   --accent: var(--clay-cta-2);
-  --accent-foreground: oklch(0.3 0.05 254);
+  --accent-foreground: oklch(0.25 0.04 254);
   --destructive: oklch(0.65 0.18 25);
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.88 0.02 80);
@@ -96,63 +96,70 @@
     color: var(--color-foreground);
     font-family: var(--font-body);
     background-image:
-      radial-gradient(at 20% 0%, oklch(0.96 0.03 60 / 0.6) 0px, transparent 50%),
-      radial-gradient(at 80% 100%, oklch(0.9 0.04 250 / 0.35) 0px, transparent 50%);
+      radial-gradient(at 20% 0%, oklch(0.96 0.03 60 / 0.4) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, oklch(0.9 0.04 250 / 0.25) 0px, transparent 50%);
     background-attachment: fixed;
   }
 
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
     color: var(--clay-title);
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
 }
 
 @utility clay-card {
-  background-color: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(14px) saturate(140%);
+  background-color: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(12px) saturate(130%);
   box-shadow:
-    0px 12px 24px rgba(142, 163, 193, 0.18),
-    inset 4px 4px 8px rgba(255, 255, 255, 0.9),
-    inset -4px -4px 10px rgba(142, 163, 193, 0.08);
-  border-radius: 1.5rem;
+    0px 4px 12px rgba(74, 106, 138, 0.08),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.8),
+    inset -2px -2px 6px rgba(74, 106, 138, 0.04);
+  border-radius: 1.25rem;
 }
 
 @utility clay-soft {
-  background-color: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(8px);
   box-shadow:
-    0px 6px 14px rgba(142, 163, 193, 0.12),
-    inset 2px 2px 6px rgba(255, 255, 255, 0.9),
-    inset -2px -2px 6px rgba(142, 163, 193, 0.06);
-  border-radius: 1.25rem;
+    0px 2px 8px rgba(74, 106, 138, 0.06),
+    inset 1px 1px 3px rgba(255, 255, 255, 0.8),
+    inset -1px -1px 3px rgba(74, 106, 138, 0.03);
+  border-radius: 1rem;
 }
 
 @utility clay-pressed {
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.55);
   box-shadow:
-    inset 4px 4px 10px rgba(142, 163, 193, 0.18),
-    inset -4px -4px 10px rgba(255, 255, 255, 0.9);
-  border-radius: 1.25rem;
+    inset 3px 3px 6px rgba(74, 106, 138, 0.1),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.7);
+  border-radius: 1rem;
 }
 
 @utility clay-cta {
-  background-image: linear-gradient(135deg, #A9C7E9, #C5D9F1);
-  color: oklch(0.3 0.05 254);
+  background-image: linear-gradient(135deg, #99BEE5, #C5D9F1);
+  color: oklch(0.25 0.04 254);
   box-shadow:
-    0px 10px 20px rgba(142, 163, 193, 0.3),
-    inset 2px 2px 6px rgba(255, 255, 255, 0.7),
-    inset -2px -2px 6px rgba(142, 163, 193, 0.12);
+    0px 4px 12px rgba(74, 106, 138, 0.15),
+    inset 1px 1px 3px rgba(255, 255, 255, 0.6),
+    inset -1px -1px 3px rgba(74, 106, 138, 0.06);
   border-radius: 999px;
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
 }
 
 @utility clay-cta-active {
   box-shadow:
-    inset 4px 4px 10px rgba(142, 163, 193, 0.25),
-    inset -4px -4px 10px rgba(255, 255, 255, 0.6);
+    inset 3px 3px 6px rgba(74, 106, 138, 0.15),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.5);
   transform: translateY(1px);
+}
+
+@utility clay-avatar {
+  border-radius: 999px;
+  box-shadow:
+    0px 2px 8px rgba(74, 106, 138, 0.1),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.6);
 }
 
 @keyframes breathe {

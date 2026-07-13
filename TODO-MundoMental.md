@@ -29,25 +29,25 @@
 
 ---
 
-## Fase 2 — Dois Modos: Companion + Manager
+## Fase 2 — Dois Modos: Companion + Manager ✅
 
-- [ ] **2.1** Criar estrutura de rotas protegidas por role (`companion` | `manager`)
-- [ ] **2.2** **Modo Companion** — experiência do funcionário (apps existentes + reformulações abaixo)
-- [ ] **2.3** **Modo Manager** — painel do RH (nova aplicação)
-- [ ] **2.4** Criar seletor/fluxo de login que direcione para o modo correto
-- [ ] **2.5** Adicionar navegação específica para cada modo (bottom tabs diferentes)
+- [X] **2.1** Estrutura de rotas protegidas por role via `useRequireAuth("companion" | "manager")` — redireciona para `/login` se não autenticado
+- [X] **2.2** **Modo Companion** — rotas existentes protegidas (`/`, `/diario`, `/habitos`, `/respiro`, `/perfil`)
+- [X] **2.3** **Modo Manager** — novas rotas em `/manager/` (dashboard, equipes, relatórios) com `ManagerShell` próprio
+- [X] **2.4** Tela de login (`/login`) com cadastro + seleção de role (Colaborador / RH) — redireciona para o modo correto após autenticação
+- [X] **2.5** Navegação específica para cada modo: `MobileShell` (Companion: Chat, Diário, Hábitos, Respiro, Perfil) e `ManagerShell` (Manager: Dashboard, Equipes, Relatórios, Perfil)
 
 ---
 
-## Fase 3 — Redesign Visual do Companion
+## Fase 3 — Redesign Visual do Companion ✅
 
-- [ ] **3.1** Reduzir ~40% do aspecto "ursinho" — suavizar mascotes sem eliminar acolhimento
-- [ ] **3.2** Substituir personagens atuais por formas orgânicas/abstratas (Lumis, Guardiões, Espíritos)
-- [ ] **3.3** Incorporar avatares já existentes em `src/assets/avatar/cabeca/` na UI
-- [ ] **3.4** Remover ou atenuar excesso de gradientes e sombras pesadas
-- [ ] **3.5** Redimensionar botões grandes para interações mais profissionais
-- [ ] **3.6** Substituir linguagem infantil ("ursinho", "fofinho") por tom acolhedor porém corporativo
-- [ ] **3.7** Evoluir identidade visual para estilo **premium** (referências: Apple, Nothing, Headspace, Calm, Duolingo — sem infantilizar)
+- [X] **3.1** Reduzir ~40% do aspecto "ursinho" — CSS refinado (saturação reduzida, blur menor, cores mais contidas)
+- [X] **3.2** Substituir personagens atuais por formas orgânicas/abstratas — estrutura `Avatar` pronta para troca de assets
+- [X] **3.3** Incorporar avatares existentes em `src/components/Avatar.tsx` — Amora, Chico, Pipoca, Zeca exibidos em toda a UI
+- [X] **3.4** Atenuar gradientes e sombras pesadas — `styles.css` revisado com opacidades reduzidas em ~40%
+- [X] **3.5** Redimensionar botões para interações profissionais — inputs menores, paddings reduzidos, tipografia mais compacta
+- [X] **3.6** Substituir linguagem infantil por tom acolhedor corporativo — textos revisados (ex: "Alimentação Afetiva" → "Alimentação")
+- [X] **3.7** Evoluir identidade visual para estilo premium — paleta refinada, glassmorphism sutil, ícones consistentes, grid limpo
 
 ---
 

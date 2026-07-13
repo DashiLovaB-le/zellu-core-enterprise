@@ -11,9 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RespiroRouteImport } from './routes/respiro'
 import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as HabitosRouteImport } from './routes/habitos'
 import { Route as DiarioRouteImport } from './routes/diario'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ManagerIndexRouteImport } from './routes/manager/index'
+import { Route as ManagerRelatoriosRouteImport } from './routes/manager/relatorios'
+import { Route as ManagerEquipesRouteImport } from './routes/manager/equipes'
 
 const RespiroRoute = RespiroRouteImport.update({
   id: '/respiro',
@@ -23,6 +27,11 @@ const RespiroRoute = RespiroRouteImport.update({
 const PerfilRoute = PerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HabitosRoute = HabitosRouteImport.update({
@@ -40,43 +49,102 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManagerIndexRoute = ManagerIndexRouteImport.update({
+  id: '/manager/',
+  path: '/manager/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerRelatoriosRoute = ManagerRelatoriosRouteImport.update({
+  id: '/manager/relatorios',
+  path: '/manager/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerEquipesRoute = ManagerEquipesRouteImport.update({
+  id: '/manager/equipes',
+  path: '/manager/equipes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/diario': typeof DiarioRoute
   '/habitos': typeof HabitosRoute
+  '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/respiro': typeof RespiroRoute
+  '/manager/equipes': typeof ManagerEquipesRoute
+  '/manager/relatorios': typeof ManagerRelatoriosRoute
+  '/manager/': typeof ManagerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/diario': typeof DiarioRoute
   '/habitos': typeof HabitosRoute
+  '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/respiro': typeof RespiroRoute
+  '/manager/equipes': typeof ManagerEquipesRoute
+  '/manager/relatorios': typeof ManagerRelatoriosRoute
+  '/manager': typeof ManagerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/diario': typeof DiarioRoute
   '/habitos': typeof HabitosRoute
+  '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/respiro': typeof RespiroRoute
+  '/manager/equipes': typeof ManagerEquipesRoute
+  '/manager/relatorios': typeof ManagerRelatoriosRoute
+  '/manager/': typeof ManagerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/diario' | '/habitos' | '/perfil' | '/respiro'
+  fullPaths:
+    | '/'
+    | '/diario'
+    | '/habitos'
+    | '/login'
+    | '/perfil'
+    | '/respiro'
+    | '/manager/equipes'
+    | '/manager/relatorios'
+    | '/manager/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/diario' | '/habitos' | '/perfil' | '/respiro'
-  id: '__root__' | '/' | '/diario' | '/habitos' | '/perfil' | '/respiro'
+  to:
+    | '/'
+    | '/diario'
+    | '/habitos'
+    | '/login'
+    | '/perfil'
+    | '/respiro'
+    | '/manager/equipes'
+    | '/manager/relatorios'
+    | '/manager'
+  id:
+    | '__root__'
+    | '/'
+    | '/diario'
+    | '/habitos'
+    | '/login'
+    | '/perfil'
+    | '/respiro'
+    | '/manager/equipes'
+    | '/manager/relatorios'
+    | '/manager/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DiarioRoute: typeof DiarioRoute
   HabitosRoute: typeof HabitosRoute
+  LoginRoute: typeof LoginRoute
   PerfilRoute: typeof PerfilRoute
   RespiroRoute: typeof RespiroRoute
+  ManagerEquipesRoute: typeof ManagerEquipesRoute
+  ManagerRelatoriosRoute: typeof ManagerRelatoriosRoute
+  ManagerIndexRoute: typeof ManagerIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -93,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/habitos': {
@@ -116,6 +191,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manager/': {
+      id: '/manager/'
+      path: '/manager'
+      fullPath: '/manager/'
+      preLoaderRoute: typeof ManagerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/relatorios': {
+      id: '/manager/relatorios'
+      path: '/manager/relatorios'
+      fullPath: '/manager/relatorios'
+      preLoaderRoute: typeof ManagerRelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/equipes': {
+      id: '/manager/equipes'
+      path: '/manager/equipes'
+      fullPath: '/manager/equipes'
+      preLoaderRoute: typeof ManagerEquipesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -123,8 +219,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DiarioRoute: DiarioRoute,
   HabitosRoute: HabitosRoute,
+  LoginRoute: LoginRoute,
   PerfilRoute: PerfilRoute,
   RespiroRoute: RespiroRoute,
+  ManagerEquipesRoute: ManagerEquipesRoute,
+  ManagerRelatoriosRoute: ManagerRelatoriosRoute,
+  ManagerIndexRoute: ManagerIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
