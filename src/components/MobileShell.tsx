@@ -11,8 +11,9 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { to: "/", icon: "chat_bubble", label: "Chat" },
+  { to: "/checkin", icon: "checklist", label: "Check-in" },
   { to: "/diario", icon: "auto_stories", label: "Diário" },
-  { to: "/habitos", icon: "task_alt", label: "Hábitos" },
+  { to: "/meu-bem-estar", icon: "favorite", label: "Bem-estar" },
   { to: "/respiro", icon: "air", label: "Respiro" },
   { to: "/perfil", icon: "person", label: "Perfil" },
 ];
@@ -28,12 +29,10 @@ export function MobileShell({ children }: { children: ReactNode }) {
         <p className="text-[9px] text-[var(--clay-title)]/25">{BRANDING.poweredBy}</p>
       </footer>
 
-      <nav className="fixed bottom-3 left-1/2 z-50 flex h-14 w-[calc(100%-2rem)] max-w-[420px] -translate-x-1/2 items-center justify-around rounded-2xl bg-white/80 px-2 shadow-[0_2px_10px_rgba(74,106,138,0.08)] backdrop-blur-lg">
+      <nav className="fixed bottom-3 left-1/2 z-50 flex h-14 w-[calc(100%-2rem)] max-w-[420px] -translate-x-1/2 items-center justify-around rounded-2xl bg-white/80 px-1 shadow-[0_2px_10px_rgba(74,106,138,0.08)] backdrop-blur-lg">
         {NAV.map((item) => {
           const active =
-            item.to === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.to as string);
+            item.to === "/" ? pathname === "/" : pathname.startsWith(item.to as string);
           return (
             <Link
               key={item.to}
@@ -41,16 +40,16 @@ export function MobileShell({ children }: { children: ReactNode }) {
               className="flex flex-1 flex-col items-center justify-center gap-0.5"
             >
               <span
-                className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 ${
+                className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all duration-200 ${
                   active
                     ? "bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] text-[oklch(0.25_0.04_254)] shadow-sm"
                     : "text-[var(--clay-title)]/60"
                 }`}
               >
-                <Icon name={item.icon} filled={active} className="text-lg" />
+                <Icon name={item.icon} filled={active} className="text-base" />
               </span>
               <span
-                className={`text-[9px] font-semibold tracking-wide ${
+                className={`text-[8px] font-semibold tracking-wide ${
                   active ? "text-[var(--clay-title)]" : "text-[var(--clay-title)]/50"
                 }`}
               >

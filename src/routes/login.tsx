@@ -1,15 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAuth, type UserRole } from "@/lib/auth-context";
-import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
-    meta: [
-      { title: "Entrar" },
-      { name: "description", content: "Acesse sua conta." },
-    ],
+    meta: [{ title: "Entrar" }, { name: "description", content: "Acesse sua conta." }],
   }),
   component: LoginPage,
 });
@@ -49,7 +45,13 @@ function LoginPage() {
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-center px-6">
       <div className="mb-8 flex flex-col items-center gap-3">
-        <Avatar size={56} />
+        <img
+          src="/logo.png"
+          alt="Mundo Mental"
+          width={56}
+          height={56}
+          className="rounded-2xl"
+        />
         <h1 className="font-display text-xl text-[var(--clay-title)]">Mundo Mental</h1>
         <p className="text-center text-sm text-[var(--clay-text)]/70">
           {isSignUp ? "Crie sua conta para começar" : "Acesse sua conta"}
@@ -120,9 +122,7 @@ function LoginPage() {
           </div>
         )}
 
-        {error && (
-          <p className="text-center text-xs text-red-500">{error}</p>
-        )}
+        {error && <p className="text-center text-xs text-red-500">{error}</p>}
 
         <button
           type="submit"
@@ -136,7 +136,10 @@ function LoginPage() {
       <p className="mt-5 text-xs text-[var(--clay-title)]/60">
         {isSignUp ? "Já tem conta?" : "Não tem conta?"}{" "}
         <button
-          onClick={() => { setIsSignUp(!isSignUp); setError(null); }}
+          onClick={() => {
+            setIsSignUp(!isSignUp);
+            setError(null);
+          }}
           className="font-semibold text-[var(--clay-cta)] underline"
         >
           {isSignUp ? "Fazer login" : "Criar conta"}

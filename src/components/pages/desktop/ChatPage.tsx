@@ -58,17 +58,27 @@ export function DesktopChatPage({
                   Sugestão
                 </h3>
                 <button
-                  onClick={() => onQuickReply(
-                    aiSuggestion === "respirar" ? "Vamos respirar" :
-                    aiSuggestion === "agua" ? "Beber água" :
-                    aiSuggestion === "pausa" ? "Fazer uma pausa" : "Fazer um alongamento"
-                  )}
+                  onClick={() =>
+                    onQuickReply(
+                      aiSuggestion === "respirar"
+                        ? "Vamos respirar"
+                        : aiSuggestion === "agua"
+                          ? "Beber água"
+                          : aiSuggestion === "pausa"
+                            ? "Fazer uma pausa"
+                            : "Fazer um alongamento",
+                    )
+                  }
                   disabled={isAiThinking}
                   className="w-full rounded-xl bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 p-3 text-center text-sm font-semibold text-[var(--clay-title)] shadow-sm active:translate-y-px disabled:opacity-50"
                 >
-                  {aiSuggestion === "respirar" ? "🌬️ Respirar" :
-                   aiSuggestion === "agua" ? "💧 Beber água" :
-                   aiSuggestion === "pausa" ? "☕ Fazer pausa" : "🤸 Alongar"}
+                  {aiSuggestion === "respirar"
+                    ? "🌬️ Respirar"
+                    : aiSuggestion === "agua"
+                      ? "💧 Beber água"
+                      : aiSuggestion === "pausa"
+                        ? "☕ Fazer pausa"
+                        : "🤸 Alongar"}
                 </button>
               </>
             )}
@@ -115,7 +125,9 @@ export function DesktopChatPage({
             <input
               value={draft}
               onChange={(e) => onDraftChange(e.target.value)}
-              placeholder={isAiThinking ? "Aguardando resposta..." : "Como você está se sentindo agora?"}
+              placeholder={
+                isAiThinking ? "Aguardando resposta..." : "Como você está se sentindo agora?"
+              }
               disabled={isAiThinking}
               className="h-10 flex-1 bg-transparent px-3 text-sm text-[var(--clay-text)] outline-none placeholder:text-[var(--clay-title)]/60 disabled:opacity-50"
             />
@@ -124,7 +136,16 @@ export function DesktopChatPage({
               disabled={isAiThinking || !draft.trim()}
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] text-white shadow-sm disabled:opacity-40"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M22 2L11 13" />
                 <path d="M22 2L15 22L11 13L2 9L22 2Z" />
               </svg>

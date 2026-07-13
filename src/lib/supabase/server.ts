@@ -6,8 +6,10 @@ export async function createClient(accessToken: string) {
 
   const supabase = createSupabaseClient(supabaseUrl, supabaseKey, {
     auth: { autoRefreshToken: false, persistSession: false },
+    global: {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
   });
 
-  await supabase.auth.setSession({ access_token: accessToken, refresh_token: "" });
   return supabase;
 }

@@ -5,16 +5,17 @@ import { Avatar } from "./Avatar";
 import { BRANDING } from "@/lib/branding";
 
 interface NavItem {
-  to: "/" | "/diario" | "/respiro" | "/habitos";
+  to: "/" | "/diario" | "/respiro" | "/meu-bem-estar" | "/checkin";
   icon: string;
   label: string;
 }
 
 const NAV: NavItem[] = [
-  { to: "/diario", icon: "auto_stories", label: "Diário" },
-  { to: "/respiro", icon: "air", label: "Respiro" },
+  { to: "/checkin", icon: "checklist", label: "Check-in" },
   { to: "/", icon: "chat_bubble", label: "Chat" },
-  { to: "/habitos", icon: "task_alt", label: "Hábitos" },
+  { to: "/diario", icon: "auto_stories", label: "Diário" },
+  { to: "/meu-bem-estar", icon: "favorite", label: "Bem-estar" },
+  { to: "/respiro", icon: "air", label: "Respiro" },
 ];
 
 export function DesktopShell({ children }: { children: ReactNode }) {

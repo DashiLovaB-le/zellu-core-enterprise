@@ -32,7 +32,9 @@ export function MobileRespiroPage({ activeSound, onSoundToggle }: RespiroPagePro
       <header className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Avatar size={32} />
-          <span className="font-display text-sm text-[var(--clay-title)]">{BRANDING.shortName}</span>
+          <span className="font-display text-sm text-[var(--clay-title)]">
+            {BRANDING.shortName}
+          </span>
         </div>
       </header>
 
@@ -77,14 +79,10 @@ export function MobileRespiroPage({ activeSound, onSoundToggle }: RespiroPagePro
                 key={s.name}
                 onClick={() => onSoundToggle(isActive ? null : s.name)}
                 className={`flex items-center gap-2 rounded-xl p-3 transition-all ${
-                  isActive
-                    ? "bg-white/80 shadow-sm"
-                    : "bg-white/50 shadow-sm"
+                  isActive ? "bg-white/80 shadow-sm" : "bg-white/50 shadow-sm"
                 }`}
               >
-                <span
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/70 shadow-sm"
-                >
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/70 shadow-sm">
                   <Icon name={s.icon} filled className="text-sm text-[var(--clay-text)]" />
                 </span>
                 <span className="text-xs font-semibold text-[var(--clay-text)]">{s.name}</span>

@@ -1,9 +1,46 @@
+import { useState } from "react";
 import { DesktopShell } from "@/components/DesktopShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
-import { MOOD_COLORS, DAYS, CONVERSATIONS, AI_SUMMARY } from "@/data";
+import { MOOD_COLORS, DAYS, AI_SUMMARY } from "@/data";
+import type { DiaryEntry } from "@/lib/services/diario-service";
 
-export function DesktopDiarioPage() {
+interface DiarioPageProps {
+  entries: DiaryEntry[];
+  onSaveEntry: (content: string, mood?: string) => void;
+}
+
+const MOOD_OPTIONS = [
+  { emoji: "😊", label: "Feliz", value: "feliz" },
+  { emoji: "😌", label: "Calmo", value: "calmo" },
+  { emoji: "😐", label: "Neutro", value: "neutro" },
+  { emoji: "😟", label: "Ansioso", value: "ansioso" },
+  { emoji: "😢", label: "Triste", value: "triste" },
+  { emoji: "😤", label: "Irritado", value: "irritado" },
+];
+
+export function DesktopDiarioPage({ entries, onSaveEntry }: DiarioPageProps) {
+  const [showNewEntry, setShowNewEntry] = useState(false);
+  const [newContent, setNewContent] = useState("");
+  const [newMood, setNewMood] = useState("");
+
+  const handleSave = () => {
+    if (!newContent.trim()) return;
+    onSaveEntry(newContent.trim(), newMood || undefined);
+    setNewContent("");
+    setNewMood("");
+    setShowNewEntry(false);
+  };
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return (
+      d.toLocaleDateString("pt-BR", { day: "numeric", month: "short" }) +
+      " · " +
+      d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+    );
+  };
+
   return (
     <DesktopShell>
       <header className="mb-6 flex items-center gap-3">
@@ -58,29 +95,102 @@ export function DesktopDiarioPage() {
               </div>
             </div>
           </div>
+
+          <div className="mt-5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
+                Entradas do Diário
+              </h3>
+              <button
+                onClick={() => setShowNewEntry(!showNewEntry)}
+                className="flex items-center gap-1 rounded-lg bg-white/70 px-3 py-1.5 text-xs font-semibold text-[var(--clay-cta)] shadow-sm hover:bg-white/90"
+              >
+                <Icon name="add" className="text-sm" />
+                {showNewEntry ? "Fechar" : "Nova Entrada"}
+              </button>
+            </div>
+
+            {showNewEntry && (
+              <div className="mb-4 rounded-xl bg-white/70 p-4 shadow-sm">
+                <textarea
+                  value={newContent}
+                  onChange={(e) => setNewContent(e.target.value)}
+                  placeholder="Como você está se sentindo hoje?"
+                  rows={3}
+                  className="w-full resize-none bg-transparent text-sm text-[var(--clay-text)] outline-none placeholder:text-[var(--clay-title)]/50"
+                />
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {MOOD_OPTIONS.map((m) => (
+                    <button
+                      key={m.value}
+                      onClick={() => setNewMood(m.value === newMood ? "" : m.value)}
+                      className={`rounded-lg px-3 py-1 text-xs transition-all ${
+                        newMood === m.value
+                          ? "bg-white/80 shadow-sm font-semibold"
+                          : "bg-white/40 text-[var(--clay-text)]/70 hover:bg-white/60"
+                      }`}
+                    >
+                      {m.emoji} {m.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 flex justify-end gap-2">
+                  <button
+                    onClick={() => {
+                      setShowNewEntry(false);
+                      setNewContent("");
+                      setNewMood("");
+                    }}
+                    className="rounded-lg px-4 py-1.5 text-sm text-[var(--clay-title)]/60 hover:text-[var(--clay-title)]"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    disabled={!newContent.trim()}
+                    className="rounded-lg bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] px-5 py-1.5 text-sm font-bold text-[oklch(0.25_0.04_254)] shadow-sm disabled:opacity-50"
+                  >
+                    Salvar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2">
+              {entries.length === 0 && !showNewEntry && (
+                <p className="py-8 text-center text-sm text-[var(--clay-title)]/50">
+                  Nenhuma entrada ainda. Clique em "Nova Entrada" para começar.
+                </p>
+              )}
+              {entries.map((entry) => (
+                <div key={entry.id} className="rounded-xl bg-white/60 p-4 shadow-sm">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-xs text-[var(--clay-title)]/60">
+                      {formatDate(entry.created_at)}
+                    </span>
+                    {entry.mood && (
+                      <span className="text-xs bg-white/50 rounded-full px-2 py-0.5">
+                        {MOOD_OPTIONS.find((m) => m.value === entry.mood)?.emoji ?? entry.mood}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm leading-relaxed text-[var(--clay-text)]">{entry.content}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
 
         <section>
-          <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
-            Conversas Anteriores
-          </h3>
-          <div className="flex flex-col gap-2">
-            {CONVERSATIONS.map((c, i) => (
-              <button
-                key={i}
-                className="flex items-center gap-3 rounded-xl bg-white/60 p-3 text-left shadow-sm active:translate-y-px"
-              >
-                <span
-                  className="h-8 w-1 shrink-0 rounded-full"
-                  style={{ background: c.tint }}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-[var(--clay-title)]/60">{c.when}</p>
-                  <p className="mt-0.5 text-sm leading-snug text-[var(--clay-text)] truncate">{c.excerpt}</p>
-                </div>
-                <Icon name="chevron_right" className="text-sm text-[var(--clay-title)]/40" />
-              </button>
-            ))}
+          <div className="rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md sticky top-24">
+            <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
+              Resumo Rápido
+            </h3>
+            <p className="text-xs leading-relaxed text-[var(--clay-text)]/70">
+              {entries.length > 0
+                ? `Você tem ${entries.length} ${entries.length === 1 ? "entrada" : "entradas"} no diário.`
+                : "Comece a escrever para acompanhar sua jornada."}
+            </p>
           </div>
         </section>
       </div>

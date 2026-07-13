@@ -35,10 +35,7 @@ export async function loadMessages(accessToken: string | null): Promise<Msg[]> {
   return [];
 }
 
-export async function loadGreeting(
-  accessToken: string,
-  context: ChatContext,
-): Promise<string> {
+export async function loadGreeting(accessToken: string, context: ChatContext): Promise<string> {
   try {
     const result = await getContextualGreeting({ data: { accessToken, context } });
     return result.greeting;

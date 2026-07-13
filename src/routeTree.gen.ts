@@ -11,13 +11,17 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RespiroRouteImport } from './routes/respiro'
 import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as MeuBemEstarRouteImport } from './routes/meu-bem-estar'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HabitosRouteImport } from './routes/habitos'
 import { Route as DiarioRouteImport } from './routes/diario'
+import { Route as CheckinRouteImport } from './routes/checkin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ManagerIndexRouteImport } from './routes/manager/index'
+import { Route as DashitecnologyIndexRouteImport } from './routes/dashitecnology/index'
 import { Route as ManagerRelatoriosRouteImport } from './routes/manager/relatorios'
 import { Route as ManagerEquipesRouteImport } from './routes/manager/equipes'
+import { Route as DashitecnologyPainelDevRouteImport } from './routes/dashitecnology/$painel-dev'
 
 const RespiroRoute = RespiroRouteImport.update({
   id: '/respiro',
@@ -27,6 +31,11 @@ const RespiroRoute = RespiroRouteImport.update({
 const PerfilRoute = PerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeuBemEstarRoute = MeuBemEstarRouteImport.update({
+  id: '/meu-bem-estar',
+  path: '/meu-bem-estar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -44,6 +53,11 @@ const DiarioRoute = DiarioRouteImport.update({
   path: '/diario',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckinRoute = CheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -52,6 +66,11 @@ const IndexRoute = IndexRouteImport.update({
 const ManagerIndexRoute = ManagerIndexRouteImport.update({
   id: '/manager/',
   path: '/manager/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashitecnologyIndexRoute = DashitecnologyIndexRouteImport.update({
+  id: '/dashitecnology/',
+  path: '/dashitecnology/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ManagerRelatoriosRoute = ManagerRelatoriosRouteImport.update({
@@ -64,86 +83,119 @@ const ManagerEquipesRoute = ManagerEquipesRouteImport.update({
   path: '/manager/equipes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashitecnologyPainelDevRoute = DashitecnologyPainelDevRouteImport.update({
+  id: '/dashitecnology/$painel-dev',
+  path: '/dashitecnology/$painel-dev',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/checkin': typeof CheckinRoute
   '/diario': typeof DiarioRoute
   '/habitos': typeof HabitosRoute
   '/login': typeof LoginRoute
+  '/meu-bem-estar': typeof MeuBemEstarRoute
   '/perfil': typeof PerfilRoute
   '/respiro': typeof RespiroRoute
+  '/dashitecnology/$painel-dev': typeof DashitecnologyPainelDevRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
+  '/dashitecnology/': typeof DashitecnologyIndexRoute
   '/manager/': typeof ManagerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/checkin': typeof CheckinRoute
   '/diario': typeof DiarioRoute
   '/habitos': typeof HabitosRoute
   '/login': typeof LoginRoute
+  '/meu-bem-estar': typeof MeuBemEstarRoute
   '/perfil': typeof PerfilRoute
   '/respiro': typeof RespiroRoute
+  '/dashitecnology/$painel-dev': typeof DashitecnologyPainelDevRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
+  '/dashitecnology': typeof DashitecnologyIndexRoute
   '/manager': typeof ManagerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/checkin': typeof CheckinRoute
   '/diario': typeof DiarioRoute
   '/habitos': typeof HabitosRoute
   '/login': typeof LoginRoute
+  '/meu-bem-estar': typeof MeuBemEstarRoute
   '/perfil': typeof PerfilRoute
   '/respiro': typeof RespiroRoute
+  '/dashitecnology/$painel-dev': typeof DashitecnologyPainelDevRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
+  '/dashitecnology/': typeof DashitecnologyIndexRoute
   '/manager/': typeof ManagerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/checkin'
     | '/diario'
     | '/habitos'
     | '/login'
+    | '/meu-bem-estar'
     | '/perfil'
     | '/respiro'
+    | '/dashitecnology/$painel-dev'
     | '/manager/equipes'
     | '/manager/relatorios'
+    | '/dashitecnology/'
     | '/manager/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/checkin'
     | '/diario'
     | '/habitos'
     | '/login'
+    | '/meu-bem-estar'
     | '/perfil'
     | '/respiro'
+    | '/dashitecnology/$painel-dev'
     | '/manager/equipes'
     | '/manager/relatorios'
+    | '/dashitecnology'
     | '/manager'
   id:
     | '__root__'
     | '/'
+    | '/checkin'
     | '/diario'
     | '/habitos'
     | '/login'
+    | '/meu-bem-estar'
     | '/perfil'
     | '/respiro'
+    | '/dashitecnology/$painel-dev'
     | '/manager/equipes'
     | '/manager/relatorios'
+    | '/dashitecnology/'
     | '/manager/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CheckinRoute: typeof CheckinRoute
   DiarioRoute: typeof DiarioRoute
   HabitosRoute: typeof HabitosRoute
   LoginRoute: typeof LoginRoute
+  MeuBemEstarRoute: typeof MeuBemEstarRoute
   PerfilRoute: typeof PerfilRoute
   RespiroRoute: typeof RespiroRoute
+  DashitecnologyPainelDevRoute: typeof DashitecnologyPainelDevRoute
   ManagerEquipesRoute: typeof ManagerEquipesRoute
   ManagerRelatoriosRoute: typeof ManagerRelatoriosRoute
+  DashitecnologyIndexRoute: typeof DashitecnologyIndexRoute
   ManagerIndexRoute: typeof ManagerIndexRoute
 }
 
@@ -161,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meu-bem-estar': {
+      id: '/meu-bem-estar'
+      path: '/meu-bem-estar'
+      fullPath: '/meu-bem-estar'
+      preLoaderRoute: typeof MeuBemEstarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -184,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiarioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkin': {
+      id: '/checkin'
+      path: '/checkin'
+      fullPath: '/checkin'
+      preLoaderRoute: typeof CheckinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -196,6 +262,13 @@ declare module '@tanstack/react-router' {
       path: '/manager'
       fullPath: '/manager/'
       preLoaderRoute: typeof ManagerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashitecnology/': {
+      id: '/dashitecnology/'
+      path: '/dashitecnology'
+      fullPath: '/dashitecnology/'
+      preLoaderRoute: typeof DashitecnologyIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manager/relatorios': {
@@ -212,18 +285,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerEquipesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashitecnology/$painel-dev': {
+      id: '/dashitecnology/$painel-dev'
+      path: '/dashitecnology/$painel-dev'
+      fullPath: '/dashitecnology/$painel-dev'
+      preLoaderRoute: typeof DashitecnologyPainelDevRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CheckinRoute: CheckinRoute,
   DiarioRoute: DiarioRoute,
   HabitosRoute: HabitosRoute,
   LoginRoute: LoginRoute,
+  MeuBemEstarRoute: MeuBemEstarRoute,
   PerfilRoute: PerfilRoute,
   RespiroRoute: RespiroRoute,
+  DashitecnologyPainelDevRoute: DashitecnologyPainelDevRoute,
   ManagerEquipesRoute: ManagerEquipesRoute,
   ManagerRelatoriosRoute: ManagerRelatoriosRoute,
+  DashitecnologyIndexRoute: DashitecnologyIndexRoute,
   ManagerIndexRoute: ManagerIndexRoute,
 }
 export const routeTree = rootRouteImport

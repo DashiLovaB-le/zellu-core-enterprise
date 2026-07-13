@@ -3,7 +3,7 @@ import chico from "@/assets/avatar/cabeca/Chico.png";
 import pipoca from "@/assets/avatar/cabeca/Pipoca.png";
 import zeca from "@/assets/avatar/cabeca/Zeca.png";
 
-const AVATARS = [
+export const AVATAR_LIST = [
   { name: "Amora", src: amora },
   { name: "Chico", src: chico },
   { name: "Pipoca", src: pipoca },
@@ -17,7 +17,7 @@ interface AvatarProps {
 }
 
 export function Avatar({ name, size = 40, className = "" }: AvatarProps) {
-  const avatar = AVATARS.find((a) => a.name === name) ?? AVATARS[Math.floor(Math.random() * AVATARS.length)];
+  const avatar = AVATAR_LIST.find((a) => a.name === name) ?? AVATAR_LIST[0];
 
   return (
     <img

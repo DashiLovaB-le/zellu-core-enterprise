@@ -11,13 +11,11 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
-  { to: "/manager", icon: "dashboard", label: "Dashboard" },
-  { to: "/manager/equipes", icon: "groups", label: "Equipes" },
-  { to: "/manager/relatorios", icon: "bar_chart", label: "Relatórios" },
+  { to: "/dashitecnology", icon: "build", label: "Dev Tools" },
   { to: "/perfil", icon: "person", label: "Perfil" },
 ];
 
-export function ManagerShell({ children }: { children: ReactNode }) {
+export function DevShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
@@ -28,7 +26,7 @@ export function ManagerShell({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-2">
             <Avatar size={32} />
             <div>
-              <span className="font-display text-sm text-[var(--clay-title)]">Painel RH</span>
+              <span className="font-display text-sm text-[var(--clay-title)]">Dev Panel</span>
               <p className="text-[10px] text-[var(--clay-title)]/50">{BRANDING.shortName}</p>
             </div>
           </div>
@@ -37,14 +35,14 @@ export function ManagerShell({ children }: { children: ReactNode }) {
         {children}
 
         <footer className="fixed bottom-[76px] left-1/2 z-40 -translate-x-1/2 text-center md:hidden">
-          <p className="text-[9px] text-[var(--clay-title)]/25">{BRANDING.poweredBy}</p>
+          <p className="text-[9px] text-[var(--clay-title)]/25">DashiTecnology Dev</p>
         </footer>
 
         <nav className="fixed bottom-3 left-1/2 z-50 flex h-14 w-[calc(100%-2rem)] max-w-[420px] -translate-x-1/2 items-center justify-around rounded-2xl bg-white/80 px-2 shadow-[0_2px_10px_rgba(74,106,138,0.08)] backdrop-blur-lg md:hidden">
           {NAV.map((item) => {
             const active =
-              item.to === "/manager"
-                ? pathname === "/manager"
+              item.to === "/dashitecnology"
+                ? pathname === "/dashitecnology" || pathname.startsWith("/dashitecnology/")
                 : pathname.startsWith(item.to as string);
             return (
               <Link
@@ -78,13 +76,13 @@ export function ManagerShell({ children }: { children: ReactNode }) {
       <div className="hidden min-h-screen bg-background md:block">
         <header className="sticky top-0 z-50 border-b border-border/30 bg-background/70 backdrop-blur-lg">
           <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
-            <Link to="/manager" className="flex items-center gap-2">
+            <Link to="/dashitecnology" className="flex items-center gap-2">
               <Avatar size={32} />
               <span className="font-display text-base text-[var(--clay-title)]">
                 {BRANDING.shortName}
               </span>
             </Link>
-            <span className="text-xs text-[var(--clay-title)]/50">Painel RH</span>
+            <span className="text-xs text-[var(--clay-title)]/50">Dev Panel</span>
             <Link to="/perfil">
               <Avatar size={32} />
             </Link>
@@ -96,8 +94,8 @@ export function ManagerShell({ children }: { children: ReactNode }) {
             <nav className="flex flex-col gap-1">
               {NAV.map((item) => {
                 const active =
-                  item.to === "/manager"
-                    ? pathname === "/manager"
+                  item.to === "/dashitecnology"
+                    ? pathname === "/dashitecnology" || pathname.startsWith("/dashitecnology/")
                     : pathname.startsWith(item.to as string);
                 return (
                   <Link
@@ -130,7 +128,7 @@ export function ManagerShell({ children }: { children: ReactNode }) {
         </div>
 
         <footer className="border-t border-border/20 py-3 text-center">
-          <p className="text-[10px] text-[var(--clay-title)]/30">{BRANDING.poweredBy}</p>
+          <p className="text-[10px] text-[var(--clay-title)]/30">DashiTecnology Dev</p>
         </footer>
       </div>
     </>

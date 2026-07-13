@@ -3,7 +3,7 @@ import type { User, Session } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { confirmUser } from "@/lib/api/auth.server";
 
-export type UserRole = "companion" | "manager" | null;
+export type UserRole = "companion" | "manager" | "dev" | null;
 
 export interface AuthState {
   user: User | null;
@@ -37,7 +37,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setRoleState(getRole(session?.user ?? null));
@@ -89,7 +91,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, role, signIn, signUp, signOut, setRole }}>
+    <AuthContext.Provider
+      value={{ user, session, loading, role, signIn, signUp, signOut, setRole }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -5,7 +5,13 @@ import { DesktopChatPage } from "@/components/pages/desktop/ChatPage";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
 import { Icon } from "@/components/Icon";
-import { loadMessages, loadGreeting, sendMessage, type ChatContext } from "@/lib/services/chat-service";
+import {
+  loadMessages,
+  loadGreeting,
+  sendMessage,
+  type ChatContext,
+} from "@/lib/services/chat-service";
+import { getLatestCheckin } from "@/lib/api/checkin.server";
 import type { Msg } from "@/data";
 
 export const Route = createFileRoute("/")({
@@ -20,68 +26,83 @@ export const Route = createFileRoute("/")({
 
 function ChatPage() {
   const { isAuthorized, loading: authLoading } = useRequireAuth("companion");
-  const { session } = useAuth();
+  const { session, user } = useAuth();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");
   const [greeting, setGreeting] = useState("");
   const [isAiThinking, setIsAiThinking] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [todayContext, setTodayContext] = useState<ChatContext>({
+    userName: user?.email?.split("@")[0] ?? "Ana",
+  });
 
   const accessToken = session?.access_token ?? null;
-
-  const todayContext: ChatContext = {
-    userName: "Ana",
-    sleepHours: 7,
-    sleepLabel: "Revigorante",
-    waterMl: 1200,
-  };
 
   useEffect(() => {
     if (!accessToken || initialized) return;
     (async () => {
+      const latestCheckin = await getLatestCheckin({ data: { accessToken } });
+      const context: ChatContext = {
+        userName: user?.email?.split("@")[0] ?? "Ana",
+        sleepHours: latestCheckin?.sleep_hours,
+        sleepLabel: latestCheckin?.sleep_label,
+        waterMl: latestCheckin?.water_ml,
+        mood: latestCheckin?.mood,
+        recentCheckin: latestCheckin
+          ? `Check-in feito às ${new Date(latestCheckin.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+          : undefined,
+      };
+      setTodayContext(context);
+
       const msgs = await loadMessages(accessToken);
       setMessages(msgs);
 
-      const g = await loadGreeting(accessToken, todayContext);
+      const g = await loadGreeting(accessToken, context);
       setGreeting(g);
       setInitialized(true);
     })();
-  }, [accessToken, initialized, todayContext]);
+  }, [accessToken, initialized, user]);
 
-  const send = useCallback(async (text: string) => {
-    if (!text.trim() || !accessToken || isAiThinking) return;
+  const send = useCallback(
+    async (text: string) => {
+      if (!text.trim() || !accessToken || isAiThinking) return;
 
-    const userMsg: Msg = { from: "user", text };
-    setMessages((prev) => [...prev, userMsg]);
-    setDraft("");
-    setIsAiThinking(true);
-    setAiSuggestion(null);
+      const userMsg: Msg = { from: "user", text };
+      setMessages((prev) => [...prev, userMsg]);
+      setDraft("");
+      setIsAiThinking(true);
+      setAiSuggestion(null);
 
-    const history = messages.map((m) => ({
-      role: m.from as "user" | "assistant",
-      content: m.text,
-    }));
+      const history = messages.map((m) => ({
+        role: m.from as "user" | "assistant",
+        content: m.text,
+      }));
 
-    try {
-      const result = await sendMessage(accessToken, text, history, todayContext);
-      const aiMsg: Msg = { from: "ai", text: result.reply };
-      setMessages((prev) => [...prev, aiMsg]);
-      if (result.suggestion) setAiSuggestion(result.suggestion);
-    } catch {
-      const fallback: Msg = {
-        from: "ai",
-        text: "Desculpe, não consegui processar agora. Pode tentar de novo?",
-      };
-      setMessages((prev) => [...prev, fallback]);
-    } finally {
-      setIsAiThinking(false);
-    }
-  }, [accessToken, messages, isAiThinking, todayContext]);
+      try {
+        const result = await sendMessage(accessToken, text, history, todayContext);
+        const aiMsg: Msg = { from: "ai", text: result.reply };
+        setMessages((prev) => [...prev, aiMsg]);
+        if (result.suggestion) setAiSuggestion(result.suggestion);
+      } catch {
+        const fallback: Msg = {
+          from: "ai",
+          text: "Desculpe, não consegui processar agora. Pode tentar de novo?",
+        };
+        setMessages((prev) => [...prev, fallback]);
+      } finally {
+        setIsAiThinking(false);
+      }
+    },
+    [accessToken, messages, isAiThinking, todayContext],
+  );
 
-  const handleQuickReply = useCallback((label: string) => {
-    send(label);
-  }, [send]);
+  const handleQuickReply = useCallback(
+    (label: string) => {
+      send(label);
+    },
+    [send],
+  );
 
   if (authLoading || (!initialized && accessToken)) {
     return (

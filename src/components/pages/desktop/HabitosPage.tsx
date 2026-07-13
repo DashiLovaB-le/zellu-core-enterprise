@@ -145,7 +145,10 @@ export function DesktopHabitosPage({
             onMouseDown={(e) => handleSleepChange(e.clientX)}
             onTouchStart={(e) => handleSleepChange(e.touches[0].clientX)}
           >
-            <svg viewBox="0 0 200 70" className="pointer-events-none absolute inset-0 h-full w-full">
+            <svg
+              viewBox="0 0 200 70"
+              className="pointer-events-none absolute inset-0 h-full w-full"
+            >
               <path
                 d="M 10 60 Q 100 0 190 60"
                 fill="none"
