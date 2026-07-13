@@ -8,10 +8,11 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
-  { to: "/", icon: "chat_bubble", label: "Chat" },
   { to: "/diario", icon: "auto_stories", label: "Diário" },
-  { to: "/respiro", icon: "air", label: "Respiro" },
+  { to: "/respiro", icon: "air", label: "Respiro" },  
+  { to: "/", icon: "chat_bubble", label: "Chat" },
   { to: "/habitos", icon: "task_alt", label: "Hábitos" },
+  { to: "/respiro", icon: "air", label: "Perfil" },
 ];
 
 export function Icon({ name, filled = false, className = "" }: { name: string; filled?: boolean; className?: string }) {
