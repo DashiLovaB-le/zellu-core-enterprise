@@ -9,11 +9,11 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
-  { to: "/diario", icon: "auto_stories", label: "Diário" },
-  { to: "/respiro", icon: "air", label: "Respiro" },
   { to: "/", icon: "chat_bubble", label: "Chat" },
+  { to: "/diario", icon: "auto_stories", label: "Diário" },
   { to: "/habitos", icon: "task_alt", label: "Hábitos" },
-  { to: "/respiro", icon: "air", label: "Perfil" },
+  { to: "/respiro", icon: "air", label: "Respiro" },
+  { to: "/perfil", icon: "person", label: "Perfil" },
 ];
 
 export function MobileShell({ children }: { children: ReactNode }) {

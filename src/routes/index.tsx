@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileChatPage } from "@/components/pages/mobile/ChatPage";
 import { DesktopChatPage } from "@/components/pages/desktop/ChatPage";
 import { INITIAL_MESSAGES, AI_RESPONSE } from "@/data";
@@ -9,7 +8,7 @@ import type { Msg } from "@/data";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Chat — Sereno" },
+      { title: "Chat" },
       { name: "description", content: "Converse com seu acompanhante de saúde mental." },
     ],
   }),
@@ -17,7 +16,6 @@ export const Route = createFileRoute("/")({
 });
 
 function ChatPage() {
-  const isMobile = useIsMobile();
   const [messages, setMessages] = useState<Msg[]>(INITIAL_MESSAGES);
   const [draft, setDraft] = useState("");
 
@@ -30,13 +28,14 @@ function ChatPage() {
     }, 700);
   };
 
-  if (isMobile) {
-    return (
-      <MobileChatPage messages={messages} draft={draft} onDraftChange={setDraft} onSend={send} />
-    );
-  }
-
   return (
-    <DesktopChatPage messages={messages} draft={draft} onDraftChange={setDraft} onSend={send} />
+    <>
+      <div className="block md:hidden">
+        <MobileChatPage messages={messages} draft={draft} onDraftChange={setDraft} onSend={send} />
+      </div>
+      <div className="hidden md:block">
+        <DesktopChatPage messages={messages} draft={draft} onDraftChange={setDraft} onSend={send} />
+      </div>
+    </>
   );
 }

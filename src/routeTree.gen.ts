@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RespiroRouteImport } from './routes/respiro'
+import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as HabitosRouteImport } from './routes/habitos'
 import { Route as DiarioRouteImport } from './routes/diario'
 import { Route as IndexRouteImport } from './routes/index'
@@ -17,6 +18,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const RespiroRoute = RespiroRouteImport.update({
   id: '/respiro',
   path: '/respiro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HabitosRoute = HabitosRouteImport.update({
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/diario': typeof DiarioRoute
   '/habitos': typeof HabitosRoute
+  '/perfil': typeof PerfilRoute
   '/respiro': typeof RespiroRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/diario': typeof DiarioRoute
   '/habitos': typeof HabitosRoute
+  '/perfil': typeof PerfilRoute
   '/respiro': typeof RespiroRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/diario': typeof DiarioRoute
   '/habitos': typeof HabitosRoute
+  '/perfil': typeof PerfilRoute
   '/respiro': typeof RespiroRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/diario' | '/habitos' | '/respiro'
+  fullPaths: '/' | '/diario' | '/habitos' | '/perfil' | '/respiro'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/diario' | '/habitos' | '/respiro'
-  id: '__root__' | '/' | '/diario' | '/habitos' | '/respiro'
+  to: '/' | '/diario' | '/habitos' | '/perfil' | '/respiro'
+  id: '__root__' | '/' | '/diario' | '/habitos' | '/perfil' | '/respiro'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DiarioRoute: typeof DiarioRoute
   HabitosRoute: typeof HabitosRoute
+  PerfilRoute: typeof PerfilRoute
   RespiroRoute: typeof RespiroRoute
 }
 
@@ -76,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/respiro'
       fullPath: '/respiro'
       preLoaderRoute: typeof RespiroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/habitos': {
@@ -106,6 +123,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DiarioRoute: DiarioRoute,
   HabitosRoute: HabitosRoute,
+  PerfilRoute: PerfilRoute,
   RespiroRoute: RespiroRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileDiarioPage } from "@/components/pages/mobile/DiarioPage";
 import { DesktopDiarioPage } from "@/components/pages/desktop/DiarioPage";
+import { BRANDING } from "@/lib/branding";
 
 export const Route = createFileRoute("/diario")({
   head: () => ({
     meta: [
-      { title: "Meu Diário — Sereno" },
+      { title: `Meu Diário — ${BRANDING.shortName}` },
       { name: "description", content: "Olhe para trás com carinho e autocompreensão." },
     ],
   }),
@@ -14,6 +14,14 @@ export const Route = createFileRoute("/diario")({
 });
 
 function DiarioPage() {
-  const isMobile = useIsMobile();
-  return isMobile ? <MobileDiarioPage /> : <DesktopDiarioPage />;
+  return (
+    <>
+      <div className="block md:hidden">
+        <MobileDiarioPage />
+      </div>
+      <div className="hidden md:block">
+        <DesktopDiarioPage />
+      </div>
+    </>
+  );
 }

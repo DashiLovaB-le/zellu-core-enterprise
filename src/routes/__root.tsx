@@ -11,6 +11,9 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider, useTheme } from "@/lib/theme";
+import { BRANDING } from "@/lib/branding";
 
 function NotFoundComponent() {
   return (
@@ -77,16 +80,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1" },
-      { name: "theme-color", content: "#F3EEE1" },
-      { title: "LVB-ZelluApp" },
-      { name: "description", content: "Um espaço gentil para acolher sua mente, dia após dia." },
-      { property: "og:title", content: "LVB-ZelluApp" },
-      { property: "og:description", content: "Um espaço gentil para acolher sua mente, dia após dia." },
+      { name: "theme-color", content: BRANDING.themeColor },
+      { title: BRANDING.appName },
+      { name: "description", content: BRANDING.description },
+      { property: "og:title", content: BRANDING.appName },
+      { property: "og:description", content: BRANDING.description },
       { property: "og:type", content: "website" },
-      { name: "twitter:title", content: "LVB-ZelluApp" },
-      { name: "twitter:description", content: "Um espaço gentil para acolher sua mente, dia após dia." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/S6Ob3zuOa9dZQVmS1FswMevIGHq1/social-images/social-1780500243249-Chico.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/S6Ob3zuOa9dZQVmS1FswMevIGHq1/social-images/social-1780500243249-Chico.webp" },
+      { name: "twitter:title", content: BRANDING.appName },
+      { name: "twitter:description", content: BRANDING.description },
+      { property: "og:image", content: BRANDING.socialImage },
+      { name: "twitter:image", content: BRANDING.socialImage },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -95,7 +98,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap",
+        href: `https://fonts.googleapis.com/css2?family=${BRANDING.fonts.display}:wght@500;600;700&family=${BRANDING.fonts.body}:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap`,
       },
       {
         rel: "stylesheet",
@@ -111,7 +114,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         <HeadContent />
       </head>
@@ -128,8 +131,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <ThemeProvider>
+        <AuthProvider>
+          <Outlet />
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
