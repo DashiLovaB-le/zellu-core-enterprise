@@ -10,7 +10,7 @@ import { loadDashboard, type DashboardData } from "@/lib/services/dashboard-serv
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Dashboard Emocional" },
+      { title: "Mundo Mental Care" },
       { name: "description", content: "Acompanhe sua evolução emocional com gráficos e insights." },
     ],
   }),
