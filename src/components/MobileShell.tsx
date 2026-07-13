@@ -1,6 +1,7 @@
 import { Link, useRouterState, type LinkProps } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Icon } from "./Icon";
+import { BRANDING } from "@/lib/branding";
 
 interface NavItem {
   to: LinkProps["to"];
@@ -22,6 +23,10 @@ export function MobileShell({ children }: { children: ReactNode }) {
   return (
     <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-[440px] flex-col px-5 pb-32 pt-6">
       {children}
+
+      <footer className="fixed bottom-[80px] left-1/2 z-40 -translate-x-1/2 text-center">
+        <p className="text-[9px] text-[var(--clay-title)]/30">{BRANDING.poweredBy}</p>
+      </footer>
 
       <nav className="fixed bottom-4 left-1/2 z-50 flex h-[68px] w-[calc(100%-2rem)] max-w-[420px] -translate-x-1/2 items-center justify-around px-3 clay-card">
         {NAV.map((item) => {

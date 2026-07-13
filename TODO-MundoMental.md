@@ -19,12 +19,13 @@
 
 ---
 
-## Fase 1 — White Label & Rebranding
+## Fase 1 — White Label & Rebranding ✅
 
-- [ ] **1.1** Substituir "Zēllu" / "Sereno" por "Mundo Mental Care" na interface
-- [ ] **1.2** Adicionar selo "Powered by DashiTecnology" apenas internamente (rodapé ou splash)
-- [ ] **1.3** Renomear referências nos metadados, head, título e OG tags
-- [ ] **1.4** Garantir que toda a paleta de cores seja configurável via tema
+- [X] **1.1** Substituir "Sereno" por "Mundo Mental Companion" (via `src/lib/branding.ts`) — DesktopShell, Mobile RespiroPage, rotas
+- [X] **1.2** Adicionar selo "Powered by Zellu" internamente — footer do MobileShell e DesktopShell
+- [X] **1.3** Metadados, head, título e OG tags dinâmicos via `BRANDING` config (já feito na Fase 0)
+- [X] **1.4** Favicon — mantido o existente em `public/favicon.ico` (substituir quando houver asset da MM)
+- [X] **1.5** Paleta de cores configurável via CSS custom properties em `styles.css` (já feito na Fase 0)
 
 ---
 

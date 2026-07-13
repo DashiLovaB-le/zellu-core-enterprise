@@ -23,5 +23,5 @@ export const BRANDING: BrandingConfig = {
     display: "Quicksand",
     body: "Nunito Sans",
   },
-  poweredBy: "Powered by Zellu",
+  poweredBy: "Powered by DashiTecnology",
 };

@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Icon } from "./Icon";
+import { BRANDING } from "@/lib/branding";
 
 interface NavItem {
   to: "/" | "/diario" | "/respiro" | "/habitos";
@@ -27,7 +28,7 @@ export function DesktopShell({ children }: { children: ReactNode }) {
               <Icon name="cloud" filled />
             </div>
             <span className="font-display text-lg text-[var(--clay-title)] hidden sm:inline">
-              Sereno
+              {BRANDING.shortName}
             </span>
           </Link>
 
@@ -56,6 +57,10 @@ export function DesktopShell({ children }: { children: ReactNode }) {
       </header>
 
       <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+
+      <footer className="border-t border-border/20 py-3 text-center">
+        <p className="text-[10px] text-[var(--clay-title)]/40">{BRANDING.poweredBy}</p>
+      </footer>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { Icon } from "@/components/Icon";
 import { SOUNDS, BREATH_PHASES } from "@/data";
+import { BRANDING } from "@/lib/branding";
 
 interface RespiroPageProps {
   activeSound: string | null;
@@ -32,7 +33,7 @@ export function MobileRespiroPage({ activeSound, onSoundToggle }: RespiroPagePro
           <div className="flex h-10 w-10 items-center justify-center rounded-full clay-cta">
             <Icon name="cloud" filled />
           </div>
-          <span className="font-display text-lg text-[var(--clay-title)]">Sereno</span>
+          <span className="font-display text-lg text-[var(--clay-title)]">{BRANDING.shortName}</span>
         </div>
         <button className="flex h-10 w-10 items-center justify-center rounded-full clay-soft text-[var(--clay-title)]">
           <Icon name="person" filled />
