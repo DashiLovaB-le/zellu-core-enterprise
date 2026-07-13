@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import type { User, Session } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { confirmUser } from "@/lib/api/auth.server";
 
 export type UserRole = "companion" | "manager" | null;
 
@@ -63,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: { data: { role: role ?? "companion" } },
     });
     if (!error && data.user) {
+      await confirmUser({ data: { userId: data.user.id } });
       setRoleState(getRole(data.user));
     }
     return { error: error?.message ?? null };

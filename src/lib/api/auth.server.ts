@@ -1,11 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-export const getUserProfile = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const supabase = await createClient(data.accessToken);
-    const { data: { user } } = await supabase.auth.getUser();
-    return user;
+export const confirmUser = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ userId: z.string().uuid() }))
+  .handler(async ({ data }: { data: { userId: string } }) => {
+    const admin = createAdminClient();
+    const { error } = await admin.auth.admin.updateUserById(data.userId, {
+      email_confirm: true,
+    });
+    return { error: error?.message ?? null };
   });

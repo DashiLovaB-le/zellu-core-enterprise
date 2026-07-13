@@ -1,207 +1,82 @@
-# TODO — Reposicionamento Mundo Mental
+# 🧠 Mundo Mental Companion — TODO
 
-> Plano de implementação baseado em `P-MundoMental-v1.md.MD`
-> Status atual: ~70-75% do caminho para apresentação comercial
-> Última atualização: Fase 0 concluída ✅
-
----
-
-## Fase 0 — Fundação Arquitetural ✅
-
-- [X] **0.1** Centralizar branding em arquivo de configuração (`src/lib/branding.ts`) — nome, tagline, cores, fonts
-- [X] **0.2** Criar sistema de temas dinâmicos (`ThemeProvider` + `useTheme` em `src/lib/theme.tsx`) com toggle claro/escuro
-- [X] **0.3** Configurar autenticação e sessão de usuário via Supabase (`.env`, `src/lib/supabase/`, `src/lib/auth-context.tsx`)
-- [X] **0.4** Estruturar store global de usuário (`AuthProvider` + `useAuth`) com login, signup, logout
-- [X] **0.5** Substituir dados mockados por server functions (`src/lib/api/*.server.ts` + service layer em `src/lib/services/`)
-- [X] **0.6** Corrigir navegação inferior — `Perfil` agora aponta para `/perfil` (rota real), não mais duplicata de `/respiro`
-- [X] **0.7** Meta tags e head dinâmicos via branding config
-- [X] **0.8** Mobile/Desktop toggle via CSS (`block md:hidden` / `hidden md:block`) — sem flash, sem JS
+> **Stack:** TanStack Start (React 19, Vite), Supabase (auth + DB), OpenRouter (IA), Tailwind v4
+> **Princípio:** Mobile-first com toggle CSS (`block md:hidden` / `hidden md:block`) — sem JS para exibição condicional
 
 ---
 
-## Fase 1 — White Label & Rebranding ✅
+## ✅ Fase 0 — Fundação do app (Concluído)
 
-- [X] **1.1** Substituir "Sereno" por "Mundo Mental Companion" (via `src/lib/branding.ts`) — DesktopShell, Mobile RespiroPage, rotas
-- [X] **1.2** Adicionar selo "Powered by Zellu" internamente — footer do MobileShell e DesktopShell
-- [X] **1.3** Metadados, head, título e OG tags dinâmicos via `BRANDING` config (já feito na Fase 0)
-- [X] **1.4** Favicon — mantido o existente em `public/favicon.ico` (substituir quando houver asset da MM)
-- [X] **1.5** Paleta de cores configurável via CSS custom properties em `styles.css` (já feito na Fase 0)
+- [x] Configurar branding (`branding.ts`)
+- [x] Criar `ThemeProvider` com tema claro/escuro
+- [x] Configurar Supabase (cliente browser + servidor)
+- [x] Criar `AuthContext` + `useRequireAuth`
+- [x] Criar server functions (exemplo, chat)
+- [x] Criar service layer (`chat-service.ts`)
+- [x] Corrigir navegação para usar CSS (não JS) no toggle mobile/desktop
+- [x] Meta tags dinâmicas via `head` nos componentes de rota
+- [x] TODO.md criado
 
----
+## ✅ Fase 1 — White Label / Rebranding (Concluído)
 
-## Fase 2 — Dois Modos: Companion + Manager ✅
+- [x] Nome "Mundo Mental Companion" configurado em `branding.ts`
+- [x] Favicon mantido como `zellu-favicon.ico`
+- [x] Footer "Powered by Zellu" presente em `DesktopShell` e `MobileShell`
+- [x] Substituir "Sereno" pelo nome do app
 
-- [X] **2.1** Estrutura de rotas protegidas por role via `useRequireAuth("companion" | "manager")` — redireciona para `/login` se não autenticado
-- [X] **2.2** **Modo Companion** — rotas existentes protegidas (`/`, `/diario`, `/habitos`, `/respiro`, `/perfil`)
-- [X] **2.3** **Modo Manager** — novas rotas em `/manager/` (dashboard, equipes, relatórios) com `ManagerShell` próprio
-- [X] **2.4** Tela de login (`/login`) com cadastro + seleção de role (Colaborador / RH) — redireciona para o modo correto após autenticação
-- [X] **2.5** Navegação específica para cada modo: `MobileShell` (Companion: Chat, Diário, Hábitos, Respiro, Perfil) e `ManagerShell` (Manager: Dashboard, Equipes, Relatórios, Perfil)
+## ✅ Fase 2 — Dois modos de uso (Concluído)
 
----
+- [x] Criar `useRequireAuth` com verificação de role
+- [x] Página de login funcional
+- [x] Roteamento por role: `/manager/*` para manager, `/` para companion
+- [x] `ManagerShell` com navegação lateral
+- [x] Rotas manager: overview, equipe, relatórios, configurações
+- [x] Alternar modo no profile: "Alternar para modo Gestor"
 
-## Fase 3 — Redesign Visual do Companion ✅
+## ✅ Fase 3 — Redesign Visual (Concluído)
 
-- [X] **3.1** Reduzir ~40% do aspecto "ursinho" — CSS refinado (saturação reduzida, blur menor, cores mais contidas)
-- [X] **3.2** Substituir personagens atuais por formas orgânicas/abstratas — estrutura `Avatar` pronta para troca de assets
-- [X] **3.3** Incorporar avatares existentes em `src/components/Avatar.tsx` — Amora, Chico, Pipoca, Zeca exibidos em toda a UI
-- [X] **3.4** Atenuar gradientes e sombras pesadas — `styles.css` revisado com opacidades reduzidas em ~40%
-- [X] **3.5** Redimensionar botões para interações profissionais — inputs menores, paddings reduzidos, tipografia mais compacta
-- [X] **3.6** Substituir linguagem infantil por tom acolhedor corporativo — textos revisados (ex: "Alimentação Afetiva" → "Alimentação")
-- [X] **3.7** Evoluir identidade visual para estilo premium — paleta refinada, glassmorphism sutil, ícones consistentes, grid limpo
+- [x] `Avatar` component com Amora, Chico, Pipoca, Zeca
+- [x] Paleta refinada: clay, sage, blush, mist
+- [x] Glassmorphism consistente, sombras reduzidas em 40%
+- [x] Premium CSS (font-display, tracking, gradientes suaves)
+- [x] Redesign `MobileShell`, `DesktopShell`, `ManagerShell`
+- [x] Redesign `IndexPage`, `SleepPage`, `WaterPage`, `MoodPage`
+- [x] Página de perfil com avatar e alternância de modo
 
----
+## ✅ Fase 4 — Chat com IA Contextual (Concluído)
 
-## Fase 4 — Chat com IA Contextual
+- [x] Adicionar `OPENROUTER_API_KEY` ao `.env`
+- [x] Criar `src/lib/api/chat-ai.server.ts` com server function chamando OpenRouter (GPT-4o-mini)
+- [x] Sistema de contexto: sono, água, humor, check-in, saudação por período
+- [x] Atualizar `chat-service.ts` com integração real de IA
+- [x] Atualizar `routes/index.tsx` com `greeting`, `isAiThinking`, `aiSuggestion`, `onQuickReply`
+- [x] Typing indicator (bolinhas animadas) no mobile e desktop
+- [x] Sugestões inteligentes pós-resposta (respirar, água, pausa, movimento)
+- [x] Quick replies fixos (Suave, Médio, Forte)
+- [x] Scroll automático para nova mensagem
 
-- [ ] **4.1** Substituir chat mockado por integração real com LLM (IA generativa)
-- [ ] **4.2** Implementar saudação contextual: "Bom dia [nome]. Dormiu bem? Percebi que acordou mais cedo..."
-- [ ] **4.3** Adicionar estado de digitação natural (typing indicator com delay variável)
-- [ ] **4.4** Mensagens com dados reais do usuário (sono, humor, check-in)
-- [ ] **4.5** Sugestões inteligentes pós-resposta (respiração, exercício, pausa)
-- [ ] **4.6** **IA com Memória** — lembrar de conversas anteriores ("Você comentou na segunda que estava preocupado com a reunião. Como foi?")
+## 🔲 Fase 5 — Check-in matinal inteligente
 
----
+- [ ] Tela de check-in matinal com perguntas (sono, hidratação, humor)
+- [ ] Respostas salvas no Supabase (tabela `checkins`)
+- [ ] IA usa dados do check-in mais recente como contexto
+- [ ] Notificação/lembrete de check-in matinal
 
-## Fase 5 — "Hábitos" → "Meu Bem-estar"
+## 🔲 Fase 6 — Dashboard de bem-estar
 
-- [ ] **5.1** Renomear rota `/habitos` → `/meu-bem-estar` (com redirect)
-- [ ] **5.2** Unificar módulos em uma única tela integrada:
-  - [ ] 5.2.1 Água (já existe, integrar)
-  - [ ] 5.2.2 Sono (já existe, integrar)
-  - [ ] 5.2.3 Humor (já existe no diário, integrar)
-  - [ ] 5.2.4 Movimento (novo)
-  - [ ] 5.2.5 Respiração (já existe em `/respiro`, integrar)
-  - [ ] 5.2.6 Energia (novo)
-  - [ ] 5.2.7 Alimentação (já existe, integrar)
-- [ ] **5.3** Criar visão consolidada do dia com todos os indicadores
+- [ ] Dashboard com gráficos de humor, sono, hidratação (últimos 7 dias)
+- [ ] Cards resumo no `ManagerShell`
+- [ ] Exportar relatório de bem-estar (PDF)
 
----
+## 🔲 Fase 7 — Modo Offline / PWA
 
-## Fase 6 — Diário → Timeline
+- [ ] Service worker com cache de assets
+- [ ] Mensagens do chat armazenadas localmente (IndexedDB)
+- [ ] Sincronizar mensagens quando voltar online
 
-- [ ] **6.1** Reformular página `/diario` para formato de Timeline
-- [ ] **6.2** Cada entrada da timeline deve conter: emoticon, eventos do dia (conversou com Amora, dormiu 7h, etc.)
-- [ ] **6.3** Manter calendário de humor existente, mas integrado à timeline
-- [ ] **6.4** Frase gerada por IA no topo: "IA percebe evolução."
+## 🔲 Fase 8 — Melhorias finas
 
----
-
-## Fase 7 — Dashboard Emocional
-
-- [ ] **7.1** Criar novo dashboard focado em **evolução** (não apenas dados isolados)
-- [ ] **7.2** Métricas como: "Você teve +18% menos ansiedade nos últimos 30 dias"
-- [ ] **7.3** Gráficos de progresso semanal/mensal (recharts já disponível)
-- [ ] **7.4** Comparação de períodos (semana atual vs anterior)
-
----
-
-## Fase 8 — Check-in Inteligente
-
-- [ ] **8.1** Criar modal/fluxo de check-in diário (máx 15 segundos)
-- [ ] **8.2** Perguntas rápidas: "Como você chega hoje?", "Como está sua energia?", "Você conseguiu descansar?"
-- [ ] **8.3** Disparar check-in automaticamente ao abrir o app (uma vez por dia)
-- [ ] **8.4** Cruzar dados do check-in com sono, hábitos e conversas anteriores
-- [ ] **8.5** Gerar resposta personalizada pós-check-in
-
----
-
-## Fase 9 — Insights IA
-
-- [ ] **9.1** Substituir textos genéricos por insights gerados por IA
-- [ ] **9.2** Formato natural e inteligente (ex: "Nas últimas duas semanas você demonstrou mais tranquilidade após dias com sono acima de 7h...")
-- [ ] **9.3** Correlacionar variáveis (sono ↔ humor, alimentação ↔ energia)
-- [ ] **9.4** Posicionar insights na timeline, dashboard e chat
-
----
-
-## Fase 10 — IA Preventiva
-
-- [ ] **10.1** Implementar detecção de padrões: sono caiu + humor caiu + interações diminuíram
-- [ ] **10.2** Alertas sutis e preventivos ("Percebi uma mudança no seu padrão...")
-- [ ] **10.3** Sugerir ação antes do burnout: exercício, conversa, pausa, mindfulness
-- [ ] **10.4** Notificações preventivas com tom de cuidado, não de alarme
-
----
-
-## Fase 11 — Plano de Cuidado (Bem-estar)
-
-- [ ] **11.1** Criar "Plano de Bem-estar" com objetivo definido pelo usuário (ex: reduzir ansiedade)
-- [ ] **11.2** Checklist diário: ✔ água, ✔ caminhada, ✔ respirar, ✔ conversar
-- [ ] **11.3** Progresso visual do plano
-- [ ] **11.4** Sugestões da IA para ajustes no plano
-
----
-
-## Fase 12 — Gamificação Elegante
-
-- [ ] **12.1** Remover sistema de moedas/pontos se existir
-- [ ] **12.2** Substituir por contagem de progresso: "Você cultivou 14 dias de autocuidado"
-- [ ] **12.3** Metas baseadas em consistência, não competição
-- [ ] **12.4** Pequenas celebrações visuais (sem animações infantis)
-
----
-
-## Fase 13 — Dashboard do RH (Modo Manager)
-
-- [ ] **13.1** Criar nova seção/rota para o painel administrativo
-- [ ] **13.2** Exibir apenas dados agregados e anonimizados (nunca indivíduos)
-- [ ] **13.3** KPIs por equipe: Estresse ↑, Energia ↓, Sono ↓, Engajamento ↑
-- [ ] **13.4** Cards de resumo por departamento (ex: "Equipe Financeira — Excelente estabilidade emocional")
-- [ ] **13.5** Gráficos de tendência ao longo do tempo
-- [ ] **13.6** Alertas de equipe (quando métricas indicam risco)
-
----
-
-## Fase 14 — Pulse Inteligente com IA ⭐
-
-> Funcionalidade #1 para aumentar valor percebido
-
-- [ ] **14.1** Criar fluxo diário de < 20 segundos combinando check-in + IA
-- [ ] **14.2** IA cruza check-in com sono, hábitos, conversas e padrões
-- [ ] **14.3** Resultado duplo:
-  - [ ] 14.3.1 Experiência personalizada para o colaborador
-  - [ ] 14.3.2 Indicadores agregados e anonimizados para o RH
-- [ ] **14.4** Conectar exatamente o que a Mundo Mental vende com o que o Zēllu faz melhor
-
----
-
-## Fase 15 — Portal Administrativo (Mundo Mental)
-
-- [ ] **15.1** Criar painel administrativo separado (super-admin)
-- [ ] **15.2** Módulos do portal:
-  - [ ] 15.2.1 KPIs globais
-  - [ ] 15.2.2 Gerenciamento de empresas/clientes
-  - [ ] 15.2.3 Gerenciamento de funcionários
-  - [ ] 15.2.4 Licenças e contratos
-  - [ ] 15.2.5 Métricas de uso e adoção
-  - [ ] 15.2.6 Sentimentos agregados
-  - [ ] 15.2.7 Alertas configuráveis
-  - [ ] 15.2.8 Relatórios exportáveis (PDF/CSV)
-- [ ] **15.3** Design limpo e profissional (painel B2B)
-
----
-
-## Fase 16 — Limpeza & Refinamento
-
-- [ ] **16.1** Revisar todos os textos para tom corporativo-acolhedor
-- [ ] **16.2** Eliminar sinais de MVP (telas que parecem demonstração)
-- [ ] **16.3** Garantir que toda a experiência parece um produto pronto para uso diário
-- [ ] **16.4** Testes de percepção: pedir feedback sobre aparência "enterprise"
-- [ ] **16.5** Documentar posicionamento: o app não substitui psicólogos nem a plataforma MM — ele aumenta engajamento
-- [ ] **16.6** Apresentar proposta comercial: um **ativo estratégico** que amplia o valor da oferta da Mundo Mental
-
----
-
-## Resumo por Prioridade
-
-| Prioridade | Fases | Descrição |
-|------------|-------|-----------|
-| **P0 — Crítico** | Fase 0, 1, 16 | Fundação, white label, limpeza de MVP |
-| **P1 — Alto** | Fase 2, 4, 8, 14 | Modos, chat real, check-in, pulse inteligente |
-| **P2 — Médio** | Fase 3, 5, 6, 7 | Redesign visual, bem-estar, timeline, dashboard |
-| **P3 — Estratégico** | Fase 9, 10, 11, 12 | Insights IA, preventiva, plano, gamificação |
-| **P4 — Corporativo** | Fase 13, 15 | Dashboard RH + Portal Administrativo |
-
----
-
-> **Meta final:** O Zēllu deixa de parecer "um app bonito de saúde mental" e passa a parecer um **ativo estratégico** que amplia o valor da oferta da Mundo Mental para seus próprios clientes.
+- [ ] Animação de entrada nas bolhas de chat
+- [ ] Haptic feedback (mobile)
+- [ ] Suporte a áudio (voz para texto)
+- [ ] Testes E2E
