@@ -1,5 +1,6 @@
 import { Link, useRouterState, type LinkProps } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { Icon } from "./Icon";
 
 interface NavItem {
   to: LinkProps["to"];
@@ -9,22 +10,11 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { to: "/diario", icon: "auto_stories", label: "Diário" },
-  { to: "/respiro", icon: "air", label: "Respiro" },  
+  { to: "/respiro", icon: "air", label: "Respiro" },
   { to: "/", icon: "chat_bubble", label: "Chat" },
   { to: "/habitos", icon: "task_alt", label: "Hábitos" },
   { to: "/respiro", icon: "air", label: "Perfil" },
 ];
-
-export function Icon({ name, filled = false, className = "" }: { name: string; filled?: boolean; className?: string }) {
-  return (
-    <span
-      className={`material-symbols-outlined select-none ${className}`}
-      style={{ fontVariationSettings: `'FILL' ${filled ? 1 : 0}, 'wght' 500` }}
-    >
-      {name}
-    </span>
-  );
-}
 
 export function MobileShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
