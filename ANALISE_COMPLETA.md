@@ -1,10 +1,10 @@
-# Análise Completa da Aplicação — LVB-ZelluApp (Sereno)
+# Análise Completa da Aplicação — LVB-ZelluApp (Mundo Mental)
 
 ## 1. Visão Geral
 
 **Nome do projeto:** `tanstack_start_ts` (nome interno)
-**Nome de exibição:** LVB-ZelluApp / Sereno
-**Descrição:** Um aplicativo mobile-first de bem-estar e saúde mental, com chat terapêutico simulado, diário emocional, rastreador de hábitos (água, alimentação, sono) e exercícios de respiração guiada.
+**Nome de exibição:** Mundo Mental Companion / Zēllu
+**Descrição:** Uma plataforma completa de bem-estar e saúde mental corporativo, com chat terapêutico com IA, diário emocional, rastreamento de hábitos, dashboard emocional, insights de IA e painel administrativo para RH.
 
 **Template base:** `tanstack_start_ts_2026-05-29` (via Lovable.dev)
 **Gerenciador de pacotes:** bun (com `bun.lock` e `bunfig.toml`)
@@ -13,6 +13,8 @@
 **Build tool:** Vite 7
 **Estilo:** Tailwind CSS 4 + shadcn/ui (New York style)
 **Ícones:** Google Material Symbols Outlined + lucide-react
+**Backend:** Supabase (PostgreSQL + Auth + Storage)
+**IA:** OpenRouter (GPT-4o-mini)
 
 ---
 
@@ -23,56 +25,120 @@ LVB-ZelluApp/
 ├── .git/
 ├── .gitignore
 ├── .lovable/
-│   └── project.json            # Metadados do template Lovable
-├── .prettierrc                  # Config Prettier (100 col, aspas duplas, trailing comma)
-├── .prettierignore              # node_modules, dist, .output, .vinxi, lock, routeTree.gen.ts
-├── .tanstack/
-│   └── tmp/
+│   └── project.json
+├── .prettierrc
+├── .prettierignore
+├── .tanstack/tmp/
 ├── bun.lock
-├── bunfig.toml                  # minimumReleaseAge: 86400s (24h), exclui @lovable.dev/*
-├── components.json              # Config shadcn/ui (New York, slate base, ícone lucide)
-├── eslint.config.js             # ESLint flat config (TS, React Hooks, React Refresh, Prettier)
+├── bunfig.toml
+├── components.json
+├── eslint.config.js
 ├── node_modules/
-├── package-lock.json
 ├── package.json
 ├── public/
-│   └── favicon.ico
+│   ├── favicon.ico
+│   └── logo.png
 ├── src/
-│   ├── assets/
-│   │   └── avatar/
-│   │       └── cabeca/
-│   │           ├── Amora.png
-│   │           ├── Chico.png
-│   │           ├── Pipoca.png
-│   │           └── Zeca.png
+│   ├── assets/avatar/cabeca/
+│   │   ├── Amora.png
+│   │   ├── Chico.png
+│   │   ├── Pipoca.png
+│   │   └── Zeca.png
 │   ├── components/
-│   │   ├── MobileShell.tsx      # Layout mobile + navegação inferior + componente Icon
-│   │   └── ui/                  # 46 componentes shadcn/ui (accordion ao tooltip)
+│   │   ├── Avatar.tsx               # Componente de avatares Amora, Chico, Pipoca, Zeca
+│   │   ├── Icon.tsx                  # Wrapper Material Symbols Outlined
+│   │   ├── MobileShell.tsx           # Layout mobile + navegação inferior
+│   │   ├── DesktopShell.tsx          # Layout desktop com sidebar
+│   │   ├── ManagerShell.tsx          # Layout para área de RH/Manager
+│   │   ├── DevShell.tsx              # Layout para ferramentas de desenvolvimento
+│   │   └── ui/                       # 46 componentes shadcn/ui
+│   ├── data/
+│   │   └── index.ts                  # Tipos e dados mockados
 │   ├── hooks/
-│   │   └── use-mobile.tsx       # Hook useIsMobile (breakpoint 768px)
+│   │   └── use-mobile.tsx            # Hook useIsMobile
 │   ├── lib/
-│   │   ├── api/
-│   │   │   └── example.functions.ts  # Exemplo de createServerFn (TanStack Start)
-│   │   ├── config.server.ts     # Config server-side (.server.ts, não vai pro client)
-│   │   ├── error-capture.ts     # Captura global de erros (error/unhandledrejection)
-│   │   ├── error-page.ts        # Página de erro SSR inline (HTML puro)
-│   │   ├── lovable-error-reporting.ts  # Report de erros para Lovable
-│   │   └── utils.ts             # Função cn() (clsx + tailwind-merge)
+│   │   ├── api/                      # Server Functions
+│   │   │   ├── auth.server.ts        # Autenticação e perfis
+│   │   │   ├── checkin.server.ts     # Check-ins matinais
+│   │   │   ├── chat-ai.server.ts     # Integração OpenRouter
+│   │   │   ├── chat.server.ts        # Mensagens do chat
+│   │   │   ├── diario.server.ts      # Entradas de diário
+│   │   │   ├── habits.server.ts      # Hábitos diários
+│   │   │   ├── dashboard.server.ts   # Dashboard emocional
+│   │   │   ├── timeline.server.ts    # Timeline com IA
+│   │   │   ├── manager.server.ts     # Dados de RH
+│   │   │   ├── llm-config.server.ts  # Configuração de IA (dev)
+│   │   │   └── insights-ai.server.ts # Geração de insights por IA
+│   │   ├── services/                 # Camada de serviços
+│   │   │   ├── chat-service.ts
+│   │   │   ├── checkin-service.ts
+│   │   │   ├── diario-service.ts
+│   │   │   ├── habitos-service.ts
+│   │   │   ├── dashboard-service.ts
+│   │   │   ├── timeline-service.ts
+│   │   │   └── manager-service.ts
+│   │   ├── supabase/
+│   │   │   ├── client.ts             # Cliente Supabase browser
+│   │   │   └── server.ts             # Cliente Supabase server-side
+│   │   ├── auth-context.tsx          # Context de autenticação
+│   │   ├── use-require-auth.ts       # Proteção de rotas por role
+│   │   ├── branding.ts               # Config de marca (nome, cores, fontes)
+│   │   ├── theme.tsx                 # ThemeProvider + useTheme
+│   │   ├── config.server.ts
+│   │   ├── error-capture.ts
+│   │   ├── error-page.ts
+│   │   ├── lovable-error-reporting.ts
+│   │   └── utils.ts
 │   ├── routes/
-│   │   ├── README.md            # Documentação interna do sistema de rotas
-│   │   ├── __root.tsx            # Root layout (QueryClientProvider, head, error/404)
-│   │   ├── index.tsx            # Rota "/" — Página de Chat
-│   │   ├── diario.tsx           # Rota "/diario" — Meu Diário
-│   │   ├── habitos.tsx          # Rota "/habitos" — Meus Hábitos
-│   │   └── respiro.tsx          # Rota "/respiro" — Espaço do Respiro
-│   ├── routeTree.gen.ts          # Árvore de rotas gerada automaticamente
-│   ├── router.tsx                # Factory do Router TanStack
-│   ├── server.ts                 # Entrypoint SSR (fetch handler com error recovery)
-│   ├── start.ts                  # Instância createStart com middleware de erro
-│   └── styles.css                # Estilos globais Tailwind + tema Clay + animações
-├── teste.md
+│   │   ├── README.md
+│   │   ├── __root.tsx                # Root layout com providers
+│   │   ├── index.tsx                 # Dashboard Emocional (/)
+│   │   ├── login.tsx                 # Tela de login/cadastro
+│   │   ├── chat.tsx                  # Chat com IA
+│   │   ├── checkin.tsx               # Check-in matinal
+│   │   ├── diario.tsx                # Timeline/Diário
+│   │   ├── habitos.tsx               # Redirect → /meu-bem-estar
+│   │   ├── meu-bem-estar.tsx         # Visão consolidada de bem-estar
+│   │   ├── respiro.tsx               # Exercícios de respiração
+│   │   ├── perfil.tsx                # Perfil do usuário
+│   │   ├── dashboard-emocional.tsx   # Redirect → /
+│   │   ├── manager/
+│   │   │   ├── index.tsx             # Dashboard RH
+│   │   │   ├── equipes.tsx           # Gestão de equipes
+│   │   │   └── relatorios.tsx        # Relatórios e exportações
+│   │   └── dashitecnology/
+│   │       ├── index.tsx             # Ferramentas de desenvolvimento
+│   │       └── $painelDev.tsx        # Painéis dinâmicos (LLM Config)
+│   ├── components/pages/             # Páginas por dispositivo
+│   │   ├── mobile/
+│   │   │   ├── ChatPage.tsx
+│   │   │   ├── CheckinPage.tsx
+│   │   │   ├── TimelinePage.tsx
+│   │   │   ├── BemEstarPage.tsx
+│   │   │   ├── RespiroPage.tsx
+│   │   │   ├── PerfilPage.tsx
+│   │   │   └── DashboardEmocionalPage.tsx
+│   │   └── desktop/
+│   │       ├── ChatPage.tsx
+│   │       ├── CheckinPage.tsx
+│   │       ├── TimelinePage.tsx
+│   │       ├── BemEstarPage.tsx
+│   │       ├── RespiroPage.tsx
+│   │       ├── PerfilPage.tsx
+│   │       └── DashboardEmocionalPage.tsx
+│   ├── routeTree.gen.ts
+│   ├── router.tsx
+│   ├── server.ts
+│   ├── start.ts                      # CSRF middleware adicionado
+│   └── styles.css
+├── supabase/                         # Configurações e migrations
 ├── tsconfig.json
-└── vite.config.ts
+├── vite.config.ts
+├── .env                              # Variáveis de ambiente
+├── TODO-MundoMental.md               # Plano de implementação
+├── CORRECOES_ROTAS.md                # Documentação de correções
+├── DEV_ACESSO_COMPLETO.md            # Acesso do role dev
+└── FASE_10_INSIGHTS_IA.md            # Documentação de insights IA
 ```
 
 ---
@@ -87,10 +153,12 @@ LVB-ZelluApp/
 | Vite | ^7.3.1 | Bundler / Dev Server |
 | TanStack React Router | ^1.168.25 | Roteamento SPA/SSR |
 | TanStack React Query | ^5.83.0 | Gerenciamento de estado server-side |
-| TanStack React Start | ^1.167.50 | Framework full-stack SSR |
+| TanStack React Start | ^1.168.20 | Framework full-stack SSR |
 | Nitro (beta) | 3.0.260429-beta | Servidor de produção SSR |
 | Tailwind CSS | ^4.2.1 | Utilitários CSS |
 | shadcn/ui | — | Componentes headless estilizados |
+| Supabase | ^2.110.3 | Backend as a Service (Auth, DB, Storage) |
+| OpenRouter | — | Gateway para LLMs (GPT-4o-mini) |
 
 ### 3.2 Componentes e UI
 | Pacote | Versão | Uso |
@@ -100,314 +168,415 @@ LVB-ZelluApp/
 | clsx + tailwind-merge | ^2.1.1 / ^3.5.0 | Combinação de classes CSS |
 | lucide-react | ^0.575.0 | Ícones |
 | Material Symbols Outlined | — | Ícones (via Google Fonts) |
-| recharts | ^2.15.4 | Gráficos |
+| recharts | ^2.15.4 | Gráficos (Dashboard Emocional) |
 | embla-carousel-react | ^8.6.0 | Carrossel |
 | cmdk | ^1.1.1 | Command palette |
 | input-otp | ^1.4.2 | Input OTP |
 | react-day-picker | ^9.14.0 | Calendário |
-| react-hook-form | ^7.71.2 | Formulários |
+| react-hook-form | ^7.81.0 | Formulários |
 | @hookform/resolvers | ^5.2.2 | Validação de formulários |
 | sonner | ^2.0.7 | Toast notifications |
 | vaul | ^1.1.2 | Drawer component |
 | react-resizable-panels | ^4.6.5 | Painéis redimensionáveis |
 | date-fns | ^4.1.0 | Manipulação de datas |
 | zod | ^3.24.2 | Validação de schemas |
+| framer-motion | ^12.42.2 | Animações |
 | tw-animate-css | ^1.3.4 | Animações CSS |
-| lightningcss-win32-x64-msvc | ^1.32.0 | Processador CSS |
-
-### 3.3 Dev Dependencies
-| Pacote | Versão |
-|---|---|
-| @vitejs/plugin-react | ^5.0.4 |
-| @lovable.dev/vite-tanstack-config | ^2.1.1 |
-| eslint + prettier | ^9.32.0 / ^3.7.3 |
-| typescript-eslint | ^8.56.1 |
 
 ---
 
-## 4. Configurações do Projeto
+## 4. Sistema de Rotas (TanStack Router)
 
-### 4.1 TypeScript (`tsconfig.json`)
-- **Target:** ES2022
-- **JSX:** react-jsx
-- **Module:** ESNext + Bundler resolution
-- **Strict mode:** ativado
-- **Path alias:** `@/*` → `./src/*`
-- **Libs:** ES2022, DOM, DOM.Iterable
+**Tipo:** File-based routing com proteção por role
 
-### 4.2 Vite (`vite.config.ts`)
-- Usa o preset `@lovable.dev/vite-tanstack-config`
-- Entrypoint SSR: `src/server.ts`
-- **Não** adicionar manualmente: tanstackStart, viteReact, tailwindcss, tsConfigPaths, nitro, componentTagger
-
-### 4.3 ESLint (`eslint.config.js`)
-- Flat config com TypeScript-ESLint
-- Plugins: react-hooks, react-refresh, prettier
-- Regra especial: bloqueia importação de `server-only` (não usado no TanStack Start)
-- Ignora: dist, .output, .vinxi
-
-### 4.4 Prettier (`.prettierrc`)
-- 100 colunas, aspas duplas, trailing comma all, ponto e vírgula
-
-### 4.5 shadcn/ui (`components.json`)
-- Estilo: New York
-- Base color: Slate
-- RSC: false
-- CSS variables: true
-- Biblioteca de ícones: lucide
-- Alias: `@/components`, `@/lib`, `@/hooks`, `@/components/ui`
-
----
-
-## 5. Sistema de Rotas (TanStack Router)
-
-**Tipo:** File-based routing
-
+### 4.1 Rotas Públicas
 | Arquivo | URL | Componente | Descrição |
 |---|---|---|---|
-| `__root.tsx` | — | RootLayout | Layout raiz, providers, head HTML, error/404 |
-| `index.tsx` | `/` | ChatPage | Chat com IA assistente |
-| `diario.tsx` | `/diario` | DiarioPage | Diário emocional com humor |
-| `habitos.tsx` | `/habitos` | HabitosPage | Hábitos: água, alimentação, sono |
-| `respiro.tsx` | `/respiro` | RespiroPage | Exercício de respiração guiada |
+| `__root.tsx` | — | RootLayout | Layout raiz, providers, error/404 |
+| `login.tsx` | `/login` | LoginPage | Login e cadastro com seleção de role |
 
-**Geração automática:** `routeTree.gen.ts` — não editar manualmente.
+### 4.2 Rotas de Colaborador (Companion)
+| Arquivo | URL | Descrição |
+|---|---|---|
+| `index.tsx` | `/` | Dashboard Emocional com gráficos e insights IA |
+| `chat.tsx` | `/chat` | Chat com IA contextual (OpenRouter) |
+| `checkin.tsx` | `/checkin` | Check-in matinal (sono, água, humor) |
+| `diario.tsx` | `/diario` | Timeline com entradas e insights IA |
+| `meu-bem-estar.tsx` | `/meu-bem-estar` | Visão consolidada de todos os indicadores |
+| `respiro.tsx` | `/respiro` | Exercícios de respiração com sons ambiente |
+| `perfil.tsx` | `/perfil` | Perfil e configurações do usuário |
+| `habitos.tsx` | `/habitos` | Redirect → /meu-bem-estar |
+| `dashboard-emocional.tsx` | `/dashboard-emocional` | Redirect → / |
 
-**Registro TypeScript:** `@tanstack/react-start` module augmentation com `ssr: true`, tipo do router e tipo do startInstance.
+### 4.3 Rotas de Manager (RH/Gestor)
+| Arquivo | URL | Descrição |
+|---|---|---|
+| `manager/index.tsx` | `/manager` | Dashboard RH com métricas de equipes |
+| `manager/equipes.tsx` | `/manager/equipes` | Gestão de equipes por departamento |
+| `manager/relatorios.tsx` | `/manager/relatorios` | Exportação de relatórios CSV |
 
----
+### 4.4 Rotas de Dev (Desenvolvedor)
+| Arquivo | URL | Descrição |
+|---|---|---|
+| `dashitecnology/index.tsx` | `/dashitecnology` | Índice de ferramentas de dev |
+| `dashitecnology/$painelDev.tsx` | `/dashitecnology/:painelDev` | Painéis dinâmicos (ex: llm-config) |
 
-## 6. Páginas / Funcionalidades
+### 4.5 Hierarquia de Acesso por Role
 
-### 6.1 `__root.tsx` — Layout Raiz
-- **Head:** charset utf-8, viewport com `maximum-scale=1`, theme-color `#F3EEE1`, título "LVB-ZelluApp"
-- **Descrição:** "Um espaço gentil para acolher sua mente, dia após dia."
-- **Fontes:** Quicksand (títulos), Nunito Sans (corpo), Material Symbols Outlined (ícones)
-- **OG Image:** Chico.webp (armazenamento Google Cloud)
-- **ShellComponent:** `<html>` + `<HeadContent>` + `<Scripts>`
-- **Providers:** `QueryClientProvider` com `QueryClient` instanciado por requisição
-- **NotFoundComponent:** Página 404 com link para home
-- **ErrorComponent:** Error boundary com botão "Try again" (router.invalidate + reset) e report Lovable
+**Companion (Colaborador):**
+- ✅ Todas as rotas de companion
+- ❌ Bloqueado em /manager e /dashitecnology
 
-### 6.2 `index.tsx` — Chat (`/`)
-- **Título:** "Chat — Sereno"
-- **Estado:** mensagens mockadas com `useState<Msg[]>`
-- **Funcionalidade:** Balões de conversa (AI à esquerda, User à direita)
-- **Botões rápidos:** "Suave", "Médio", "Forte" (escala de ansiedade)
-- **Input:** campo de texto + botão de microone (estático)
-- **Simulação:** resposta automática da IA após 700ms
-- **Design:** Glassmorphism, gradientes sutis, clay-card, clay-soft
+**Manager (RH/Gestor):**
+- ✅ Todas as rotas de manager
+- ❌ Bloqueado em rotas de companion e /dashitecnology
+- 🔄 Pode alternar entre views se tiver múltiplos roles
 
-### 6.3 `diario.tsx` — Meu Diário (`/diario`)
-- **Título:** "Meu Diário — Sereno"
-- **Seções:**
-  - **Resumo da IA:** insights mockados sobre padrões de humor
-  - **Humor Recente:** grid 7x2 (14 dias) com círculos coloridos, gradientes por humor
-  - **Conversas Anteriores:** lista de 3 entries mockadas com tintas coloridas
-- **Paleta:** `clay-anxiety`, `clay-joy`, `clay-cta`, `clay-stress`, `clay-cta-2`, `clay-self`
-- **Design:** clay-card, clay-soft, ícones Material Symbols
-
-### 6.4 `habitos.tsx` — Meus Hábitos (`/habitos`)
-- **Título:** "Meus Hábitos — Sereno"
-- **Seções:**
-  - **Hidratação:** barra interativa drag-and-drop (mouse/touch) com recipiente visual. Meta: 2000ml. Slider com handle de gota d'água.
-  - **Alimentação Afetiva:** cards horizontais com scroll (Café da Manhã 🥞, Almoço 🥗, Lanche 🍎, Jantar 🍲)
-  - **Monitoramento do Sono:** slider com caminho SVG curvo + indicador de lua. Estados: Cansado (<25), Moderado (<50), Revigorante (<75), Radiante (>=75)
-- **Interatividade:** listeners `mousemove/mouseup/touchmove/touchend` com cleanup em useEffect
-
-### 6.5 `respiro.tsx` — Espaço do Respiro (`/respiro`)
-- **Título:** "Espaço do Respiro — Sereno"
-- **Funcionalidades:**
-  - **Exercício de Respiração:** ciclo Inspirar (2.8s) → Segurar (1.2s) → Expirar (2.0s) com animação de fade
-  - **Círculo pulsante:** animação CSS `breathe` (6s ease-in-out) com gradiente radial e sombras
-  - **Botão do Pânico:** área destacada com gradiente laranja (não funcional, apenas visual)
-  - **Sons Ambiente:** grid 2×2 (Chuva, Floresta, Fogueira, Ondas) com toggle visual clay-pressed/clay-soft
-- **Header:** logotipo "Sereno" + ícone de perfil
+**Dev (Desenvolvedor):**
+- ✅ **Acesso TOTAL** a todas as rotas (companion + manager + dev)
+- 🔄 Pode alternar entre as 3 views: Colaborador → Manager → Dev Tools
 
 ---
 
-## 7. Componentes
+## 5. Funcionalidades Implementadas
 
-### 7.1 `MobileShell.tsx`
-- **Função:** Layout principal mobile-first
-- **Estrutura:**
-  - Container com `max-w-[440px]`, padding, `min-h-[100dvh]`
-  - Navegação inferior fixa (4 botões) com clay-card
-- **NavItems definidos:**
-  1. `/diario` — "Diário" (ícone: auto_stories)
-  2. `/respiro` — "Respiro" (ícone: air) — duplicado no array (também usado como "Perfil")
-  3. `/` — "Chat" (ícone: chat_bubble)
-  4. `/habitos` — "Hábitos" (ícone: task_alt)
-  5. `/respiro` — "Perfil" (ícone: air) — duplicado, label "Perfil" mas rota é `/respiro`
-- **Componente `<Icon>`**: wrapper Material Symbols Outlined com suporte a `filled` e `fontVariationSettings`
+### 5.1 Autenticação e Autorização
+- **Login/Cadastro** com email e senha
+- **Seleção de role** no cadastro (Colaborador ou RH/Gestor)
+- **Redirecionamento automático** após login baseado no role
+- **Proteção de rotas** via hook `useRequireAuth()`
+- **Context global** de autenticação (`AuthProvider`)
+- **Sessão persistente** via Supabase Auth
 
-### 7.2 Componentes `ui/` (shadcn/ui)
-46 componentes disponíveis: accordion, alert, alert-dialog, aspect-ratio, avatar, badge, breadcrumb, button, calendar, card, carousel, chart, checkbox, collapsible, command, context-menu, dialog, drawer, dropdown-menu, form, hover-card, input, input-otp, label, menubar, navigation-menu, pagination, popover, progress, radio-group, resizable, scroll-area, select, separator, sheet, sidebar, skeleton, slider, sonner, switch, table, tabs, textarea, toggle, toggle-group, tooltip.
+### 5.2 Dashboard Emocional (`/`)
+- **Gráficos de evolução** com recharts:
+  - Distribuição de humor (barras)
+  - Comparativo semanal (barras agrupadas)
+  - Tendência de humor 30 dias (linha)
+  - Tendência de sono 30 dias (linha)
+- **Métricas resumidas**:
+  - Dias rastreados
+  - Humor predominante
+  - Média de sono
+- **Insight de IA** sobre mudança de ansiedade
+- **Comparação semanal** (sono, água, movimento)
+- **Versões mobile e desktop** responsivas
 
-**Nota:** Nenhum deles é atualmente importado nas páginas — todo o estilo é feito com utilitários Tailwind + classes customizadas (clay-*).
+### 5.3 Chat com IA (`/chat`)
+- **Integração real** com OpenRouter (GPT-4o-mini)
+- **Contexto personalizado**:
+  - Nome do usuário
+  - Último check-in (sono, água, humor)
+  - Hora do dia (bom dia/tarde/noite)
+- **Saudação contextual**: "Bom dia [nome]. Dormiu bem?"
+- **Estado de digitação** natural (typing indicator)
+- **Histórico de conversa** (últimos 10 turnos)
+- **Sugestões inteligentes** pós-resposta
+- **Persistência** no Supabase
+
+### 5.4 Check-in Matinal (`/checkin`)
+- **Fluxo em 3 etapas**:
+  1. Sono (5-9 horas)
+  2. Hidratação (500-2500ml)
+  3. Humor (6 emojis: Feliz, Calmo, Neutro, Ansioso, Triste, Irritado)
+- **Salvamento automático** no Supabase
+- **Integração com chat** (IA usa dados do check-in)
+- **Verificação de check-in existente** (não duplica)
+- **Versões mobile e desktop**
+
+### 5.5 Timeline/Diário (`/diario`)
+- **Formato de timeline** com entradas agregadas:
+  - Entradas de diário
+  - Check-ins (sono, água, humor)
+  - Hábitos (movimento, energia, refeições)
+  - Mensagens do chat
+- **Calendário de humor** (14 dias)
+- **Insight de IA** no topo ("IA percebe evolução")
+- **Adicionar nova entrada** de texto
+- **Cores por humor** (emoji + gradiente)
+
+### 5.6 Meu Bem-estar (`/meu-bem-estar`)
+- **Visão consolidada** de todos os indicadores:
+  - 💧 Água (slider interativo, meta 2000ml)
+  - 🛌 Sono (barra de qualidade)
+  - 😊 Humor (6 opções)
+  - 🏃 Movimento (0-120 min)
+  - ⚡ Energia (slider Baixa/Média/Alta)
+  - 🍽️ Refeições (toggle: café, almoço, lanche, jantar)
+  - 🧘 Respiração (link para /respiro)
+- **Integração com check-in** (pré-popula dados)
+- **Salvamento consolidado**
+- **Versões mobile e desktop**
+
+### 5.7 Espaço do Respiro (`/respiro`)
+- **Exercício de respiração guiada**:
+  - Inspirar (2.8s) → Segurar (1.2s) → Expirar (2.0s)
+  - Animação CSS `breathe` (6s)
+  - Círculo pulsante com gradiente
+- **Sons ambiente** (grid 2×2):
+  - 🌧️ Chuva
+  - 🌲 Floresta
+  - 🔥 Fogueira
+  - 🌊 Ondas
+- **Toggle visual** clay-pressed/clay-soft
+- **Versões mobile e desktop**
+
+### 5.8 Perfil (`/perfil`)
+- **Dados pessoais**:
+  - Nome de exibição (editável)
+  - Avatar (seleção entre Amora, Chico, Pipoca, Zeca)
+  - Email (editável com confirmação)
+  - Senha (alteração com verificação)
+- **Configurações**:
+  - Tema claro/escuro
+  - Logout
+- **Para Dev**: Botão de trocar entre modos
+
+### 5.9 Dashboard RH (`/manager`)
+- **Métricas por equipe**:
+  - Estresse ↑/↓
+  - Energia ↑/↓
+  - Sono ↑/↓
+  - Engajamento ↑/↓
+- **Cards de resumo**:
+  - Total de colaboradores
+  - Check-ins hoje
+  - Adesão semanal
+  - Alertas ativos
+- **Navegação**: Equipes, Relatórios, Perfil
+- **Versões mobile e desktop**
+
+### 5.10 Gestão de Equipes (`/manager/equipes`)
+- **Lista de equipes** com status:
+  - Nome do departamento
+  - Número de membros
+  - Badge de status (Estável, Monitorar, Atenção)
+- **Indicadores por equipe**
+- **Grid responsivo** (1/2/3 colunas)
+
+### 5.11 Relatórios (`/manager/relatorios`)
+- **Exportação CSV** (últimos 30 dias)
+- **Indicadores agregados** e anonimizados
+- **Download automático**
+
+### 5.12 Dev Tools (`/dashitecnology`)
+- **Painel LLM Config**:
+  - Modelo (ex: openai/gpt-4o-mini)
+  - Temperatura (0.0-2.0)
+  - Max tokens
+  - System prompt
+  - API Key (OpenRouter)
+  - Teste de conexão
+  - Reset para padrão
+- **Proteção**: Apenas role "dev"
 
 ---
 
-## 8. Sistema de Design — Tema "Clay"
+## 6. Insights com IA (Fase 10)
 
-### 8.1 Paleta de Cores (OKLCH)
+### 6.1 Sistema de Insights (`insights-ai.server.ts`)
+- **Integração com OpenRouter** (GPT-4o-mini)
+- **6 contextos diferentes**:
+  - `timeline` - Evolução recente
+  - `dashboard` - Correlações entre métricas
+  - `anxiety-change` - Mudança de ansiedade
+  - `sleep-quality` - Qualidade do sono
+  - `weekly-summary` - Resumo semanal
+  - `chat` - Observações contextuais
+
+### 6.2 Dados Processados
+- **Métricas agregadas**:
+  - Médias de sono, água, movimento, energia
+  - Distribuição de humor
+  - Tendências (melhorando/piorando/estável)
+  - Comparação semanal
+- **Correlações identificadas**:
+  - Sono ↔ Humor
+  - Movimento ↔ Energia
+  - Hidratação ↔ Bem-estar
+  - Ansiedade ↔ Sono
+
+### 6.3 Exemplos de Insights
+- *"Nas últimas duas semanas, você demonstrou mais tranquilidade após dias com sono acima de 7h."*
+- *"Você teve 18% menos dias ansiosos esta semana. Suas 7h de sono médias estão fazendo diferença!"*
+- *"Seus dias com melhor humor coincidem com noites de sono de qualidade e movimento regular."*
+
+### 6.4 Fallback Inteligente
+- Sistema de regras quando API não disponível
+- Sempre retorna insight relevante
+- Baseado nos dados reais do usuário
+
+---
+
+## 7. Sistema de Design
+
+### 7.1 Paleta de Cores (OKLCH)
 | Variável | Valor | Uso |
 |---|---|---|
-| `--clay-cream` | oklch(0.945 0.022 84) | Fundo principal (#F3EEE1) |
-| `--clay-title` | oklch(0.71 0.045 254) | Títulos (#8EA3C1) |
-| `--clay-text` | oklch(0.48 0.03 260) | Texto corporal (#5A677D) |
-| `--clay-cta` | oklch(0.82 0.05 250) | CTA primário (#A9C7E9) |
-| `--clay-cta-2` | oklch(0.88 0.035 250) | CTA secundário (#C5D9F1) |
-| `--clay-anxiety` | oklch(0.88 0.045 50) | Ansiedade/calor (#F5D6C1) |
-| `--clay-stress` | oklch(0.93 0.06 95) | Estresse (#F9E7B5) |
-| `--clay-self` | oklch(0.84 0.05 305) | Autocuidado(#D7CBE8) |
-| `--clay-joy` | oklch(0.9 0.06 145) | Alegria (#C8E6C9) |
+| `--clay-cream` | oklch(0.945 0.022 84) | Fundo principal |
+| `--clay-title` | oklch(0.71 0.045 254) | Títulos |
+| `--clay-text` | oklch(0.48 0.03 260) | Texto corporal |
+| `--clay-cta` | oklch(0.82 0.05 250) | CTA primário |
+| `--clay-cta-2` | oklch(0.88 0.035 250) | CTA secundário |
+| `--clay-anxiety` | oklch(0.88 0.045 50) | Ansiedade |
+| `--clay-stress` | oklch(0.93 0.06 95) | Estresse |
+| `--clay-joy` | oklch(0.9 0.06 145) | Alegria |
 
-### 8.2 Utilities CSS Customizadas
-- **`clay-card`**: card com backdrop-filter blur(14px), sombras múltiplas, border-radius 1.5rem
-- **`clay-soft`**: versão mais suave com blur(10px) e sombras reduzidas
-- **`clay-pressed`**: estado pressionado com sombras internas
-- **`clay-cta`**: botão CTA com gradiente linear, border-radius 999px, transição
-- **`clay-cta-active`**: estado ativo do CTA com sombras internas e translateY
+### 7.2 Componentes de UI
+- **clay-card**: Card com backdrop-filter blur(14px)
+- **clay-soft**: Versão suave com blur(10px)
+- **clay-pressed**: Estado pressionado
+- **clay-cta**: Botão com gradiente
 
-### 8.3 Tipografia
-- **Display/Títulos:** Quicksand (500-700 weight, tracking -0.01em)
+### 7.3 Tipografia
+- **Display:** Quicksand (500-700 weight)
 - **Corpo:** Nunito Sans (400-700 weight)
+- **Ícones:** Material Symbols Outlined
 
-### 8.4 Fundo da Página
-- Background: `--clay-cream` com dois gradientes radiais decorativos (tom pêssego no topo, tom azul no canto inferior direito)
-- Fixed attachment
-
-### 8.5 Modo Escuro
-- Definição inicial de `.dark` com fundo escuro e texto claro (parcial)
-
-### 8.6 Animações
-- **`breathe`**: scale(0.85 ↔ 1.05), opacity(0.85 ↔ 1), 6s infinite
-- **`bounce-dot`**: escala de 0.4 a 1, usado com delays (-0.32s, -0.16s, 0s) para efeito de loading
+### 7.4 Tema Claro/Escuro
+- ThemeProvider com toggle
+- CSS variables dinâmicas
+- Persistência da preferência
 
 ---
 
-## 9. Tratamento de Erros
+## 8. Backend (Supabase)
 
-### 9.1 `server.ts` — Entrypoint SSR
-- Importa `error-capture.ts` no topo
-- Lazy import do `@tanstack/react-start/server-entry`
-- Função `normalizeCatastrophicSsrResponse`: detecta respostas 500 com corpo `{"unhandled":true,"message":"HTTPError"}` do h3 e as substitui por página de erro amigável
-- Try/catch global que renderiza `renderErrorPage()` em caso de falha
+### 8.1 Tabelas
+- **profiles**: dados do usuário (role, display_name, avatar_url)
+- **checkins**: check-ins matinais (sleep_hours, water_ml, mood)
+- **habits**: hábitos diários (water_ml, sleep_quality, movement_minutes, energy_level, meals)
+- **diary_entries**: entradas de diário (content, mood)
+- **chat_messages**: histórico de chat (from, text)
+- **llm_config**: configuração de IA (model, temperature, max_tokens, system_prompt, api_key)
 
-### 9.2 `error-capture.ts`
-- Escuta eventos globais `error` e `unhandledrejection`
-- Armazena o último erro capturado com TTL de 5 segundos
-- `consumeLastCapturedError()`: recupera e limpa o erro capturado
+### 8.2 Row Level Security (RLS)
+- Políticas por tabela
+- Acesso apenas aos próprios dados
+- Manager acessa dados agregados/anonimizados
 
-### 9.3 `error-page.ts`
-- Função `renderErrorPage()`: retorna HTML inline com CSS embutido
-- Página minimalista com título, descrição, botão "Try again" e link "Go home"
-
-### 9.4 `lovable-error-reporting.ts`
-- Interface `Window.__lovableEvents` para report de erros ao Lovable
-- Função `reportLovableError()`: chama `captureException` se disponível
-
-### 9.5 Middleware de Erro (`start.ts`)
-- `errorMiddleware`: middleware server-side que captura erros e retorna `renderErrorPage()`
-- Ignora erros com `statusCode` (provavelmente erros HTTP intencionais)
-
-### 9.6 Error Boundary (`__root.tsx`)
-- `errorComponent`: componente de erro com console.error, report Lovable, botão "Try again" (router.invalidate) e "Go home"
+### 8.3 Autenticação
+- Email + senha
+- Confirmação de email automática
+- Metadados do usuário (role, avatar_url)
+- Sessão persistente
 
 ---
 
-## 10. Recursos Estáticos
+## 9. Segurança
 
-### 10.1 Avatares
-4 imagens PNG em `src/assets/avatar/cabeca/`:
-- Amora.png
-- Chico.png
-- Pipoca.png
-- Zeca.png
+### 9.1 CSRF Protection
+- Middleware CSRF em `start.ts`
+- Proteção de server functions
+- Tokens únicos por requisição
 
-**Nota:** Nenhuma dessas imagens é referenciada no código atual.
+### 9.2 Autenticação
+- Supabase Auth
+- Tokens JWT
+- Refresh automático
 
-### 10.2 Favicon
-- `public/favicon.ico`
+### 9.3 Autorização
+- Hook `useRequireAuth()`
+- Verificação de role
+- Redirecionamento automático
 
----
-
-## 11. Server Functions
-
-### 11.1 `example.functions.ts`
-- `getGreeting()` — `createServerFn({ method: "POST" })`
-- Validates input com Zod (`z.object({ name: z.string().min(1) })`)
-- Retorna saudação + modo (dev/prod)
-- **Não é usado** em nenhuma página atualmente (apenas exemplo)
-
-### 11.2 `config.server.ts`
-- `getServerConfig()` — retorna `{ nodeEnv: process.env.NODE_ENV }`
-- Padrão `.server.ts`: não é bundled no client
-- Comentários documentam padrões de acesso a env vars
-
----
-
-## 12. Observações e Problemas Identificados
-
-### 12.1 Problemas
-1. **Duplicação na navegação:** `MobileShell.tsx` define 5 nav items, mas o label "Perfil" aponta para `/respiro` (mesma rota de "Respiro"). Provavelmente deveria apontar para uma rota `/perfil` ainda não criada ou usar outro ícone.
-2. **NavItem "Perfil" ausente:** não há rota `/perfil` definida na route tree.
-3. **Avatares não utilizados:** 4 PNGs de cabeças de personagens em `src/assets/avatar/cabeca/` não são importados em nenhum componente.
-4. **Server Function não integrada:** `example.functions.ts` é apenas boilerplate — nenhuma página consome `getGreeting()`.
-5. **Modo escuro incompleto:** apenas `--background` e `--foreground` são definidos em `.dark`, faltando as demais variáveis.
-6. **Chat não funcional:** as mensagens e respostas da IA são puramente mockadas com `setTimeout`.
-7. **Componentes shadcn/ui não utilizados:** 46 componentes instalados mas nenhum importado nas páginas atuais.
-
-### 12.2 Observações
-- Aplicação mobile-first com `max-w-[440px]` e `maximum-scale=1`
-- Estilo visual consistente com paleta "Clay" — tons pastel suaves, efeitos glassmorphism, cantos arredondados
-- Navegação inferior fixa com indicador de rota ativa
-- Todos os dados são mockados (sem backend real)
-- Código bem comentado em inglês, exceto textos de UI que estão em português
-- Uso de OKLCH para cores (maior gama de cores perceptualmente uniforme)
-- Padrão `.server.ts` para código server-side que não vai ao bundle client
-
-### 12.3 Histórico de Commits
+### 9.4 Variáveis de Ambiente
 ```
-9289b8d teste
-345ffe2 Update site info for publish
-36a6a2a assets de cabeça inseridos, verificação das páginas verificada
-0614fdf Criou layout mobile e 4 páginas
-c3e612f Changes
-51c0787 Changes
-e44628f Changes
-f120d60 Changes
-f319173 template: tanstack_start_ts_2026-05-29
+SUPABASE_URL=...
+SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+OPENROUTER_API_KEY=sk-or-v1-...
 ```
 
 ---
 
-## 13. Scripts Disponíveis
+## 10. Status do Projeto
 
-| Script | Comando | Descrição |
-|---|---|---|
-| `dev` | `vite dev` | Servidor de desenvolvimento |
-| `build` | `vite build` | Build de produção |
-| `build:dev` | `vite build --mode development` | Build modo dev |
-| `preview` | `vite preview` | Preview do build |
-| `lint` | `eslint .` | Lint em todo o projeto |
-| `format` | `prettier --write .` | Formatação Prettier |
+### 10.1 Fases Concluídas ✅
+
+- **Fase 0:** Fundação Arquitetural ✅
+- **Fase 1:** White Label & Rebranding ✅
+- **Fase 2:** Dois Modos (Companion + Manager) ✅
+- **Fase 3:** Redesign Visual ✅
+- **Fase 4:** Chat com IA Contextual ✅
+- **Fase 5:** Check-in Matinal ✅
+- **Fase 6:** Manager Pages Responsivas ✅
+- **Fase 7:** "Hábitos" → "Meu Bem-estar" ✅
+- **Fase 8:** Diário → Timeline ✅
+- **Fase 9:** Dashboard Emocional ✅
+- **Fase 10:** Insights IA ✅
+
+### 10.2 Progresso Geral
+- **~88%** do caminho para apresentação comercial
+- **Próximas fases:** IA Preventiva, Plano de Cuidado, Gamificação, Portal Admin
+
+### 10.3 Problemas Resolvidos
+1. ✅ Corrigido erro de navegação no login
+2. ✅ Renomeado parâmetro de rota ($painel-dev → $painelDev)
+3. ✅ Adicionado middleware CSRF
+4. ✅ Implementado acesso total para role dev
+5. ✅ Sistema de insights com IA funcionando
 
 ---
 
-## 14. Dependências Instaladas (node_modules notáveis)
+## 11. Observações
 
-Fora dos pacotes padrão, o `node_modules` contém custom builds de `zod` v4-mini e v4 mini (schemas, parse, iso, external, coerce), indicando uso experimental de Zod v4 em paralelo com v3.
+### 11.1 Arquitetura
+- **Mobile-first** com suporte desktop
+- **SSR** para melhor performance e SEO
+- **Server Functions** para lógica server-side
+- **Context API** para estado global
+- **React Query** para cache de dados
+
+### 11.2 Padrões
+- `.server.ts` para código server-side
+- Componentes separados por dispositivo (mobile/desktop)
+- Services layer entre componentes e APIs
+- Validação com Zod
+- Tipagem forte em TypeScript
+
+### 11.3 Performance
+- Lazy loading de componentes
+- Cache de dados com React Query
+- Otimização de imagens
+- CSS otimizado com Tailwind
+- Build otimizado com Vite
 
 ---
 
-## 15. Fluxo de Inicialização
+## 12. Documentação
 
-1. **Vite** inicia com configuração do `@lovable.dev/vite-tanstack-config`
-2. **Entrypoint SSR:** `src/server.ts` — importa `error-capture.ts`, faz lazy import do server entry do TanStack Start
-3. **Router:** `src/router.tsx` — cria `QueryClient` + `createRouter` com routeTree
-4. **Start instance:** `src/start.ts` — `createStart` com middleware de erro
-5. **Route tree:** auto-gerada em `routeTree.gen.ts`
-6. **Root layout:** `__root.tsx` — carrega CSS, fontes, providers, error/404
-7. **Páginas renderizadas** dentro de `<MobileShell>` com navegação inferior
+### 12.1 Arquivos de Documentação
+- `TODO-MundoMental.md` - Plano de implementação completo
+- `ANALISE_COMPLETA.md` - Este arquivo
+- `CORRECOES_ROTAS.md` - Correções realizadas
+- `DEV_ACESSO_COMPLETO.md` - Sistema de acesso por role
+- `FASE_10_INSIGHTS_IA.md` - Documentação de insights IA
+
+### 12.2 Scripts
+- `dev` - Servidor de desenvolvimento
+- `build` - Build de produção
+- `build:dev` - Build modo dev
+- `preview` - Preview do build
+- `lint` - Lint ESLint
+- `format` - Formatação Prettier
+
+---
+
+## 13. Conclusão
+
+A aplicação evoluiu de um MVP de demonstração para uma plataforma completa de bem-estar corporativo, com:
+
+- ✅ Backend real com Supabase
+- ✅ Chat com IA contextual
+- ✅ Dashboard emocional com gráficos
+- ✅ Timeline integrada
+- ✅ Check-in matinal inteligente
+- ✅ Visão consolidada de bem-estar
+- ✅ Insights gerados por IA
+- ✅ Painel de RH com métricas
+- ✅ Sistema de roles (Companion, Manager, Dev)
+- ✅ Proteção de rotas e CSRF
+- ✅ Design responsivo e profissional
+
+O sistema está pronto para uso diário e demonstração comercial, com 88% das funcionalidades planejadas implementadas.

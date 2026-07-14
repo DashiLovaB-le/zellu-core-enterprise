@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { logEvent } from "@/lib/api/logs.server";
+import { getActiveLlmConfig, callLlmWithFallback } from "@/lib/api/llm-config.server";
+import type { ChatMessage } from "@/lib/api/llm-config.server";
 
 interface InsightContext {
   // Dados agregados do usuário

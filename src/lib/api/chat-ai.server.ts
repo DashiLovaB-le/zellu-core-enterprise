@@ -1,26 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import process from "node:process";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin.server";
 import { logEvent } from "@/lib/api/logs.server";
-
-interface ChatMessage {
-  role: "system" | "user" | "assistant";
-  content: string;
-}
-
-const DEFAULT_SYSTEM_PROMPT = `Você é um assistente de bem-estar emocional corporativo. Seu tom é acolhedor, profissional e maduro — nunca infantil.
-
-Diretrizes:
-- Use linguagem calorosa porém profissional, como um coach de bem-estar.
-- Referencie dados do usuário (sono, hidratação, humor) de forma natural.
-- Sugira ações práticas: respiração, pausa, alongamento, hidratação.
-- Mantenha respostas concisas (2-4 frases).
-- Nunca finja ser um terapeuta ou médico. Se algo parecer grave, sugira buscar apoio profissional.
-- Se o usuário parecer ansioso ou estressado, sugira o exercício de respiração.
-- Use occasionalmente uma pergunta ao final para manter o diálogo.
-- Varie as saudações conforme o período do dia (bom dia, boa tarde, boa noite).`;
+import { getActiveLlmConfig, callLlmWithFallback } from "@/lib/api/llm-config.server";
+import type { ChatMessage, LlmConfig } from "@/lib/api/llm-config.server";
 
 export interface PreventiveContext {
   hasAlert: boolean;
@@ -28,40 +11,6 @@ export interface PreventiveContext {
   alertSeverity?: string;
   alertMessage?: string;
   alertSuggestion?: string;
-}
-
-interface LlmConfig {
-  model: string;
-  temperature: number;
-  max_tokens: number;
-  system_prompt: string;
-  api_key: string;
-}
-
-async function getActiveLlmConfig(): Promise<LlmConfig> {
-  const envApiKey = process.env.OPENROUTER_API_KEY;
-  try {
-    const admin = createAdminClient();
-    const { data } = await admin.from("llm_config").select("*").limit(1).maybeSingle();
-    if (data) {
-      return {
-        model: data.model ?? "openai/gpt-4o-mini",
-        temperature: data.temperature ?? 0.7,
-        max_tokens: data.max_tokens ?? 300,
-        system_prompt: data.system_prompt ?? DEFAULT_SYSTEM_PROMPT,
-        api_key: data.api_key || envApiKey,
-      };
-    }
-  } catch {
-    // fall through to defaults
-  }
-  return {
-    model: "openai/gpt-4o-mini",
-    temperature: 0.7,
-    max_tokens: 300,
-    system_prompt: DEFAULT_SYSTEM_PROMPT,
-    api_key: envApiKey ?? "",
-  };
 }
 
 export const sendChatMessage = createServerFn({ method: "POST" })
@@ -153,59 +102,27 @@ ${greeting}`;
         { role: "user", content: data.text },
       ];
 
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15_000);
+      const result = await callLlmWithFallback(messages, config, "chat-ai.sendChatMessage", user.id);
 
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${config.api_key}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://zellu.app",
-            "X-Title": "Mundo Mental Companion",
-          },
-          body: JSON.stringify({
-            model: config.model,
-            messages,
-            max_tokens: config.max_tokens,
-            temperature: config.temperature,
-          }),
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          const errBody = await response.text();
-          console.error("OpenRouter error:", response.status, errBody);
-          await logEvent("error", "chat-ai.sendChatMessage", `OpenRouter HTTP ${response.status}: ${response.statusText}`, { status: response.status, body: errBody.slice(0, 500), model: config.model }, user.id);
-          if (response.status === 429) return { error: "Muitas requisições. Aguarde um momento." };
-          if (response.status >= 500)
-            return { error: "Serviço de IA temporariamente indisponível." };
-          return { error: "Erro ao contactar a IA" };
-        }
-
-        const json = await response.json();
-        const reply = json.choices?.[0]?.message?.content ?? "Não entendi. Pode repetir?";
-
-        await supabase.from("chat_messages").insert([
-          { user_id: user.id, text: data.text, from: "user" },
-          { user_id: user.id, text: reply, from: "ai" },
-        ]);
-
-        const suggestion = extractSuggestion(reply);
-
-        return { reply, suggestion };
-      } catch (err) {
-        if (err instanceof DOMException && err.name === "AbortError") {
-          await logEvent("error", "chat-ai.sendChatMessage", "Timeout — IA demorou mais de 15s", { model: config.model }, user.id);
-          return { error: "A IA demorou muito para responder. Tente novamente." };
-        }
-        console.error("OpenRouter fetch error:", err);
-        await logEvent("error", "chat-ai.sendChatMessage", `Erro de conexão com OpenRouter`, { error: String(err), model: config.model }, user.id);
-        return { error: "Erro de conexão com a IA" };
+      if ("error" in result) {
+        return { error: "Erro ao contactar a IA. Tente novamente." };
       }
+
+      const reply = result.content;
+      const modelUsed = result.model;
+
+      if (modelUsed !== config.model) {
+        await logEvent("info", "chat-ai.sendChatMessage", `Mensagem respondida por fallback: ${modelUsed}`, { primary: config.model, used: modelUsed }, user.id);
+      }
+
+      await supabase.from("chat_messages").insert([
+        { user_id: user.id, text: data.text, from: "user" },
+        { user_id: user.id, text: reply, from: "ai" },
+      ]);
+
+      const suggestion = extractSuggestion(reply);
+
+      return { reply, suggestion };
     },
   );
 
@@ -239,16 +156,19 @@ export const getContextualGreeting = createServerFn({ method: "POST" })
       const {
         data: { user },
       } = await supabase.auth.getUser(data.accessToken);
+
+      const fallbackGreeting = (name: string) =>
+        `${getGreeting()}, ${name}! Que bom ter você aqui hoje.`;
+
+      const fallbackName = data.context.userName ?? user?.email?.split("@")[0] ?? "Ana";
+
       if (!user) {
-        const fallbackName = data.context.userName ?? "Ana";
-        return { greeting: `${getGreeting()}, ${fallbackName}! Que bom ter você aqui hoje.` };
+        return { greeting: fallbackGreeting(fallbackName) };
       }
 
       const config = await getActiveLlmConfig();
       if (!config.api_key) {
-        await logEvent("warn", "chat-ai.getContextualGreeting", "Fallback — sem API key para saudação", {}, user?.id);
-        const fallbackName = data.context.userName ?? "Ana";
-        return { greeting: `${getGreeting()}, ${fallbackName}! Que bom ter você aqui hoje.` };
+        return { greeting: fallbackGreeting(fallbackName) };
       }
 
       const { data: profile } = await supabase
@@ -267,40 +187,18 @@ Contexto:
 
 Se houver dados de sono, mencione-os de forma natural. Seja acolhedor mas profissional.`;
 
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10_000);
+      const result = await callLlmWithFallback(
+        [{ role: "user", content: prompt }],
+        { ...config, max_tokens: 80, temperature: 0.8 },
+        "chat-ai.getContextualGreeting",
+        user.id,
+      );
 
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${config.api_key}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: config.model,
-            messages: [{ role: "user", content: prompt }],
-            max_tokens: 80,
-            temperature: 0.8,
-          }),
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          await logEvent("error", "chat-ai.getContextualGreeting", `OpenRouter HTTP ${response.status} na saudação`, { status: response.status, model: config.model });
-          return { greeting: `Bom dia, ${name}! Que bom ter você aqui hoje.` };
-        }
-
-        const json = await response.json();
-        const reply =
-          json.choices?.[0]?.message?.content ?? `Bom dia, ${name}! Que bom ter você aqui hoje.`;
-        return { greeting: reply };
-      } catch {
-        await logEvent("error", "chat-ai.getContextualGreeting", "Exceção ao gerar saudação via IA", { model: config.model });
-        return { greeting: `Bom dia, ${name}! Que bom ter você aqui hoje.` };
+      if ("error" in result) {
+        return { greeting: fallbackGreeting(name) };
       }
+
+      return { greeting: result.content || fallbackGreeting(name) };
     },
   );
 

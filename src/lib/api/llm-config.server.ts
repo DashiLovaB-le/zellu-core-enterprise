@@ -5,6 +5,21 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin.server";
 import { logEvent } from "@/lib/api/logs.server";
 
+export interface LlmConfig {
+  model: string;
+  temperature: number;
+  max_tokens: number;
+  system_prompt: string;
+  api_key: string;
+  model_2: string;
+  model_3: string;
+}
+
+export interface ChatMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
 async function requireDevRole(
   accessToken: string,
 ): Promise<{ user: import("@supabase/supabase-js").User } | { error: string }> {
@@ -27,7 +42,7 @@ async function requireDevRole(
   return { user };
 }
 
-const DEFAULT_CONFIG = {
+const DEFAULT_CONFIG: LlmConfig = {
   model: "openai/gpt-4o-mini",
   temperature: 0.7,
   max_tokens: 300,
@@ -43,7 +58,109 @@ Diretrizes:
 - Use occasionalmente uma pergunta ao final para manter o diálogo.
 - Varie as saudações conforme o período do dia (bom dia, boa tarde, boa noite).`,
   api_key: process.env.OPENROUTER_API_KEY ?? "",
+  model_2: "",
+  model_3: "",
 };
+
+export async function getActiveLlmConfig(accessToken?: string): Promise<LlmConfig> {
+  const envApiKey = process.env.OPENROUTER_API_KEY;
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin.from("llm_config").select("*").limit(1).maybeSingle();
+    if (data) {
+      return {
+        model: data.model ?? DEFAULT_CONFIG.model,
+        temperature: data.temperature ?? DEFAULT_CONFIG.temperature,
+        max_tokens: data.max_tokens ?? DEFAULT_CONFIG.max_tokens,
+        system_prompt: data.system_prompt ?? DEFAULT_CONFIG.system_prompt,
+        api_key: data.api_key || envApiKey || "",
+        model_2: data.model_2 ?? "",
+        model_3: data.model_3 ?? "",
+      };
+    }
+  } catch {
+    // fall through to defaults
+  }
+  return { ...DEFAULT_CONFIG, api_key: DEFAULT_CONFIG.api_key || envApiKey || "" };
+}
+
+export async function callLlmWithFallback(
+  messages: ChatMessage[],
+  config: LlmConfig,
+  source: string,
+  userId?: string,
+): Promise<{ content: string; model: string } | { error: string }> {
+  const models = [config.model, config.model_2, config.model_3].filter(Boolean);
+
+  if (models.length === 0) {
+    return { error: "Nenhum modelo configurado" };
+  }
+
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${config.api_key}`,
+    "Content-Type": "application/json",
+  };
+  if (source.startsWith("chat-ai")) {
+    headers["HTTP-Referer"] = "https://zellu.app";
+    headers["X-Title"] = "Mundo Mental Companion";
+  }
+
+  let lastError: string | null = null;
+
+  for (let i = 0; i < models.length; i++) {
+    const model = models[i];
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), i === 0 ? 15_000 : 10_000);
+
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          model,
+          messages,
+          max_tokens: config.max_tokens,
+          temperature: config.temperature,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const json = await response.json();
+        const content = json.choices?.[0]?.message?.content;
+        if (content) {
+          if (i > 0) {
+            await logEvent("info", `${source}.fallback`, `Fallback funcionou: ${model} (tentativa ${i + 1})`, { primary: models[0], used: model }, userId);
+          }
+          return { content, model };
+        }
+        lastError = "Resposta vazia da IA";
+      } else if (response.status === 429 || response.status >= 500) {
+        const errBody = await response.text();
+        lastError = `HTTP ${response.status}: ${errBody.slice(0, 200)}`;
+        await logEvent("warn", `${source}.fallback`, `Model ${model} falhou (${response.status}), tentando próximo`, { status: response.status, model, attempt: i + 1 }, userId);
+      } else {
+        const errBody = await response.text();
+        await logEvent("error", `${source}.fallback`, `Erro não recuperável no model ${model}`, { status: response.status, body: errBody.slice(0, 500), model }, userId);
+        return { error: `Erro na LLM (${response.status}): ${errBody.slice(0, 200)}` };
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        lastError = `Timeout após ${i === 0 ? 15 : 10}s`;
+        await logEvent("warn", `${source}.fallback`, `Timeout no model ${model}, tentando próximo`, { model, attempt: i + 1 }, userId);
+      } else {
+        const message = err instanceof Error ? err.message : String(err);
+        await logEvent("error", `${source}.fallback`, `Exceção no model ${model}`, { error: message, model }, userId);
+        return { error: `Erro de conexão com a IA: ${message}` };
+      }
+    }
+  }
+
+  await logEvent("error", `${source}.fallback`, `Todos os modelos falharam`, { models, lastError }, userId);
+  return { error: lastError || "Todos os modelos falharam" };
+}
 
 export const getLlmConfig = createServerFn({ method: "GET" })
   .inputValidator(z.object({ accessToken: z.string() }))
@@ -64,7 +181,6 @@ export const getLlmConfig = createServerFn({ method: "GET" })
       }
 
       if (!data) {
-        // Tabela existe mas está vazia — retorna padrão
         return {
           ...DEFAULT_CONFIG,
           api_key: DEFAULT_CONFIG.api_key ? maskKey(DEFAULT_CONFIG.api_key) : "",
@@ -77,6 +193,8 @@ export const getLlmConfig = createServerFn({ method: "GET" })
         max_tokens: data.max_tokens,
         system_prompt: data.system_prompt,
         api_key: data.api_key ? maskKey(data.api_key) : "",
+        model_2: data.model_2 ?? "",
+        model_3: data.model_3 ?? "",
       };
     } catch (err) {
       console.error("getLlmConfig error:", err);
@@ -96,11 +214,13 @@ export const setLlmConfig = createServerFn({ method: "POST" })
       max_tokens: z.number().int().min(1).max(8192),
       system_prompt: z.string(),
       api_key: z.string(),
+      model_2: z.string().optional(),
+      model_3: z.string().optional(),
     }),
   )
   .handler(
     async ({
-      data: { accessToken, model, temperature, max_tokens, system_prompt, api_key },
+      data: { accessToken, model, temperature, max_tokens, system_prompt, api_key, model_2, model_3 },
     }: {
       data: {
         accessToken: string;
@@ -109,6 +229,8 @@ export const setLlmConfig = createServerFn({ method: "POST" })
         max_tokens: number;
         system_prompt: string;
         api_key: string;
+        model_2?: string;
+        model_3?: string;
       };
     }) => {
       try {
@@ -118,7 +240,6 @@ export const setLlmConfig = createServerFn({ method: "POST" })
 
         const admin = createAdminClient();
 
-        // Busca registro existente
         const { data: existing, error: fetchError } = await admin
           .from("llm_config")
           .select("id, api_key")
@@ -132,23 +253,18 @@ export const setLlmConfig = createServerFn({ method: "POST" })
         const existingApiKey = existing?.api_key ?? "";
         const envApiKey = process.env.OPENROUTER_API_KEY ?? "";
 
-        // Detecta se a api_key enviada contém caractere de máscara "…"
-        // (ex: "sk-o…ee35") — isso significa que o usuário NÃO alterou o campo
         const isMasked = api_key.includes("…");
 
         let resolvedApiKey: string;
         if (isMasked) {
-          // Usuário não alterou a chave — mantém a existente ou usa a do .env
           resolvedApiKey = existingApiKey || envApiKey;
         } else if (api_key && !api_key.startsWith("sk-or-") && existingApiKey.startsWith("sk-or-")) {
-          // Caso a chave enviada não seja uma chave OpenRouter válida
-          // mas existe uma no banco, mantém a do banco
           resolvedApiKey = existingApiKey;
         } else {
           resolvedApiKey = api_key;
         }
 
-        const payload = {
+        const payload: Record<string, unknown> = {
           model,
           temperature,
           max_tokens,
@@ -156,6 +272,8 @@ export const setLlmConfig = createServerFn({ method: "POST" })
           api_key: resolvedApiKey,
           updated_at: new Date().toISOString(),
           updated_by: user.id,
+          model_2: model_2 ?? "",
+          model_3: model_3 ?? "",
         };
 
         if (existing) {
@@ -169,7 +287,6 @@ export const setLlmConfig = createServerFn({ method: "POST" })
             return { error: `Erro ao atualizar: ${updateError.message}` };
           }
         } else {
-          // Tenta criar a tabela primeiro (caso a migration não tenha sido aplicada)
           const { error: insertError } = await admin
             .from("llm_config")
             .insert({ id: 1, ...payload });
@@ -182,7 +299,7 @@ export const setLlmConfig = createServerFn({ method: "POST" })
           }
         }
 
-        await logEvent("info", "llm-config.setLlmConfig", `LLM config atualizada por ${user.id}`, { model, temperature, max_tokens }, user.id);
+        await logEvent("info", "llm-config.setLlmConfig", `LLM config atualizada por ${user.id}`, { model, model_2, model_3, temperature, max_tokens }, user.id);
         return { success: true };
       } catch (err) {
         const message = err instanceof Error ? err.message : "Erro desconhecido ao salvar";
