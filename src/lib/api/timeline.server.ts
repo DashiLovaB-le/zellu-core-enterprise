@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { generateInsight } from "@/lib/api/insights-ai.server";
 
 export interface TimelineEvent {
   type: "sleep" | "water" | "mood" | "movement" | "energy" | "meals" | "chat" | "diary";
@@ -233,7 +234,8 @@ export const getTimelineData = createServerFn({ method: "GET" })
       return td?.mood ?? null;
     })();
 
-    const aiInsight = generateInsight(sortedDays.slice(0, 7), todayMood);
+    // Gerar insight com IA
+    const aiInsight = await generateAiInsight(sortedDays, user.email ?? "Usuário", data.accessToken);
 
     const moodGrid: { color: string | null; mood: string | null; day: number }[] = [];
     for (let i = 13; i >= 0; i--) {
@@ -252,10 +254,76 @@ export const getTimelineData = createServerFn({ method: "GET" })
     return { days: sortedDays, moodGrid, aiInsight };
   });
 
-function generateInsight(recentDays: TimelineDay[], todayMood: string | null): string {
-  if (recentDays.length === 0)
+async function generateAiInsight(
+  recentDays: TimelineDay[],
+  userEmail: string,
+  accessToken: string,
+): Promise<string> {
+  if (recentDays.length === 0) {
     return "Registre seus dias para começar a ver seus padrões de bem-estar.";
+  }
 
+  try {
+    // Calcular métricas para o contexto
+    const moods = recentDays.filter((d) => d.mood).map((d) => d.mood!);
+    const moodCounts: Record<string, number> = {};
+    moods.forEach((m) => {
+      moodCounts[m] = (moodCounts[m] || 0) + 1;
+    });
+
+    const predominantMood = Object.entries(moodCounts).sort(([, a], [, b]) => b - a)[0]?.[0];
+
+    // Calcular médias
+    const sleeps: number[] = [];
+    const waters: number[] = [];
+    const movements: number[] = [];
+
+    recentDays.forEach((day) => {
+      day.events.forEach((event) => {
+        if (event.type === "sleep") {
+          const match = event.description.match(/(\d+(\.\d+)?)h/);
+          if (match) sleeps.push(parseFloat(match[1]));
+        }
+        if (event.type === "water") {
+          const match = event.description.match(/(\d+)ml/);
+          if (match) waters.push(parseInt(match[1]));
+        }
+        if (event.type === "movement") {
+          const match = event.description.match(/(\d+) min/);
+          if (match) movements.push(parseInt(match[1]));
+        }
+      });
+    });
+
+    const avgSleep = sleeps.length > 0 ? sleeps.reduce((a, b) => a + b, 0) / sleeps.length : undefined;
+    const avgWater = waters.length > 0 ? waters.reduce((a, b) => a + b, 0) / waters.length : undefined;
+    const avgMovement =
+      movements.length > 0 ? movements.reduce((a, b) => a + b, 0) / movements.length : undefined;
+
+    const userName = userEmail.split("@")[0];
+
+    const context = {
+      userName,
+      daysTracked: recentDays.length,
+      predominantMood,
+      moodDistribution: moodCounts,
+      avgSleep,
+      avgWater,
+      avgMovement,
+      contextType: "timeline" as const,
+      anxiousCount: moodCounts["ansioso"] || 0,
+      happyCount: moodCounts["feliz"] || 0,
+    };
+
+    const result = await generateInsight({ data: { accessToken, context } });
+    return result.insight || generateFallbackInsight(recentDays);
+  } catch (error) {
+    console.error("Error generating AI insight:", error);
+    return generateFallbackInsight(recentDays);
+  }
+}
+
+function generateFallbackInsight(recentDays: TimelineDay[]): string {
   const moods = recentDays.filter((d) => d.mood).map((d) => d.mood!);
   const hasSleep = recentDays.some((d) => d.events.some((e) => e.type === "sleep"));
   const hasMovement = recentDays.some((d) => d.events.some((e) => e.type === "movement"));
@@ -270,10 +338,6 @@ function generateInsight(recentDays: TimelineDay[], todayMood: string | null): s
     if (posRatio <= 0.3) {
       return "Notamos que os últimos dias têm sido mais desafiadores emocionalmente. Que tal incluir uma pausa de respiração na sua rotina?";
     }
-    if (todayMood === "ansioso" || todayMood === "irritado" || todayMood === "triste") {
-      return "Hoje parece ser um dia mais delicado. Lembre-se de que pequenos momentos de autocuidado fazem diferença.";
-    }
-    return "Seu humor tem se mantido equilibrado. Continue prestando atenção aos sinais do seu corpo e emoções.";
   }
 
   if (hasSleep && hasWater && hasMovement) {

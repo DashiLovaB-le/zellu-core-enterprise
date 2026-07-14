@@ -1,11 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect, useCallback } from "react";
 import { MobileDashboardEmocionalPage } from "@/components/pages/mobile/DashboardEmocionalPage";
 import { DesktopDashboardEmocionalPage } from "@/components/pages/desktop/DashboardEmocionalPage";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
 import { Icon } from "@/components/Icon";
 import { loadDashboard, type DashboardData } from "@/lib/services/dashboard-service";
+import { generateInsight } from "@/lib/api/insights-ai.server";
+import { loadPreventiveAlert, type PreventiveAlert } from "@/lib/services/preventiva-service";
+import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,18 +24,88 @@ function IndexPage() {
   const { isAuthorized, loading: authLoading } = useRequireAuth("companion");
   const { session } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
+  const [aiAnxietyInsight, setAiAnxietyInsight] = useState<string>("");
+  const [preventiveAlert, setPreventiveAlert] = useState<PreventiveAlert>({
+    type: "none", severity: "none", message: "", suggestion: "",
+    details: { sleepChange: 0, moodChange: 0, interactionChange: 0 },
+  });
   const [loaded, setLoaded] = useState(false);
 
+  const navigate = useNavigate();
   const accessToken = session?.access_token ?? null;
+
+  const handlePreventiveSuggestion = useCallback(
+    (suggestion: string) => {
+      const lower = suggestion.toLowerCase();
+      if (lower.includes("respir") || lower.includes("respiração")) {
+        navigate({ to: "/respiro" });
+      } else if (lower.includes("convers") || lower.includes("conversar")) {
+        navigate({ to: "/chat" });
+      } else if (lower.includes("caminh") || lower.includes("along") || lower.includes("movimento")) {
+        navigate({ to: "/meu-bem-estar" });
+      } else if (lower.includes("pausa")) {
+        navigate({ to: "/respiro" });
+      } else {
+        navigate({ to: "/chat" });
+      }
+    },
+    [navigate],
+  );
 
   useEffect(() => {
     if (!accessToken || loaded) return;
     (async () => {
-      const result = await loadDashboard(accessToken);
+      const [result, alertResult] = await Promise.all([
+        loadDashboard(accessToken),
+        loadPreventiveAlert(accessToken),
+      ]);
       setData(result);
+      setPreventiveAlert(alertResult);
+      
+      // Gerar insight de ansiedade com IA
+      if (result.anxietyChangePercent !== null) {
+        try {
+          const context = {
+            userName: session?.user?.email?.split("@")[0] ?? "Usuário",
+            daysTracked: result.daysTracked,
+            predominantMood: result.dominantMood,
+            moodDistribution: result.currentWeek.moodDistribution,
+            avgSleep: result.currentWeek.sleepAvg,
+            avgWater: result.currentWeek.waterAvg,
+            avgMovement: result.currentWeek.movementAvg,
+            anxietyChangePercent: result.anxietyChangePercent,
+            contextType: "anxiety-change" as const,
+            weeklyComparison: {
+              sleep: {
+                current: result.currentWeek.sleepAvg,
+                previous: result.previousWeek.sleepAvg,
+              },
+              water: {
+                current: result.currentWeek.waterAvg,
+                previous: result.previousWeek.waterAvg,
+              },
+              movement: {
+                current: result.currentWeek.movementAvg,
+                previous: result.previousWeek.movementAvg,
+              },
+            },
+          };
+          
+          const insightResult = await generateInsight({ 
+            data: { accessToken, context } 
+          });
+          
+          if (insightResult.insight) {
+            setAiAnxietyInsight(insightResult.insight);
+          }
+        } catch (error) {
+          console.error("Error generating anxiety insight:", error);
+        }
+      }
+      
       setLoaded(true);
     })();
-  }, [accessToken, loaded]);
+  }, [accessToken, loaded, session]);
 
   if (authLoading || !isAuthorized || !data) {
     return (
@@ -45,10 +118,20 @@ function IndexPage() {
   return (
     <>
       <div className="block md:hidden">
-        <MobileDashboardEmocionalPage data={data} />
+        <MobileDashboardEmocionalPage
+          data={data}
+          aiAnxietyInsight={aiAnxietyInsight}
+          preventiveAlert={preventiveAlert}
+          onSuggestionClick={handlePreventiveSuggestion}
+        />
       </div>
       <div className="hidden md:block">
-        <DesktopDashboardEmocionalPage data={data} />
+        <DesktopDashboardEmocionalPage
+          data={data}
+          aiAnxietyInsight={aiAnxietyInsight}
+          preventiveAlert={preventiveAlert}
+          onSuggestionClick={handlePreventiveSuggestion}
+        />
       </div>
     </>
   );

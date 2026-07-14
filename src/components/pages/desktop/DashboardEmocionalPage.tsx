@@ -15,9 +15,14 @@ import {
   Legend,
 } from "recharts";
 import type { DashboardData } from "@/lib/services/dashboard-service";
+import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
+import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 
 interface Props {
   data: DashboardData;
+  aiAnxietyInsight?: string;
+  preventiveAlert?: PreventiveAlert;
+  onSuggestionClick?: (suggestion: string) => void;
 }
 
 const MOOD_LABELS: Record<string, string> = {
@@ -40,7 +45,7 @@ const MOOD_COLORS: Record<string, string> = {
 
 const MOOD_ORDER = ["feliz", "calmo", "neutro", "ansioso", "triste", "irritado"];
 
-export function DesktopDashboardEmocionalPage({ data }: Props) {
+export function DesktopDashboardEmocionalPage({ data, aiAnxietyInsight, preventiveAlert, onSuggestionClick }: Props) {
   const moodChartData = useMemo(() => {
     return MOOD_ORDER.filter(
       (m) =>
@@ -97,6 +102,12 @@ export function DesktopDashboardEmocionalPage({ data }: Props) {
   const hasCurrentData = data.currentWeek.totalDays > 0;
 
   function formatAnxietyText(): string {
+    // Se há insight de IA, usar ele
+    if (aiAnxietyInsight) {
+      return aiAnxietyInsight;
+    }
+    
+    // Fallback para o texto baseado em regras
     if (data.anxietyChangePercent === null)
       return "Registre mais dias para começar a ver sua evolução.";
     const abs = Math.abs(data.anxietyChangePercent);
@@ -116,6 +127,10 @@ export function DesktopDashboardEmocionalPage({ data }: Props) {
             <p className="text-sm text-[var(--clay-text)]/70">Sua evolução em números</p>
           </div>
         </header>
+
+        {preventiveAlert && (
+          <PreventiveAlertBanner alert={preventiveAlert} onSuggestionClick={onSuggestionClick} />
+        )}
 
         <section className="mb-6 rounded-2xl bg-gradient-to-br from-[#C5D9F1]/30 to-[#D7CBE8]/30 p-5 shadow-sm backdrop-blur-md">
           <div className="mb-2 flex items-center gap-2">

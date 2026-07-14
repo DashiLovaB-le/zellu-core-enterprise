@@ -1,7 +1,29 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient } from "@/lib/supabase/admin.server";
+
+async function requireManagerRole(
+  accessToken: string,
+): Promise<{ user: import("@supabase/supabase-js").User } | { error: string }> {
+  const supabase = await createClient(accessToken);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.role !== "manager") {
+    return { error: "Unauthorized" };
+  }
+
+  return { user };
+}
 
 export type TeamMetrics = {
   name: string;
@@ -39,13 +61,8 @@ function trend(value: number): string {
 export const getManagerDashboard = createServerFn({ method: "POST" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const supabase = await createClient(data.accessToken);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user || user.user_metadata?.role !== "manager") {
-      return { error: "Unauthorized" };
-    }
+    const auth = await requireManagerRole(data.accessToken);
+    if ("error" in auth) return auth;
 
     const admin = createAdminClient();
 
@@ -122,13 +139,8 @@ export const getCheckinStats = createServerFn({ method: "POST" })
     z.object({ accessToken: z.string(), periodDays: z.number().min(1).max(90).default(30) }),
   )
   .handler(async ({ data }: { data: { accessToken: string; periodDays: number } }) => {
-    const supabase = await createClient(data.accessToken);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user || user.user_metadata?.role !== "manager") {
-      return { error: "Unauthorized" };
-    }
+    const auth = await requireManagerRole(data.accessToken);
+    if ("error" in auth) return auth;
 
     const admin = createAdminClient();
     const startDate = new Date();
@@ -148,13 +160,8 @@ export const exportCsv = createServerFn({ method: "POST" })
     z.object({ accessToken: z.string(), periodDays: z.number().min(1).max(365).default(30) }),
   )
   .handler(async ({ data }: { data: { accessToken: string; periodDays: number } }) => {
-    const supabase = await createClient(data.accessToken);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user || user.user_metadata?.role !== "manager") {
-      return { error: "Unauthorized" };
-    }
+    const auth = await requireManagerRole(data.accessToken);
+    if ("error" in auth) return auth;
 
     const admin = createAdminClient();
     const startDate = new Date();

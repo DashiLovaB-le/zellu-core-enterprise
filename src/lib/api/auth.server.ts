@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient } from "@/lib/supabase/admin.server";
+import { logEvent } from "@/lib/api/logs.server";
 
 export const confirmUser = createServerFn({ method: "POST" })
   .inputValidator(z.object({ userId: z.string().uuid() }))
@@ -20,6 +21,9 @@ export const confirmUser = createServerFn({ method: "POST" })
         display_name: email.split("@")[0],
         role,
       });
+      await logEvent("info", "auth.confirmUser", `Usuário confirmado: ${email}`, { role }, data.userId);
+    } else {
+      await logEvent("error", "auth.confirmUser", `Falha ao confirmar usuário ${data.userId}`, { error: error.message });
     }
 
     return { error: error?.message ?? null };
@@ -42,6 +46,25 @@ export const getProfile = createServerFn({ method: "POST" })
       .maybeSingle();
 
     return profile ?? null;
+  });
+
+export const getUserRole = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ accessToken: z.string() }))
+  .handler(async ({ data }: { data: { accessToken: string } }) => {
+    const { createClient } = await import("@/lib/supabase/server");
+    const supabase = await createClient(data.accessToken);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser(data.accessToken);
+    if (!user) return null;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    return (profile?.role as "companion" | "manager" | "dev") ?? null;
   });
 
 export const updateProfile = createServerFn({ method: "POST" })
@@ -75,6 +98,12 @@ export const updateProfile = createServerFn({ method: "POST" })
         .select()
         .single();
 
+      if (error) {
+        await logEvent("error", "auth.updateProfile", `Erro ao atualizar perfil ${user.id}`, { error: error.message }, user.id);
+      } else {
+        await logEvent("info", "auth.updateProfile", `Perfil atualizado: ${user.id}`, { payload }, user.id);
+      }
+
       return { error: error?.message ?? null };
     },
   );
@@ -100,6 +129,13 @@ export const updateEmail = createServerFn({ method: "POST" })
       if (!user) return { error: "Unauthorized" };
 
       const { error } = await supabase.auth.updateUser({ email: data.email });
+
+      if (error) {
+        await logEvent("warn", "auth.updateEmail", `Falha ao alterar email: ${user.id}`, { error: error.message }, user.id);
+      } else {
+        await logEvent("info", "auth.updateEmail", `Email alterado: ${user.id}`, {}, user.id);
+      }
+
       return { error: error?.message ?? null };
     },
   );
@@ -128,7 +164,18 @@ export const updatePassword = createServerFn({ method: "POST" })
       });
       if (signInError) return { error: "Senha atual incorreta" };
 
+      const {
+        data: { user },
+      } = await supabase.auth.getUser(data.accessToken);
+
       const { error } = await supabase.auth.updateUser({ password: data.newPassword });
+
+      if (error) {
+        await logEvent("warn", "auth.updatePassword", `Falha ao alterar senha`, { error: error.message }, user?.id);
+      } else {
+        await logEvent("info", "auth.updatePassword", `Senha alterada`, {}, user?.id);
+      }
+
       return { error: error?.message ?? null };
     },
   );

@@ -14,11 +14,22 @@ export function useRequireAuth(allowedRole?: UserRole) {
       return;
     }
 
+    // Dev tem acesso a tudo
+    if (role === "dev") {
+      return;
+    }
+
     if (allowedRole && role !== allowedRole) {
       const target = role === "manager" ? "/manager" : "/";
       navigate({ to: target, replace: true });
     }
   }, [user, loading, role, allowedRole, navigate]);
 
-  return { user, loading, role, isAuthorized: !!user && (!allowedRole || role === allowedRole) };
+  // Dev sempre tem autorização, independente do allowedRole
+  return { 
+    user, 
+    loading, 
+    role, 
+    isAuthorized: !!user && (role === "dev" || !allowedRole || role === allowedRole) 
+  };
 }

@@ -24,7 +24,16 @@ function ManagerDashboard() {
   const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    if (!loading && (!user || role !== "manager")) {
+    if (!loading && !user) {
+      navigate({ to: "/login", replace: true });
+      return;
+    }
+    
+    // Dev tem acesso livre
+    if (role === "dev") return;
+    
+    // Manager precisa ter role de manager
+    if (!loading && user && role !== "manager") {
       navigate({ to: "/login", replace: true });
     }
   }, [user, loading, role, navigate]);
@@ -38,7 +47,7 @@ function ManagerDashboard() {
     })();
   }, [session, dataLoaded]);
 
-  if (loading || !user || role !== "manager") {
+  if (loading || !user || (role !== "manager" && role !== "dev")) {
     return (
       <ManagerShell>
         <div className="flex flex-1 items-center justify-center">

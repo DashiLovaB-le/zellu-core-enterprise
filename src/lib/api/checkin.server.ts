@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { logEvent } from "@/lib/api/logs.server";
 
 export type CheckinData = {
   id: string;
@@ -64,6 +65,12 @@ export const saveCheckin = createServerFn({ method: "POST" })
         water_ml: data.waterMl,
         mood: data.mood,
       });
+
+      if (error) {
+        await logEvent("error", "checkin.saveCheckin", `Erro ao salvar checkin: ${user.id}`, { error: error.message, mood: data.mood }, user.id);
+      } else {
+        await logEvent("info", "checkin.saveCheckin", `Checkin salvo: ${user.id}`, { mood: data.mood, sleepHours: data.sleepHours }, user.id);
+      }
 
       return { error: error?.message ?? null };
     },

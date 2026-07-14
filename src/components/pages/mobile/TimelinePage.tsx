@@ -3,10 +3,14 @@ import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 import type { TimelineData } from "@/lib/services/timeline-service";
+import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
+import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 
 interface TimelinePageProps {
   data: TimelineData;
   onSaveEntry: (content: string, mood?: string) => void;
+  preventiveAlert?: PreventiveAlert;
+  onSuggestionClick?: (suggestion: string) => void;
 }
 
 const MOOD_OPTIONS = [
@@ -24,7 +28,7 @@ function getWeekday(date: Date): number {
   return (date.getDay() + 6) % 7;
 }
 
-export function MobileTimelinePage({ data, onSaveEntry }: TimelinePageProps) {
+export function MobileTimelinePage({ data, onSaveEntry, preventiveAlert, onSuggestionClick }: TimelinePageProps) {
   const [showNewEntry, setShowNewEntry] = useState(false);
   const [newContent, setNewContent] = useState("");
   const [newMood, setNewMood] = useState("");
@@ -62,6 +66,10 @@ export function MobileTimelinePage({ data, onSaveEntry }: TimelinePageProps) {
           Nova
         </button>
       </header>
+
+      {preventiveAlert && (
+        <PreventiveAlertBanner alert={preventiveAlert} onSuggestionClick={onSuggestionClick} />
+      )}
 
       <section className="mb-4 rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">
         <div className="mb-2 flex items-center gap-2">

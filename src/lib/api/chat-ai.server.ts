@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import process from "node:process";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient } from "@/lib/supabase/admin.server";
+import { logEvent } from "@/lib/api/logs.server";
 
 interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -20,6 +22,14 @@ Diretrizes:
 - Use occasionalmente uma pergunta ao final para manter o diálogo.
 - Varie as saudações conforme o período do dia (bom dia, boa tarde, boa noite).`;
 
+export interface PreventiveContext {
+  hasAlert: boolean;
+  alertType?: string;
+  alertSeverity?: string;
+  alertMessage?: string;
+  alertSuggestion?: string;
+}
+
 interface LlmConfig {
   model: string;
   temperature: number;
@@ -29,7 +39,7 @@ interface LlmConfig {
 }
 
 async function getActiveLlmConfig(): Promise<LlmConfig> {
-  const envApiKey = import.meta.env.OPENROUTER_API_KEY;
+  const envApiKey = process.env.OPENROUTER_API_KEY;
   try {
     const admin = createAdminClient();
     const { data } = await admin.from("llm_config").select("*").limit(1).maybeSingle();
@@ -67,6 +77,15 @@ export const sendChatMessage = createServerFn({ method: "POST" })
         mood: z.string().optional(),
         userName: z.string().optional(),
         recentCheckin: z.string().optional(),
+        preventiveAlert: z
+          .object({
+            hasAlert: z.boolean(),
+            alertType: z.string().optional(),
+            alertSeverity: z.string().optional(),
+            alertMessage: z.string().optional(),
+            alertSuggestion: z.string().optional(),
+          })
+          .optional(),
       }),
     }),
   )
@@ -85,6 +104,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
           mood?: string;
           userName?: string;
           recentCheckin?: string;
+          preventiveAlert?: PreventiveContext;
         };
       };
     }) => {
@@ -95,7 +115,10 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       if (!user) return { error: "Unauthorized" };
 
       const config = await getActiveLlmConfig();
-      if (!config.api_key) return { error: "OpenRouter não configurado" };
+      if (!config.api_key) {
+        await logEvent("error", "chat-ai.sendChatMessage", "OpenRouter não configurado — sem API key", { model: config.model }, user.id);
+        return { error: "OpenRouter não configurado" };
+      }
 
       const { data: profile } = await supabase
         .from("profiles")
@@ -105,6 +128,10 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       const name = profile?.display_name ?? data.context.userName ?? user.email?.split("@")[0] ?? "Ana";
       const greeting = getGreeting();
 
+      const preventiveLine = data.context.preventiveAlert?.hasAlert
+        ? "- Alerta preventivo: " + (data.context.preventiveAlert.alertMessage || "") + ". Motivo: " + (data.context.preventiveAlert.alertSuggestion || "")
+        : "- Sem alertas preventivos";
+
       const systemContent = `${config.system_prompt}
 
 Contexto do usuário:
@@ -113,6 +140,7 @@ Contexto do usuário:
 - Água: ${data.context.waterMl ? `${data.context.waterMl}ml hoje` : "não informado"}
 - Humor: ${data.context.mood ?? "não informado"}
 - Check-in recente: ${data.context.recentCheckin ?? "não informado"}
+${preventiveLine}
 
 ${greeting}`;
 
@@ -151,6 +179,7 @@ ${greeting}`;
         if (!response.ok) {
           const errBody = await response.text();
           console.error("OpenRouter error:", response.status, errBody);
+          await logEvent("error", "chat-ai.sendChatMessage", `OpenRouter HTTP ${response.status}: ${response.statusText}`, { status: response.status, body: errBody.slice(0, 500), model: config.model }, user.id);
           if (response.status === 429) return { error: "Muitas requisições. Aguarde um momento." };
           if (response.status >= 500)
             return { error: "Serviço de IA temporariamente indisponível." };
@@ -170,9 +199,11 @@ ${greeting}`;
         return { reply, suggestion };
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") {
+          await logEvent("error", "chat-ai.sendChatMessage", "Timeout — IA demorou mais de 15s", { model: config.model }, user.id);
           return { error: "A IA demorou muito para responder. Tente novamente." };
         }
         console.error("OpenRouter fetch error:", err);
+        await logEvent("error", "chat-ai.sendChatMessage", `Erro de conexão com OpenRouter`, { error: String(err), model: config.model }, user.id);
         return { error: "Erro de conexão com a IA" };
       }
     },
@@ -215,6 +246,7 @@ export const getContextualGreeting = createServerFn({ method: "POST" })
 
       const config = await getActiveLlmConfig();
       if (!config.api_key) {
+        await logEvent("warn", "chat-ai.getContextualGreeting", "Fallback — sem API key para saudação", {}, user?.id);
         const fallbackName = data.context.userName ?? "Ana";
         return { greeting: `${getGreeting()}, ${fallbackName}! Que bom ter você aqui hoje.` };
       }
@@ -256,13 +288,17 @@ Se houver dados de sono, mencione-os de forma natural. Seja acolhedor mas profis
 
         clearTimeout(timeoutId);
 
-        if (!response.ok) return { greeting: `Bom dia, ${name}! Que bom ter você aqui hoje.` };
+        if (!response.ok) {
+          await logEvent("error", "chat-ai.getContextualGreeting", `OpenRouter HTTP ${response.status} na saudação`, { status: response.status, model: config.model });
+          return { greeting: `Bom dia, ${name}! Que bom ter você aqui hoje.` };
+        }
 
         const json = await response.json();
         const reply =
           json.choices?.[0]?.message?.content ?? `Bom dia, ${name}! Que bom ter você aqui hoje.`;
         return { greeting: reply };
       } catch {
+        await logEvent("error", "chat-ai.getContextualGreeting", "Exceção ao gerar saudação via IA", { model: config.model });
         return { greeting: `Bom dia, ${name}! Que bom ter você aqui hoje.` };
       }
     },

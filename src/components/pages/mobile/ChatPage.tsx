@@ -1,7 +1,9 @@
 import { useRef, useEffect, useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
+import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import type { Msg } from "@/data";
+import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 
 interface ChatPageProps {
   messages: Msg[];
@@ -12,6 +14,8 @@ interface ChatPageProps {
   isAiThinking: boolean;
   aiSuggestion: string | null;
   onQuickReply: (label: string) => void;
+  preventiveAlert?: PreventiveAlert;
+  onSuggestionClick?: (suggestion: string) => void;
 }
 
 const MAIN_MOODS = [
@@ -54,6 +58,8 @@ export function MobileChatPage({
   isAiThinking,
   aiSuggestion,
   onQuickReply,
+  preventiveAlert,
+  onSuggestionClick,
 }: ChatPageProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [showAllMoods, setShowAllMoods] = useState(false);
@@ -74,6 +80,12 @@ export function MobileChatPage({
           </h1>
         </div>
       </header>
+
+      {preventiveAlert && (
+        <div className="mb-4">
+          <PreventiveAlertBanner alert={preventiveAlert} onSuggestionClick={onSuggestionClick} />
+        </div>
+      )}
 
       <main className="flex flex-1 flex-col gap-3 overflow-y-auto">
         {messages.map((m, i) => (

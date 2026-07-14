@@ -1,8 +1,8 @@
 # TODO — Reposicionamento Mundo Mental
 
 > Plano de implementação baseado em `P-MundoMental-v1.md.MD`
-> Status atual: ~85% do caminho para apresentação comercial
-> Última atualização: Fase 9 concluída ✅
+> Status atual: ~88% do caminho para apresentação comercial
+> Última atualização: Fase 10 concluída ✅
 
 ---
 
@@ -115,12 +115,12 @@
 
 ---
 
-## Fase 10 — Insights IA
+## Fase 10 — Insights IA ✅
 
-- [ ] **10.1** Substituir textos genéricos por insights gerados por IA
-- [ ] **10.2** Formato natural e inteligente (ex: "Nas últimas duas semanas você demonstrou mais tranquilidade após dias com sono acima de 7h...")
-- [ ] **10.3** Correlacionar variáveis (sono ↔ humor, alimentação ↔ energia)
-- [ ] **10.4** Posicionar insights na timeline, dashboard e chat
+- [X] **10.1** Substituir textos genéricos por insights gerados por IA
+- [X] **10.2** Formato natural e inteligente (ex: "Nas últimas duas semanas você demonstrou mais tranquilidade após dias com sono acima de 7h...")
+- [X] **10.3** Correlacionar variáveis (sono ↔ humor, alimentação ↔ energia)
+- [X] **10.4** Posicionar insights na timeline, dashboard e chat
 
 ---
 
@@ -144,10 +144,8 @@
 
 ## Fase 13 — Gamificação Elegante
 
-- [ ] **13.1** Remover sistema de moedas/pontos se existir
-- [ ] **13.2** Substituir por contagem de progresso: "Você cultivou 14 dias de autocuidado"
-- [ ] **13.3** Metas baseadas em consistência, não competição
-- [ ] **13.4** Pequenas celebrações visuais (sem animações infantis)
+- [ ] **13.1** INSERIR sistema de contagem de progresso: "Você cultivou 14 dias de autocuidado"
+- [ ] **13.2** Pequenas celebrações visuais (sem animações infantis)
 
 ---
 

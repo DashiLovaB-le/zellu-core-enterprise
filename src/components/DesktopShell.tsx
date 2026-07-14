@@ -5,6 +5,7 @@ import { Avatar } from "./Avatar";
 import { BRANDING } from "@/lib/branding";
 import { useAuth } from "@/lib/auth-context";
 import logo from "@/assets/logo.png";
+import { PageTransition } from "./PageTransition";
 
 interface NavItem {
   to: "/" | "/chat" | "/diario" | "/respiro" | "/meu-bem-estar" | "/checkin";
@@ -62,7 +63,9 @@ export function DesktopShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-6">{children}</main>
+      <main className="mx-auto max-w-6xl px-6 py-6">
+        <PageTransition>{children}</PageTransition>
+      </main>
 
       <footer className="border-t border-border/20 py-3 text-center">
         <p className="text-[10px] text-[var(--clay-title)]/30">{BRANDING.poweredBy}</p>

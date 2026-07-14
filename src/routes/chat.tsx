@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { MobileChatPage } from "@/components/pages/mobile/ChatPage";
 import { DesktopChatPage } from "@/components/pages/desktop/ChatPage";
@@ -13,6 +13,8 @@ import {
 } from "@/lib/services/chat-service";
 import { getLatestCheckin } from "@/lib/api/checkin.server";
 import { getProfile } from "@/lib/api/auth.server";
+import { loadPreventiveAlert, type PreventiveAlert } from "@/lib/services/preventiva-service";
+import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import type { Msg } from "@/data";
 
 export const Route = createFileRoute("/chat")({
@@ -28,12 +30,17 @@ export const Route = createFileRoute("/chat")({
 function ChatPage() {
   const { isAuthorized, loading: authLoading } = useRequireAuth("companion");
   const { session, user } = useAuth();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");
   const [greeting, setGreeting] = useState("");
   const [isAiThinking, setIsAiThinking] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [preventiveAlert, setPreventiveAlert] = useState<PreventiveAlert>({
+    type: "none", severity: "none", message: "", suggestion: "",
+    details: { sleepChange: 0, moodChange: 0, interactionChange: 0 },
+  });
   const [todayContext, setTodayContext] = useState<ChatContext>({
     userName: user?.email?.split("@")[0] ?? "Ana",
   });
@@ -43,10 +50,12 @@ function ChatPage() {
   useEffect(() => {
     if (!accessToken || initialized) return;
     (async () => {
-      const [latestCheckin, profile] = await Promise.all([
+      const [latestCheckin, profile, alertResult] = await Promise.all([
         getLatestCheckin({ data: { accessToken } }),
         getProfile({ data: { accessToken } }),
+        loadPreventiveAlert(accessToken),
       ]);
+      setPreventiveAlert(alertResult);
       const context: ChatContext = {
         userName: profile?.display_name ?? user?.email?.split("@")[0] ?? "Ana",
         sleepHours: latestCheckin?.sleep_hours,
@@ -56,6 +65,15 @@ function ChatPage() {
         recentCheckin: latestCheckin
           ? `Check-in feito às ${new Date(latestCheckin.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
           : undefined,
+        preventiveAlert: alertResult.type !== "none"
+          ? {
+              hasAlert: true,
+              alertType: alertResult.type,
+              alertSeverity: alertResult.severity,
+              alertMessage: alertResult.message,
+              alertSuggestion: alertResult.suggestion,
+            }
+          : { hasAlert: false },
       };
       setTodayContext(context);
 
@@ -101,6 +119,24 @@ function ChatPage() {
     [accessToken, messages, isAiThinking, todayContext],
   );
 
+  const handlePreventiveSuggestion = useCallback(
+    (suggestion: string) => {
+      const lower = suggestion.toLowerCase();
+      if (lower.includes("respir") || lower.includes("respiração")) {
+        navigate({ to: "/respiro" });
+      } else if (lower.includes("convers") || lower.includes("conversar")) {
+        navigate({ to: "/chat" });
+      } else if (lower.includes("caminh") || lower.includes("along") || lower.includes("movimento")) {
+        navigate({ to: "/meu-bem-estar" });
+      } else if (lower.includes("pausa")) {
+        navigate({ to: "/respiro" });
+      } else {
+        navigate({ to: "/chat" });
+      }
+    },
+    [navigate],
+  );
+
   const handleQuickReply = useCallback(
     (label: string) => {
       send(label);
@@ -128,6 +164,8 @@ function ChatPage() {
           isAiThinking={isAiThinking}
           aiSuggestion={aiSuggestion}
           onQuickReply={handleQuickReply}
+          preventiveAlert={preventiveAlert}
+          onSuggestionClick={handlePreventiveSuggestion}
         />
       </div>
       <div className="hidden md:block">
@@ -140,6 +178,8 @@ function ChatPage() {
           isAiThinking={isAiThinking}
           aiSuggestion={aiSuggestion}
           onQuickReply={handleQuickReply}
+          preventiveAlert={preventiveAlert}
+          onSuggestionClick={handlePreventiveSuggestion}
         />
       </div>
     </>

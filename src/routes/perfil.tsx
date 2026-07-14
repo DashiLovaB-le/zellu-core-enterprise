@@ -16,7 +16,7 @@ export const Route = createFileRoute("/perfil")({
 });
 
 function PerfilPage() {
-  const { user, signOut, role } = useAuth();
+  const { user, signOut, role, setAvatarUrl } = useAuth();
   const { mode, toggle } = useTheme();
   const { isAuthorized, loading } = useRequireAuth();
   const navigate = useNavigate();
@@ -28,6 +28,7 @@ function PerfilPage() {
   const [nameSuccess, setNameSuccess] = useState("");
 
   const [avatarName, setAvatarName] = useState("");
+  const [editingAvatar, setEditingAvatar] = useState(false);
 
   const [editingEmail, setEditingEmail] = useState(false);
   const [newEmail, setNewEmail] = useState("");
@@ -67,8 +68,21 @@ function PerfilPage() {
   }
 
   const switchMode = () => {
-    const target = role === "manager" ? "/" : "/manager";
-    navigate({ to: target, replace: true });
+    if (role === "dev") {
+      // Dev pode escolher entre as 3 views
+      const currentPath = window.location.pathname;
+      if (currentPath.startsWith("/dashitecnology")) {
+        navigate({ to: "/", replace: true });
+      } else if (currentPath.startsWith("/manager")) {
+        navigate({ to: "/dashitecnology", replace: true });
+      } else {
+        navigate({ to: "/manager", replace: true });
+      }
+    } else {
+      // Manager e companion apenas trocam entre suas views
+      const target = role === "manager" ? "/" : "/manager";
+      navigate({ to: target, replace: true });
+    }
   };
 
   const handleSaveName = async () => {
@@ -164,10 +178,15 @@ function PerfilPage() {
     },
     onSetAvatarName: async (name: string) => {
       setAvatarName(name);
+      setEditingAvatar(false);
       if (session?.access_token) {
         await updateProfile({ data: { accessToken: session.access_token, avatarUrl: name } });
+        await setAvatarUrl(name);
       }
     },
+    editingAvatar,
+    onEditAvatar: () => setEditingAvatar(true),
+    onCancelAvatar: () => setEditingAvatar(false),
     onSetEditingEmail: setEditingEmail,
     onSetNewEmail: setNewEmail,
     onSaveEmail: handleSaveEmail,
@@ -188,7 +207,7 @@ function PerfilPage() {
     },
     onToggleTheme: toggle,
     onSignOut: signOut,
-    onSwitchMode: role === "dev" ? switchMode : undefined,
+    onSwitchMode: role ? switchMode : undefined,
   };
 
   return (

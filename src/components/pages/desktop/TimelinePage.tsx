@@ -3,10 +3,14 @@ import { DesktopShell } from "@/components/DesktopShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 import type { TimelineData } from "@/lib/services/timeline-service";
+import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
+import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 
 interface TimelinePageProps {
   data: TimelineData;
   onSaveEntry: (content: string, mood?: string) => void;
+  preventiveAlert?: PreventiveAlert;
+  onSuggestionClick?: (suggestion: string) => void;
 }
 
 const MOOD_OPTIONS = [
@@ -24,7 +28,7 @@ function getWeekday(date: Date): number {
   return (date.getDay() + 6) % 7;
 }
 
-export function DesktopTimelinePage({ data, onSaveEntry }: TimelinePageProps) {
+export function DesktopTimelinePage({ data, onSaveEntry, preventiveAlert, onSuggestionClick }: TimelinePageProps) {
   const [showNewEntry, setShowNewEntry] = useState(false);
   const [newContent, setNewContent] = useState("");
   const [newMood, setNewMood] = useState("");
@@ -65,6 +69,12 @@ export function DesktopTimelinePage({ data, onSaveEntry }: TimelinePageProps) {
             {showNewEntry ? "Fechar" : "Nova Entrada"}
           </button>
         </header>
+
+        {preventiveAlert && (
+          <div className="mb-6">
+            <PreventiveAlertBanner alert={preventiveAlert} onSuggestionClick={onSuggestionClick} />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <section className="lg:col-span-2">

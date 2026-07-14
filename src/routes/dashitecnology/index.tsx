@@ -23,6 +23,13 @@ const PANELS = [
     description:
       "Configuração do modelo de IA via OpenRouter (modelo, temperatura, prompt, chave da API)",
   },
+  {
+    id: "system-logs",
+    icon: "list_alt",
+    label: "System Logs",
+    description:
+      "Visualização de todos os logs do sistema (erros, warnings, eventos)",
+  },
 ];
 
 function DevIndex() {
@@ -30,8 +37,15 @@ function DevIndex() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && (!user || role !== "dev")) {
+    if (!loading && !user) {
       navigate({ to: "/login", replace: true });
+      return;
+    }
+    
+    // Apenas dev tem acesso a dashitecnology
+    if (!loading && user && role !== "dev") {
+      const target = role === "manager" ? "/manager" : "/";
+      navigate({ to: target, replace: true });
     }
   }, [user, loading, role, navigate]);
 
@@ -59,8 +73,8 @@ function DevIndex() {
           {PANELS.map((panel) => (
             <Link
               key={panel.id}
-              to="/dashitecnology/$painel-dev"
-              params={{ "painel-dev": panel.id }}
+              to="/dashitecnology/$painelDev"
+              params={{ painelDev: panel.id }}
               className="p-4 clay-card hover:shadow-md transition-shadow"
             >
               <div className="flex items-center gap-3">

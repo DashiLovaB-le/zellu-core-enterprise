@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import * as React from "react";
 import { useAuth, type UserRole } from "@/lib/auth-context";
 import { Icon } from "@/components/Icon";
 
@@ -19,10 +20,21 @@ function LoginPage() {
   const [selectedRole, setSelectedRole] = useState<UserRole>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Usar useEffect para navegar quando o usuário estiver autenticado
+  React.useEffect(() => {
+    if (user && role) {
+      const target = role === "manager" ? "/manager" : "/";
+      navigate({ to: target, replace: true });
+    }
+  }, [user, role, navigate]);
+
+  // Mostrar loading enquanto redireciona
   if (user && role) {
-    const target = role === "manager" ? "/manager" : "/";
-    navigate({ to: target, replace: true });
-    return null;
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center">
+        <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+      </div>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

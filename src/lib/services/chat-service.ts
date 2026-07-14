@@ -12,6 +12,13 @@ export interface ChatContext {
   mood?: string;
   userName?: string;
   recentCheckin?: string;
+  preventiveAlert?: {
+    hasAlert: boolean;
+    alertType?: string;
+    alertSeverity?: string;
+    alertMessage?: string;
+    alertSuggestion?: string;
+  };
 }
 
 export interface AiResponse {

@@ -22,11 +22,14 @@ interface PerfilPageProps {
   passwordError: string;
   passwordSuccess: string;
   mode: string;
+  editingAvatar: boolean;
   onEditName: () => void;
   onSetEditName: (val: string) => void;
   onSaveName: () => void;
   onCancelName: () => void;
   onSetAvatarName: (name: string) => void;
+  onEditAvatar: () => void;
+  onCancelAvatar: () => void;
   onSetEditingEmail: (val: boolean) => void;
   onSetNewEmail: (val: string) => void;
   onSaveEmail: () => void;
@@ -61,11 +64,14 @@ export function MobilePerfilPage({
   passwordError,
   passwordSuccess,
   mode,
+  editingAvatar,
   onEditName,
   onSetEditName,
   onSaveName,
   onCancelName,
   onSetAvatarName,
+  onEditAvatar,
+  onCancelAvatar,
   onSetEditingEmail,
   onSetNewEmail,
   onSaveEmail,
@@ -157,24 +163,45 @@ export function MobilePerfilPage({
         <h3 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
           Avatar
         </h3>
-        <div className="flex gap-3">
-          {AVATAR_LIST.map((a) => (
+        {editingAvatar ? (
+          <div className="space-y-3">
+            <div className="flex gap-3">
+              {AVATAR_LIST.map((a) => (
+                <button
+                  key={a.name}
+                  onClick={() => onSetAvatarName(a.name)}
+                  className={`rounded-full transition-all ${avatarName === a.name ? "ring-2 ring-[var(--clay-cta)] ring-offset-2" : "ring-1 ring-transparent hover:ring-white/40"}`}
+                >
+                  <img
+                    src={a.src}
+                    alt={a.name}
+                    width={48}
+                    height={48}
+                    className="rounded-full object-cover"
+                    style={{ width: 48, height: 48 }}
+                  />
+                </button>
+              ))}
+            </div>
             <button
-              key={a.name}
-              onClick={() => onSetAvatarName(a.name)}
-              className={`rounded-full transition-all ${avatarName === a.name ? "ring-2 ring-[var(--clay-cta)] ring-offset-2" : "ring-1 ring-transparent hover:ring-white/40"}`}
+              onClick={onCancelAvatar}
+              className="rounded-lg bg-white/50 px-3 py-1 text-xs text-[var(--clay-title)]/50 shadow-sm"
             >
-              <img
-                src={a.src}
-                alt={a.name}
-                width={48}
-                height={48}
-                className="rounded-full object-cover"
-                style={{ width: 48, height: 48 }}
-              />
+              Cancelar
             </button>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <button
+            onClick={onEditAvatar}
+            className="flex w-full items-center justify-between rounded-xl bg-white/50 p-3 shadow-sm active:translate-y-px"
+          >
+            <div className="flex items-center gap-3">
+              <Avatar name={avatarName} size={40} />
+              <span className="text-sm text-[var(--clay-text)]">Clique para alterar</span>
+            </div>
+            <Icon name="edit" className="text-sm text-[var(--clay-title)]/50" />
+          </button>
+        )}
       </section>
 
       <section className="mb-5 rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">

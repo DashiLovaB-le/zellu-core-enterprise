@@ -23,7 +23,7 @@ import { Route as ManagerIndexRouteImport } from './routes/manager/index'
 import { Route as DashitecnologyIndexRouteImport } from './routes/dashitecnology/index'
 import { Route as ManagerRelatoriosRouteImport } from './routes/manager/relatorios'
 import { Route as ManagerEquipesRouteImport } from './routes/manager/equipes'
-import { Route as DashitecnologyPainelDevRouteImport } from './routes/dashitecnology/$painel-dev'
+import { Route as DashitecnologyPainelDevRouteImport } from './routes/dashitecnology/$painelDev'
 
 const RespiroRoute = RespiroRouteImport.update({
   id: '/respiro',
@@ -96,8 +96,8 @@ const ManagerEquipesRoute = ManagerEquipesRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashitecnologyPainelDevRoute = DashitecnologyPainelDevRouteImport.update({
-  id: '/dashitecnology/$painel-dev',
-  path: '/dashitecnology/$painel-dev',
+  id: '/dashitecnology/$painelDev',
+  path: '/dashitecnology/$painelDev',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -112,7 +112,7 @@ export interface FileRoutesByFullPath {
   '/meu-bem-estar': typeof MeuBemEstarRoute
   '/perfil': typeof PerfilRoute
   '/respiro': typeof RespiroRoute
-  '/dashitecnology/$painel-dev': typeof DashitecnologyPainelDevRoute
+  '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/dashitecnology/': typeof DashitecnologyIndexRoute
@@ -129,7 +129,7 @@ export interface FileRoutesByTo {
   '/meu-bem-estar': typeof MeuBemEstarRoute
   '/perfil': typeof PerfilRoute
   '/respiro': typeof RespiroRoute
-  '/dashitecnology/$painel-dev': typeof DashitecnologyPainelDevRoute
+  '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/dashitecnology': typeof DashitecnologyIndexRoute
@@ -147,7 +147,7 @@ export interface FileRoutesById {
   '/meu-bem-estar': typeof MeuBemEstarRoute
   '/perfil': typeof PerfilRoute
   '/respiro': typeof RespiroRoute
-  '/dashitecnology/$painel-dev': typeof DashitecnologyPainelDevRoute
+  '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/dashitecnology/': typeof DashitecnologyIndexRoute
@@ -166,7 +166,7 @@ export interface FileRouteTypes {
     | '/meu-bem-estar'
     | '/perfil'
     | '/respiro'
-    | '/dashitecnology/$painel-dev'
+    | '/dashitecnology/$painelDev'
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/dashitecnology/'
@@ -183,7 +183,7 @@ export interface FileRouteTypes {
     | '/meu-bem-estar'
     | '/perfil'
     | '/respiro'
-    | '/dashitecnology/$painel-dev'
+    | '/dashitecnology/$painelDev'
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/dashitecnology'
@@ -200,7 +200,7 @@ export interface FileRouteTypes {
     | '/meu-bem-estar'
     | '/perfil'
     | '/respiro'
-    | '/dashitecnology/$painel-dev'
+    | '/dashitecnology/$painelDev'
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/dashitecnology/'
@@ -325,10 +325,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerEquipesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashitecnology/$painel-dev': {
-      id: '/dashitecnology/$painel-dev'
-      path: '/dashitecnology/$painel-dev'
-      fullPath: '/dashitecnology/$painel-dev'
+    '/dashitecnology/$painelDev': {
+      id: '/dashitecnology/$painelDev'
+      path: '/dashitecnology/$painelDev'
+      fullPath: '/dashitecnology/$painelDev'
       preLoaderRoute: typeof DashitecnologyPainelDevRouteImport
       parentRoute: typeof rootRouteImport
     }
