@@ -1,8 +1,8 @@
 # TODO — Reposicionamento Mundo Mental
 
 > Plano de implementação baseado em `P-MundoMental-v1.md.MD`
-> Status atual: ~88% do caminho para apresentação comercial
-> Última atualização: Fase 10 concluída ✅
+> Status atual: ~92% do caminho para apresentação comercial
+> Última atualização: Fase 11 concluída ✅
 
 ---
 
@@ -124,12 +124,12 @@
 
 ---
 
-## Fase 11 — IA Preventiva
+## Fase 11 — IA Preventiva ✅
 
-- [ ] **11.1** Implementar detecção de padrões: sono caiu + humor caiu + interações diminuíram
-- [ ] **11.2** Alertas sutis e preventivos ("Percebi uma mudança no seu padrão...")
-- [ ] **11.3** Sugerir ação antes do burnout: exercício, conversa, pausa, mindfulness
-- [ ] **11.4** Notificações preventivas com tom de cuidado, não de alarme
+- [X] **11.1** Implementar detecção de padrões: sono caiu + humor caiu + interações diminuíram
+- [X] **11.2** Alertas sutis e preventivos ("Percebi uma mudança no seu padrão...")
+- [X] **11.3** Sugerir ação antes do burnout: exercício, conversa, pausa, mindfulness
+- [X] **11.4** Notificações preventivas com tom de cuidado, não de alarme
 
 ---
 

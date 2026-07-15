@@ -52,37 +52,7 @@ interface InsightResponse {
   suggestion?: string;
 }
 
-async function callOpenRouter(
-  systemPrompt: string,
-  userPrompt: string,
-  apiKey: string,
-): Promise<string> {
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://mundomental.com",
-      "X-Title": "Mundo Mental Companion",
-    },
-    body: JSON.stringify({
-      model: "openai/gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      temperature: 0.8,
-      max_tokens: 200,
-    }),
-  });
 
-  if (!response.ok) {
-    throw new Error(`OpenRouter error: ${response.status}`);
-  }
-
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content ?? "";
-}
 
 function buildSystemPrompt(contextType: string): string {
   const basePrompt = `Você é um assistente de bem-estar empático e profissional.
@@ -218,20 +188,31 @@ export const generateInsight = createServerFn({ method: "POST" })
     const { context } = data;
 
     try {
-      const apiKey = process.env.OPENROUTER_API_KEY;
-      if (!apiKey) {
+      const config = await getActiveLlmConfig();
+      if (!config.api_key) {
         await logEvent("info", "insights-ai.generateInsight", `Insight baseado em regras (sem API key): ${context.contextType}`, { contextType: context.contextType, userName: context.userName });
         return { insight: generateRuleBasedInsight(context) };
       }
 
-      const systemPrompt = buildSystemPrompt(context.contextType);
-      const userPrompt = buildUserPrompt(context);
+      const systemContent = buildSystemPrompt(context.contextType);
+      const userContent = buildUserPrompt(context);
 
-      const insight = await callOpenRouter(systemPrompt, userPrompt, apiKey);
+      const messages: ChatMessage[] = [
+        { role: "system", content: systemContent },
+        { role: "user", content: userContent },
+      ];
 
-      await logEvent("info", "insights-ai.generateInsight", `Insight gerado via IA: ${context.contextType}`, { contextType: context.contextType, userName: context.userName });
+      const result = await callLlmWithFallback(messages, config, "insights-ai.generateInsight");
+
+      if ("error" in result) {
+        await logEvent("error", "insights-ai.generateInsight", `Todos os modelos falharam: ${context.contextType}`, { contextType: context.contextType, error: result.error });
+        return { insight: generateRuleBasedInsight(context) };
+      }
+
+      const insight = result.content.trim();
+      await logEvent("info", "insights-ai.generateInsight", `Insight gerado via ${result.model}: ${context.contextType}`, { contextType: context.contextType, model: result.model, userName: context.userName });
       return {
-        insight: insight.trim() || generateRuleBasedInsight(context),
+        insight: insight || generateRuleBasedInsight(context),
       };
     } catch (error) {
       console.error("Error generating AI insight:", error);

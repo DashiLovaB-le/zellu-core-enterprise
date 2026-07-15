@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import process from "node:process";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin.server";
 import { logEvent } from "@/lib/api/logs.server";
@@ -42,6 +41,14 @@ async function requireDevRole(
   return { user };
 }
 
+function getEnvApiKey(): string {
+  try {
+    return process.env.OPENROUTER_API_KEY ?? "";
+  } catch {
+    return "";
+  }
+}
+
 const DEFAULT_CONFIG: LlmConfig = {
   model: "openai/gpt-4o-mini",
   temperature: 0.7,
@@ -57,13 +64,13 @@ Diretrizes:
 - Se o usuário parecer ansioso ou estressado, sugira o exercício de respiração.
 - Use occasionalmente uma pergunta ao final para manter o diálogo.
 - Varie as saudações conforme o período do dia (bom dia, boa tarde, boa noite).`,
-  api_key: process.env.OPENROUTER_API_KEY ?? "",
+  api_key: "",
   model_2: "",
   model_3: "",
 };
 
 export async function getActiveLlmConfig(accessToken?: string): Promise<LlmConfig> {
-  const envApiKey = process.env.OPENROUTER_API_KEY;
+  const envApiKey = getEnvApiKey();
   try {
     const admin = createAdminClient();
     const { data } = await admin.from("llm_config").select("*").limit(1).maybeSingle();
@@ -176,14 +183,14 @@ export const getLlmConfig = createServerFn({ method: "GET" })
         console.error("getLlmConfig db error:", error);
         return {
           ...DEFAULT_CONFIG,
-          api_key: DEFAULT_CONFIG.api_key ? maskKey(DEFAULT_CONFIG.api_key) : "",
+          api_key: getEnvApiKey() ? maskKey(getEnvApiKey()) : "",
         };
       }
 
       if (!data) {
         return {
           ...DEFAULT_CONFIG,
-          api_key: DEFAULT_CONFIG.api_key ? maskKey(DEFAULT_CONFIG.api_key) : "",
+          api_key: getEnvApiKey() ? maskKey(getEnvApiKey()) : "",
         };
       }
 
@@ -200,7 +207,7 @@ export const getLlmConfig = createServerFn({ method: "GET" })
       console.error("getLlmConfig error:", err);
       return {
         ...DEFAULT_CONFIG,
-        api_key: DEFAULT_CONFIG.api_key ? maskKey(DEFAULT_CONFIG.api_key) : "",
+        api_key: getEnvApiKey() ? maskKey(getEnvApiKey()) : "",
       };
     }
   });
@@ -251,7 +258,7 @@ export const setLlmConfig = createServerFn({ method: "POST" })
         }
 
         const existingApiKey = existing?.api_key ?? "";
-        const envApiKey = process.env.OPENROUTER_API_KEY ?? "";
+        const envApiKey = getEnvApiKey();
 
         const isMasked = api_key.includes("…");
 
@@ -368,7 +375,7 @@ export const testLlmConnection = createServerFn({ method: "POST" })
         const auth = await requireDevRole(accessToken);
         if ("error" in auth) return auth;
 
-        const key = api_key.startsWith("sk-or-") ? api_key : (process.env.OPENROUTER_API_KEY ?? "");
+        const key = api_key.startsWith("sk-or-") ? api_key : getEnvApiKey();
         if (!key) {
           await logEvent("warn", "llm-config.testLlmConnection", `Teste de conexão falhou: API key não configurada`);
           return { error: "API key não configurada" };
