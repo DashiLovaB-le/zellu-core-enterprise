@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin.server";
 import { logEvent } from "@/lib/api/logs.server";
+import { getUserIdFromAccessToken } from "@/lib/auth-token";
 
 export const confirmUser = createServerFn({ method: "POST" })
   .inputValidator(z.object({ userId: z.string().uuid() }))
@@ -32,17 +33,16 @@ export const confirmUser = createServerFn({ method: "POST" })
 export const getProfile = createServerFn({ method: "POST" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
+    const userId = getUserIdFromAccessToken(data.accessToken);
+    if (!userId) return null;
+
     const { createClient } = await import("@/lib/supabase/server");
     const supabase = await createClient(data.accessToken);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser(data.accessToken);
-    if (!user) return null;
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("*")
-      .eq("id", user.id)
+      .select("id, email, display_name, role, avatar_url")
+      .eq("id", userId)
       .maybeSingle();
 
     return profile ?? null;
@@ -51,17 +51,16 @@ export const getProfile = createServerFn({ method: "POST" })
 export const getUserRole = createServerFn({ method: "POST" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
+    const userId = getUserIdFromAccessToken(data.accessToken);
+    if (!userId) return null;
+
     const { createClient } = await import("@/lib/supabase/server");
     const supabase = await createClient(data.accessToken);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser(data.accessToken);
-    if (!user) return null;
 
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
-      .eq("id", user.id)
+      .eq("id", userId)
       .maybeSingle();
 
     return (profile?.role as "companion" | "manager" | "dev") ?? null;
@@ -81,12 +80,11 @@ export const updateProfile = createServerFn({ method: "POST" })
     }: {
       data: { accessToken: string; displayName?: string; avatarUrl?: string };
     }) => {
+      const userId = getUserIdFromAccessToken(data.accessToken);
+      if (!userId) return { error: "Unauthorized" };
+
       const { createClient } = await import("@/lib/supabase/server");
       const supabase = await createClient(data.accessToken);
-      const {
-        data: { user },
-      } = await supabase.auth.getUser(data.accessToken);
-      if (!user) return { error: "Unauthorized" };
 
       const payload: Record<string, unknown> = {};
       if (data.displayName !== undefined) payload.display_name = data.displayName;
@@ -94,14 +92,14 @@ export const updateProfile = createServerFn({ method: "POST" })
 
       const { error } = await supabase
         .from("profiles")
-        .upsert({ id: user.id, ...payload })
-        .select()
+        .upsert({ id: userId, ...payload })
+        .select("id")
         .single();
 
       if (error) {
-        await logEvent("error", "auth.updateProfile", `Erro ao atualizar perfil ${user.id}`, { error: error.message }, user.id);
+        void logEvent("error", "auth.updateProfile", `Erro ao atualizar perfil ${userId}`, { error: error.message }, userId);
       } else {
-        await logEvent("info", "auth.updateProfile", `Perfil atualizado: ${user.id}`, { payload }, user.id);
+        void logEvent("info", "auth.updateProfile", `Perfil atualizado: ${userId}`, { payload }, userId);
       }
 
       return { error: error?.message ?? null };

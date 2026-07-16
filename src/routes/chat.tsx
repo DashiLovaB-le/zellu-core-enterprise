@@ -14,7 +14,6 @@ import {
 import { getLatestCheckin } from "@/lib/api/checkin.server";
 import { getProfile } from "@/lib/api/auth.server";
 import { loadPreventiveAlert, type PreventiveAlert } from "@/lib/services/preventiva-service";
-import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import type { Msg } from "@/data";
 
 export const Route = createFileRoute("/chat")({
@@ -50,20 +49,24 @@ function ChatPage() {
   useEffect(() => {
     if (!accessToken || initialized) return;
     (async () => {
-      const [latestCheckin, profile, alertResult] = await Promise.all([
+      const [latestCheckinRes, profile, alertResult, msgs] = await Promise.all([
         getLatestCheckin({ data: { accessToken } }),
         getProfile({ data: { accessToken } }),
         loadPreventiveAlert(accessToken),
+        loadMessages(accessToken),
       ]);
+
+      const checkinData = latestCheckinRes?.data ?? null;
       setPreventiveAlert(alertResult);
+
       const context: ChatContext = {
         userName: profile?.display_name ?? user?.email?.split("@")[0] ?? "Ana",
-        sleepHours: latestCheckin?.sleep_hours,
-        sleepLabel: latestCheckin?.sleep_label,
-        waterMl: latestCheckin?.water_ml,
-        mood: latestCheckin?.mood,
-        recentCheckin: latestCheckin
-          ? `Check-in feito às ${new Date(latestCheckin.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+        sleepHours: checkinData?.sleep_hours,
+        sleepLabel: checkinData?.sleep_label,
+        waterMl: checkinData?.water_ml,
+        mood: checkinData?.mood,
+        recentCheckin: checkinData
+          ? `Check-in feito às ${new Date(checkinData.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
           : undefined,
         preventiveAlert: alertResult.type !== "none"
           ? {
@@ -76,8 +79,6 @@ function ChatPage() {
           : { hasAlert: false },
       };
       setTodayContext(context);
-
-      const msgs = await loadMessages(accessToken);
       setMessages(msgs);
 
       const g = await loadGreeting(accessToken, context);
@@ -97,12 +98,15 @@ function ChatPage() {
       setAiSuggestion(null);
 
       const history = messages.map((m) => ({
-        role: m.from as "user" | "assistant",
+        role: (m.from === "ai" ? "assistant" : "user") as "user" | "assistant",
         content: m.text,
       }));
 
       try {
         const result = await sendMessage(accessToken, text, history, todayContext);
+        if (!result.reply?.trim()) {
+          throw new Error("Resposta vazia da IA");
+        }
         const aiMsg: Msg = { from: "ai", text: result.reply };
         setMessages((prev) => [...prev, aiMsg]);
         if (result.suggestion) setAiSuggestion(result.suggestion);

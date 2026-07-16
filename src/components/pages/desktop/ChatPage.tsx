@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { DesktopShell } from "@/components/DesktopShell";
 import { Avatar } from "@/components/Avatar";
 import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
+import { ChatMarkdown } from "@/components/ChatMarkdown";
 import type { Msg } from "@/data";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 
@@ -223,7 +224,7 @@ function Bubble({ msg }: { msg: Msg }) {
             : "rounded-2xl rounded-br-md bg-gradient-to-br from-[#C8E6C9]/60 to-[#D7CBE8]/50 shadow-sm text-[var(--clay-text)]"
         }`}
       >
-        {msg.text}
+        {isAi ? <ChatMarkdown content={msg.text} /> : msg.text}
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 # TODO — Reposicionamento Mundo Mental
 
 > Plano de implementação baseado em `P-MundoMental-v1.md.MD`
-> Status atual: ~92% do caminho para apresentação comercial
-> Última atualização: Fase 11 concluída ✅
+> Status atual: ~98% do caminho para apresentação comercial
+> Última atualização: Fase 13 e 14 concluídas ✅
 
 ---
 
@@ -133,30 +133,30 @@
 
 ---
 
-## Fase 12 — Plano de Cuidado (Bem-estar)
+## Fase 12 — Plano de Cuidado (Bem-estar) ✅
 
-- [ ] **12.1** Criar "Plano de Bem-estar" com objetivo definido pelo usuário (ex: reduzir ansiedade)
-- [ ] **12.2** Checklist diário: ✔ água, ✔ caminhada, ✔ respirar, ✔ conversar
-- [ ] **12.3** Progresso visual do plano
-- [ ] **12.4** Sugestões da IA para ajustes no plano
-
----
-
-## Fase 13 — Gamificação Elegante
-
-- [ ] **13.1** INSERIR sistema de contagem de progresso: "Você cultivou 14 dias de autocuidado"
-- [ ] **13.2** Pequenas celebrações visuais (sem animações infantis)
+- [X] **12.1** Criar "Plano de Bem-estar" com objetivo definido pelo usuário (ex: reduzir ansiedade)
+- [X] **12.2** Checklist diário: ✔ água, ✔ caminhada, ✔ respirar, ✔ conversar
+- [X] **12.3** Progresso visual do plano
+- [X] **12.4** Sugestões da IA para ajustes no plano
 
 ---
 
-## Fase 14 — Dashboard do RH (Modo Manager)
+## Fase 13 — Gamificação Elegante ✅
 
-- [ ] **14.1** Criar nova seção/rota para o painel administrativo
-- [ ] **14.2** Exibir apenas dados agregados e anonimizados (nunca indivíduos)
-- [ ] **14.3** KPIs por equipe: Estresse ↑, Energia ↓, Sono ↓, Engajamento ↑
-- [ ] **14.4** Cards de resumo por departamento (ex: "Equipe Financeira — Excelente estabilidade emocional")
-- [ ] **14.5** Gráficos de tendência ao longo do tempo
-- [ ] **14.6** Alertas de equipe (quando métricas indicam risco)
+- [X] **13.1** Sistema de contagem de streak visível no Dashboard e Plano de Cuidado (`streak-system.server.ts`, `MilestoneBanner.tsx`)
+- [X] **13.2** Celebrações visuais sutis em marcos: 3, 7, 14, 21, 30, 60, 90 dias (banner gradiente com ícone, sem animações infantis)
+
+---
+
+## Fase 14 — Dashboard do RH (Modo Manager) ✅
+
+- [X] **14.1** Nova rota `/manager/rh-dashboard` com navegação no ManagerShell (substitui Dashboard anterior)
+- [X] **14.2** Dados agregados e anonimizados via `getRhDashboard` (consulta real ao banco, sem expor indivíduos)
+- [X] **14.3** KPIs por equipe: humor, sono, hidratação, % negativo — com status (Estável/Monitorar/Atenção)
+- [X] **14.4** Cards de resumo por departamento com indicadores em grid adaptável
+- [X] **14.5** Gráficos de tendência (LineChart: humor, sono, água 30d) e distribuição de humor (BarChart)
+- [X] **14.6** Alertas automáticos por equipe (humor negativo ≥20% / ≥40%, sono baixo, hidratação baixa)
 
 ---
 

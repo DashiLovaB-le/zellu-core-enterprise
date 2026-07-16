@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { getUserIdFromAccessToken } from "@/lib/auth-token";
 
 export type HabitsData = {
   id: string;
@@ -18,16 +19,16 @@ export type HabitsData = {
 export const getHabits = createServerFn({ method: "GET" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const supabase = await createClient(data.accessToken);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
+    const userId = getUserIdFromAccessToken(data.accessToken);
+    if (!userId) return null;
 
+    const supabase = await createClient(data.accessToken);
     const today = new Date().toISOString().split("T")[0];
 
     const { data: habits } = await supabase
       .from("habits")
-      .select("*")
-      .eq("user_id", user.id)
+      .select("id, user_id, water_ml, sleep_quality, mood, movement_minutes, energy_level, meals, date, updated_at")
+      .eq("user_id", userId)
       .eq("date", today)
       .maybeSingle();
 
@@ -60,13 +61,13 @@ export const updateHabits = createServerFn({ method: "POST" })
         meals?: string[];
       };
     }) => {
-      const supabase = await createClient(data.accessToken);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      const userId = getUserIdFromAccessToken(data.accessToken);
+      if (!userId) return null;
 
+      const supabase = await createClient(data.accessToken);
       const today = new Date().toISOString().split("T")[0];
 
-      const payload: Record<string, unknown> = { user_id: user.id, date: today };
+      const payload: Record<string, unknown> = { user_id: userId, date: today };
       if (data.waterMl !== undefined) payload.water_ml = data.waterMl;
       if (data.sleepQuality !== undefined) payload.sleep_quality = data.sleepQuality;
       if (data.mood !== undefined) payload.mood = data.mood;
@@ -77,7 +78,7 @@ export const updateHabits = createServerFn({ method: "POST" })
       const { data: result } = await supabase
         .from("habits")
         .upsert(payload, { onConflict: "user_id, date" })
-        .select()
+        .select("id, user_id, water_ml, sleep_quality, mood, movement_minutes, energy_level, meals, date, updated_at")
         .single();
 
       return result as HabitsData | null;

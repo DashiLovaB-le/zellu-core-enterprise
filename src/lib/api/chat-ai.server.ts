@@ -3,7 +3,8 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { logEvent } from "@/lib/api/logs.server";
 import { getActiveLlmConfig, callLlmWithFallback } from "@/lib/api/llm-config.server";
-import type { ChatMessage, LlmConfig } from "@/lib/api/llm-config.server";
+import type { ChatMessage } from "@/lib/api/llm-config.server";
+import { getEmailFromAccessToken, getUserIdFromAccessToken } from "@/lib/auth-token";
 
 export interface PreventiveContext {
   hasAlert: boolean;
@@ -16,9 +17,14 @@ export interface PreventiveContext {
 export const sendChatMessage = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
-      text: z.string().min(1),
-      history: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() })),
+      accessToken: z.string().min(1),
+      text: z.string().min(1).max(2000),
+      history: z.array(
+        z.object({
+          role: z.enum(["user", "assistant"]),
+          content: z.string(),
+        }),
+      ),
       context: z.object({
         sleepHours: z.number().optional(),
         sleepLabel: z.string().optional(),
@@ -57,28 +63,26 @@ export const sendChatMessage = createServerFn({ method: "POST" })
         };
       };
     }) => {
-      const supabase = await createClient(data.accessToken);
-      const {
-        data: { user },
-      } = await supabase.auth.getUser(data.accessToken);
-      if (!user) return { error: "Unauthorized" };
+      const userId = getUserIdFromAccessToken(data.accessToken);
+      if (!userId) return { error: "Unauthorized" };
 
+      const supabase = await createClient(data.accessToken);
       const config = await getActiveLlmConfig();
-      if (!config.api_key) {
-        await logEvent("error", "chat-ai.sendChatMessage", "OpenRouter não configurado — sem API key", { model: config.model }, user.id);
-        return { error: "OpenRouter não configurado" };
-      }
 
       const { data: profile } = await supabase
         .from("profiles")
         .select("display_name")
-        .eq("id", user.id)
+        .eq("id", userId)
         .maybeSingle();
-      const name = profile?.display_name ?? data.context.userName ?? user.email?.split("@")[0] ?? "Ana";
+      const name =
+        profile?.display_name ??
+        data.context.userName ??
+        getEmailFromAccessToken(data.accessToken)?.split("@")[0] ??
+        "Ana";
       const greeting = getGreeting();
 
       const preventiveLine = data.context.preventiveAlert?.hasAlert
-        ? "- Alerta preventivo: " + (data.context.preventiveAlert.alertMessage || "") + ". Motivo: " + (data.context.preventiveAlert.alertSuggestion || "")
+        ? `- Alerta preventivo: ${data.context.preventiveAlert.alertMessage || ""}. Sugestão: ${data.context.preventiveAlert.alertSuggestion || ""}`
         : "- Sem alertas preventivos";
 
       const systemContent = `${config.system_prompt}
@@ -91,40 +95,119 @@ Contexto do usuário:
 - Check-in recente: ${data.context.recentCheckin ?? "não informado"}
 ${preventiveLine}
 
-${greeting}`;
+Período: ${greeting}
+Responda sempre em português brasileiro.
+Use markdown leve: **negrito** para destaques pontuais, quebras de linha entre ideias e, se útil, uma lista curta com "- ". Nada exagerado.`;
+
+      // Sem API key: fallback local para o chat não quebrar
+      if (!config.api_key) {
+        void logEvent(
+          "error",
+          "chat-ai.sendChatMessage",
+          "OpenRouter não configurado — sem API key",
+          { model: config.model },
+          userId,
+        );
+        const reply = buildLocalFallbackReply(data.text, name, data.context);
+        await persistExchange(supabase, userId, data.text, reply);
+        return { reply, suggestion: extractSuggestion(reply) };
+      }
 
       const messages: ChatMessage[] = [
         { role: "system", content: systemContent },
-        ...data.history.slice(-10).map((m: { role: "user" | "assistant"; content: string }) => ({
+        ...data.history.slice(-10).map((m) => ({
           role: m.role,
           content: m.content,
         })),
         { role: "user", content: data.text },
       ];
 
-      const result = await callLlmWithFallback(messages, config, "chat-ai.sendChatMessage", user.id);
+      const result = await callLlmWithFallback(messages, config, "chat-ai.sendChatMessage", userId);
 
       if ("error" in result) {
-        return { error: "Erro ao contactar a IA. Tente novamente." };
+        const reply = buildLocalFallbackReply(data.text, name, data.context);
+        void logEvent(
+          "warn",
+          "chat-ai.sendChatMessage",
+          `LLM falhou, usando fallback local: ${result.error}`,
+          { error: result.error },
+          userId,
+        );
+        await persistExchange(supabase, userId, data.text, reply);
+        return { reply, suggestion: extractSuggestion(reply) };
       }
 
-      const reply = result.content;
+      const reply = result.content.trim();
       const modelUsed = result.model;
 
       if (modelUsed !== config.model) {
-        await logEvent("info", "chat-ai.sendChatMessage", `Mensagem respondida por fallback: ${modelUsed}`, { primary: config.model, used: modelUsed }, user.id);
+        void logEvent(
+          "info",
+          "chat-ai.sendChatMessage",
+          `Mensagem respondida por fallback: ${modelUsed}`,
+          { primary: config.model, used: modelUsed },
+          userId,
+        );
       }
 
-      await supabase.from("chat_messages").insert([
-        { user_id: user.id, text: data.text, from: "user" },
-        { user_id: user.id, text: reply, from: "ai" },
-      ]);
+      await persistExchange(supabase, userId, data.text, reply);
 
-      const suggestion = extractSuggestion(reply);
-
-      return { reply, suggestion };
+      return { reply, suggestion: extractSuggestion(reply) };
     },
   );
+
+async function persistExchange(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  userText: string,
+  reply: string,
+) {
+  try {
+    await supabase.from("chat_messages").insert([
+      { user_id: userId, text: userText, from: "user" },
+      { user_id: userId, text: reply, from: "ai" },
+    ]);
+  } catch (err) {
+    void logEvent(
+      "warn",
+      "chat-ai.persistExchange",
+      "Falha ao persistir mensagens do chat",
+      { error: String(err) },
+      userId,
+    );
+  }
+}
+
+function buildLocalFallbackReply(
+  text: string,
+  name: string,
+  context: {
+    sleepHours?: number;
+    sleepLabel?: string;
+    waterMl?: number;
+    mood?: string;
+  },
+): string {
+  const lower = text.toLowerCase();
+  if (lower.includes("ansios") || lower.includes("preocup") || lower.includes("nervos")) {
+    return `${name}, entendo que a **ansiedade** pode pesar.\n\nQue tal uma respiração curta agora?\n- Inspire pelo nariz contando até **4**\n- Segure por **2**\n- Solte pela boca contando até **6**`;
+  }
+  if (lower.includes("triste") || lower.includes("mal") || lower.includes("baixo")) {
+    return `${name}, obrigado por compartilhar como está se sentindo.\n\nEstar triste também faz parte — um passo pequeno, como *beber água* ou *uma caminhada curta*, pode ajudar um pouco.`;
+  }
+  if (lower.includes("sono") || lower.includes("dorm") || lower.includes("cansad")) {
+    return context.sleepLabel
+      ? `Vi que seu sono foi **${context.sleepLabel.toLowerCase()}**.\n\nSe puder, tente:\n- Reduzir telas antes de dormir\n- Manter um horário mais regular`
+      : `${name}, o **cansaço** pede cuidado.\n\nSe possível, priorize uma noite com horário mais estável e uma pausa sem telas antes de dormir.`;
+  }
+  if (lower.includes("água") || lower.includes("hidrat")) {
+    return `Boa ideia cuidar da **hidratação**.\n\nUm copo de água agora já conta — pequenos hábitos sustentam o bem-estar.`;
+  }
+  if (context.mood) {
+    return `${name}, obrigado por me contar.\n\nVi que seu humor recente foi **"${context.mood}"**. Estou aqui para ouvir — o que mais está presente pra você agora?`;
+  }
+  return `${name}, obrigado por escrever. Estou aqui com você.\n\nPode me contar um pouco mais sobre como está se *sentindo*?`;
+}
 
 export const getContextualGreeting = createServerFn({ method: "POST" })
   .inputValidator(
@@ -152,53 +235,10 @@ export const getContextualGreeting = createServerFn({ method: "POST" })
         };
       };
     }) => {
-      const supabase = await createClient(data.accessToken);
-      const {
-        data: { user },
-      } = await supabase.auth.getUser(data.accessToken);
-
-      const fallbackGreeting = (name: string) =>
-        `${getGreeting()}, ${name}! Que bom ter você aqui hoje.`;
-
-      const fallbackName = data.context.userName ?? user?.email?.split("@")[0] ?? "Ana";
-
-      if (!user) {
-        return { greeting: fallbackGreeting(fallbackName) };
-      }
-
-      const config = await getActiveLlmConfig();
-      if (!config.api_key) {
-        return { greeting: fallbackGreeting(fallbackName) };
-      }
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("display_name")
-        .eq("id", user.id)
-        .maybeSingle();
-      const name = profile?.display_name ?? data.context.userName ?? user.email?.split("@")[0] ?? "Ana";
-      const greeting = getGreeting();
-
-      const prompt = `Você é um assistente de bem-estar. Gere uma saudação curta (1 frase) e calorosa para ${name} neste ${greeting.toLowerCase()}.
-
-Contexto:
-- Sono: ${data.context.sleepLabel ?? "não informado"} (${data.context.sleepHours ? `${data.context.sleepHours}h` : "n/d"})
-- Água: ${data.context.waterMl ? `${data.context.waterMl}ml hoje` : "não informado"}
-
-Se houver dados de sono, mencione-os de forma natural. Seja acolhedor mas profissional.`;
-
-      const result = await callLlmWithFallback(
-        [{ role: "user", content: prompt }],
-        { ...config, max_tokens: 80, temperature: 0.8 },
-        "chat-ai.getContextualGreeting",
-        user.id,
-      );
-
-      if ("error" in result) {
-        return { greeting: fallbackGreeting(name) };
-      }
-
-      return { greeting: result.content || fallbackGreeting(name) };
+      // Saudação leve no carregamento do chat.
+      // A regra do produto é: exibir apenas a "saudação" (Bom dia/Boa tarde/Boa noite) e deixá-la limitada por dia no client.
+      void data; // params mantidos para compatibilidade da assinatura
+      return { greeting: getGreeting() };
     },
   );
 

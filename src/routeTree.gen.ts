@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RespiroRouteImport } from './routes/respiro'
+import { Route as PlanoDeCuidadoRouteImport } from './routes/plano-de-cuidado'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as MeuBemEstarRouteImport } from './routes/meu-bem-estar'
 import { Route as LoginRouteImport } from './routes/login'
@@ -21,6 +22,7 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ManagerIndexRouteImport } from './routes/manager/index'
 import { Route as DashitecnologyIndexRouteImport } from './routes/dashitecnology/index'
+import { Route as ManagerRhDashboardRouteImport } from './routes/manager/rh-dashboard'
 import { Route as ManagerRelatoriosRouteImport } from './routes/manager/relatorios'
 import { Route as ManagerEquipesRouteImport } from './routes/manager/equipes'
 import { Route as DashitecnologyPainelDevRouteImport } from './routes/dashitecnology/$painelDev'
@@ -28,6 +30,11 @@ import { Route as DashitecnologyPainelDevRouteImport } from './routes/dashitecno
 const RespiroRoute = RespiroRouteImport.update({
   id: '/respiro',
   path: '/respiro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanoDeCuidadoRoute = PlanoDeCuidadoRouteImport.update({
+  id: '/plano-de-cuidado',
+  path: '/plano-de-cuidado',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilRoute = PerfilRouteImport.update({
@@ -85,6 +92,11 @@ const DashitecnologyIndexRoute = DashitecnologyIndexRouteImport.update({
   path: '/dashitecnology/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManagerRhDashboardRoute = ManagerRhDashboardRouteImport.update({
+  id: '/manager/rh-dashboard',
+  path: '/manager/rh-dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ManagerRelatoriosRoute = ManagerRelatoriosRouteImport.update({
   id: '/manager/relatorios',
   path: '/manager/relatorios',
@@ -111,10 +123,12 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/meu-bem-estar': typeof MeuBemEstarRoute
   '/perfil': typeof PerfilRoute
+  '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
   '/respiro': typeof RespiroRoute
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
+  '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
   '/dashitecnology/': typeof DashitecnologyIndexRoute
   '/manager/': typeof ManagerIndexRoute
 }
@@ -128,10 +142,12 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/meu-bem-estar': typeof MeuBemEstarRoute
   '/perfil': typeof PerfilRoute
+  '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
   '/respiro': typeof RespiroRoute
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
+  '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
   '/dashitecnology': typeof DashitecnologyIndexRoute
   '/manager': typeof ManagerIndexRoute
 }
@@ -146,10 +162,12 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/meu-bem-estar': typeof MeuBemEstarRoute
   '/perfil': typeof PerfilRoute
+  '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
   '/respiro': typeof RespiroRoute
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
+  '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
   '/dashitecnology/': typeof DashitecnologyIndexRoute
   '/manager/': typeof ManagerIndexRoute
 }
@@ -165,10 +183,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/meu-bem-estar'
     | '/perfil'
+    | '/plano-de-cuidado'
     | '/respiro'
     | '/dashitecnology/$painelDev'
     | '/manager/equipes'
     | '/manager/relatorios'
+    | '/manager/rh-dashboard'
     | '/dashitecnology/'
     | '/manager/'
   fileRoutesByTo: FileRoutesByTo
@@ -182,10 +202,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/meu-bem-estar'
     | '/perfil'
+    | '/plano-de-cuidado'
     | '/respiro'
     | '/dashitecnology/$painelDev'
     | '/manager/equipes'
     | '/manager/relatorios'
+    | '/manager/rh-dashboard'
     | '/dashitecnology'
     | '/manager'
   id:
@@ -199,10 +221,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/meu-bem-estar'
     | '/perfil'
+    | '/plano-de-cuidado'
     | '/respiro'
     | '/dashitecnology/$painelDev'
     | '/manager/equipes'
     | '/manager/relatorios'
+    | '/manager/rh-dashboard'
     | '/dashitecnology/'
     | '/manager/'
   fileRoutesById: FileRoutesById
@@ -217,10 +241,12 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MeuBemEstarRoute: typeof MeuBemEstarRoute
   PerfilRoute: typeof PerfilRoute
+  PlanoDeCuidadoRoute: typeof PlanoDeCuidadoRoute
   RespiroRoute: typeof RespiroRoute
   DashitecnologyPainelDevRoute: typeof DashitecnologyPainelDevRoute
   ManagerEquipesRoute: typeof ManagerEquipesRoute
   ManagerRelatoriosRoute: typeof ManagerRelatoriosRoute
+  ManagerRhDashboardRoute: typeof ManagerRhDashboardRoute
   DashitecnologyIndexRoute: typeof DashitecnologyIndexRoute
   ManagerIndexRoute: typeof ManagerIndexRoute
 }
@@ -232,6 +258,13 @@ declare module '@tanstack/react-router' {
       path: '/respiro'
       fullPath: '/respiro'
       preLoaderRoute: typeof RespiroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plano-de-cuidado': {
+      id: '/plano-de-cuidado'
+      path: '/plano-de-cuidado'
+      fullPath: '/plano-de-cuidado'
+      preLoaderRoute: typeof PlanoDeCuidadoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil': {
@@ -311,6 +344,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashitecnologyIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manager/rh-dashboard': {
+      id: '/manager/rh-dashboard'
+      path: '/manager/rh-dashboard'
+      fullPath: '/manager/rh-dashboard'
+      preLoaderRoute: typeof ManagerRhDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/manager/relatorios': {
       id: '/manager/relatorios'
       path: '/manager/relatorios'
@@ -345,10 +385,12 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MeuBemEstarRoute: MeuBemEstarRoute,
   PerfilRoute: PerfilRoute,
+  PlanoDeCuidadoRoute: PlanoDeCuidadoRoute,
   RespiroRoute: RespiroRoute,
   DashitecnologyPainelDevRoute: DashitecnologyPainelDevRoute,
   ManagerEquipesRoute: ManagerEquipesRoute,
   ManagerRelatoriosRoute: ManagerRelatoriosRoute,
+  ManagerRhDashboardRoute: ManagerRhDashboardRoute,
   DashitecnologyIndexRoute: DashitecnologyIndexRoute,
   ManagerIndexRoute: ManagerIndexRoute,
 }

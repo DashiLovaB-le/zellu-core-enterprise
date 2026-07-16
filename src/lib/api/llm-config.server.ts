@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin.server";
 import { logEvent } from "@/lib/api/logs.server";
+import { getUserIdFromAccessToken } from "@/lib/auth-token";
 
 export interface LlmConfig {
   model: string;
@@ -21,24 +22,22 @@ export interface ChatMessage {
 
 async function requireDevRole(
   accessToken: string,
-): Promise<{ user: import("@supabase/supabase-js").User } | { error: string }> {
-  const supabase = await createClient(accessToken);
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Unauthorized" };
+): Promise<{ userId: string } | { error: string }> {
+  const userId = getUserIdFromAccessToken(accessToken);
+  if (!userId) return { error: "Unauthorized" };
 
+  const supabase = await createClient(accessToken);
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", user.id)
+    .eq("id", userId)
     .maybeSingle();
 
   if (profile?.role !== "dev") {
     return { error: "Unauthorized — role dev required" };
   }
 
-  return { user };
+  return { userId };
 }
 
 function getEnvApiKey(): string {
@@ -59,23 +58,42 @@ Diretrizes:
 - Use linguagem calorosa porém profissional, como um coach de bem-estar.
 - Referencie dados do usuário (sono, hidratação, humor) de forma natural.
 - Sugira ações práticas: respiração, pausa, alongamento, hidratação.
-- Mantenha respostas concisas (2-4 frases).
+- Mantenha respostas concisas (2-4 frases ou um parágrafo curto + lista breve).
 - Nunca finja ser um terapeuta ou médico. Se algo parecer grave, sugira buscar apoio profissional.
 - Se o usuário parecer ansioso ou estressado, sugira o exercício de respiração.
-- Use occasionalmente uma pergunta ao final para manter o diálogo.
-- Varie as saudações conforme o período do dia (bom dia, boa tarde, boa noite).`,
+- Use ocasionalmente uma pergunta ao final para manter o diálogo.
+- Varie as saudações conforme o período do dia (bom dia, boa tarde, boa noite).
+
+Formatação (markdown leve):
+- Responda em markdown simples, sem exageros.
+- Use **negrito** só para 1–2 destaques importantes.
+- Use *itálico* com parcimônia para ênfase suave.
+- Prefira quebras de linha entre ideias; se listar passos, use lista curta com "- ".
+- Não use títulos grandes, tabelas, blocos de código ou markdown complexo.`,
   api_key: "",
   model_2: "",
   model_3: "",
 };
 
+const LLM_CONFIG_CACHE_TTL_MS = 2 * 60 * 1000;
+let llmConfigCache: { config: LlmConfig; expiresAt: number } | null = null;
+
 export async function getActiveLlmConfig(accessToken?: string): Promise<LlmConfig> {
+  const now = Date.now();
+  if (llmConfigCache && llmConfigCache.expiresAt > now) {
+    return llmConfigCache.config;
+  }
+
   const envApiKey = getEnvApiKey();
   try {
     const admin = createAdminClient();
-    const { data } = await admin.from("llm_config").select("*").limit(1).maybeSingle();
+    const { data } = await admin
+      .from("llm_config")
+      .select("model, temperature, max_tokens, system_prompt, api_key, model_2, model_3")
+      .limit(1)
+      .maybeSingle();
     if (data) {
-      return {
+      const config = {
         model: data.model ?? DEFAULT_CONFIG.model,
         temperature: data.temperature ?? DEFAULT_CONFIG.temperature,
         max_tokens: data.max_tokens ?? DEFAULT_CONFIG.max_tokens,
@@ -84,11 +102,15 @@ export async function getActiveLlmConfig(accessToken?: string): Promise<LlmConfi
         model_2: data.model_2 ?? "",
         model_3: data.model_3 ?? "",
       };
+      llmConfigCache = { config, expiresAt: now + LLM_CONFIG_CACHE_TTL_MS };
+      return config;
     }
   } catch {
     // fall through to defaults
   }
-  return { ...DEFAULT_CONFIG, api_key: DEFAULT_CONFIG.api_key || envApiKey || "" };
+  const fallback = { ...DEFAULT_CONFIG, api_key: DEFAULT_CONFIG.api_key || envApiKey || "" };
+  llmConfigCache = { config: fallback, expiresAt: now + LLM_CONFIG_CACHE_TTL_MS };
+  return fallback;
 }
 
 export async function callLlmWithFallback(
@@ -137,35 +159,46 @@ export async function callLlmWithFallback(
       if (response.ok) {
         const json = await response.json();
         const content = json.choices?.[0]?.message?.content;
-        if (content) {
+        const text =
+          typeof content === "string"
+            ? content
+            : Array.isArray(content)
+              ? content
+                  .map((part: { text?: string } | string) =>
+                    typeof part === "string" ? part : (part?.text ?? ""),
+                  )
+                  .join("")
+                  .trim()
+              : "";
+        if (text) {
           if (i > 0) {
-            await logEvent("info", `${source}.fallback`, `Fallback funcionou: ${model} (tentativa ${i + 1})`, { primary: models[0], used: model }, userId);
+            void logEvent("info", `${source}.fallback`, `Fallback funcionou: ${model} (tentativa ${i + 1})`, { primary: models[0], used: model }, userId);
           }
-          return { content, model };
+          return { content: text, model };
         }
         lastError = "Resposta vazia da IA";
       } else if (response.status === 429 || response.status >= 500) {
         const errBody = await response.text();
         lastError = `HTTP ${response.status}: ${errBody.slice(0, 200)}`;
-        await logEvent("warn", `${source}.fallback`, `Model ${model} falhou (${response.status}), tentando próximo`, { status: response.status, model, attempt: i + 1 }, userId);
+        void logEvent("warn", `${source}.fallback`, `Model ${model} falhou (${response.status}), tentando próximo`, { status: response.status, model, attempt: i + 1 }, userId);
       } else {
         const errBody = await response.text();
-        await logEvent("error", `${source}.fallback`, `Erro não recuperável no model ${model}`, { status: response.status, body: errBody.slice(0, 500), model }, userId);
+        void logEvent("error", `${source}.fallback`, `Erro não recuperável no model ${model}`, { status: response.status, body: errBody.slice(0, 500), model }, userId);
         return { error: `Erro na LLM (${response.status}): ${errBody.slice(0, 200)}` };
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
         lastError = `Timeout após ${i === 0 ? 15 : 10}s`;
-        await logEvent("warn", `${source}.fallback`, `Timeout no model ${model}, tentando próximo`, { model, attempt: i + 1 }, userId);
+        void logEvent("warn", `${source}.fallback`, `Timeout no model ${model}, tentando próximo`, { model, attempt: i + 1 }, userId);
       } else {
         const message = err instanceof Error ? err.message : String(err);
-        await logEvent("error", `${source}.fallback`, `Exceção no model ${model}`, { error: message, model }, userId);
+        void logEvent("error", `${source}.fallback`, `Exceção no model ${model}`, { error: message, model }, userId);
         return { error: `Erro de conexão com a IA: ${message}` };
       }
     }
   }
 
-  await logEvent("error", `${source}.fallback`, `Todos os modelos falharam`, { models, lastError }, userId);
+  void logEvent("error", `${source}.fallback`, `Todos os modelos falharam`, { models, lastError }, userId);
   return { error: lastError || "Todos os modelos falharam" };
 }
 
@@ -243,7 +276,7 @@ export const setLlmConfig = createServerFn({ method: "POST" })
       try {
         const auth = await requireDevRole(accessToken);
         if ("error" in auth) return auth;
-        const { user } = auth;
+        const { userId } = auth;
 
         const admin = createAdminClient();
 
@@ -278,7 +311,7 @@ export const setLlmConfig = createServerFn({ method: "POST" })
           system_prompt,
           api_key: resolvedApiKey,
           updated_at: new Date().toISOString(),
-          updated_by: user.id,
+          updated_by: userId,
           model_2: model_2 ?? "",
           model_3: model_3 ?? "",
         };
@@ -290,7 +323,7 @@ export const setLlmConfig = createServerFn({ method: "POST" })
             .eq("id", existing.id);
 
           if (updateError) {
-            await logEvent("error", "llm-config.setLlmConfig", `Erro ao atualizar LLM config`, { error: updateError.message }, user.id);
+            void logEvent("error", "llm-config.setLlmConfig", `Erro ao atualizar LLM config`, { error: updateError.message }, userId);
             return { error: `Erro ao atualizar: ${updateError.message}` };
           }
         } else {
@@ -299,14 +332,15 @@ export const setLlmConfig = createServerFn({ method: "POST" })
             .insert({ id: 1, ...payload });
 
           if (insertError) {
-            await logEvent("error", "llm-config.setLlmConfig", `Erro ao inserir LLM config`, { error: insertError.message }, user.id);
+            void logEvent("error", "llm-config.setLlmConfig", `Erro ao inserir LLM config`, { error: insertError.message }, userId);
             return {
               error: `Erro ao salvar configuração. Verifique se a migration SQL foi aplicada no Supabase. Detalhes: ${insertError.message}`,
             };
           }
         }
 
-        await logEvent("info", "llm-config.setLlmConfig", `LLM config atualizada por ${user.id}`, { model, model_2, model_3, temperature, max_tokens }, user.id);
+        void logEvent("info", "llm-config.setLlmConfig", `LLM config atualizada por ${userId}`, { model, model_2, model_3, temperature, max_tokens }, userId);
+        llmConfigCache = null;
         return { success: true };
       } catch (err) {
         const message = err instanceof Error ? err.message : "Erro desconhecido ao salvar";
@@ -348,6 +382,7 @@ export const resetLlmConfig = createServerFn({ method: "POST" })
       }
 
       await logEvent("info", "llm-config.resetLlmConfig", `LLM config resetada para padrão`);
+      llmConfigCache = null;
       return { success: true };
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro desconhecido";

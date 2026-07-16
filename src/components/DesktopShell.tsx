@@ -8,7 +8,7 @@ import logo from "@/assets/logo.png";
 import { PageTransition } from "./PageTransition";
 
 interface NavItem {
-  to: "/" | "/chat" | "/diario" | "/respiro" | "/meu-bem-estar" | "/checkin";
+  to: "/" | "/chat" | "/diario" | "/respiro" | "/meu-bem-estar" | "/checkin" | "/plano-de-cuidado";
   icon: string;
   label: string;
 }
@@ -18,6 +18,7 @@ const NAV: NavItem[] = [
   { to: "/checkin", icon: "checklist", label: "Check-in" },
   { to: "/chat", icon: "chat_bubble", label: "Chat" },
   { to: "/diario", icon: "auto_stories", label: "Diário" },
+  { to: "/plano-de-cuidado", icon: "self_improvement", label: "Plano" },
   { to: "/meu-bem-estar", icon: "favorite", label: "Bem-estar" },
   { to: "/respiro", icon: "air", label: "Respiro" },
 ];
@@ -29,35 +30,35 @@ export function DesktopShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 border-b border-border/30 bg-background/70 backdrop-blur-lg">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-          <Link to="/" className="flex items-center gap-2">
+        <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-6">
+          <Link to="/" className="flex shrink-0 items-center gap-2 whitespace-nowrap">
             <img src={logo} alt={BRANDING.appName} className="h-8 w-8" />
-            <span className="font-display text-base text-[var(--clay-title)] hidden sm:inline">
+            <span className="hidden font-display text-base text-[var(--clay-title)] lg:inline">
               {BRANDING.shortName}
             </span>
           </Link>
 
-          <nav className="flex items-center gap-1">
+          <nav className="flex min-w-0 flex-1 items-center justify-center gap-0.5">
             {NAV.map((item) => {
               const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
               return (
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
+                  className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all ${
                     active
                       ? "bg-white/70 text-[var(--clay-title)] shadow-sm"
                       : "text-[var(--clay-title)]/60 hover:bg-white/40"
                   }`}
                 >
-                  <Icon name={item.icon} filled={active} className="text-base" />
-                  <span className="hidden sm:inline">{item.label}</span>
+                  <Icon name={item.icon} filled={active} className="text-base leading-none" />
+                  <span className="hidden md:inline">{item.label}</span>
                 </Link>
               );
             })}
           </nav>
 
-          <Link to="/perfil">
+          <Link to="/perfil" className="shrink-0">
             <Avatar name={user?.user_metadata?.avatar_url} size={32} />
           </Link>
         </div>

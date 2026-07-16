@@ -190,7 +190,7 @@ export const generateInsight = createServerFn({ method: "POST" })
     try {
       const config = await getActiveLlmConfig();
       if (!config.api_key) {
-        await logEvent("info", "insights-ai.generateInsight", `Insight baseado em regras (sem API key): ${context.contextType}`, { contextType: context.contextType, userName: context.userName });
+        void logEvent("info", "insights-ai.generateInsight", `Insight baseado em regras (sem API key): ${context.contextType}`, { contextType: context.contextType, userName: context.userName });
         return { insight: generateRuleBasedInsight(context) };
       }
 
@@ -205,18 +205,18 @@ export const generateInsight = createServerFn({ method: "POST" })
       const result = await callLlmWithFallback(messages, config, "insights-ai.generateInsight");
 
       if ("error" in result) {
-        await logEvent("error", "insights-ai.generateInsight", `Todos os modelos falharam: ${context.contextType}`, { contextType: context.contextType, error: result.error });
+        void logEvent("error", "insights-ai.generateInsight", `Todos os modelos falharam: ${context.contextType}`, { contextType: context.contextType, error: result.error });
         return { insight: generateRuleBasedInsight(context) };
       }
 
       const insight = result.content.trim();
-      await logEvent("info", "insights-ai.generateInsight", `Insight gerado via ${result.model}: ${context.contextType}`, { contextType: context.contextType, model: result.model, userName: context.userName });
+      void logEvent("info", "insights-ai.generateInsight", `Insight gerado via ${result.model}: ${context.contextType}`, { contextType: context.contextType, model: result.model, userName: context.userName });
       return {
         insight: insight || generateRuleBasedInsight(context),
       };
     } catch (error) {
       console.error("Error generating AI insight:", error);
-      await logEvent("error", "insights-ai.generateInsight", `Erro ao gerar insight via IA: ${context.contextType}`, { contextType: context.contextType, error: String(error) });
+      void logEvent("error", "insights-ai.generateInsight", `Erro ao gerar insight via IA: ${context.contextType}`, { contextType: context.contextType, error: String(error) });
       return { insight: generateRuleBasedInsight(context) };
     }
   });

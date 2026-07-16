@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { logEvent } from "@/lib/api/logs.server";
+import { getUserIdFromAccessToken } from "@/lib/auth-token";
 
 export type CheckinData = {
   id: string;
@@ -35,11 +36,10 @@ export const saveCheckin = createServerFn({ method: "POST" })
         mood: string;
       };
     }) => {
+      const userId = getUserIdFromAccessToken(data.accessToken);
+      if (!userId) return { error: "Unauthorized" };
+
       const supabase = await createClient(data.accessToken);
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return { error: "Unauthorized" };
 
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
@@ -49,7 +49,7 @@ export const saveCheckin = createServerFn({ method: "POST" })
       const { data: existing } = await supabase
         .from("checkins")
         .select("id")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .gte("created_at", todayStart.toISOString())
         .lte("created_at", todayEnd.toISOString())
         .limit(1);
@@ -59,7 +59,7 @@ export const saveCheckin = createServerFn({ method: "POST" })
       }
 
       const { error } = await supabase.from("checkins").insert({
-        user_id: user.id,
+        user_id: userId,
         sleep_hours: data.sleepHours,
         sleep_label: data.sleepLabel,
         water_ml: data.waterMl,
@@ -67,9 +67,9 @@ export const saveCheckin = createServerFn({ method: "POST" })
       });
 
       if (error) {
-        await logEvent("error", "checkin.saveCheckin", `Erro ao salvar checkin: ${user.id}`, { error: error.message, mood: data.mood }, user.id);
+        void logEvent("error", "checkin.saveCheckin", `Erro ao salvar checkin: ${userId}`, { error: error.message, mood: data.mood }, userId);
       } else {
-        await logEvent("info", "checkin.saveCheckin", `Checkin salvo: ${user.id}`, { mood: data.mood, sleepHours: data.sleepHours }, user.id);
+        void logEvent("info", "checkin.saveCheckin", `Checkin salvo: ${userId}`, { mood: data.mood, sleepHours: data.sleepHours }, userId);
       }
 
       return { error: error?.message ?? null };
@@ -79,11 +79,10 @@ export const saveCheckin = createServerFn({ method: "POST" })
 export const getTodaysCheckin = createServerFn({ method: "POST" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
+    const userId = getUserIdFromAccessToken(data.accessToken);
+    if (!userId) return { data: null, error: null };
+
     const supabase = await createClient(data.accessToken);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser(data.accessToken);
-    if (!user) return { data: null, error: null };
 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
@@ -92,8 +91,8 @@ export const getTodaysCheckin = createServerFn({ method: "POST" })
 
     const { data: checkin, error } = await supabase
       .from("checkins")
-      .select("*")
-      .eq("user_id", user.id)
+      .select("id, user_id, sleep_hours, sleep_label, water_ml, mood, created_at")
+      .eq("user_id", userId)
       .gte("created_at", todayStart.toISOString())
       .lte("created_at", todayEnd.toISOString())
       .order("created_at", { ascending: false })

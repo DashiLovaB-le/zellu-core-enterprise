@@ -9,6 +9,9 @@ import { loadDashboard, type DashboardData } from "@/lib/services/dashboard-serv
 import { generateInsight } from "@/lib/api/insights-ai.server";
 import { loadPreventiveAlert, type PreventiveAlert } from "@/lib/services/preventiva-service";
 import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
+import { loadStreak } from "@/lib/services/streak-service";
+import type { StreakData } from "@/lib/api/streak-system.server";
+import { MilestoneBanner } from "@/components/MilestoneBanner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,6 +32,7 @@ function IndexPage() {
     type: "none", severity: "none", message: "", suggestion: "",
     details: { sleepChange: 0, moodChange: 0, interactionChange: 0 },
   });
+  const [streak, setStreak] = useState<StreakData | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   const navigate = useNavigate();
@@ -55,14 +59,17 @@ function IndexPage() {
   useEffect(() => {
     if (!accessToken || loaded) return;
     (async () => {
-      const [result, alertResult] = await Promise.all([
+      const [result, alertResult, streakResult] = await Promise.all([
         loadDashboard(accessToken),
         loadPreventiveAlert(accessToken),
+        loadStreak(accessToken),
       ]);
+      if (streakResult) setStreak(streakResult);
       setData(result);
       setPreventiveAlert(alertResult);
-      
-      // Gerar insight de ansiedade com IA
+      setLoaded(true);
+
+      // Insight de ansiedade em background — não bloqueia a primeira pintura
       if (result.anxietyChangePercent !== null) {
         try {
           const context = {
@@ -90,11 +97,11 @@ function IndexPage() {
               },
             },
           };
-          
-          const insightResult = await generateInsight({ 
-            data: { accessToken, context } 
+
+          const insightResult = await generateInsight({
+            data: { accessToken, context },
           });
-          
+
           if (insightResult.insight) {
             setAiAnxietyInsight(insightResult.insight);
           }
@@ -102,8 +109,6 @@ function IndexPage() {
           console.error("Error generating anxiety insight:", error);
         }
       }
-      
-      setLoaded(true);
     })();
   }, [accessToken, loaded, session]);
 
@@ -117,6 +122,15 @@ function IndexPage() {
 
   return (
     <>
+      {streak && (
+        <div className="mx-auto max-w-[440px] px-5 pt-4 md:max-w-none md:px-6">
+          <MilestoneBanner
+            currentStreak={streak.currentStreak}
+            todayActive={streak.todayActive}
+            milestones={streak.milestones}
+          />
+        </div>
+      )}
       <div className="block md:hidden">
         <MobileDashboardEmocionalPage
           data={data}

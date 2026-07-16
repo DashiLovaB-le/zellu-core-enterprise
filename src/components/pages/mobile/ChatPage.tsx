@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
 import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
+import { ChatMarkdown } from "@/components/ChatMarkdown";
 import type { Msg } from "@/data";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 
@@ -65,8 +66,8 @@ export function MobileChatPage({
   const [showAllMoods, setShowAllMoods] = useState(false);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isAiThinking]);
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages, isAiThinking, aiSuggestion]);
 
   const visibleMoods = showAllMoods ? [...MAIN_MOODS, ...EXTRA_MOODS] : MAIN_MOODS;
 
@@ -74,8 +75,8 @@ export function MobileChatPage({
     <MobileShell>
       <header className="mb-4 flex items-center gap-3 rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">
         <Avatar size={44} />
-        <div className="flex-1 min-w-0">
-          <h1 className="font-display text-base leading-tight text-[var(--clay-title)] truncate">
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate font-display text-base leading-tight text-[var(--clay-title)]">
             {greeting || "Bom dia!"}
           </h1>
         </div>
@@ -87,13 +88,13 @@ export function MobileChatPage({
         </div>
       )}
 
-      <main className="flex flex-1 flex-col gap-3 overflow-y-auto">
+      <main className="flex flex-col gap-3">
         {messages.map((m, i) => (
           <Bubble key={i} msg={m} />
         ))}
 
         {isAiThinking && (
-          <div className="self-start max-w-[82%]">
+          <div className="max-w-[82%] self-start">
             <div className="rounded-2xl rounded-bl-md bg-white/70 p-4 shadow-sm">
               <div className="flex gap-1.5">
                 <span className="bounce-d1 block h-2 w-2 rounded-full bg-[var(--clay-title)]/40" />
@@ -127,43 +128,47 @@ export function MobileChatPage({
           </div>
         )}
 
-        {!isAiThinking && messages.length > 0 && messages[messages.length - 1]?.from === "ai" && aiSuggestion && (
-          <button
-            onClick={() =>
-              onQuickReply(
-                aiSuggestion === "respirar"
-                  ? "Vamos respirar"
-                  : aiSuggestion === "agua"
-                    ? "Beber água"
-                    : aiSuggestion === "pausa"
-                      ? "Fazer uma pausa"
-                      : aiSuggestion === "movimento"
-                        ? "Fazer um alongamento"
-                        : "Como está meu humor",
-              )
-            }
-            className="w-full rounded-lg bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 px-4 py-2 text-xs font-semibold text-[var(--clay-title)] shadow-sm active:translate-y-px"
-          >
-            {aiSuggestion === "respirar"
-              ? "🌬️ Respirar"
-              : aiSuggestion === "agua"
-                ? "💧 Beber água"
-                : aiSuggestion === "pausa"
-                  ? "☕ Fazer pausa"
-                  : aiSuggestion === "movimento"
-                    ? "🤸 Alongar"
-                    : aiSuggestion === "humor"
-                      ? "📊 Ver humor"
-                      : aiSuggestion === "sono"
-                        ? "🌙 Ver sono"
-                        : "Sugestão"}
-          </button>
-        )}
+        {!isAiThinking &&
+          messages.length > 0 &&
+          messages[messages.length - 1]?.from === "ai" &&
+          aiSuggestion && (
+            <button
+              onClick={() =>
+                onQuickReply(
+                  aiSuggestion === "respirar"
+                    ? "Vamos respirar"
+                    : aiSuggestion === "agua"
+                      ? "Beber água"
+                      : aiSuggestion === "pausa"
+                        ? "Fazer uma pausa"
+                        : aiSuggestion === "movimento"
+                          ? "Fazer um alongamento"
+                          : "Como está meu humor",
+                )
+              }
+              className="w-full rounded-lg bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 px-4 py-2 text-xs font-semibold text-[var(--clay-title)] shadow-sm active:translate-y-px"
+            >
+              {aiSuggestion === "respirar"
+                ? "🌬️ Respirar"
+                : aiSuggestion === "agua"
+                  ? "💧 Beber água"
+                  : aiSuggestion === "pausa"
+                    ? "☕ Fazer pausa"
+                    : aiSuggestion === "movimento"
+                      ? "🤸 Alongar"
+                      : aiSuggestion === "humor"
+                        ? "📊 Ver humor"
+                        : aiSuggestion === "sono"
+                          ? "🌙 Ver sono"
+                          : "Sugestão"}
+            </button>
+          )}
 
-        <div ref={bottomRef} />
+        <div ref={bottomRef} className="h-px w-full shrink-0 scroll-mb-28" />
       </main>
 
-      <div className="fixed bottom-[88px] left-1/2 z-40 w-[calc(100%-2.5rem)] max-w-[400px] -translate-x-1/2">
+      {/* sticky acima da bottom nav — permanece no fluxo e não cobre mensagens */}
+      <div className="sticky bottom-[4.75rem] z-30 -mx-5 mt-3 border-t border-border/20 bg-background/95 px-5 py-2.5 backdrop-blur-md">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -217,7 +222,7 @@ function Bubble({ msg }: { msg: Msg }) {
             : "rounded-2xl rounded-br-md bg-gradient-to-br from-[#C8E6C9]/60 to-[#D7CBE8]/50 shadow-sm text-[var(--clay-text)]"
         }`}
       >
-        {msg.text}
+        {isAi ? <ChatMarkdown content={msg.text} /> : msg.text}
       </div>
     </div>
   );

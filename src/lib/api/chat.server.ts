@@ -1,12 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { getUserIdFromAccessToken } from "@/lib/auth-token";
 
 export type Message = { id: string; from: "ai" | "user"; text: string; created_at: string };
 
 const MESSAGE_MAX_LENGTH = 2000;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 30;
+/** Histórico recente é suficiente para a UI; evita carregar anos de mensagens */
+const MESSAGE_HISTORY_LIMIT = 80;
 
 const rateLimits = new Map<string, { count: number; resetAt: number }>();
 
@@ -25,19 +28,20 @@ function checkRateLimit(userId: string): boolean {
 export const getMessages = createServerFn({ method: "GET" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
+    const userId = getUserIdFromAccessToken(data.accessToken);
+    if (!userId) return [];
+
     const supabase = await createClient(data.accessToken);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return [];
 
     const { data: messages } = await supabase
       .from("chat_messages")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: true });
+      .select("id, from, text, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(MESSAGE_HISTORY_LIMIT);
 
-    return (messages ?? []) as Message[];
+    const ordered = [...(messages ?? [])].reverse();
+    return ordered as Message[];
   });
 
 export const sendMessage = createServerFn({ method: "POST" })
@@ -48,20 +52,19 @@ export const sendMessage = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }: { data: { accessToken: string; text: string } }) => {
-    const supabase = await createClient(data.accessToken);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return null;
+    const userId = getUserIdFromAccessToken(data.accessToken);
+    if (!userId) return null;
 
-    if (!checkRateLimit(user.id)) {
+    if (!checkRateLimit(userId)) {
       return null;
     }
 
+    const supabase = await createClient(data.accessToken);
+
     const { data: msg } = await supabase
       .from("chat_messages")
-      .insert({ user_id: user.id, text: data.text, from: "user" })
-      .select()
+      .insert({ user_id: userId, text: data.text, from: "user" })
+      .select("id, from, text, created_at")
       .single();
 
     return msg as Message | null;

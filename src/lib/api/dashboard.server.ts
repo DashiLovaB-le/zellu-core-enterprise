@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { getUserIdFromAccessToken } from "@/lib/auth-token";
 
 export interface WeekComparison {
   sleepAvg: number;
@@ -85,11 +86,8 @@ function buildEmptyWeek(): WeekComparison {
 export const getDashboardData = createServerFn({ method: "GET" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const supabase = await createClient(data.accessToken);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
+    const userId = getUserIdFromAccessToken(data.accessToken);
+    if (!userId) {
       return {
         currentWeek: buildEmptyWeek(),
         previousWeek: buildEmptyWeek(),
@@ -102,6 +100,8 @@ export const getDashboardData = createServerFn({ method: "GET" })
       };
     }
 
+    const supabase = await createClient(data.accessToken);
+
     const sixtyDaysAgo = new Date();
     sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
     const since = sixtyDaysAgo.toISOString();
@@ -110,20 +110,20 @@ export const getDashboardData = createServerFn({ method: "GET" })
     const [checkinsRes, habitsRes, diaryRes] = await Promise.allSettled([
       supabase
         .from("checkins")
-        .select("*")
-        .eq("user_id", user.id)
+        .select("created_at, mood, sleep_hours, water_ml")
+        .eq("user_id", userId)
         .gte("created_at", since)
         .order("created_at", { ascending: true }),
       supabase
         .from("habits")
-        .select("*")
-        .eq("user_id", user.id)
+        .select("date, mood, sleep_quality, water_ml, movement_minutes")
+        .eq("user_id", userId)
         .gte("date", sinceDate)
         .order("date", { ascending: true }),
       supabase
         .from("diary_entries")
-        .select("*")
-        .eq("user_id", user.id)
+        .select("created_at, mood")
+        .eq("user_id", userId)
         .gte("created_at", since)
         .order("created_at", { ascending: true }),
     ]);

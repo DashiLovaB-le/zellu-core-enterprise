@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { logEvent } from "@/lib/api/logs.server";
+import { getUserIdFromAccessToken } from "@/lib/auth-token";
 
 const MOOD_SCORE: Record<string, number> = {
   irritado: 1,
@@ -11,8 +12,6 @@ const MOOD_SCORE: Record<string, number> = {
   calmo: 5,
   feliz: 6,
 };
-
-const NEGATIVE_MOODS = ["irritado", "triste", "ansioso"];
 
 export interface PreventiveAlert {
   type: "burnout-risk" | "sleep-crisis" | "mood-crisis" | "disengagement" | "hydration" | "energy" | "movement" | "none";
@@ -29,6 +28,23 @@ export interface PreventiveAlert {
     streakDays?: number;
     correlationNote?: string;
   };
+}
+
+const DETECT_CACHE_TTL_MS = 30 * 60 * 1000;
+const detectCache = new Map<string, { alert: PreventiveAlert; expiresAt: number }>();
+
+function getCachedAlert(userId: string): PreventiveAlert | null {
+  const entry = detectCache.get(userId);
+  if (!entry) return null;
+  if (entry.expiresAt <= Date.now()) {
+    detectCache.delete(userId);
+    return null;
+  }
+  return entry.alert;
+}
+
+function setCachedAlert(userId: string, alert: PreventiveAlert) {
+  detectCache.set(userId, { alert, expiresAt: Date.now() + DETECT_CACHE_TTL_MS });
 }
 
 export interface PreventiveNotification {
@@ -110,11 +126,13 @@ function detectCorrelation(
 export const detectPatterns = createServerFn({ method: "POST" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
+    const userId = getUserIdFromAccessToken(data.accessToken);
+    if (!userId) return buildEmptyAlert();
+
+    const cached = getCachedAlert(userId);
+    if (cached) return cached;
+
     const supabase = await createClient(data.accessToken);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return buildEmptyAlert();
 
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
@@ -124,26 +142,26 @@ export const detectPatterns = createServerFn({ method: "POST" })
     const [habitsRes, checkinsRes, chatsRes, diaryRes] = await Promise.allSettled([
       supabase
         .from("habits")
-        .select("*")
-        .eq("user_id", user.id)
+        .select("date, mood, sleep_quality, water_ml, movement_minutes, energy_level, meals")
+        .eq("user_id", userId)
         .gte("date", sinceDate)
         .order("date", { ascending: true }),
       supabase
         .from("checkins")
-        .select("*")
-        .eq("user_id", user.id)
+        .select("created_at, mood, sleep_hours, water_ml")
+        .eq("user_id", userId)
         .gte("created_at", since)
         .order("created_at", { ascending: true }),
       supabase
         .from("chat_messages")
         .select("created_at, from")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .gte("created_at", since)
         .order("created_at", { ascending: true }),
       supabase
         .from("diary_entries")
         .select("created_at")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .gte("created_at", since)
         .order("created_at", { ascending: true }),
     ]);
@@ -316,89 +334,105 @@ export const detectPatterns = createServerFn({ method: "POST" })
 
     if ((sleepDrop && moodDrop && interactionDrop) && baselineSleepCount >= 2 && baselineMoodCount >= 2) {
       const alert = buildAlert("burnout-risk", "high", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (((sleepDrop || mildSleepDrop) && (moodDrop || mildMoodDrop) && (interactionDrop || mildInteractionDrop)) && baselineSleepCount >= 2 && baselineMoodCount >= 2) {
       const alert = buildAlert("burnout-risk", "medium", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (sleepDrop) {
       const alert = buildAlert("sleep-crisis", "high", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (moodDrop) {
       const alert = buildAlert("mood-crisis", "high", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (hydrationDrop) {
       const alert = buildAlert("hydration", "medium", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (movementDrop) {
       const alert = buildAlert("movement", "medium", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (energyDrop) {
       const alert = buildAlert("energy", "medium", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (mildSleepDrop) {
       const alert = buildAlert("sleep-crisis", "low", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (mildMoodDrop) {
       const alert = buildAlert("mood-crisis", "low", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (mildHydrationDrop) {
       const alert = buildAlert("hydration", "low", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (mildMovementDrop) {
       const alert = buildAlert("movement", "low", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (mildEnergyDrop) {
       const alert = buildAlert("energy", "low", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (interactionDrop) {
       const alert = buildAlert("disengagement", "medium", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (mildInteractionDrop) {
       const alert = buildAlert("disengagement", "low", baseDetails, timeOfDay, streakDays, correlation);
-      await saveNotification(supabase, user.id, alert);
+      setCachedAlert(userId, alert);
+      void saveNotification(supabase, userId, alert);
       return alert;
     }
 
-    return buildEmptyAlert();
+    const empty = buildEmptyAlert();
+    setCachedAlert(userId, empty);
+    return empty;
   });
 
 function buildAlert(
@@ -547,7 +581,21 @@ async function saveNotification(
   userId: string,
   alert: PreventiveAlert,
 ): Promise<void> {
+  if (alert.type === "none") return;
   try {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const { data: existing } = await supabaseClient
+      .from("preventive_notifications")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("type", alert.type)
+      .gte("created_at", todayStart.toISOString())
+      .limit(1);
+
+    if (existing && existing.length > 0) return;
+
     await supabaseClient.from("preventive_notifications").insert({
       user_id: userId,
       type: alert.type,
@@ -557,21 +605,22 @@ async function saveNotification(
       details: alert.details,
     });
   } catch (err) {
-    await logEvent("warn", "preventiva-ai.saveNotification", "Falha ao salvar notificação", { error: String(err) }, userId);
+    void logEvent("warn", "preventiva-ai.saveNotification", "Falha ao salvar notificação", { error: String(err) }, userId);
   }
 }
 
 export const getNotificationHistory = createServerFn({ method: "POST" })
   .inputValidator(z.object({ accessToken: z.string(), limit: z.number().optional().default(20) }))
   .handler(async ({ data }: { data: { accessToken: string; limit: number } }) => {
+    const userId = getUserIdFromAccessToken(data.accessToken);
+    if (!userId) return [];
+
     const supabase = await createClient(data.accessToken);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return [];
 
     const { data: notifications } = await supabase
       .from("preventive_notifications")
-      .select("*")
-      .eq("user_id", user.id)
+      .select("id, type, severity, message, suggestion, details, dismissed, created_at")
+      .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(data.limit);
 
@@ -581,15 +630,16 @@ export const getNotificationHistory = createServerFn({ method: "POST" })
 export const dismissNotification = createServerFn({ method: "POST" })
   .inputValidator(z.object({ accessToken: z.string(), notificationId: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string; notificationId: string } }) => {
+    const userId = getUserIdFromAccessToken(data.accessToken);
+    if (!userId) return { success: false };
+
     const supabase = await createClient(data.accessToken);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { success: false };
 
     await supabase
       .from("preventive_notifications")
       .update({ dismissed: true, dismissed_at: new Date().toISOString() })
       .eq("id", data.notificationId)
-      .eq("user_id", user.id);
+      .eq("user_id", userId);
 
     return { success: true };
   });
@@ -597,14 +647,15 @@ export const dismissNotification = createServerFn({ method: "POST" })
 export const getUnreadNotificationCount = createServerFn({ method: "POST" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
+    const userId = getUserIdFromAccessToken(data.accessToken);
+    if (!userId) return { count: 0 };
+
     const supabase = await createClient(data.accessToken);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { count: 0 };
 
     const { count } = await supabase
       .from("preventive_notifications")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id)
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
       .eq("dismissed", false);
 
     return { count: count ?? 0 };

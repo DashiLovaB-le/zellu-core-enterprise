@@ -18,6 +18,7 @@ const NAV: NavItem[] = [
   { to: "/checkin", icon: "checklist", label: "Check-in" },
   { to: "/", icon: "monitoring", label: "Dashboard" },
   { to: "/diario", icon: "auto_stories", label: "Diário" },
+  { to: "/plano-de-cuidado", icon: "self_improvement", label: "Plano" },
   { to: "/meu-bem-estar", icon: "favorite", label: "Bem-estar" },
   { to: "/respiro", icon: "air", label: "Respiro" },
   { to: "/perfil", icon: "person", label: "Perfil" },
@@ -43,7 +44,7 @@ export function MobileShell({ children }: { children: ReactNode }) {
 
       <PageTransition>{children}</PageTransition>
 
-      <footer className="fixed bottom-[76px] left-1/2 z-40 -translate-x-1/2 text-center">
+      <footer className="pointer-events-none fixed bottom-[76px] left-1/2 z-40 -translate-x-1/2 text-center">
         <p className="text-[9px] text-[var(--clay-title)]/25">{BRANDING.poweredBy}</p>
       </footer>
 

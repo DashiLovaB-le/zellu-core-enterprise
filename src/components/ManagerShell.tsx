@@ -13,7 +13,7 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
-  { to: "/manager", icon: "dashboard", label: "Dashboard" },
+  { to: "/manager/rh-dashboard", icon: "dashboard", label: "Dashboard RH" },
   { to: "/manager/equipes", icon: "groups", label: "Equipes" },
   { to: "/manager/relatorios", icon: "bar_chart", label: "Relatórios" },
   { to: "/perfil", icon: "person", label: "Perfil" },
