@@ -27,5 +27,5 @@ export function getSleepLabel(val: number): string {
   if (val < 25) return "Cansado";
   if (val < 50) return "Moderado";
   if (val < 75) return "Revigorante";
-  return "Radiante";
+  return "Descansado";
 }

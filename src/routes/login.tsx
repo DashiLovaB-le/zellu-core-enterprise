@@ -3,10 +3,14 @@ import { useState } from "react";
 import * as React from "react";
 import { useAuth, type UserRole } from "@/lib/auth-context";
 import { Icon } from "@/components/Icon";
+import { BRANDING } from "@/lib/branding";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
-    meta: [{ title: "Entrar" }, { name: "description", content: "Acesse sua conta." }],
+    meta: [
+      { title: `Entrar — ${BRANDING.shortName}` },
+      { name: "description", content: BRANDING.tagline },
+    ],
   }),
   component: LoginPage,
 });
@@ -23,7 +27,8 @@ function LoginPage() {
   // Usar useEffect para navegar quando o usuário estiver autenticado
   React.useEffect(() => {
     if (user && role) {
-      const target = role === "manager" ? "/manager" : "/";
+      const target =
+        role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/";
       navigate({ to: target, replace: true });
     }
   }, [user, role, navigate]);
@@ -59,14 +64,14 @@ function LoginPage() {
       <div className="mb-8 flex flex-col items-center gap-3">
         <img
           src="/logo.png"
-          alt="Mundo Mental"
+          alt={BRANDING.appName}
           width={56}
           height={56}
           className="rounded-2xl"
         />
-        <h1 className="font-display text-xl text-[var(--clay-title)]">Mundo Mental</h1>
+        <h1 className="font-display text-xl text-[var(--clay-title)]">{BRANDING.shortName}</h1>
         <p className="text-center text-sm text-[var(--clay-text)]/70">
-          {isSignUp ? "Crie sua conta para começar" : "Acesse sua conta"}
+          {isSignUp ? "Crie sua conta para começar" : BRANDING.tagline}
         </p>
       </div>
 

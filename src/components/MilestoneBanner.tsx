@@ -16,44 +16,44 @@ type MilestoneInfo = {
 
 const MILESTONE_MAP: Record<number, MilestoneInfo> = {
   3: {
-    title: "3 dias de autocuidado",
-    message: "Você está criando um novo hábito. Continue assim!",
+    title: "3 dias de consistência",
+    message: "Você está estabelecendo uma rotina de cuidado. Mantenha o ritmo.",
     icon: "spa",
     gradient: "from-[#99BEE5]/20 to-[#C5D9F1]/20",
   },
   7: {
     title: "1 semana de cuidado",
-    message: "Uma semana inteira cuidando de você. Que orgulho!",
+    message: "Uma semana completa de acompanhamento. Bom trabalho.",
     icon: "emoji_events",
     gradient: "from-[#E5C299]/20 to-[#F1D9C5]/20",
   },
   14: {
     title: "14 dias de consistência",
-    message: "Duas semanas de dedicação ao seu bem-estar!",
+    message: "Duas semanas de dedicação ao seu bem-estar.",
     icon: "stars",
     gradient: "from-[#99E5C2]/20 to-[#C5F1D9]/20",
   },
   21: {
     title: "21 dias de hábito",
-    message: "Dizem que 21 dias formam um hábito. Você conseguiu!",
+    message: "Três semanas de prática contínua — a rotina está se consolidando.",
     icon: "auto_awesome",
     gradient: "from-[#C299E5]/20 to-[#D9C5F1]/20",
   },
   30: {
     title: "1 mês de jornada",
-    message: "Um mês inteiro cultivando seu bem-estar. Celebre essa conquista!",
+    message: "Um mês de acompanhamento consistente do seu bem-estar.",
     icon: "celebration",
     gradient: "from-[#E5C299]/20 to-[#F1E5C5]/20",
   },
   60: {
     title: "2 meses de dedicação",
-    message: "Dois meses de compromisso com você mesmo. Inspirador!",
+    message: "Dois meses de compromisso com o cuidado diário.",
     icon: "celebration",
     gradient: "from-[#99BEE5]/30 to-[#C5D9F1]/30",
   },
   90: {
-    title: "3 meses de transformação",
-    message: "Você está transformando sua relação com o autocuidado. Incrível!",
+    title: "3 meses de evolução",
+    message: "Três meses construindo uma relação mais estável com o autocuidado.",
     icon: "celebration",
     gradient: "from-[#E59999]/20 to-[#F1C5C5]/20",
   },

@@ -1,8 +1,8 @@
 # TODO — Reposicionamento Mundo Mental
 
 > Plano de implementação baseado em `P-MundoMental-v1.md.MD`
-> Status atual: ~98% do caminho para apresentação comercial
-> Última atualização: Fase 13 e 14 concluídas ✅
+> Status atual: Fase 16 — limpeza técnica concluída; validação humana e fechamento comercial pendentes
+> Última atualização: Fase 16 (16.1–16.3 + 16.5) ✅
 
 ---
 
@@ -160,30 +160,30 @@
 
 ---
 
-## Fase 15 — Portal Administrativo (Mundo Mental)
+## Fase 15 — Portal Administrativo (Mundo Mental) ✅
 
-- [ ] **15.1** Criar painel administrativo separado (super-admin)
-- [ ] **15.2** Módulos do portal:
-  - [ ] 15.2.1 KPIs globais
-  - [ ] 15.2.2 Gerenciamento de empresas/clientes
-  - [ ] 15.2.3 Gerenciamento de funcionários
-  - [ ] 15.2.4 Licenças e contratos
-  - [ ] 15.2.5 Métricas de uso e adoção
-  - [ ] 15.2.6 Sentimentos agregados
-  - [ ] 15.2.7 Alertas configuráveis
-  - [ ] 15.2.8 Relatórios exportáveis (PDF/CSV)
-- [ ] **15.3** Design limpo e profissional (painel B2B)
+- [X] **15.1** Criar painel administrativo separado (super-admin)
+- [X] **15.2** Módulos do portal:
+  - [X] 15.2.1 KPIs globais
+  - [X] 15.2.2 Gerenciamento de empresas/clientes
+  - [X] 15.2.3 Gerenciamento de funcionários
+  - [X] 15.2.4 Licenças e contratos
+  - [X] 15.2.5 Métricas de uso e adoção
+  - [X] 15.2.6 Sentimentos agregados
+  - [X] 15.2.7 Alertas configuráveis
+  - [X] 15.2.8 Relatórios exportáveis (PDF/CSV)
+- [X] **15.3** Design limpo e profissional (painel B2B)
 
 ---
 
 ## Fase 16 — Limpeza & Refinamento
 
-- [ ] **16.1** Revisar todos os textos para tom corporativo-acolhedor
-- [ ] **16.2** Eliminar sinais de MVP (telas que parecem demonstração)
-- [ ] **16.3** Garantir que toda a experiência parece um produto pronto para uso diário
-- [ ] **16.4** Testes de percepção: pedir feedback sobre aparência "enterprise"
-- [ ] **16.5** Documentar posicionamento: o app não substitui psicólogos nem a plataforma MM — ele aumenta engajamento
-- [ ] **16.6** Apresentar proposta comercial: um **ativo estratégico** que amplia o valor da oferta da Mundo Mental
+- [X] **16.1** Revisar todos os textos para tom corporativo-acolhedor
+- [X] **16.2** Eliminar sinais de MVP (telas que parecem demonstração)
+- [X] **16.3** Garantir que toda a experiência parece um produto pronto para uso diário
+- [ ] **16.4** Testes de percepção: pedir feedback de outras pessoas sobre aparência "enterprise"
+- [X] **16.5** Documentar posicionamento: o app não substitui psicólogos nem a plataforma MM — ele aumenta engajamento (`docs/POSICIONAMENTO.md`)
+- [ ] **16.6** Apresentar proposta comercial: um **ativo estratégico** que amplia o valor da oferta da Mundo Mental (rascunho em `docs/PROPOSTA-COMERCIAL.md`)
 
 ---
 
@@ -199,4 +199,4 @@
 
 ---
 
-> **Meta final:** O Zēllu deixa de parecer "um app bonito de saúde mental" e passa a parecer um **ativo estratégico** que amplia o valor da oferta da Mundo Mental para seus próprios clientes.
+> **Meta final:** O Mundo Mental Care deixa de parecer "um app bonito de saúde mental" e passa a parecer um **ativo estratégico** que amplia o valor da oferta da Mundo Mental para seus próprios clientes.

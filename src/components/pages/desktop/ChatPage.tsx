@@ -47,7 +47,7 @@ const EXTRA_MOODS = [
   { emoji: "😞", label: "Desanimado", value: "desanimado" },
   { emoji: "😡", label: "Bravo", value: "bravo" },
   { emoji: "🤯", label: "Sobrecarregado", value: "sobrecarregado" },
-  { emoji: "🥺", label: "Carente", value: "carente" },
+  { emoji: "🥺", label: "Precisa de apoio", value: "carente" },
 ];
 
 export function DesktopChatPage({

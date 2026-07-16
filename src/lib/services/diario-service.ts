@@ -1,4 +1,3 @@
-import { AI_SUMMARY } from "@/data";
 import {
   getDiaryEntries,
   saveDiaryEntry as apiSaveEntry,

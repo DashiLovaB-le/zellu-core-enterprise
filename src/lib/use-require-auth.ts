@@ -20,7 +20,8 @@ export function useRequireAuth(allowedRole?: UserRole) {
     }
 
     if (allowedRole && role !== allowedRole) {
-      const target = role === "manager" ? "/manager" : "/";
+      const target =
+        role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/";
       navigate({ to: target, replace: true });
     }
   }, [user, loading, role, allowedRole, navigate]);

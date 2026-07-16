@@ -3,7 +3,7 @@ import type { User, Session } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { confirmUser, getUserRole } from "@/lib/api/auth.server";
 
-export type UserRole = "companion" | "manager" | "dev" | null;
+export type UserRole = "companion" | "manager" | "dev" | "admin" | null;
 
 export interface AuthState {
   user: User | null;
@@ -24,7 +24,8 @@ const ROLE_CACHE_PREFIX = "zellu_role:";
 function readCachedRole(userId: string): UserRole {
   try {
     const value = sessionStorage.getItem(ROLE_CACHE_PREFIX + userId);
-    if (value === "companion" || value === "manager" || value === "dev") return value;
+    if (value === "companion" || value === "manager" || value === "dev" || value === "admin")
+      return value;
   } catch {
     // ignore
   }
@@ -58,7 +59,9 @@ function clearCachedRole(userId?: string) {
   }
 }
 
-async function fetchRoleFromProfile(accessToken: string): Promise<"companion" | "manager" | "dev" | null> {
+async function fetchRoleFromProfile(
+  accessToken: string,
+): Promise<"companion" | "manager" | "dev" | "admin" | null> {
   try {
     return await getUserRole({ data: { accessToken } });
   } catch {

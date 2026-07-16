@@ -1,5 +1,5 @@
 import { Link, useRouterState, type LinkProps } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Icon } from "./Icon";
 import { Avatar } from "./Avatar";
 import { BRANDING } from "@/lib/branding";
@@ -24,9 +24,27 @@ const NAV: NavItem[] = [
   { to: "/perfil", icon: "person", label: "Perfil" },
 ];
 
+/** Quantos itens cabem visíveis no navbar mobile por vez */
+const VISIBLE_SLOTS = 5;
+
+function isNavActive(pathname: string, to: string) {
+  if (to === "/") return pathname === "/";
+  return pathname.startsWith(to);
+}
+
 export function MobileShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user } = useAuth();
+  const scrollerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const active = scrollerRef.current?.querySelector<HTMLElement>("[data-nav-active='true']");
+    active?.scrollIntoView({
+      behavior: "smooth",
+      inline: "nearest",
+      block: "nearest",
+    });
+  }, [pathname]);
 
   return (
     <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-[440px] flex-col px-5 pb-28">
@@ -48,35 +66,47 @@ export function MobileShell({ children }: { children: ReactNode }) {
         <p className="text-[9px] text-[var(--clay-title)]/25">{BRANDING.poweredBy}</p>
       </footer>
 
-      <nav className="fixed bottom-3 left-1/2 z-50 flex h-14 w-[calc(100%-2rem)] max-w-[420px] -translate-x-1/2 items-center justify-around rounded-2xl bg-white/80 px-1 shadow-[0_2px_10px_rgba(74,106,138,0.08)] backdrop-blur-lg">
-        {NAV.map((item) => {
-          const active =
-            item.to === "/" ? pathname === "/" : pathname.startsWith(item.to as string);
-          return (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="flex flex-1 flex-col items-center justify-center gap-0.5"
-            >
-              <span
-                className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all duration-200 ${
-                  active
-                    ? "bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] text-[oklch(0.25_0.04_254)] shadow-sm"
-                    : "text-[var(--clay-title)]/60"
-                }`}
+      <nav
+        ref={scrollerRef}
+        aria-label="Navegação principal"
+        className="mobile-nav-scroll fixed bottom-3 left-1/2 z-50 h-[58px] w-[calc(100%-2rem)] max-w-[420px] -translate-x-1/2 overflow-x-auto overscroll-x-contain rounded-full border border-white/50 bg-white/85 px-1.5 py-1 shadow-[0_4px_20px_rgba(74,106,138,0.12)] backdrop-blur-xl"
+      >
+        <div
+          className="grid h-full"
+          style={{
+            width: `${(NAV.length / VISIBLE_SLOTS) * 100}%`,
+            gridTemplateColumns: `repeat(${NAV.length}, minmax(0, 1fr))`,
+          }}
+        >
+          {NAV.map((item) => {
+            const active = isNavActive(pathname, item.to as string);
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                data-nav-active={active ? "true" : undefined}
+                className="flex h-full snap-start flex-col items-center justify-center gap-0.5 px-0.5"
               >
-                <Icon name={item.icon} filled={active} className="text-base" />
-              </span>
-              <span
-                className={`text-[8px] font-semibold tracking-wide ${
-                  active ? "text-[var(--clay-title)]" : "text-[var(--clay-title)]/50"
-                }`}
-              >
-                {item.label}
-              </span>
-            </Link>
-          );
-        })}
+                <span
+                  className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 ${
+                    active
+                      ? "bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] text-[oklch(0.25_0.04_254)] shadow-sm"
+                      : "text-[var(--clay-title)]/55"
+                  }`}
+                >
+                  <Icon name={item.icon} filled={active} className="text-[18px]" />
+                </span>
+                <span
+                  className={`max-w-full truncate px-0.5 text-center text-[8px] font-semibold tracking-wide ${
+                    active ? "text-[var(--clay-title)]" : "text-[var(--clay-title)]/45"
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
     </div>
   );

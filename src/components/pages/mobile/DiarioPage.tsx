@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
-import { MOOD_COLORS, DAYS, AI_SUMMARY } from "@/data";
+import { DAYS } from "@/data";
 import type { DiaryEntry } from "@/lib/services/diario-service";
 
 interface DiarioPageProps {
@@ -19,10 +19,41 @@ const MOOD_OPTIONS = [
   { emoji: "😤", label: "Irritado", value: "irritado" },
 ];
 
+const MOOD_TINT: Record<string, string> = {
+  feliz: "var(--clay-joy)",
+  calmo: "var(--clay-cta)",
+  neutro: "var(--clay-cta-2)",
+  ansioso: "var(--clay-anxiety)",
+  triste: "var(--clay-self)",
+  irritado: "var(--clay-stress)",
+};
+
+function buildRecentMoodDays(entries: DiaryEntry[]): (string | null)[] {
+  const byDate = new Map<string, string>();
+  for (const entry of entries) {
+    if (!entry.mood) continue;
+    const day = entry.created_at.slice(0, 10);
+    if (!byDate.has(day)) byDate.set(day, entry.mood);
+  }
+
+  const cells: (string | null)[] = [];
+  const today = new Date();
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    const mood = byDate.get(key);
+    cells.push(mood ? (MOOD_TINT[mood] ?? "var(--clay-cta)") : null);
+  }
+  return cells;
+}
+
 export function MobileDiarioPage({ entries, onSaveEntry }: DiarioPageProps) {
   const [showNewEntry, setShowNewEntry] = useState(false);
   const [newContent, setNewContent] = useState("");
   const [newMood, setNewMood] = useState("");
+  const moodDays = useMemo(() => buildRecentMoodDays(entries), [entries]);
+  const hasMoodData = moodDays.some(Boolean);
 
   const handleSave = () => {
     if (!newContent.trim()) return;
@@ -48,7 +79,7 @@ export function MobileDiarioPage({ entries, onSaveEntry }: DiarioPageProps) {
         <div>
           <h1 className="font-display text-xl text-[var(--clay-title)]">Meu Diário</h1>
           <p className="text-xs text-[var(--clay-text)]/70">
-            Olhando para trás com carinho e autocompreensão
+            Registre e acompanhe sua evolução emocional
           </p>
         </div>
       </header>
@@ -56,48 +87,59 @@ export function MobileDiarioPage({ entries, onSaveEntry }: DiarioPageProps) {
       <section className="mb-5 rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">
         <div className="mb-2 flex items-center gap-2">
           <Icon name="auto_awesome" filled className="text-sm text-[var(--clay-cta)]" />
-          <h2 className="text-xs font-semibold text-[var(--clay-title)]">Resumo da IA</h2>
+          <h2 className="text-xs font-semibold text-[var(--clay-title)]">Resumo</h2>
         </div>
-        <p className="text-sm leading-relaxed text-[var(--clay-text)]">{AI_SUMMARY}</p>
+        <p className="text-sm leading-relaxed text-[var(--clay-text)]">
+          {entries.length > 0
+            ? `Você tem ${entries.length} ${entries.length === 1 ? "registro" : "registros"} no diário. Continue acompanhando o que faz diferença no seu dia.`
+            : "Os insights aparecem conforme você registra entradas. Comece com uma nota curta sobre o dia."}
+        </p>
       </section>
 
       <section className="mb-5">
         <h3 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
-          Humor Recente
+          Humor recente
         </h3>
         <div className="rounded-xl bg-white/60 p-3 shadow-sm">
-          <div className="mb-1 grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-[var(--clay-title)]/60">
-            {DAYS.map((d, i) => (
-              <span key={i}>{d}</span>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 gap-1">
-            {MOOD_COLORS.map((c, i) => (
-              <div
-                key={i}
-                className={`flex aspect-square items-center justify-center rounded-full text-[10px] font-bold ${
-                  i === 9 ? "ring-2 ring-[var(--clay-cta)] ring-offset-1 ring-offset-white/50" : ""
-                }`}
-                style={{
-                  background: c
-                    ? `linear-gradient(135deg, ${c}, color-mix(in oklab, ${c} 70%, white))`
-                    : "rgba(142,163,193,0.06)",
-                  color: c ? "var(--clay-text)" : "var(--clay-title)",
-                }}
-              >
-                {i + 1}
+          {!hasMoodData ? (
+            <p className="py-4 text-center text-xs text-[var(--clay-title)]/50">
+              Ainda sem humor registrado nos últimos 14 dias.
+            </p>
+          ) : (
+            <>
+              <div className="mb-1 grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-[var(--clay-title)]/60">
+                {DAYS.map((d, i) => (
+                  <span key={`${d}-${i}`}>{d}</span>
+                ))}
               </div>
-            ))}
-          </div>
+              <div className="grid grid-cols-7 gap-1">
+                {moodDays.map((c, i) => (
+                  <div
+                    key={i}
+                    className="flex aspect-square items-center justify-center rounded-full text-[10px] font-bold"
+                    style={{
+                      background: c
+                        ? `linear-gradient(135deg, ${c}, color-mix(in oklab, ${c} 70%, white))`
+                        : "rgba(142,163,193,0.06)",
+                      color: c ? "var(--clay-text)" : "var(--clay-title)",
+                    }}
+                  >
+                    {i + 1}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </section>
 
       <section className="mb-5">
-        <div className="flex items-center justify-between mb-2">
+        <div className="mb-2 flex items-center justify-between">
           <h3 className="text-[10px] font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
-            Entradas do Diário
+            Entradas do diário
           </h3>
           <button
+            type="button"
             onClick={() => setShowNewEntry(true)}
             className="flex items-center gap-1 rounded-lg bg-white/70 px-3 py-1 text-[10px] font-semibold text-[var(--clay-cta)] shadow-sm"
           >
@@ -119,10 +161,11 @@ export function MobileDiarioPage({ entries, onSaveEntry }: DiarioPageProps) {
               {MOOD_OPTIONS.map((m) => (
                 <button
                   key={m.value}
+                  type="button"
                   onClick={() => setNewMood(m.value === newMood ? "" : m.value)}
                   className={`rounded-lg px-2 py-1 text-xs transition-all ${
                     newMood === m.value
-                      ? "bg-white/80 shadow-sm font-semibold"
+                      ? "bg-white/80 font-semibold shadow-sm"
                       : "bg-white/40 text-[var(--clay-text)]/70"
                   }`}
                 >
@@ -132,6 +175,7 @@ export function MobileDiarioPage({ entries, onSaveEntry }: DiarioPageProps) {
             </div>
             <div className="mt-2 flex justify-end gap-2">
               <button
+                type="button"
                 onClick={() => {
                   setShowNewEntry(false);
                   setNewContent("");
@@ -142,6 +186,7 @@ export function MobileDiarioPage({ entries, onSaveEntry }: DiarioPageProps) {
                 Cancelar
               </button>
               <button
+                type="button"
                 onClick={handleSave}
                 disabled={!newContent.trim()}
                 className="rounded-lg bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] px-4 py-1 text-xs font-bold text-[oklch(0.25_0.04_254)] shadow-sm disabled:opacity-50"
@@ -155,17 +200,17 @@ export function MobileDiarioPage({ entries, onSaveEntry }: DiarioPageProps) {
         <div className="flex flex-col gap-2">
           {entries.length === 0 && !showNewEntry && (
             <p className="py-6 text-center text-xs text-[var(--clay-title)]/50">
-              Nenhuma entrada ainda. Clique em "Nova" para começar.
+              Nenhuma entrada ainda. Toque em &quot;Nova&quot; para começar.
             </p>
           )}
           {entries.map((entry) => (
             <div key={entry.id} className="rounded-xl bg-white/60 p-3 shadow-sm">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="mb-1 flex items-center gap-2">
                 <span className="text-[10px] text-[var(--clay-title)]/60">
                   {formatDate(entry.created_at)}
                 </span>
                 {entry.mood && (
-                  <span className="text-[10px] bg-white/50 rounded-full px-2 py-0.5">
+                  <span className="rounded-full bg-white/50 px-2 py-0.5 text-[10px]">
                     {MOOD_OPTIONS.find((m) => m.value === entry.mood)?.emoji ?? entry.mood}
                   </span>
                 )}

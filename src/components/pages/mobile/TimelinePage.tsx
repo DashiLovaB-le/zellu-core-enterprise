@@ -55,7 +55,7 @@ export function MobileTimelinePage({ data, onSaveEntry, preventiveAlert, onSugge
         <div className="flex-1">
           <h1 className="font-display text-xl text-[var(--clay-title)]">Meu Diário</h1>
           <p className="text-xs text-[var(--clay-text)]/70">
-            Olhando para trás com carinho e autocompreensão
+            Registre e acompanhe sua evolução emocional
           </p>
         </div>
         <button
@@ -74,7 +74,7 @@ export function MobileTimelinePage({ data, onSaveEntry, preventiveAlert, onSugge
       <section className="mb-4 rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">
         <div className="mb-2 flex items-center gap-2">
           <Icon name="auto_awesome" filled className="text-sm text-[var(--clay-cta)]" />
-          <h2 className="text-xs font-semibold text-[var(--clay-title)]">IA percebe evolução</h2>
+          <h2 className="text-xs font-semibold text-[var(--clay-title)]">Insight da jornada</h2>
         </div>
         <p className="text-sm leading-relaxed text-[var(--clay-text)]">{data.aiInsight}</p>
       </section>

@@ -119,9 +119,9 @@ export function MobileDashboardEmocionalPage({ data, aiAnxietyInsight, preventiv
       return "Registre mais dias para começar a ver sua evolução.";
     const abs = Math.abs(data.anxietyChangePercent);
     if (data.anxietyChangePercent <= 0) {
-      return `Você teve ${abs}% menos ansiedade comparado à semana anterior. Continue assim!`;
+      return `Você teve ${abs}% menos ansiedade comparado à semana anterior. Mantenha os hábitos que estão funcionando.`;
     }
-    return `Você teve ${abs}% mais dias de ansiedade que na semana anterior. Que tal incluir pausas de respiração?`;
+    return `Você teve ${abs}% mais dias de ansiedade que na semana anterior. Considere incluir pausas de respiração na rotina.`;
   }
 
   return (

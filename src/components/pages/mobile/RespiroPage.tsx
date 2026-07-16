@@ -40,7 +40,7 @@ export function MobileRespiroPage({ activeSound, onSoundToggle }: RespiroPagePro
 
       <h1 className="font-display text-xl text-[var(--clay-title)]">Espaço do Respiro</h1>
       <p className="mt-1 text-xs text-[var(--clay-text)]/70">
-        Faça uma pausa. O mundo pode esperar um minuto.
+        Uma pausa breve para retomar o foco e o equilíbrio.
       </p>
 
       <div className="my-8 flex flex-col items-center">

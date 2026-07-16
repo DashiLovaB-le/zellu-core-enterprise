@@ -28,8 +28,9 @@ export async function createWellnessPlan(
 ): Promise<{ data?: WellnessPlan; error?: string }> {
   try {
     return await saveWellnessPlan({ data: { accessToken, goal, customGoal } });
-  } catch {
-    return { error: "Erro ao salvar plano" };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Erro ao salvar plano";
+    return { error: message };
   }
 }
 
@@ -101,12 +102,23 @@ function generateFallbackSuggestion(plan: {
   goal: string;
   completionRate: number;
   currentStreak: number;
+  waterRate?: number;
+  walkRate?: number;
+  breatheRate?: number;
+  talkRate?: number;
 }): string {
+  const weakest = [
+    { label: "água", rate: plan.waterRate ?? 0 },
+    { label: "caminhada", rate: plan.walkRate ?? 0 },
+    { label: "respiração", rate: plan.breatheRate ?? 0 },
+    { label: "conversa", rate: plan.talkRate ?? 0 },
+  ].sort((a, b) => a.rate - b.rate)[0];
+
   if (plan.completionRate >= 80) {
-    return `Você está mantendo uma ótima consistência no plano "${plan.goal}". Continue assim!`;
+    return `Ótima consistência no plano. Se quiser subir ainda mais, foque um pouco em ${weakest.label}.`;
   }
   if (plan.currentStreak >= 3) {
-    return `Boa sequência! Continue focado no plano "${plan.goal}".`;
+    return `Boa sequência de ${plan.currentStreak} dias. Hoje, priorize ${weakest.label} — um toque já conta.`;
   }
-  return `Comece com pequenos passos no plano "${plan.goal}". Um item por vez já conta.`;
+  return `Comece pelo mais simples: marque ${weakest.label} no checklist de hoje e siga no seu ritmo.`;
 }

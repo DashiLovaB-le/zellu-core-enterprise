@@ -174,7 +174,7 @@ export function MobileHabitosPage({
 
           <div className="mt-1 flex justify-between text-[10px] text-[var(--clay-title)]/60">
             <span>Cansado</span>
-            <span>Radiante</span>
+            <span>Descansado</span>
           </div>
         </div>
       </section>

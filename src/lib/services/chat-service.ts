@@ -1,5 +1,4 @@
 import type { Msg } from "@/data";
-import { INITIAL_MESSAGES } from "@/data";
 import { getMessages as fetchMessages } from "@/lib/api/chat.server";
 import { sendChatMessage, getContextualGreeting } from "@/lib/api/chat-ai.server";
 import { getUserIdFromAccessToken } from "@/lib/auth-token";
@@ -37,7 +36,7 @@ function toAssistantHistory(
 }
 
 export async function loadMessages(accessToken: string | null): Promise<Msg[]> {
-  if (!accessToken) return INITIAL_MESSAGES;
+  if (!accessToken) return [];
   try {
     const serverMsgs = await fetchMessages({ data: { accessToken } });
     if (serverMsgs.length > 0) {

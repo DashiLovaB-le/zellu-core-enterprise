@@ -12,12 +12,13 @@ import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import { loadStreak } from "@/lib/services/streak-service";
 import type { StreakData } from "@/lib/api/streak-system.server";
 import { MilestoneBanner } from "@/components/MilestoneBanner";
+import { BRANDING } from "@/lib/branding";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Mundo Mental Care" },
-      { name: "description", content: "Acompanhe sua evolução emocional com gráficos e insights." },
+      { title: BRANDING.shortName },
+      { name: "description", content: BRANDING.description },
     ],
   }),
   component: IndexPage,

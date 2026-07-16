@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin.server";
 import { logEvent } from "@/lib/api/logs.server";
 import { getUserIdFromAccessToken } from "@/lib/auth-token";
 
@@ -66,9 +66,9 @@ export const getWellnessPlan = createServerFn({ method: "GET" })
     const userId = getUserIdFromAccessToken(accessToken);
     if (!userId) return null;
 
-    const supabase = await createClient(accessToken);
+    const admin = createAdminClient();
 
-    const { data } = await supabase
+    const { data } = await admin
       .from("wellness_plans")
       .select("id, user_id, goal, custom_goal, start_date, end_date, is_active")
       .eq("user_id", userId)
@@ -91,41 +91,72 @@ export const saveWellnessPlan = createServerFn({ method: "POST" })
   .handler(
     async ({ data }: { data: { accessToken: string; goal: string; customGoal?: string } }) => {
       const userId = getUserIdFromAccessToken(data.accessToken);
-      if (!userId) return { error: "Unauthorized" };
+      if (!userId) return { error: "Sessão inválida. Faça login novamente." };
 
-      const supabase = await createClient(data.accessToken);
+      try {
+        const admin = createAdminClient();
+        const today = new Date().toISOString().split("T")[0];
 
-      const today = new Date().toISOString().split("T")[0];
-
-      const { data: existing } = await supabase
-        .from("wellness_plans")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("is_active", true)
-        .limit(1)
-        .maybeSingle();
-
-      if (existing) {
-        await supabase
+        const { data: existing, error: existingError } = await admin
           .from("wellness_plans")
-          .update({ is_active: false, end_date: today })
-          .eq("id", existing.id);
+          .select("id")
+          .eq("user_id", userId)
+          .eq("is_active", true)
+          .limit(1)
+          .maybeSingle();
+
+        if (existingError) {
+          return {
+            error:
+              existingError.message.includes("does not exist") || existingError.code === "42P01"
+                ? "Tabela do plano ainda não foi criada no banco. Aplique a migration 005_wellness_plan.sql."
+                : `Erro ao consultar plano: ${existingError.message}`,
+          };
+        }
+
+        if (existing) {
+          const { error: deactivateError } = await admin
+            .from("wellness_plans")
+            .update({ is_active: false, end_date: today })
+            .eq("id", existing.id);
+          if (deactivateError) {
+            return { error: `Erro ao atualizar plano anterior: ${deactivateError.message}` };
+          }
+        }
+
+        const { data: newPlan, error: insertError } = await admin
+          .from("wellness_plans")
+          .insert({
+            user_id: userId,
+            goal: data.goal,
+            custom_goal: data.customGoal ?? "",
+            start_date: today,
+            is_active: true,
+          })
+          .select("id, user_id, goal, custom_goal, start_date, end_date, is_active")
+          .single();
+
+        if (insertError || !newPlan) {
+          return {
+            error:
+              insertError?.message.includes("does not exist") || insertError?.code === "42P01"
+                ? "Tabela do plano ainda não foi criada no banco. Aplique a migration 005_wellness_plan.sql."
+                : `Erro ao criar plano: ${insertError?.message ?? "falha desconhecida"}`,
+          };
+        }
+
+        void logEvent(
+          "info",
+          "wellness-plan.saveWellnessPlan",
+          `Plano criado: ${data.goal}`,
+          { goal: data.goal },
+          userId,
+        );
+        return { data: newPlan as WellnessPlan };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        return { error: `Não foi possível salvar o plano: ${message}` };
       }
-
-      const { data: newPlan } = await supabase
-        .from("wellness_plans")
-        .insert({
-          user_id: userId,
-          goal: data.goal,
-          custom_goal: data.customGoal ?? "",
-          start_date: today,
-          is_active: true,
-        })
-        .select("id, user_id, goal, custom_goal, start_date, end_date, is_active")
-        .single();
-
-      void logEvent("info", "wellness-plan.saveWellnessPlan", `Plano criado: ${data.goal}`, { goal: data.goal }, userId);
-      return { data: newPlan as WellnessPlan };
     },
   );
 
@@ -138,10 +169,10 @@ export const getTodaysChecklist = createServerFn({ method: "GET" })
       const userId = getUserIdFromAccessToken(data.accessToken);
       if (!userId) return null;
 
-      const supabase = await createClient(data.accessToken);
+      const admin = createAdminClient();
       const today = new Date().toISOString().split("T")[0];
 
-      const { data: checklist } = await supabase
+      const { data: checklist } = await admin
         .from("wellness_checklist")
         .select("id, user_id, plan_id, date, water_done, walk_done, breathe_done, talk_done, notes")
         .eq("user_id", userId)
@@ -181,7 +212,7 @@ export const updateChecklist = createServerFn({ method: "POST" })
       const userId = getUserIdFromAccessToken(data.accessToken);
       if (!userId) return null;
 
-      const supabase = await createClient(data.accessToken);
+      const admin = createAdminClient();
       const today = new Date().toISOString().split("T")[0];
 
       const payload: Record<string, unknown> = {
@@ -195,7 +226,7 @@ export const updateChecklist = createServerFn({ method: "POST" })
       if (data.talkDone !== undefined) payload.talk_done = data.talkDone;
       if (data.notes !== undefined) payload.notes = data.notes;
 
-      const { data: result } = await supabase
+      const { data: result } = await admin
         .from("wellness_checklist")
         .upsert(payload, { onConflict: "user_id, date" })
         .select("id, user_id, plan_id, date, water_done, walk_done, breathe_done, talk_done, notes")
@@ -214,15 +245,16 @@ export const getPlanProgress = createServerFn({ method: "GET" })
       const userId = getUserIdFromAccessToken(data.accessToken);
       if (!userId) return null;
 
-      const supabase = await createClient(data.accessToken);
+      const admin = createAdminClient();
 
       const [planRes, checklistRes] = await Promise.allSettled([
-        supabase
+        admin
           .from("wellness_plans")
           .select("id, user_id, goal, custom_goal, start_date, end_date, is_active")
           .eq("id", data.planId)
+          .eq("user_id", userId)
           .maybeSingle(),
-        supabase
+        admin
           .from("wellness_checklist")
           .select("id, user_id, plan_id, date, water_done, walk_done, breathe_done, talk_done, notes")
           .eq("user_id", userId)

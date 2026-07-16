@@ -22,10 +22,18 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ManagerIndexRouteImport } from './routes/manager/index'
 import { Route as DashitecnologyIndexRouteImport } from './routes/dashitecnology/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ManagerRhDashboardRouteImport } from './routes/manager/rh-dashboard'
 import { Route as ManagerRelatoriosRouteImport } from './routes/manager/relatorios'
 import { Route as ManagerEquipesRouteImport } from './routes/manager/equipes'
 import { Route as DashitecnologyPainelDevRouteImport } from './routes/dashitecnology/$painelDev'
+import { Route as AdminSentimentosRouteImport } from './routes/admin/sentimentos'
+import { Route as AdminRelatoriosRouteImport } from './routes/admin/relatorios'
+import { Route as AdminMetricasRouteImport } from './routes/admin/metricas'
+import { Route as AdminLicencasRouteImport } from './routes/admin/licencas'
+import { Route as AdminFuncionariosRouteImport } from './routes/admin/funcionarios'
+import { Route as AdminEmpresasRouteImport } from './routes/admin/empresas'
+import { Route as AdminAlertasRouteImport } from './routes/admin/alertas'
 
 const RespiroRoute = RespiroRouteImport.update({
   id: '/respiro',
@@ -92,6 +100,11 @@ const DashitecnologyIndexRoute = DashitecnologyIndexRouteImport.update({
   path: '/dashitecnology/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ManagerRhDashboardRoute = ManagerRhDashboardRouteImport.update({
   id: '/manager/rh-dashboard',
   path: '/manager/rh-dashboard',
@@ -112,6 +125,41 @@ const DashitecnologyPainelDevRoute = DashitecnologyPainelDevRouteImport.update({
   path: '/dashitecnology/$painelDev',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSentimentosRoute = AdminSentimentosRouteImport.update({
+  id: '/admin/sentimentos',
+  path: '/admin/sentimentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRelatoriosRoute = AdminRelatoriosRouteImport.update({
+  id: '/admin/relatorios',
+  path: '/admin/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMetricasRoute = AdminMetricasRouteImport.update({
+  id: '/admin/metricas',
+  path: '/admin/metricas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLicencasRoute = AdminLicencasRouteImport.update({
+  id: '/admin/licencas',
+  path: '/admin/licencas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminFuncionariosRoute = AdminFuncionariosRouteImport.update({
+  id: '/admin/funcionarios',
+  path: '/admin/funcionarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminEmpresasRoute = AdminEmpresasRouteImport.update({
+  id: '/admin/empresas',
+  path: '/admin/empresas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAlertasRoute = AdminAlertasRouteImport.update({
+  id: '/admin/alertas',
+  path: '/admin/alertas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -125,10 +173,18 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof PerfilRoute
   '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
   '/respiro': typeof RespiroRoute
+  '/admin/alertas': typeof AdminAlertasRoute
+  '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/funcionarios': typeof AdminFuncionariosRoute
+  '/admin/licencas': typeof AdminLicencasRoute
+  '/admin/metricas': typeof AdminMetricasRoute
+  '/admin/relatorios': typeof AdminRelatoriosRoute
+  '/admin/sentimentos': typeof AdminSentimentosRoute
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
+  '/admin/': typeof AdminIndexRoute
   '/dashitecnology/': typeof DashitecnologyIndexRoute
   '/manager/': typeof ManagerIndexRoute
 }
@@ -144,10 +200,18 @@ export interface FileRoutesByTo {
   '/perfil': typeof PerfilRoute
   '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
   '/respiro': typeof RespiroRoute
+  '/admin/alertas': typeof AdminAlertasRoute
+  '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/funcionarios': typeof AdminFuncionariosRoute
+  '/admin/licencas': typeof AdminLicencasRoute
+  '/admin/metricas': typeof AdminMetricasRoute
+  '/admin/relatorios': typeof AdminRelatoriosRoute
+  '/admin/sentimentos': typeof AdminSentimentosRoute
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
+  '/admin': typeof AdminIndexRoute
   '/dashitecnology': typeof DashitecnologyIndexRoute
   '/manager': typeof ManagerIndexRoute
 }
@@ -164,10 +228,18 @@ export interface FileRoutesById {
   '/perfil': typeof PerfilRoute
   '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
   '/respiro': typeof RespiroRoute
+  '/admin/alertas': typeof AdminAlertasRoute
+  '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/funcionarios': typeof AdminFuncionariosRoute
+  '/admin/licencas': typeof AdminLicencasRoute
+  '/admin/metricas': typeof AdminMetricasRoute
+  '/admin/relatorios': typeof AdminRelatoriosRoute
+  '/admin/sentimentos': typeof AdminSentimentosRoute
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
+  '/admin/': typeof AdminIndexRoute
   '/dashitecnology/': typeof DashitecnologyIndexRoute
   '/manager/': typeof ManagerIndexRoute
 }
@@ -185,10 +257,18 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/plano-de-cuidado'
     | '/respiro'
+    | '/admin/alertas'
+    | '/admin/empresas'
+    | '/admin/funcionarios'
+    | '/admin/licencas'
+    | '/admin/metricas'
+    | '/admin/relatorios'
+    | '/admin/sentimentos'
     | '/dashitecnology/$painelDev'
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
+    | '/admin/'
     | '/dashitecnology/'
     | '/manager/'
   fileRoutesByTo: FileRoutesByTo
@@ -204,10 +284,18 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/plano-de-cuidado'
     | '/respiro'
+    | '/admin/alertas'
+    | '/admin/empresas'
+    | '/admin/funcionarios'
+    | '/admin/licencas'
+    | '/admin/metricas'
+    | '/admin/relatorios'
+    | '/admin/sentimentos'
     | '/dashitecnology/$painelDev'
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
+    | '/admin'
     | '/dashitecnology'
     | '/manager'
   id:
@@ -223,10 +311,18 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/plano-de-cuidado'
     | '/respiro'
+    | '/admin/alertas'
+    | '/admin/empresas'
+    | '/admin/funcionarios'
+    | '/admin/licencas'
+    | '/admin/metricas'
+    | '/admin/relatorios'
+    | '/admin/sentimentos'
     | '/dashitecnology/$painelDev'
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
+    | '/admin/'
     | '/dashitecnology/'
     | '/manager/'
   fileRoutesById: FileRoutesById
@@ -243,10 +339,18 @@ export interface RootRouteChildren {
   PerfilRoute: typeof PerfilRoute
   PlanoDeCuidadoRoute: typeof PlanoDeCuidadoRoute
   RespiroRoute: typeof RespiroRoute
+  AdminAlertasRoute: typeof AdminAlertasRoute
+  AdminEmpresasRoute: typeof AdminEmpresasRoute
+  AdminFuncionariosRoute: typeof AdminFuncionariosRoute
+  AdminLicencasRoute: typeof AdminLicencasRoute
+  AdminMetricasRoute: typeof AdminMetricasRoute
+  AdminRelatoriosRoute: typeof AdminRelatoriosRoute
+  AdminSentimentosRoute: typeof AdminSentimentosRoute
   DashitecnologyPainelDevRoute: typeof DashitecnologyPainelDevRoute
   ManagerEquipesRoute: typeof ManagerEquipesRoute
   ManagerRelatoriosRoute: typeof ManagerRelatoriosRoute
   ManagerRhDashboardRoute: typeof ManagerRhDashboardRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   DashitecnologyIndexRoute: typeof DashitecnologyIndexRoute
   ManagerIndexRoute: typeof ManagerIndexRoute
 }
@@ -344,6 +448,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashitecnologyIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/manager/rh-dashboard': {
       id: '/manager/rh-dashboard'
       path: '/manager/rh-dashboard'
@@ -372,6 +483,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashitecnologyPainelDevRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/sentimentos': {
+      id: '/admin/sentimentos'
+      path: '/admin/sentimentos'
+      fullPath: '/admin/sentimentos'
+      preLoaderRoute: typeof AdminSentimentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/relatorios': {
+      id: '/admin/relatorios'
+      path: '/admin/relatorios'
+      fullPath: '/admin/relatorios'
+      preLoaderRoute: typeof AdminRelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/metricas': {
+      id: '/admin/metricas'
+      path: '/admin/metricas'
+      fullPath: '/admin/metricas'
+      preLoaderRoute: typeof AdminMetricasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/licencas': {
+      id: '/admin/licencas'
+      path: '/admin/licencas'
+      fullPath: '/admin/licencas'
+      preLoaderRoute: typeof AdminLicencasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/funcionarios': {
+      id: '/admin/funcionarios'
+      path: '/admin/funcionarios'
+      fullPath: '/admin/funcionarios'
+      preLoaderRoute: typeof AdminFuncionariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/empresas': {
+      id: '/admin/empresas'
+      path: '/admin/empresas'
+      fullPath: '/admin/empresas'
+      preLoaderRoute: typeof AdminEmpresasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/alertas': {
+      id: '/admin/alertas'
+      path: '/admin/alertas'
+      fullPath: '/admin/alertas'
+      preLoaderRoute: typeof AdminAlertasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -387,10 +547,18 @@ const rootRouteChildren: RootRouteChildren = {
   PerfilRoute: PerfilRoute,
   PlanoDeCuidadoRoute: PlanoDeCuidadoRoute,
   RespiroRoute: RespiroRoute,
+  AdminAlertasRoute: AdminAlertasRoute,
+  AdminEmpresasRoute: AdminEmpresasRoute,
+  AdminFuncionariosRoute: AdminFuncionariosRoute,
+  AdminLicencasRoute: AdminLicencasRoute,
+  AdminMetricasRoute: AdminMetricasRoute,
+  AdminRelatoriosRoute: AdminRelatoriosRoute,
+  AdminSentimentosRoute: AdminSentimentosRoute,
   DashitecnologyPainelDevRoute: DashitecnologyPainelDevRoute,
   ManagerEquipesRoute: ManagerEquipesRoute,
   ManagerRelatoriosRoute: ManagerRelatoriosRoute,
   ManagerRhDashboardRoute: ManagerRhDashboardRoute,
+  AdminIndexRoute: AdminIndexRoute,
   DashitecnologyIndexRoute: DashitecnologyIndexRoute,
   ManagerIndexRoute: ManagerIndexRoute,
 }

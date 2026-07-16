@@ -63,7 +63,7 @@ export const getUserRole = createServerFn({ method: "POST" })
       .eq("id", userId)
       .maybeSingle();
 
-    return (profile?.role as "companion" | "manager" | "dev") ?? null;
+    return (profile?.role as "companion" | "manager" | "dev" | "admin") ?? null;
   });
 
 export const updateProfile = createServerFn({ method: "POST" })

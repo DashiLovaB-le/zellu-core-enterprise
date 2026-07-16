@@ -69,17 +69,19 @@ function PerfilPage() {
 
   const switchMode = () => {
     if (role === "dev") {
-      // Dev pode escolher entre as 3 views
       const currentPath = window.location.pathname;
-      if (currentPath.startsWith("/dashitecnology")) {
+      if (currentPath.startsWith("/admin")) {
+        navigate({ to: "/dashitecnology", replace: true });
+      } else if (currentPath.startsWith("/dashitecnology")) {
         navigate({ to: "/", replace: true });
       } else if (currentPath.startsWith("/manager")) {
-        navigate({ to: "/dashitecnology", replace: true });
+        navigate({ to: "/admin", replace: true });
       } else {
         navigate({ to: "/manager", replace: true });
       }
+    } else if (role === "admin") {
+      navigate({ to: "/admin", replace: true });
     } else {
-      // Manager e companion apenas trocam entre suas views
       const target = role === "manager" ? "/" : "/manager";
       navigate({ to: target, replace: true });
     }

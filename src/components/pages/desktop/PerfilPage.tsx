@@ -1,5 +1,6 @@
 import { DesktopShell } from "@/components/DesktopShell";
 import { ManagerShell } from "@/components/ManagerShell";
+import { AdminShell } from "@/components/AdminShell";
 import { Avatar, AVATAR_LIST } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 
@@ -86,7 +87,8 @@ export function DesktopPerfilPage({
   onSignOut,
   onSwitchMode,
 }: PerfilPageProps) {
-  const Shell = role === "manager" ? ManagerShell : DesktopShell;
+  const Shell =
+    role === "admin" ? AdminShell : role === "manager" ? ManagerShell : DesktopShell;
 
   return (
     <Shell>
@@ -100,11 +102,13 @@ export function DesktopPerfilPage({
           <div className="min-w-0 flex-1">
             <h2 className="font-display text-xl text-[var(--clay-title)]">{displayName}</h2>
             <p className="text-sm text-[var(--clay-title)]/60">
-              {role === "manager"
-                ? "RH / Gestor"
-                : role === "dev"
-                  ? "Desenvolvedor"
-                  : "Colaborador"}
+              {role === "admin"
+                ? "Super-admin"
+                : role === "manager"
+                  ? "RH / Gestor"
+                  : role === "dev"
+                    ? "Desenvolvedor"
+                    : "Colaborador"}
             </p>
             <p className="text-xs text-[var(--clay-title)]/40">{user?.email}</p>
           </div>
@@ -348,7 +352,7 @@ export function DesktopPerfilPage({
             </button>
           </section>
 
-          {role === "dev" && onSwitchMode && (
+          {(role === "dev" || role === "admin") && onSwitchMode && (
             <section className="rounded-2xl bg-white/70 p-5 shadow-sm backdrop-blur-md lg:col-span-2">
               <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
                 Modo de Acesso
@@ -358,8 +362,8 @@ export function DesktopPerfilPage({
                 className="flex w-full items-center justify-between rounded-xl bg-white/50 p-3 shadow-sm hover:bg-white/70"
               >
                 <span className="flex items-center gap-2 text-sm text-[var(--clay-text)]">
-                  <Icon name="business" className="text-base" />
-                  Ir para Painel RH
+                  <Icon name="admin_panel_settings" className="text-base" />
+                  {role === "admin" ? "Ir para Portal Admin" : "Alternar modo (Dev)"}
                 </span>
                 <Icon name="arrow_forward" className="text-base text-[var(--clay-title)]/50" />
               </button>

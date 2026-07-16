@@ -169,7 +169,7 @@ export function DesktopHabitosPage({
 
           <div className="mt-2 flex justify-between text-xs text-[var(--clay-title)]/60">
             <span>Cansado</span>
-            <span>Radiante</span>
+            <span>Descansado</span>
           </div>
         </section>
       </div>

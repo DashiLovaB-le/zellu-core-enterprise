@@ -15,7 +15,7 @@ export const Route = createFileRoute("/diario")({
   head: () => ({
     meta: [
       { title: `Meu Diário — ${BRANDING.shortName}` },
-      { name: "description", content: "Olhe para trás com carinho e autocompreensão." },
+      { name: "description", content: "Registre e acompanhe sua evolução emocional." },
     ],
   }),
   component: DiarioPage,

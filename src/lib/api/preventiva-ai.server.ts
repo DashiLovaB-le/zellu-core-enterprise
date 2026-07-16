@@ -467,42 +467,42 @@ function getMessages(
 
   if (type === "burnout-risk") {
     if (severity === "high") {
-      return `Percebi uma mudança importante no seu padrão: seu sono, humor e interações diminuíram最近. Isso pode ser um sinal de sobrecarga.${streakRef} Que tal reservar um momento para si mesmo hoje?`;
+      return `Percebi uma mudança importante no seu padrão: seu sono, humor e interações diminuíram recentemente. Isso pode ser um sinal de sobrecarga.${streakRef} Que tal reservar um momento para si mesmo hoje?`;
     }
     return `Tenho notado alguns sinais de que você pode estar se sentindo mais sobrecarregado. Seu padrão de sono, humor e interações mudou um pouco nos últimos dias.${streakRef}`;
   }
 
   if (type === "sleep-crisis") {
     if (severity === "high") {
-      return `Seu sono reduziu bastante最近 — isso pode estar afetando sua energia e humor. ${timeOfDay === "noite" ? "Que tal se preparar para uma noite mais tranquila?" : "Cuidar do sono hoje pode fazer diferença."}`;
+      return `Seu sono reduziu bastante recentemente — isso pode estar afetando sua energia e humor. ${timeOfDay === "noite" ? "Que tal se preparar para uma noite mais tranquila?" : "Cuidar do sono hoje pode fazer diferença."}`;
     }
     return `Seu sono diminuiu um pouco nos últimos dias. Pequenas mudanças na rotina de sono podem ajudar.`;
   }
 
   if (type === "mood-crisis") {
     if (severity === "high") {
-      return `Notei que seu humor tem sido mais desafiador最近. Isso acontece com todos, e é importante se permitir sentir. ${timeOfDay === "manha" ? "Comece o dia com gentileza." : "Que tal uma pausa para se reconectar?"}`;
+      return `Notei que seu humor tem sido mais desafiador recentemente. Isso acontece com todos, e é importante se permitir sentir. ${timeOfDay === "manha" ? "Comece o dia com gentileza." : "Que tal uma pausa para se reconectar?"}`;
     }
     return `Percebi uma leve mudança no seu humor. Como você está se sentindo hoje?`;
   }
 
   if (type === "hydration") {
     if (severity === "medium") {
-      return `Sua ingestão de água caiu最近. Manter-se hidratado ajuda na energia e concentração.`;
+      return `Sua ingestão de água caiu recentemente. Manter-se hidratado ajuda na energia e concentração.`;
     }
     return `Você tem bebido um pouco menos de água nos últimos dias. Uma garrafa por perto pode ajudar.`;
   }
 
   if (type === "movement") {
     if (severity === "medium") {
-      return `Seu nível de atividade física diminuiu最近. Movimento corporal é importante para o bem-estar.`;
+      return `Seu nível de atividade física diminuiu recentemente. Movimento corporal é importante para o bem-estar.`;
     }
     return `Você tem se movimentado menos nos últimos dias. Uma caminhada curta pode ajudar.`;
   }
 
   if (type === "energy") {
     if (severity === "medium") {
-      return `Sua energia tem estado mais baixa最近. Isso pode estar conectado a outros fatores como sono ou alimentação.`;
+      return `Sua energia tem estado mais baixa recentemente. Isso pode estar conectado a outros fatores como sono ou alimentação.`;
     }
     return `Percebi que sua energia está um pouco mais baixa. Cuidar de pequenos hábitos pode ajudar.`;
   }

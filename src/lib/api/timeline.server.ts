@@ -169,7 +169,7 @@ export const getTimelineData = createServerFn({ method: "GET" })
               ? "Moderado"
               : h.sleep_quality < 75
                 ? "Revigorante"
-                : "Radiante";
+                : "Descansado";
         day.events.push({ type: "sleep", emoji: "🛌", description: `Sono: ${lbl}` });
       }
       if (h.water_ml > 0 && !day.events.find((e) => e.type === "water")) {

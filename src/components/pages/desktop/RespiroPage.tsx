@@ -35,7 +35,7 @@ export function DesktopRespiroPage({ activeSound, onSoundToggle }: RespiroPagePr
             <div>
               <h1 className="font-display text-2xl text-[var(--clay-title)]">Espaço do Respiro</h1>
               <p className="text-sm text-[var(--clay-text)]/70">
-                Faça uma pausa. O mundo pode esperar um minuto.
+                Uma pausa breve para retomar o foco e o equilíbrio.
               </p>
             </div>
           </header>

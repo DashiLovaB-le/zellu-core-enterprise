@@ -193,7 +193,7 @@ function buildLocalFallbackReply(
     return `${name}, entendo que a **ansiedade** pode pesar.\n\nQue tal uma respiração curta agora?\n- Inspire pelo nariz contando até **4**\n- Segure por **2**\n- Solte pela boca contando até **6**`;
   }
   if (lower.includes("triste") || lower.includes("mal") || lower.includes("baixo")) {
-    return `${name}, obrigado por compartilhar como está se sentindo.\n\nEstar triste também faz parte — um passo pequeno, como *beber água* ou *uma caminhada curta*, pode ajudar um pouco.`;
+    return `${name}, obrigado por compartilhar como está se sentindo.\n\nMomentos difíceis fazem parte — um passo pequeno, como *beber água* ou *uma caminhada curta*, pode ajudar.`;
   }
   if (lower.includes("sono") || lower.includes("dorm") || lower.includes("cansad")) {
     return context.sleepLabel
@@ -204,9 +204,9 @@ function buildLocalFallbackReply(
     return `Boa ideia cuidar da **hidratação**.\n\nUm copo de água agora já conta — pequenos hábitos sustentam o bem-estar.`;
   }
   if (context.mood) {
-    return `${name}, obrigado por me contar.\n\nVi que seu humor recente foi **"${context.mood}"**. Estou aqui para ouvir — o que mais está presente pra você agora?`;
+    return `${name}, obrigado por compartilhar.\n\nVi que seu humor recente foi **"${context.mood}"**. Estou disponível para ouvir — o que mais está presente para você agora?`;
   }
-  return `${name}, obrigado por escrever. Estou aqui com você.\n\nPode me contar um pouco mais sobre como está se *sentindo*?`;
+  return `${name}, obrigado por escrever. Estou disponível para conversar.\n\nPode me contar um pouco mais sobre como está se *sentindo*?`;
 }
 
 export const getContextualGreeting = createServerFn({ method: "POST" })

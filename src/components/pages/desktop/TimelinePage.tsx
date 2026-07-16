@@ -58,7 +58,7 @@ export function DesktopTimelinePage({ data, onSaveEntry, preventiveAlert, onSugg
           <div className="flex-1">
             <h1 className="font-display text-2xl text-[var(--clay-title)]">Meu Diário</h1>
             <p className="text-sm text-[var(--clay-text)]/70">
-              Olhando para trás com carinho e autocompreensão
+              Registre e acompanhe sua evolução emocional
             </p>
           </div>
           <button
@@ -82,7 +82,7 @@ export function DesktopTimelinePage({ data, onSaveEntry, preventiveAlert, onSugg
               <div className="mb-2 flex items-center gap-2">
                 <Icon name="auto_awesome" filled className="text-sm text-[var(--clay-cta)]" />
                 <h2 className="text-sm font-semibold text-[var(--clay-title)]">
-                  IA percebe evolução
+                  Insight da jornada
                 </h2>
               </div>
               <p className="text-sm leading-relaxed text-[var(--clay-text)]">{data.aiInsight}</p>

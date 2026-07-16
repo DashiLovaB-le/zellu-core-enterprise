@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, type RefObject } from "react";
 import { MobileShell } from "@/components/MobileShell";
-import { getSleepLabel, MAIN_MEALS, EXTRA_MEALS } from "@/data";
+import { getSleepLabel, MAIN_MEALS, EXTRA_MEALS, MAIN_MOODS, EXTRA_MOODS } from "@/data";
 
 interface BemEstarPageProps {
   water: number;
@@ -22,37 +22,6 @@ interface BemEstarPageProps {
   onEnergyChange: (val: number) => void;
   onMealToggle: (meal: string) => void;
 }
-
-const MAIN_MOODS = [
-  { emoji: "😊", label: "Feliz", value: "feliz" },
-  { emoji: "😌", label: "Calmo", value: "calmo" },
-  { emoji: "😐", label: "Neutro", value: "neutro" },
-  { emoji: "😟", label: "Ansioso", value: "ansioso" },
-  { emoji: "😢", label: "Triste", value: "triste" },
-  { emoji: "😤", label: "Irritado", value: "irritado" },
-];
-
-const EXTRA_MOODS = [
-  { emoji: "🥳", label: "Animado", value: "animado" },
-  { emoji: "😃", label: "Contente", value: "contente" },
-  { emoji: "🤗", label: "Grato", value: "grato" },
-  { emoji: "🧘", label: "Sereno", value: "sereno" },
-  { emoji: "💪", label: "Motivado", value: "motivado" },
-  { emoji: "🎯", label: "Focado", value: "focado" },
-  { emoji: "🙏", label: "Esperançoso", value: "esperancoso" },
-  { emoji: "🤩", label: "Entusiasmado", value: "entusiasmado" },
-  { emoji: "☺️", label: "Orgulhoso", value: "orgulhoso" },
-  { emoji: "🤔", label: "Pensativo", value: "pensativo" },
-  { emoji: "🫤", label: "Confuso", value: "confuso" },
-  { emoji: "😴", label: "Cansado", value: "cansado" },
-  { emoji: "🫂", label: "Acolhido", value: "acolhido" },
-  { emoji: "😰", label: "Preocupado", value: "preocupado" },
-  { emoji: "😥", label: "Inseguro", value: "inseguro" },
-  { emoji: "😞", label: "Desanimado", value: "desanimado" },
-  { emoji: "😡", label: "Bravo", value: "bravo" },
-  { emoji: "🤯", label: "Sobrecarregado", value: "sobrecarregado" },
-  { emoji: "🥺", label: "Carente", value: "carente" },
-];
 
 export function MobileBemEstarPage(props: BemEstarPageProps) {
   return (
@@ -196,7 +165,7 @@ function SleepCard(props: BemEstarPageProps & { readOnly: boolean }) {
       <StaticBar pct={props.sleepQuality} color="linear-gradient(90deg, #D7CBE8, #C5D9F1)" />
       <div className="mt-1 flex justify-between text-[10px] text-[var(--clay-title)]/60">
         <span>Cansado</span>
-        <span>Radiante</span>
+        <span>Descansado</span>
       </div>
     </section>
   );

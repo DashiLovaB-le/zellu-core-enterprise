@@ -20,16 +20,16 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">Página não encontrada</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          A página que você procura não existe ou foi movida.
         </p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Go home
+            Voltar ao início
           </Link>
         </div>
       </div>
@@ -48,10 +48,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          Esta página não carregou
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          Ocorreu um erro inesperado. Você pode tentar novamente ou voltar ao início.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -61,13 +61,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            Tentar novamente
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            Voltar ao início
           </a>
         </div>
       </div>
@@ -91,14 +91,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image", content: BRANDING.socialImage },
       { name: "twitter:image", content: BRANDING.socialImage },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "Mundo Mental Care" },
-      { property: "og:title", content: "Mundo Mental Care" },
-      { name: "twitter:title", content: "Mundo Mental Care" },
-      { name: "description", content: "Acompanhe sua evolução emocional com gráficos e insights." },
-      { property: "og:description", content: "Acompanhe sua evolução emocional com gráficos e insights." },
-      { name: "twitter:description", content: "Acompanhe sua evolução emocional com gráficos e insights." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/942c0b33-1a78-4ffe-b33c-872404d9189e/id-preview-ecb72eb4--9fd0e4ab-7e6d-42e2-aa1b-b1cfd1b1be68.lovable.app-1783977975637.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/942c0b33-1a78-4ffe-b33c-872404d9189e/id-preview-ecb72eb4--9fd0e4ab-7e6d-42e2-aa1b-b1cfd1b1be68.lovable.app-1783977975637.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

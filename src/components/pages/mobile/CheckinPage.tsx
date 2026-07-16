@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
-import { getSleepLabel } from "@/data";
+import { getSleepLabel, MAIN_MOODS, EXTRA_MOODS, MOOD_MAP } from "@/data";
 
 interface CheckinData {
   id: string;
@@ -27,24 +27,17 @@ interface CheckinPageProps {
 
 const sleepHoursPresets = [5, 6, 7, 8, 9];
 const waterPresets = [500, 1000, 1500, 2000, 2500];
-const MOODS = [
-  { emoji: "😊", label: "Feliz", value: "feliz" },
-  { emoji: "😌", label: "Calmo", value: "calmo" },
-  { emoji: "😐", label: "Neutro", value: "neutro" },
-  { emoji: "😟", label: "Ansioso", value: "ansioso" },
-  { emoji: "😢", label: "Triste", value: "triste" },
-  { emoji: "😤", label: "Irritado", value: "irritado" },
-];
-
-const moodMap = Object.fromEntries(MOODS.map((m) => [m.value, m]));
 
 export function MobileCheckinPage({ onSave, saved, saving, todaysCheckin }: CheckinPageProps) {
   const [step, setStep] = useState(0);
   const [sleepHours, setSleepHours] = useState(7);
   const [waterMl, setWaterMl] = useState(1000);
   const [mood, setMood] = useState("");
+  const [moodExpanded, setMoodExpanded] = useState(false);
 
   const sleepLabel = getSleepLabel((sleepHours / 12) * 100);
+  const visibleMoods = moodExpanded ? [...MAIN_MOODS, ...EXTRA_MOODS] : MAIN_MOODS;
+  const extraCount = EXTRA_MOODS.length;
 
   const canProceed = () => {
     if (step === 0) return true;
@@ -62,7 +55,7 @@ export function MobileCheckinPage({ onSave, saved, saving, todaysCheckin }: Chec
   };
 
   if (todaysCheckin) {
-    const moodInfo = moodMap[todaysCheckin.mood];
+    const moodInfo = MOOD_MAP[todaysCheckin.mood];
     return (
       <MobileShell>
         <div className="flex flex-1 flex-col items-center gap-5 px-4 pt-6 text-center">
@@ -215,24 +208,34 @@ export function MobileCheckinPage({ onSave, saved, saving, todaysCheckin }: Chec
               Como você está se sentindo agora?
             </p>
 
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              {MOODS.map((m) => (
+            <div
+              className={`mt-4 grid gap-1.5 ${moodExpanded ? "grid-cols-4" : "grid-cols-3"}`}
+            >
+              {visibleMoods.map((m) => (
                 <button
                   key={m.value}
                   onClick={() => setMood(m.value)}
-                  className={`flex flex-col items-center gap-1 rounded-xl p-3 transition-all ${
+                  className={`flex flex-col items-center gap-0.5 rounded-xl p-2 transition-all ${
                     mood === m.value
                       ? "bg-gradient-to-br from-[#C8E6C9]/60 to-[#D7CBE8]/50 shadow-sm"
                       : "bg-white/50"
                   }`}
                 >
-                  <span className="text-2xl">{m.emoji}</span>
-                  <span className="text-[10px] font-semibold text-[var(--clay-text)]">
+                  <span className="text-lg">{m.emoji}</span>
+                  <span className="text-[8px] font-semibold text-[var(--clay-text)]">
                     {m.label}
                   </span>
                 </button>
               ))}
             </div>
+
+            <button
+              type="button"
+              onClick={() => setMoodExpanded(!moodExpanded)}
+              className="mt-2 w-full py-1.5 text-[10px] font-semibold text-[var(--clay-title)]/50 transition-colors hover:text-[var(--clay-title)]/80"
+            >
+              {moodExpanded ? "▲ Mostrar menos" : `▼ Ver +${extraCount} humores`}
+            </button>
           </section>
         )}
       </div>

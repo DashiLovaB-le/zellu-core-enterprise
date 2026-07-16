@@ -175,3 +175,14 @@
 .bounce-d1 { animation: bounce-dot 1.4s -0.32s infinite ease-in-out both; }
 .bounce-d2 { animation: bounce-dot 1.4s -0.16s infinite ease-in-out both; }
 .bounce-d3 { animation: bounce-dot 1.4s 0s infinite ease-in-out both; }
+
+/* Navbar mobile: scroll horizontal sem barra visível */
+.mobile-nav-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.mobile-nav-scroll::-webkit-scrollbar {
+  display: none;
+}

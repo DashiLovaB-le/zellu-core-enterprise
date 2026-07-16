@@ -13,16 +13,16 @@ export interface BrandingConfig {
 }
 
 export const BRANDING: BrandingConfig = {
-  appName: "Mundo Mental Companion",
-  tagline: "Saúde emocional para o seu dia a dia",
+  appName: "Mundo Mental Care",
+  tagline: "Cuidado emocional no ritmo do trabalho",
   shortName: "Mundo Mental Care",
-  description: "Um espaço que acolhe sua mente, dia após dia.",
+  description:
+    "Companion de bem-estar emocional que amplia o cuidado da Mundo Mental no dia a dia das equipes.",
   themeColor: "#F3EEE1",
-  socialImage:
-    "https://storage.googleapis.com/gpt-engineer-file-uploads/S6Ob3zuOa9dZQVmS1FswMevIGHq1/social-images/social-1780500243249-Chico.webp",
+  socialImage: "/logo.png",
   fonts: {
     display: "Quicksand",
     body: "Nunito Sans",
   },
-  poweredBy: "Powered by DashiTecnology",
+  poweredBy: "Powered by Zellu",
 };
