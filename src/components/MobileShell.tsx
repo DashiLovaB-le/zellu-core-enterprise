@@ -38,12 +38,21 @@ export function MobileShell({ children }: { children: ReactNode }) {
   const scrollerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const active = scrollerRef.current?.querySelector<HTMLElement>("[data-nav-active='true']");
-    active?.scrollIntoView({
-      behavior: "smooth",
-      inline: "nearest",
-      block: "nearest",
-    });
+    const nav = scrollerRef.current;
+    if (!nav) return;
+    const active = nav.querySelector<HTMLElement>("[data-nav-active='true']");
+    if (!active) return;
+
+    // Scroll apenas no container do menu (não no documento) — evita micro-travamento na troca de rota
+    const navRect = nav.getBoundingClientRect();
+    const itemRect = active.getBoundingClientRect();
+    const overflowLeft = itemRect.left < navRect.left + 4;
+    const overflowRight = itemRect.right > navRect.right - 4;
+    if (!overflowLeft && !overflowRight) return;
+
+    const delta =
+      itemRect.left - navRect.left - (navRect.width - itemRect.width) / 2;
+    nav.scrollTo({ left: nav.scrollLeft + delta, behavior: "auto" });
   }, [pathname]);
 
   return (

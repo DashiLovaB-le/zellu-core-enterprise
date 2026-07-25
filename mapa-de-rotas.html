@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mapa de Rotas — Mundo Mental Care</title>
+  <style>
+    :root {
+      --bg: #f6f3ec;
+      --ink: #1f2a37;
+      --muted: #5b6775;
+      --card: rgba(255, 255, 255, 0.78);
+      --line: rgba(31, 42, 55, 0.1);
+      --accent: #5b8fc7;
+      --accent-soft: #d7e6f5;
+      --admin: #0f172a;
+      --manager: #2f5d50;
+      --companion: #5b8fc7;
+      --dev: #7a5c2e;
+      --redirect: #6b7280;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Nunito Sans", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #e8f0fa 0%, transparent 40%),
+        radial-gradient(circle at top right, #efe7d8 0%, transparent 35%),
+        var(--bg);
+      line-height: 1.55;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 48px 20px 72px;
+    }
+
+    header {
+      margin-bottom: 36px;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      margin: 0;
+      max-width: 62ch;
+      color: var(--muted);
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      background: var(--card);
+      border: 1px solid var(--line);
+    }
+
+    nav.toc {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin: 28px 0 40px;
+    }
+
+    nav.toc a {
+      text-decoration: none;
+      color: var(--ink);
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 0.92rem;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    nav.toc a:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(31, 42, 55, 0.08);
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
+
+    section > h2 {
+      margin: 0 0 6px;
+      font-size: 1.25rem;
+    }
+
+    section > .section-desc {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .routes {
+      display: grid;
+      gap: 12px;
+    }
+
+    article.route {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 18px;
+      backdrop-filter: blur(8px);
+    }
+
+    .route-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+      margin-bottom: 8px;
+    }
+
+    .path {
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.92rem;
+      background: var(--accent-soft);
+      color: #234866;
+      border-radius: 8px;
+      padding: 4px 8px;
+      word-break: break-all;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 4px 8px;
+      color: white;
+    }
+
+    .badge.companion { background: var(--companion); }
+    .badge.manager { background: var(--manager); }
+    .badge.admin { background: var(--admin); }
+    .badge.public { background: #4b5563; }
+    .badge.dev { background: var(--dev); }
+    .badge.redirect { background: var(--redirect); }
+
+    .route h3 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    .route p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .route .file {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: #7a8694;
+      font-family: ui-monospace, Consolas, monospace;
+    }
+
+    footer {
+      margin-top: 48px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Mapa de páginas e rotas</h1>
+      <p>
+        Inventário das rotas atuais do <strong>Mundo Mental Care</strong> (TanStack Router),
+        agrupadas por público: colaborador (Companion), RH (Manager), super-admin e ferramentas internas.
+      </p>
+      <div class="meta">
+        <span class="chip">25 rotas mapeadas</span>
+        <span class="chip">Atualizado em 25/07/2026</span>
+        <span class="chip">Fonte: <code>src/routes/</code></span>
+      </div>
+    </header>
+
+    <nav class="toc" aria-label="Índice">
+      <a href="#publico">Público</a>
+      <a href="#companion">Companion</a>
+      <a href="#manager">Manager / RH</a>
+      <a href="#admin">Portal Admin</a>
+      <a href="#dev">Dev Tools</a>
+      <a href="#redirects">Redirecionamentos</a>
+    </nav>
+
+    <section id="publico">
+      <h2>Público</h2>
+      <p class="section-desc">Acesso sem sessão ou ponto de entrada da autenticação.</p>
+      <div class="routes">
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/login</span>
+            <span class="badge public">Público</span>
+            <h3>Login / Cadastro</h3>
+          </div>
+          <p>
+            Tela de autenticação com e-mail e senha. Permite criar conta escolhendo o tipo de acesso
+            (Colaborador ou RH) e redireciona automaticamente para o modo correspondente após o login
+            (Companion, Manager ou Admin).
+          </p>
+          <div class="file">src/routes/login.tsx</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="companion">
+      <h2>Companion (colaborador)</h2>
+      <p class="section-desc">
+        Experiência diária de bem-estar emocional do colaborador. Rotas protegidas por role
+        <code>companion</code>.
+      </p>
+      <div class="routes">
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/</span>
+            <span class="badge companion">Companion</span>
+            <h3>Dashboard Emocional (Home)</h3>
+          </div>
+          <p>
+            Página inicial do colaborador. Mostra evolução emocional em números, insights,
+            alertas preventivos e marcos de sequência (streak). É o ponto central de acompanhamento.
+          </p>
+          <div class="file">src/routes/index.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/chat</span>
+            <span class="badge companion">Companion</span>
+            <h3>Chat com IA</h3>
+          </div>
+          <p>
+            Conversa com o acompanhante de bem-estar. Usa histórico real, saudação contextual
+            (Bom dia / Boa tarde / Boa noite) e contexto de check-in/humor para respostas mais
+            relevantes.
+          </p>
+          <div class="file">src/routes/chat.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/checkin</span>
+            <span class="badge companion">Companion</span>
+            <h3>Check-in matinal</h3>
+          </div>
+          <p>
+            Registro rápido de como a pessoa está no dia (sono, hidratação e humor).
+            Os dados alimentam o chat, o dashboard e os insights preventivos.
+          </p>
+          <div class="file">src/routes/checkin.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/diario</span>
+            <span class="badge companion">Companion</span>
+            <h3>Meu Diário / Timeline</h3>
+          </div>
+          <p>
+            Timeline de registros emocionais: novas entradas, humor, insight da jornada e
+            visão recente do histórico. Espaço para olhar a evolução ao longo do tempo.
+          </p>
+          <div class="file">src/routes/diario.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/meu-bem-estar</span>
+            <span class="badge companion">Companion</span>
+            <h3>Meu Bem-estar</h3>
+          </div>
+          <p>
+            Visão consolidada do dia: água, sono, humor, movimento, respiração, energia e alimentação.
+            Unifica o antigo módulo de hábitos em uma única tela integrada.
+          </p>
+          <div class="file">src/routes/meu-bem-estar.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/respiro</span>
+            <span class="badge companion">Companion</span>
+            <h3>Espaço do Respiro</h3>
+          </div>
+          <p>
+            Exercício de respiração guiada para pausas curtas no trabalho. Pode ser acessado
+            diretamente ou via atalhos do plano de cuidado e alertas preventivos.
+          </p>
+          <div class="file">src/routes/respiro.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/plano-de-cuidado</span>
+            <span class="badge companion">Companion</span>
+            <h3>Plano de Cuidado</h3>
+          </div>
+          <p>
+            O usuário define um objetivo (ex.: reduzir ansiedade, melhorar sono) e acompanha um
+            checklist diário com progresso, insight e sugestões. Inclui confirmação antes de criar
+            um novo plano.
+          </p>
+          <div class="file">src/routes/plano-de-cuidado.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/perfil</span>
+            <span class="badge companion">Companion</span>
+            <h3>Perfil</h3>
+          </div>
+          <p>
+            Dados da conta, preferências e configurações pessoais (incluindo avatar).
+            Também é acessível a partir dos shells de Manager e Admin.
+          </p>
+          <div class="file">src/routes/perfil.tsx</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="manager">
+      <h2>Manager / RH</h2>
+      <p class="section-desc">
+        Painel B2B para gestores e RH. Rotas protegidas por role <code>manager</code>.
+        Exibe indicadores agregados, sem expor conteúdo privado individual indevido.
+      </p>
+      <div class="routes">
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/manager/</span>
+            <span class="badge manager">Manager</span>
+            <h3>Dashboard RH</h3>
+          </div>
+          <p>
+            Home do modo Manager com indicadores de bem-estar da organização:
+            resumo de engajamento, tendências e visão geral para tomada de decisão.
+          </p>
+          <div class="file">src/routes/manager/index.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/manager/rh-dashboard</span>
+            <span class="badge manager">Manager</span>
+            <h3>Dashboard RH completo</h3>
+          </div>
+          <p>
+            Painel ampliado de indicadores de bem-estar, com visão mais detalhada para
+            acompanhamento contínuo das equipes.
+          </p>
+          <div class="file">src/routes/manager/rh-dashboard.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/manager/equipes</span>
+            <span class="badge manager">Manager</span>
+            <h3>Equipes</h3>
+          </div>
+          <p>
+            Gestão e visualização das equipes vinculadas à empresa, com layout responsivo
+            para desktop e mobile.
+          </p>
+          <div class="file">src/routes/manager/equipes.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/manager/relatorios</span>
+            <span class="badge manager">Manager</span>
+            <h3>Relatórios</h3>
+          </div>
+          <p>
+            Área de relatórios do RH para acompanhar uso, adoção e indicadores agregados
+            da organização.
+          </p>
+          <div class="file">src/routes/manager/relatorios.tsx</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="admin">
+      <h2>Portal Administrativo</h2>
+      <p class="section-desc">
+        Painel super-admin da Mundo Mental para operar o ecossistema multiempresa.
+        Rotas protegidas por role <code>admin</code>.
+      </p>
+      <div class="routes">
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/admin/</span>
+            <span class="badge admin">Admin</span>
+            <h3>KPIs globais</h3>
+          </div>
+          <p>
+            Home do portal admin com indicadores globais do ecossistema Mundo Mental Care
+            (visão executiva de uso e saúde da plataforma).
+          </p>
+          <div class="file">src/routes/admin/index.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/admin/empresas</span>
+            <span class="badge admin">Admin</span>
+            <h3>Empresas / clientes</h3>
+          </div>
+          <p>
+            Cadastro e gerenciamento de empresas cliente: criação, edição e organização
+            da base B2B.
+          </p>
+          <div class="file">src/routes/admin/empresas.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/admin/funcionarios</span>
+            <span class="badge admin">Admin</span>
+            <h3>Funcionários</h3>
+          </div>
+          <p>
+            Gerenciamento de funcionários e vínculos com empresas/equipes, incluindo
+            dados de cargo e status.
+          </p>
+          <div class="file">src/routes/admin/funcionarios.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/admin/licencas</span>
+            <span class="badge admin">Admin</span>
+            <h3>Licenças e contratos</h3>
+          </div>
+          <p>
+            Controle de licenças e contratos dos clientes: vigência, títulos e status
+            comercial/operacional.
+          </p>
+          <div class="file">src/routes/admin/licencas.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/admin/metricas</span>
+            <span class="badge admin">Admin</span>
+            <h3>Métricas de uso</h3>
+          </div>
+          <p>
+            Métricas de adoção e uso da plataforma, para acompanhar engajamento agregado
+            por ecossistema/clientes.
+          </p>
+          <div class="file">src/routes/admin/metricas.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/admin/sentimentos</span>
+            <span class="badge admin">Admin</span>
+            <h3>Sentimentos agregados</h3>
+          </div>
+          <p>
+            Visão agregada de sentimentos/humores no ecossistema, útil para leitura
+            qualitativa de clima emocional sem expor indivíduos.
+          </p>
+          <div class="file">src/routes/admin/sentimentos.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/admin/alertas</span>
+            <span class="badge admin">Admin</span>
+            <h3>Alertas configuráveis</h3>
+          </div>
+          <p>
+            Configuração de alertas por empresa (regras e notificações preventivas
+            no nível administrativo).
+          </p>
+          <div class="file">src/routes/admin/alertas.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/admin/relatorios</span>
+            <span class="badge admin">Admin</span>
+            <h3>Relatórios exportáveis</h3>
+          </div>
+          <p>
+            Exportação de relatórios em PDF/CSV para acompanhamento executivo e
+            prestação de contas.
+          </p>
+          <div class="file">src/routes/admin/relatorios.tsx</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="dev">
+      <h2>Dev Tools (interno)</h2>
+      <p class="section-desc">
+        Ferramentas internas restritas à role <code>dev</code>. Não fazem parte da experiência
+        do colaborador ou do RH.
+      </p>
+      <div class="routes">
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/dashitecnology/</span>
+            <span class="badge dev">Dev</span>
+            <h3>Índice de ferramentas</h3>
+          </div>
+          <p>
+            Hub das ferramentas de desenvolvimento, com atalhos para configuração de LLM
+            e visualização de logs do sistema.
+          </p>
+          <div class="file">src/routes/dashitecnology/index.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/dashitecnology/$painelDev</span>
+            <span class="badge dev">Dev</span>
+            <h3>Painel dinâmico de desenvolvimento</h3>
+          </div>
+          <p>
+            Rota parametrizada que abre um painel específico. Exemplos atuais:
+            <code>llm-config</code> (modelo, temperatura, prompt e chave OpenRouter) e
+            <code>system-logs</code> (erros, warnings e eventos).
+          </p>
+          <div class="file">src/routes/dashitecnology/$painelDev.tsx</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="redirects">
+      <h2>Redirecionamentos (compatibilidade)</h2>
+      <p class="section-desc">
+        Rotas mantidas para não quebrar links antigos. Não possuem tela própria.
+      </p>
+      <div class="routes">
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/habitos</span>
+            <span class="badge redirect">Redirect</span>
+            <h3>Legado → Meu Bem-estar</h3>
+          </div>
+          <p>
+            Redireciona automaticamente para <code>/meu-bem-estar</code> (renomeação do módulo
+            de hábitos).
+          </p>
+          <div class="file">src/routes/habitos.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/dashboard-emocional</span>
+            <span class="badge redirect">Redirect</span>
+            <h3>Legado → Home</h3>
+          </div>
+          <p>
+            Redireciona automaticamente para <code>/</code>, a home do Dashboard Emocional.
+          </p>
+          <div class="file">src/routes/dashboard-emocional.tsx</div>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+      Documento gerado para referência do produto Mundo Mental Care.
+      Layout raiz: <code>src/routes/__root.tsx</code> (providers, meta e shells).
+      Árvore gerada: <code>src/routeTree.gen.ts</code>.
+    </footer>
+  </div>
+</body>
+</html>

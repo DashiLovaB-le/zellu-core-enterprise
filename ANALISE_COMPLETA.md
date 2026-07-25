@@ -1,13 +1,21 @@
-# Análise Completa da Aplicação — LVB-ZelluApp (Mundo Mental)
+# Análise Completa da Aplicação — LVB-ZelluApp (Mundo Mental Care)
+
+> **Última atualização:** 2026-07-25  
+> **Fonte de status:** código em `src/`, `TODO-MundoMental.md`, `docs/`
+
+---
 
 ## 1. Visão Geral
 
 **Nome do projeto:** `tanstack_start_ts` (nome interno)
-**Nome de exibição:** Mundo Mental Companion / Zēllu
-**Descrição:** Uma plataforma completa de bem-estar e saúde mental corporativo, com chat terapêutico com IA, diário emocional, rastreamento de hábitos, dashboard emocional, insights de IA, painel de RH e Portal Administrativo (super-admin) para a Mundo Mental.
+**Nome de exibição:** Mundo Mental Care (`src/lib/branding.ts`)
+**Tagline:** Cuidado emocional no ritmo do trabalho
+**Descrição:** Companion digital de bem-estar emocional corporativo da oferta Mundo Mental — chat terapêutico com IA, check-in, diário/timeline, hábitos, plano de cuidado, dashboard emocional, insights e alertas preventivos, painel de RH e Portal Administrativo (super-admin).
 
-**Template base:** `tanstack_start_ts_2026-05-29` (via Lovable.dev)
-**Gerenciador de pacotes:** bun (com `bun.lock` e `bunfig.toml`)
+**Posicionamento:** não substitui psicólogos nem a plataforma clínica da Mundo Mental; aumenta engajamento e sustenta o cuidado entre interações especializadas (`docs/POSICIONAMENTO.md`).
+
+**Template base:** `tanstack_start_ts` (via Lovable.dev)
+**Gerenciador de pacotes:** bun (com `bun.lock` e `bunfig.toml`; também há `package-lock.json`)
 **Node:** Módulos ES (`"type": "module"`)
 **Linguagem:** TypeScript + TSX (React 19)
 **Build tool:** Vite 7
@@ -29,15 +37,23 @@ LVB-ZelluApp/
 ├── .prettierrc
 ├── .prettierignore
 ├── .tanstack/tmp/
+├── .vscode/
 ├── bun.lock
 ├── bunfig.toml
 ├── components.json
 ├── eslint.config.js
 ├── node_modules/
 ├── package.json
+├── package-lock.json
 ├── public/
 │   ├── favicon.ico
 │   └── logo.png
+├── docs/
+│   ├── POSICIONAMENTO.md          # O que o app é / não é (Fase 16.5)
+│   └── PROPOSTA-COMERCIAL.md      # Rascunho comercial (Fase 16.6 pendente)
+├── PLANS/
+│   └── PLANO_BACKEND.md           # Plano histórico de backend
+├── PadrãoDashi/                   # Skills/agents de referência (não runtime)
 ├── src/
 │   ├── assets/avatar/cabeca/
 │   │   ├── Amora.png
@@ -45,57 +61,66 @@ LVB-ZelluApp/
 │   │   ├── Pipoca.png
 │   │   └── Zeca.png
 │   ├── components/
-│   │   ├── Avatar.tsx               # Componente de avatares Amora, Chico, Pipoca, Zeca
-│   │   ├── Icon.tsx                  # Wrapper Material Symbols Outlined
-│   │   ├── MobileShell.tsx           # Layout mobile + navegação inferior
-│   │   ├── DesktopShell.tsx          # Layout desktop com sidebar
-│   │   ├── ManagerShell.tsx          # Layout para área de RH/Manager
-│   │   ├── AdminShell.tsx            # Layout B2B do Portal Administrativo
-│   │   ├── DevShell.tsx              # Layout para ferramentas de desenvolvimento
+│   │   ├── Avatar.tsx               # Avatares Amora, Chico, Pipoca, Zeca
+│   │   ├── Icon.tsx                 # Wrapper Material Symbols Outlined
+│   │   ├── ChatMarkdown.tsx         # Renderização Markdown nas respostas da IA
+│   │   ├── PageTransition.tsx       # Transição de página (shells Companion)
+│   │   ├── MilestoneBanner.tsx      # Celebração de streaks (Fase 13)
+│   │   ├── PreventiveAlertBanner.tsx # Alertas preventivos (Fase 11)
+│   │   ├── MobileShell.tsx          # Layout mobile + nav inferior
+│   │   ├── DesktopShell.tsx         # Layout desktop com sidebar
+│   │   ├── ManagerShell.tsx         # Layout RH/Manager
+│   │   ├── AdminShell.tsx           # Layout B2B do Portal Admin
+│   │   ├── DevShell.tsx             # Layout Dev Tools
 │   │   ├── admin/
-│   │   │   └── AdminShared.tsx       # Gate, KPIs e UI compartilhada do admin
-│   │   └── ui/                       # 46 componentes shadcn/ui
+│   │   │   └── AdminShared.tsx      # Gate, KPIs e UI compartilhada do admin
+│   │   └── ui/                      # 46 componentes shadcn/ui
 │   ├── data/
-│   │   ├── index.ts                  # Re-exports (tipos, mockados, configs)
-│   │   ├── moods.ts                  # MAIN_MOODS + EXTRA_MOODS (config compartilhada)
+│   │   ├── index.ts
+│   │   ├── moods.ts                 # MAIN_MOODS + EXTRA_MOODS
 │   │   ├── chat.ts / diario.ts / habitos.ts / respiro.ts
 │   ├── hooks/
-│   │   └── use-mobile.tsx            # Hook useIsMobile
+│   │   └── use-mobile.tsx
 │   ├── lib/
-│   │   ├── api/                      # Server Functions
-│   │   │   ├── auth.server.ts        # Autenticação e perfis
-│   │   │   ├── checkin.server.ts     # Check-ins matinais
-│   │   │   ├── chat-ai.server.ts     # Integração OpenRouter
-│   │   │   ├── chat.server.ts        # Mensagens do chat
-│   │   │   ├── diario.server.ts      # Entradas de diário
-│   │   │   ├── habitos.server.ts     # Hábitos diários
-│   │   │   ├── dashboard.server.ts   # Dashboard emocional
-│   │   │   ├── timeline.server.ts    # Timeline com IA
-│   │   │   ├── manager.server.ts     # Dados de RH (+ RH Dashboard Fase 14)
-│   │   │   ├── admin.server.ts       # Portal Admin (KPIs, CRUD, export)
+│   │   ├── api/                     # Server Functions
+│   │   │   ├── auth.server.ts
+│   │   │   ├── checkin.server.ts
+│   │   │   ├── chat-ai.server.ts
+│   │   │   ├── chat.server.ts
+│   │   │   ├── diario.server.ts
+│   │   │   ├── habitos.server.ts
+│   │   │   ├── dashboard.server.ts
+│   │   │   ├── timeline.server.ts
+│   │   │   ├── manager.server.ts    # RH (+ Dashboard Fase 14)
+│   │   │   ├── admin.server.ts      # Portal Admin
 │   │   │   ├── preventiva-ai.server.ts
 │   │   │   ├── wellness-plan.server.ts
 │   │   │   ├── streak-system.server.ts
-│   │   │   ├── llm-config.server.ts  # Configuração de IA (dev)
-│   │   │   └── insights-ai.server.ts # Geração de insights por IA
-│   │   ├── services/                 # Camada de serviços
+│   │   │   ├── llm-config.server.ts
+│   │   │   ├── insights-ai.server.ts
+│   │   │   ├── logs.server.ts       # system_logs + painel System Logs
+│   │   │   └── example.functions.ts
+│   │   ├── services/
 │   │   │   ├── chat-service.ts
-│   │   │   ├── checkin-service.ts
 │   │   │   ├── diario-service.ts
 │   │   │   ├── habitos-service.ts
 │   │   │   ├── dashboard-service.ts
 │   │   │   ├── timeline-service.ts
 │   │   │   ├── manager-service.ts
 │   │   │   ├── rh-dashboard-service.ts
-│   │   │   └── admin-service.ts
+│   │   │   ├── admin-service.ts
+│   │   │   ├── preventiva-service.ts
+│   │   │   ├── wellness-plan-service.ts
+│   │   │   └── streak-service.ts
 │   │   ├── supabase/
-│   │   │   ├── client.ts             # Cliente Supabase browser
-│   │   │   ├── server.ts             # Cliente Supabase server-side
-│   │   │   └── admin.server.ts       # Cliente service role
-│   │   ├── auth-context.tsx          # Context de autenticação (roles: companion|manager|dev|admin)
-│   │   ├── use-require-auth.ts       # Proteção de rotas por role
-│   │   ├── branding.ts               # Config de marca (nome, cores, fontes)
-│   │   ├── theme.tsx                 # ThemeProvider + useTheme
+│   │   │   ├── client.ts
+│   │   │   ├── server.ts
+│   │   │   └── admin.server.ts
+│   │   ├── auth-context.tsx         # Roles: companion|manager|dev|admin
+│   │   ├── auth-token.ts            # Helpers JWT (userId/email do access token)
+│   │   ├── use-require-auth.ts
+│   │   ├── branding.ts              # Mundo Mental Care
+│   │   ├── theme.tsx
 │   │   ├── config.server.ts
 │   │   ├── error-capture.ts
 │   │   ├── error-page.ts
@@ -103,71 +128,65 @@ LVB-ZelluApp/
 │   │   └── utils.ts
 │   ├── routes/
 │   │   ├── README.md
-│   │   ├── __root.tsx                # Root layout com providers
-│   │   ├── index.tsx                 # Dashboard Emocional (/)
-│   │   ├── login.tsx                 # Tela de login/cadastro
-│   │   ├── chat.tsx                  # Chat com IA
-│   │   ├── checkin.tsx               # Check-in matinal
-│   │   ├── diario.tsx                # Timeline/Diário
-│   │   ├── habitos.tsx               # Redirect → /meu-bem-estar
-│   │   ├── meu-bem-estar.tsx         # Visão consolidada de bem-estar
-│   │   ├── plano-de-cuidado.tsx      # Plano de bem-estar (Fase 12)
-│   │   ├── respiro.tsx               # Exercícios de respiração
-│   │   ├── perfil.tsx                # Perfil do usuário
-│   │   ├── dashboard-emocional.tsx   # Redirect → /
+│   │   ├── __root.tsx
+│   │   ├── index.tsx                # Dashboard Emocional (/)
+│   │   ├── login.tsx
+│   │   ├── chat.tsx
+│   │   ├── checkin.tsx
+│   │   ├── diario.tsx
+│   │   ├── habitos.tsx              # Redirect → /meu-bem-estar
+│   │   ├── meu-bem-estar.tsx
+│   │   ├── plano-de-cuidado.tsx     # Plano de bem-estar + streak (Fases 12/13)
+│   │   ├── respiro.tsx
+│   │   ├── perfil.tsx
+│   │   ├── dashboard-emocional.tsx  # Redirect → /
 │   │   ├── manager/
-│   │   │   ├── index.tsx             # Dashboard RH (legado)
-│   │   │   ├── rh-dashboard.tsx      # Dashboard RH completo (Fase 14)
-│   │   │   ├── equipes.tsx           # Gestão de equipes
-│   │   │   └── relatorios.tsx        # Relatórios e exportações CSV
-│   │   ├── admin/                    # Portal Administrativo (Fase 15)
-│   │   │   ├── index.tsx             # KPIs globais
-│   │   │   ├── empresas.tsx          # CRUD empresas/clientes
-│   │   │   ├── funcionarios.tsx      # Funcionários e equipes
-│   │   │   ├── licencas.tsx          # Licenças e contratos
-│   │   │   ├── metricas.tsx          # Uso e adoção
-│   │   │   ├── sentimentos.tsx       # Humor agregado
-│   │   │   ├── alertas.tsx           # Alertas configuráveis
-│   │   │   └── relatorios.tsx        # Export PDF/CSV
+│   │   │   ├── index.tsx
+│   │   │   ├── rh-dashboard.tsx
+│   │   │   ├── equipes.tsx
+│   │   │   └── relatorios.tsx
+│   │   ├── admin/
+│   │   │   ├── index.tsx
+│   │   │   ├── empresas.tsx
+│   │   │   ├── funcionarios.tsx
+│   │   │   ├── licencas.tsx
+│   │   │   ├── metricas.tsx
+│   │   │   ├── sentimentos.tsx
+│   │   │   ├── alertas.tsx
+│   │   │   └── relatorios.tsx
 │   │   └── dashitecnology/
-│   │       ├── index.tsx             # Ferramentas de desenvolvimento
-│   │       └── $painelDev.tsx        # Painéis dinâmicos (LLM Config)
-│   ├── components/pages/             # Páginas por dispositivo
+│   │       ├── index.tsx            # LLM Config + System Logs
+│   │       └── $painelDev.tsx
+│   ├── components/pages/
 │   │   ├── mobile/
 │   │   │   ├── ChatPage.tsx
 │   │   │   ├── CheckinPage.tsx
 │   │   │   ├── TimelinePage.tsx
 │   │   │   ├── BemEstarPage.tsx
+│   │   │   ├── PlanoDeCuidadoPage.tsx
 │   │   │   ├── RespiroPage.tsx
 │   │   │   ├── PerfilPage.tsx
-│   │   │   └── DashboardEmocionalPage.tsx
+│   │   │   ├── DashboardEmocionalPage.tsx
+│   │   │   ├── DiarioPage.tsx       # legado / auxiliar
+│   │   │   └── HabitosPage.tsx     # legado / auxiliar
 │   │   └── desktop/
-│   │       ├── ChatPage.tsx
-│   │       ├── CheckinPage.tsx
-│   │       ├── TimelinePage.tsx
-│   │       ├── BemEstarPage.tsx
-│   │       ├── RespiroPage.tsx
-│   │       ├── PerfilPage.tsx
-│   │       └── DashboardEmocionalPage.tsx
+│   │       ├── (mesmos pares mobile)
 │   ├── routeTree.gen.ts
 │   ├── router.tsx
 │   ├── server.ts
-│   ├── start.ts                      # CSRF middleware adicionado
+│   ├── start.ts                     # CSRF middleware
 │   └── styles.css
-├── supabase/
-│   └── migrations/
-│       ├── 000_schema_inicial.sql
-│       ├── 003_llm_fallback.sql
-│       ├── 004_preventiva_notifications.sql
-│       ├── 005_wellness_plan.sql
-│       └── 006_admin_portal.sql      # Role admin, companies, teams, licenses, contracts, alert_configs
+├── supabase/migrations/
+│   ├── 000_schema_inicial.sql
+│   ├── 003_llm_fallback.sql
+│   ├── 004_preventiva_notifications.sql
+│   ├── 005_wellness_plan.sql
+│   └── 006_admin_portal.sql
 ├── tsconfig.json
 ├── vite.config.ts
-├── .env                              # Variáveis de ambiente
-├── TODO-MundoMental.md               # Plano de implementação
-├── CORRECOES_ROTAS.md                # Documentação de correções
-├── DEV_ACESSO_COMPLETO.md            # Acesso do role dev
-└── FASE_10_INSIGHTS_IA.md            # Documentação de insights IA
+├── .env
+├── TODO-MundoMental.md
+└── ANALISE_COMPLETA.md              # Este arquivo
 ```
 
 ---
@@ -181,35 +200,36 @@ LVB-ZelluApp/
 | TypeScript | ^5.8.3 | Tipagem |
 | Vite | ^7.3.1 | Bundler / Dev Server |
 | TanStack React Router | ^1.168.25 | Roteamento SPA/SSR |
-| TanStack React Query | ^5.83.0 | Gerenciamento de estado server-side |
+| TanStack React Query | ^5.83.0 | Cache / estado server |
 | TanStack React Start | ^1.168.20 | Framework full-stack SSR |
 | Nitro (beta) | 3.0.260429-beta | Servidor de produção SSR |
 | Tailwind CSS | ^4.2.1 | Utilitários CSS |
 | shadcn/ui | — | Componentes headless estilizados |
-| Supabase | ^2.110.3 | Backend as a Service (Auth, DB, Storage) |
-| OpenRouter | — | Gateway para LLMs (GPT-4o-mini) |
+| Supabase | ^2.110.3 | Auth, DB, Storage |
+| OpenRouter | — | Gateway LLM (GPT-4o-mini) |
 
 ### 3.2 Componentes e UI
 | Pacote | Versão | Uso |
 |---|---|---|
-| @radix-ui/* | múltiplos | 24 pacotes de primitivas headless acessíveis |
-| class-variance-authority | ^0.7.1 | Variantes de componentes (cva) |
-| clsx + tailwind-merge | ^2.1.1 / ^3.5.0 | Combinação de classes CSS |
+| @radix-ui/* | múltiplos | Primitivas headless acessíveis |
+| class-variance-authority | ^0.7.1 | Variantes (cva) |
+| clsx + tailwind-merge | ^2.1.1 / ^3.5.0 | Classes CSS |
 | lucide-react | ^0.575.0 | Ícones |
-| Material Symbols Outlined | — | Ícones (via Google Fonts) |
-| recharts | ^2.15.4 | Gráficos (Dashboard Emocional) |
+| Material Symbols Outlined | — | Ícones (Google Fonts) |
+| recharts | ^2.15.4 | Gráficos |
 | embla-carousel-react | ^8.6.0 | Carrossel |
 | cmdk | ^1.1.1 | Command palette |
-| input-otp | ^1.4.2 | Input OTP |
+| input-otp | ^1.4.2 | OTP |
 | react-day-picker | ^9.14.0 | Calendário |
 | react-hook-form | ^7.81.0 | Formulários |
-| @hookform/resolvers | ^5.2.2 | Validação de formulários |
-| sonner | ^2.0.7 | Toast notifications |
-| vaul | ^1.1.2 | Drawer component |
-| react-resizable-panels | ^4.6.5 | Painéis redimensionáveis |
-| date-fns | ^4.1.0 | Manipulação de datas |
-| zod | ^3.24.2 | Validação de schemas |
-| framer-motion | ^12.42.2 | Animações |
+| @hookform/resolvers | ^5.2.2 | Validação de forms |
+| react-markdown | ^10.1.0 | Markdown no chat IA |
+| sonner | ^2.0.7 | Toasts |
+| vaul | ^1.1.2 | Drawer |
+| react-resizable-panels | ^4.6.5 | Painéis |
+| date-fns | ^4.1.0 | Datas |
+| zod | ^3.24.2 | Schemas |
+| framer-motion | ^12.42.2 | Animações / PageTransition |
 | tw-animate-css | ^1.3.4 | Animações CSS |
 
 ---
@@ -219,350 +239,245 @@ LVB-ZelluApp/
 **Tipo:** File-based routing com proteção por role
 
 ### 4.1 Rotas Públicas
-| Arquivo | URL | Componente | Descrição |
-|---|---|---|---|
-| `__root.tsx` | — | RootLayout | Layout raiz, providers, error/404 |
-| `login.tsx` | `/login` | LoginPage | Login e cadastro com seleção de role |
+| Arquivo | URL | Descrição |
+|---|---|---|
+| `__root.tsx` | — | Layout raiz, providers, error/404 |
+| `login.tsx` | `/login` | Login e cadastro com seleção de role |
 
 ### 4.2 Rotas de Colaborador (Companion)
 | Arquivo | URL | Descrição |
 |---|---|---|
-| `index.tsx` | `/` | Dashboard Emocional com gráficos e insights IA |
-| `chat.tsx` | `/chat` | Chat com IA contextual (OpenRouter) |
+| `index.tsx` | `/` | Dashboard Emocional + insights + alertas preventivos |
+| `chat.tsx` | `/chat` | Chat com IA (Markdown + preventiva) |
 | `checkin.tsx` | `/checkin` | Check-in matinal (sono, água, humor) |
-| `diario.tsx` | `/diario` | Timeline com entradas e insights IA |
-| `meu-bem-estar.tsx` | `/meu-bem-estar` | Visão consolidada de todos os indicadores |
-| `respiro.tsx` | `/respiro` | Exercícios de respiração com sons ambiente |
-| `perfil.tsx` | `/perfil` | Perfil e configurações do usuário |
-| `habitos.tsx` | `/habitos` | Redirect → /meu-bem-estar |
-| `dashboard-emocional.tsx` | `/dashboard-emocional` | Redirect → / |
+| `diario.tsx` | `/diario` | Timeline + insights + preventiva |
+| `meu-bem-estar.tsx` | `/meu-bem-estar` | Indicadores consolidados do dia |
+| `plano-de-cuidado.tsx` | `/plano-de-cuidado` | Plano de bem-estar + checklist + streak |
+| `respiro.tsx` | `/respiro` | Exercícios de respiração |
+| `perfil.tsx` | `/perfil` | Perfil e configurações |
+| `habitos.tsx` | `/habitos` | Redirect → `/meu-bem-estar` |
+| `dashboard-emocional.tsx` | `/dashboard-emocional` | Redirect → `/` |
+
+**Navegação Companion (MobileShell / DesktopShell):**
+Dashboard · Check-in · Chat · Diário · Plano · Bem-estar · Respiro · Perfil
 
 ### 4.3 Rotas de Manager (RH/Gestor)
 | Arquivo | URL | Descrição |
 |---|---|---|
 | `manager/index.tsx` | `/manager` | Dashboard RH (visão inicial) |
-| `manager/rh-dashboard.tsx` | `/manager/rh-dashboard` | Dashboard RH completo (KPIs, tendências, alertas) |
-| `manager/equipes.tsx` | `/manager/equipes` | Gestão de equipes por departamento |
-| `manager/relatorios.tsx` | `/manager/relatorios` | Exportação de relatórios CSV |
+| `manager/rh-dashboard.tsx` | `/manager/rh-dashboard` | Dashboard RH completo (Fase 14) |
+| `manager/equipes.tsx` | `/manager/equipes` | Gestão de equipes |
+| `manager/relatorios.tsx` | `/manager/relatorios` | Exportação CSV |
+
+**Navegação Manager:** Dashboard RH · Equipes · Relatórios · Perfil
 
 ### 4.4 Rotas de Admin (Portal Administrativo — Fase 15)
 | Arquivo | URL | Descrição |
 |---|---|---|
 | `admin/index.tsx` | `/admin` | KPIs globais + alertas ativos |
-| `admin/empresas.tsx` | `/admin/empresas` | CRUD de empresas/clientes B2B |
-| `admin/funcionarios.tsx` | `/admin/funcionarios` | Vínculo de pessoas a empresa/equipe |
+| `admin/empresas.tsx` | `/admin/empresas` | CRUD empresas/clientes |
+| `admin/funcionarios.tsx` | `/admin/funcionarios` | Pessoas e equipes |
 | `admin/licencas.tsx` | `/admin/licencas` | Licenças e contratos |
-| `admin/metricas.tsx` | `/admin/metricas` | DAU/WAU/MAU e adesão por empresa |
-| `admin/sentimentos.tsx` | `/admin/sentimentos` | Sentimentos agregados (30 dias) |
-| `admin/alertas.tsx` | `/admin/alertas` | Thresholds configuráveis + avaliação |
-| `admin/relatorios.tsx` | `/admin/relatorios` | Exportação CSV e PDF |
+| `admin/metricas.tsx` | `/admin/metricas` | DAU/WAU/MAU e adesão |
+| `admin/sentimentos.tsx` | `/admin/sentimentos` | Humor agregado (30 dias) |
+| `admin/alertas.tsx` | `/admin/alertas` | Thresholds + avaliação |
+| `admin/relatorios.tsx` | `/admin/relatorios` | Export CSV/PDF |
 
-### 4.5 Rotas de Dev (Desenvolvedor)
+### 4.5 Rotas de Dev
 | Arquivo | URL | Descrição |
 |---|---|---|
-| `dashitecnology/index.tsx` | `/dashitecnology` | Índice de ferramentas de dev |
-| `dashitecnology/$painelDev.tsx` | `/dashitecnology/:painelDev` | Painéis dinâmicos (ex: llm-config) |
+| `dashitecnology/index.tsx` | `/dashitecnology` | Índice (LLM Config + System Logs) |
+| `dashitecnology/$painelDev.tsx` | `/dashitecnology/:painelDev` | Painéis dinâmicos |
 
 ### 4.6 Hierarquia de Acesso por Role
 
-**Companion (Colaborador):**
-- ✅ Todas as rotas de companion
-- ❌ Bloqueado em /manager, /admin e /dashitecnology
+**Companion:** rotas companion · bloqueado em `/manager`, `/admin`, `/dashitecnology`
 
-**Manager (RH/Gestor):**
-- ✅ Todas as rotas de manager
-- ❌ Bloqueado em rotas exclusivas de companion, /admin e /dashitecnology
-- 🔄 Pode alternar entre views se tiver múltiplos roles
+**Manager:** rotas manager · bloqueado em companion exclusivas, `/admin`, `/dashitecnology`
 
-**Admin (Super-admin — Mundo Mental):**
-- ✅ Todas as rotas de `/admin/*`
-- ✅ Redirecionamento pós-login para `/admin`
-- ❌ Não é role de cadastro público (atribuído no `profiles`)
-- 🔄 Shell próprio (`AdminShell`) com design B2B
+**Admin:** `/admin/*` · redirect pós-login → `/admin` · shell B2B (`AdminShell`)
 
-**Dev (Desenvolvedor):**
-- ✅ **Acesso TOTAL** a todas as rotas (companion + manager + admin + dev)
-- 🔄 Pode alternar entre as views: Colaborador → Manager → Admin → Dev Tools
+**Dev:** acesso total (companion + manager + admin + dev) · pode alternar modos
 
 ---
 
 ## 5. Funcionalidades Implementadas
 
 ### 5.1 Autenticação e Autorização
-- **Login/Cadastro** com email e senha
-- **Seleção de role** no cadastro (Colaborador ou RH/Gestor)
-- **Redirecionamento automático** após login baseado no role
-- **Proteção de rotas** via hook `useRequireAuth()`
-- **Context global** de autenticação (`AuthProvider`)
-- **Sessão persistente** via Supabase Auth
+- Login/cadastro com email e senha
+- Seleção de role no cadastro (Colaborador ou RH/Gestor)
+- Redirect pós-login por role (`admin` → `/admin`, `manager` → `/manager`, demais → `/`)
+- Proteção via `useRequireAuth()` + `AuthProvider`
+- Sessão persistente (Supabase Auth)
+- Helpers de token em `auth-token.ts`
 
 ### 5.2 Dashboard Emocional (`/`)
-- **Gráficos de evolução** com recharts:
-  - Distribuição de humor (barras)
-  - Comparativo semanal (barras agrupadas)
-  - Tendência de humor 30 dias (linha)
-  - Tendência de sono 30 dias (linha)
-- **Métricas resumidas**:
-  - Dias rastreados
-  - Humor predominante
-  - Média de sono
-- **Insight de IA** sobre mudança de ansiedade
-- **Comparação semanal** (sono, água, movimento)
-- **Versões mobile e desktop** responsivas
+- Gráficos (recharts): humor, comparativo semanal, tendência humor/sono 30d
+- Métricas: dias rastreados, humor predominante, média de sono
+- Insights de IA + comparação semanal (sono, água, movimento)
+- Banner de alerta preventivo (`PreventiveAlertBanner`)
+- Banner de milestone de streak quando aplicável
+- Versões mobile e desktop
 
 ### 5.3 Chat com IA (`/chat`)
-- **Integração real** com OpenRouter (GPT-4o-mini)
-- **Contexto personalizado**:
-  - Nome do usuário
-  - Último check-in (sono, água, humor)
-  - Hora do dia (bom dia/tarde/noite)
-- **Saudação contextual**: "Bom dia [nome]. Dormiu bem?"
-- **Estado de digitação** natural (typing indicator)
-- **Histórico de conversa** (últimos 10 turnos)
-- **Sugestões inteligentes** pós-resposta
-- **Persistência** no Supabase
+- OpenRouter (GPT-4o-mini) com contexto (nome, check-in, período do dia)
+- Histórico (últimos 10 turnos) + sugestões pós-resposta
+- Typing indicator + persistência no Supabase
+- Respostas em **Markdown** (`ChatMarkdown` / `react-markdown`)
+- Integração com alertas preventivos no topo do chat
 
 ### 5.4 Check-in Matinal (`/checkin`)
-- **Fluxo em 3 etapas**:
-  1. Sono (5-9 horas)
-  2. Hidratação (500-2500ml)
-  3. Humor — **mesmo padrão de `/meu-bem-estar`**:
-     - 6 humores principais (Feliz, Calmo, Neutro, Ansioso, Triste, Irritado)
-     - Botão **“Ver +19 humores”** para expandir a lista completa
-     - Config compartilhada em `src/data/moods.ts` (`MAIN_MOODS` + `EXTRA_MOODS`)
-- **Salvamento automático** no Supabase
-- **Integração com chat** (IA usa dados do check-in)
-- **Verificação de check-in existente** (não duplica)
-- **Versões mobile e desktop**
+- Fluxo em 3 etapas: sono → água → humor
+- Humor alinhado a Meu Bem-estar: 6 principais + **“Ver +19 humores”** (`src/data/moods.ts`)
+- Persistência Supabase; alimenta contexto do chat
+- Evita duplicata no mesmo dia
 
 ### 5.5 Timeline/Diário (`/diario`)
-- **Formato de timeline** com entradas agregadas:
-  - Entradas de diário
-  - Check-ins (sono, água, humor)
-  - Hábitos (movimento, energia, refeições)
-  - Mensagens do chat
-- **Calendário de humor** (14 dias)
-- **Insight de IA** no topo ("IA percebe evolução")
-- **Adicionar nova entrada** de texto
-- **Cores por humor** (emoji + gradiente)
+- Timeline agregada: diário, check-ins, hábitos, chat
+- Calendário de humor (14 dias)
+- Insight de IA + alerta preventivo
+- Nova entrada de texto
 
 ### 5.6 Meu Bem-estar (`/meu-bem-estar`)
-- **Visão consolidada** de todos os indicadores:
-  - 💧 Água (slider interativo, meta 2000ml)
-  - 🛌 Sono (barra de qualidade)
-  - 😊 Humor (6 principais + expandir **+19 humores** via `src/data/moods.ts`)
-  - 🏃 Movimento (0-120 min)
-  - ⚡ Energia (slider Baixa/Média/Alta)
-  - 🍽️ Refeições (toggle: café, almoço, lanche, jantar)
-  - 🧘 Respiração (link para /respiro)
-- **Integração com check-in** (pré-popula dados)
-- **Salvamento consolidado**
-- **Versões mobile e desktop**
+- Água, sono, humor (6 + 19), movimento, energia, refeições, link Respiro
+- Pré-popula do check-in; salvamento consolidado
 
 ### 5.7 Espaço do Respiro (`/respiro`)
-- **Exercício de respiração guiada**:
-  - Inspirar (2.8s) → Segurar (1.2s) → Expirar (2.0s)
-  - Animação CSS `breathe` (6s)
-  - Círculo pulsante com gradiente
-- **Sons ambiente** (grid 2×2):
-  - 🌧️ Chuva
-  - 🌲 Floresta
-  - 🔥 Fogueira
-  - 🌊 Ondas
-- **Toggle visual** clay-pressed/clay-soft
-- **Versões mobile e desktop**
+- Ciclo guiado (inspirar / segurar / expirar) com animação CSS
+- Sons ambiente: chuva, floresta, fogueira, ondas
 
 ### 5.8 Perfil (`/perfil`)
-- **Dados pessoais**:
-  - Nome de exibição (editável)
-  - Avatar (seleção entre Amora, Chico, Pipoca, Zeca)
-  - Email (editável com confirmação)
-  - Senha (alteração com verificação)
-- **Configurações**:
-  - Tema claro/escuro
-  - Logout
-- **Para Dev/Admin**: Botão de trocar entre modos (inclui Portal Admin)
+- Nome, avatar (Amora/Chico/Pipoca/Zeca), email, senha
+- Tema claro/escuro + logout
+- Dev/Admin: troca de modos (inclui Portal Admin)
 
 ### 5.9 Dashboard RH (`/manager` e `/manager/rh-dashboard`)
-- **Métricas por equipe**:
-  - Estresse ↑/↓
-  - Energia ↑/↓
-  - Sono ↑/↓
-  - Engajamento ↑/↓
-- **Cards de resumo**:
-  - Total de colaboradores
-  - Check-ins hoje
-  - Adesão semanal
-  - Alertas ativos
-- **Fase 14 (RH Dashboard)**: tendências 30d (LineChart), distribuição de humor (BarChart), alertas por equipe
-- **Navegação**: Dashboard RH, Equipes, Relatórios, Perfil
-- **Versões mobile e desktop**
+- KPIs por equipe (estresse, energia, sono, engajamento)
+- Resumo: colaboradores, check-ins, adesão, alertas
+- Fase 14: tendências 30d, distribuição de humor, alertas por equipe
+- Dados agregados/anonimizados (`getRhDashboard`)
 
 ### 5.10 Gestão de Equipes (`/manager/equipes`)
-- **Lista de equipes** com status:
-  - Nome do departamento
-  - Número de membros
-  - Badge de status (Estável, Monitorar, Atenção)
-- **Indicadores por equipe**
-- **Grid responsivo** (1/2/3 colunas)
+- Lista por departamento com status (Estável / Monitorar / Atenção)
+- Grid responsivo
 
-### 5.11 Relatórios (`/manager/relatorios`)
-- **Exportação CSV** (últimos 30 dias)
-- **Indicadores agregados** e anonimizados
-- **Download automático**
+### 5.11 Relatórios Manager (`/manager/relatorios`)
+- Exportação CSV (últimos 30 dias), indicadores agregados
 
 ### 5.12 Dev Tools (`/dashitecnology`)
-- **Painel LLM Config**:
-  - Modelo (ex: openai/gpt-4o-mini)
-  - Temperatura (0.0-2.0)
-  - Max tokens
-  - System prompt
-  - API Key (OpenRouter)
-  - Teste de conexão
-  - Reset para padrão
-- **Proteção**: Apenas role "dev"
+- **LLM Config:** modelo, temperatura, max tokens, system prompt, API key, teste, reset
+- **System Logs:** visualização de logs (`logs.server.ts` → tabela `system_logs`)
+- Acesso: apenas role `dev`
 
 ### 5.13 Portal Administrativo (`/admin`) — Fase 15 ✅
-- **Painel separado** para super-admin da Mundo Mental (`AdminShell`, design B2B slate)
-- **Acesso**: roles `admin` e `dev`
-- **Módulos**:
-  1. **KPIs globais** — empresas, colaboradores, licenças, check-ins, adesão, humor
-  2. **Empresas/clientes** — CRUD completo (status, assentos, contato)
-  3. **Funcionários** — vínculo a `company_id` / `team_id`, criação de equipes
-  4. **Licenças e contratos** — planos, assentos usados, contratos comerciais
-  5. **Métricas de uso** — DAU/WAU/MAU, tendência diária, adesão por empresa
-  6. **Sentimentos agregados** — distribuição de humor, tendências, breakdown por empresa
-  7. **Alertas configuráveis** — thresholds (humor, sono, água, adesão) globais ou por empresa + avaliação automática
-  8. **Relatórios exportáveis** — CSV (check-ins / empresas / funcionários) e PDF executivo
-- **API**: `src/lib/api/admin.server.ts` + `admin-service.ts`
-- **Schema**: migration `006_admin_portal.sql`
+- Shell B2B (`AdminShell`)
+- Acesso: `admin` e `dev`
+- Módulos: KPIs · Empresas · Funcionários · Licenças · Métricas · Sentimentos · Alertas · Relatórios
+- API: `admin.server.ts` + `admin-service.ts`
+- Schema: `006_admin_portal.sql`
+
+### 5.14 IA Preventiva — Fase 11 ✅
+- Detecção de padrões (sono, humor, engajamento, hidratação, energia, movimento)
+- Tipos: `burnout-risk`, `sleep-crisis`, `mood-crisis`, `disengagement`, etc.
+- Severidade low/medium/high; mensagem + sugestão acionável
+- UI: `PreventiveAlertBanner` no Dashboard, Chat e Timeline
+- Persistência: `preventive_notifications` (`004_preventiva_notifications.sql`)
+- Cache em memória (~30 min) na detecção server-side
+
+### 5.15 Plano de Cuidado — Fase 12 ✅
+- Rota `/plano-de-cuidado` com páginas mobile/desktop
+- Objetivo definido pelo usuário + checklist diário (água, caminhada, respirar, conversar)
+- Progresso visual + sugestões da IA para ajustes
+- API: `wellness-plan.server.ts` + `wellness-plan-service.ts`
+- Schema: `005_wellness_plan.sql` (`wellness_plans`, `wellness_checklist`)
+
+### 5.16 Gamificação Elegante — Fase 13 ✅
+- Streak com base em check-ins + checklist (`streak-system.server.ts`)
+- Marcos: 3, 7, 14, 21, 30, 60, 90 dias
+- `MilestoneBanner` no Dashboard e Plano de Cuidado (tom corporativo, sem celebração infantil)
 
 ---
 
 ## 6. Insights com IA (Fase 10)
 
-### 6.1 Sistema de Insights (`insights-ai.server.ts`)
-- **Integração com OpenRouter** (GPT-4o-mini)
-- **6 contextos diferentes**:
-  - `timeline` - Evolução recente
-  - `dashboard` - Correlações entre métricas
-  - `anxiety-change` - Mudança de ansiedade
-  - `sleep-quality` - Qualidade do sono
-  - `weekly-summary` - Resumo semanal
-  - `chat` - Observações contextuais
+### 6.1 Sistema (`insights-ai.server.ts`)
+Contextos: `timeline`, `dashboard`, `anxiety-change`, `sleep-quality`, `weekly-summary`, `chat`
 
-### 6.2 Dados Processados
-- **Métricas agregadas**:
-  - Médias de sono, água, movimento, energia
-  - Distribuição de humor
-  - Tendências (melhorando/piorando/estável)
-  - Comparação semanal
-- **Correlações identificadas**:
-  - Sono ↔ Humor
-  - Movimento ↔ Energia
-  - Hidratação ↔ Bem-estar
-  - Ansiedade ↔ Sono
+### 6.2 Dados e correlações
+Médias (sono, água, movimento, energia), distribuição de humor, tendências, comparação semanal; correlações sono↔humor, movimento↔energia, etc.
 
-### 6.3 Exemplos de Insights
-- *"Nas últimas duas semanas, você demonstrou mais tranquilidade após dias com sono acima de 7h."*
-- *"Você teve 18% menos dias ansiosos esta semana. Suas 7h de sono médias estão fazendo diferença!"*
-- *"Seus dias com melhor humor coincidem com noites de sono de qualidade e movimento regular."*
-
-### 6.4 Fallback Inteligente
-- Sistema de regras quando API não disponível
-- Sempre retorna insight relevante
-- Baseado nos dados reais do usuário
+### 6.3 Fallback
+Regras locais quando a API não está disponível — sempre retorna insight relevante
 
 ---
 
 ## 7. Sistema de Design
 
-### 7.1 Paleta de Cores (OKLCH)
-| Variável | Valor | Uso |
-|---|---|---|
-| `--clay-cream` | oklch(0.945 0.022 84) | Fundo principal |
-| `--clay-title` | oklch(0.71 0.045 254) | Títulos |
-| `--clay-text` | oklch(0.48 0.03 260) | Texto corporal |
-| `--clay-cta` | oklch(0.82 0.05 250) | CTA primário |
-| `--clay-cta-2` | oklch(0.88 0.035 250) | CTA secundário |
-| `--clay-anxiety` | oklch(0.88 0.045 50) | Ansiedade |
-| `--clay-stress` | oklch(0.93 0.06 95) | Estresse |
-| `--clay-joy` | oklch(0.9 0.06 145) | Alegria |
+### 7.1 Paleta (OKLCH / clay)
+| Variável | Uso |
+|---|---|
+| `--clay-cream` | Fundo principal |
+| `--clay-title` | Títulos |
+| `--clay-text` | Texto corporal |
+| `--clay-cta` / `--clay-cta-2` | CTAs |
+| `--clay-anxiety` / `--clay-stress` / `--clay-joy` | Estados emocionais |
 
 ### 7.2 Componentes de UI
-- **clay-card**: Card com backdrop-filter blur(14px)
-- **clay-soft**: Versão suave com blur(10px)
-- **clay-pressed**: Estado pressionado
-- **clay-cta**: Botão com gradiente
+`clay-card`, `clay-soft`, `clay-pressed`, `clay-cta` — glassmorphism contido (Fase 3)
 
 ### 7.3 Tipografia
-- **Display:** Quicksand (500-700 weight)
-- **Corpo:** Nunito Sans (400-700 weight)
-- **Ícones:** Material Symbols Outlined
+- Display: Quicksand · Corpo: Nunito Sans · Ícones: Material Symbols Outlined
 
-### 7.4 Tema Claro/Escuro
-- ThemeProvider com toggle
-- CSS variables dinâmicas
-- Persistência da preferência
+### 7.4 Tema
+ThemeProvider + toggle claro/escuro com persistência
 
 ### 7.5 Portal Admin (B2B)
-- Visual distinto do Companion (slate, sem clay-card)
-- Sidebar desktop + nav horizontal mobile
-- Tabelas densas, badges de status, gráficos recharts
+Visual slate distinto do Companion; tabelas densas, badges, recharts
+
+### 7.6 Motion
+`PageTransition` (framer-motion) nos shells Companion; animações de respiração e banners sutis
 
 ---
 
 ## 8. Backend (Supabase)
 
-### 8.1 Tabelas
-- **profiles**: dados do usuário (role, display_name, avatar_url, company_id, team_id, job_title, is_active)
-  - Roles: `companion` | `manager` | `dev` | `admin`
-- **checkins**: check-ins matinais (sleep_hours, water_ml, mood)
-- **habits**: hábitos diários (water_ml, sleep_quality, movement_minutes, energy_level, meals)
-- **diary_entries**: entradas de diário (content, mood)
-- **chat_messages**: histórico de chat (from, text)
-- **llm_config**: configuração de IA (model, temperature, max_tokens, system_prompt, api_key)
-- **preventive_notifications**: alertas preventivos (Fase 11)
-- **wellness_plans** / **wellness_checklist**: plano de cuidado (Fase 12)
-- **companies**: clientes B2B (Fase 15)
-- **teams**: equipes por empresa (Fase 15)
-- **licenses**: licenças/planos e assentos (Fase 15)
-- **contracts**: contratos comerciais (Fase 15)
-- **alert_configs**: thresholds de alerta configuráveis (Fase 15)
+### 8.1 Tabelas principais
+| Tabela | Função |
+|---|---|
+| `profiles` | Usuário (role, display_name, avatar, company_id, team_id, …) — roles: `companion` \| `manager` \| `dev` \| `admin` |
+| `checkins` | Check-in matinal |
+| `habits` | Hábitos do dia |
+| `diary_entries` | Diário |
+| `chat_messages` | Chat |
+| `llm_config` | Config IA (dev) |
+| `preventive_notifications` | Alertas preventivos (Fase 11) |
+| `wellness_plans` / `wellness_checklist` | Plano de cuidado (Fase 12) |
+| `companies` / `teams` / `licenses` / `contracts` / `alert_configs` | Portal Admin (Fase 15) |
+| `system_logs` | Logs operacionais (Dev Tools) |
 
-### 8.2 Row Level Security (RLS)
-- Políticas por tabela
-- Acesso apenas aos próprios dados (companion)
-- Manager acessa dados agregados/anonimizados
-- Admin/dev: políticas de gestão em companies, teams, licenses, contracts, alert_configs
+### 8.2 RLS
+Políticas por tabela; companion vê próprios dados; manager vê agregados; admin/dev gerenciam entidades B2B
 
 ### 8.3 Autenticação
-- Email + senha
-- Confirmação de email automática
-- Metadados do usuário (role, avatar_url)
-- Sessão persistente
-- Redirecionamento pós-login: `admin` → `/admin`, `manager` → `/manager`, demais → `/`
+Email + senha, JWT, refresh; redirect por role
+
+### 8.4 Observabilidade
+`logEvent()` em várias server functions → `system_logs`; painel em `/dashitecnology/system-logs`
 
 ---
 
 ## 9. Segurança
 
-### 9.1 CSRF Protection
-- Middleware CSRF em `start.ts`
-- Proteção de server functions
-- Tokens únicos por requisição
+### 9.1 CSRF
+Middleware em `start.ts` protegendo server functions
 
-### 9.2 Autenticação
-- Supabase Auth
-- Tokens JWT
-- Refresh automático
+### 9.2 Auth
+Supabase Auth (JWT + refresh)
 
 ### 9.3 Autorização
-- Hook `useRequireAuth()`
-- Verificação de role
-- Redirecionamento automático
+`useRequireAuth()` + checagens de role nas rotas/shells
 
-### 9.4 Variáveis de Ambiente
+### 9.4 Variáveis de ambiente
 ```
 SUPABASE_URL=...
 SUPABASE_ANON_KEY=...
@@ -576,98 +491,108 @@ OPENROUTER_API_KEY=sk-or-v1-...
 
 ### 10.1 Fases Concluídas ✅
 
-- **Fase 0:** Fundação Arquitetural ✅
-- **Fase 1:** White Label & Rebranding ✅
-- **Fase 2:** Dois Modos (Companion + Manager) ✅
-- **Fase 3:** Redesign Visual ✅
-- **Fase 4:** Chat com IA Contextual ✅
-- **Fase 5:** Check-in Matinal ✅ *(humor alinhado a Meu Bem-estar: 6 + Ver +19 humores)*
-- **Fase 6:** Manager Pages Responsivas ✅
-- **Fase 7:** "Hábitos" → "Meu Bem-estar" ✅
-- **Fase 8:** Diário → Timeline ✅
-- **Fase 9:** Dashboard Emocional ✅
-- **Fase 10:** Insights IA ✅
-- **Fase 11:** IA Preventiva ✅
-- **Fase 12:** Plano de Cuidado ✅
-- **Fase 13:** Gamificação Elegante ✅
-- **Fase 14:** Dashboard do RH ✅
-- **Fase 15:** Portal Administrativo (Mundo Mental) ✅
+| Fase | Descrição | Status |
+|---|---|---|
+| 0 | Fundação Arquitetural | ✅ |
+| 1 | White Label & Rebranding | ✅ |
+| 2 | Dois Modos (Companion + Manager) | ✅ |
+| 3 | Redesign Visual | ✅ |
+| 4 | Chat com IA Contextual | ✅ |
+| 5 | Check-in Matinal | ✅ |
+| 6 | Manager Pages Responsivas | ✅ |
+| 7 | Hábitos → Meu Bem-estar | ✅ |
+| 8 | Diário → Timeline | ✅ |
+| 9 | Dashboard Emocional | ✅ |
+| 10 | Insights IA | ✅ |
+| 11 | IA Preventiva | ✅ |
+| 12 | Plano de Cuidado | ✅ |
+| 13 | Gamificação Elegante | ✅ |
+| 14 | Dashboard do RH | ✅ |
+| 15 | Portal Administrativo | ✅ |
+| 16 | Limpeza & Refinamento | 🟡 quase concluída |
 
-### 10.2 Progresso Geral
-- **~99%** do caminho para apresentação comercial
-- **Próxima fase:** Fase 16 — Limpeza & Refinamento
+### 10.2 Fase 16 — detalhe
+| Item | Status |
+|---|---|
+| 16.1 Textos corporativo-acolhedor | ✅ |
+| 16.2 Eliminar sinais de MVP | ✅ |
+| 16.3 Experiência “produto pronto” | ✅ |
+| 16.4 Testes de percepção (feedback humano) | ⏳ pendente |
+| 16.5 Documentar posicionamento | ✅ (`docs/POSICIONAMENTO.md`) |
+| 16.6 Apresentar proposta comercial | ⏳ rascunho em `docs/PROPOSTA-COMERCIAL.md` |
 
-### 10.3 Problemas Resolvidos / Atualizações Recentes
-1. ✅ Corrigido erro de navegação no login
-2. ✅ Renomeado parâmetro de rota ($painel-dev → $painelDev)
-3. ✅ Adicionado middleware CSRF
-4. ✅ Implementado acesso total para role dev
-5. ✅ Sistema de insights com IA funcionando
-6. ✅ Portal Admin (`/admin`) com 8 módulos, role `admin` e migration `006_admin_portal.sql`
-7. ✅ Humor do check-in unificado com Meu Bem-estar via `src/data/moods.ts` (+19 humores)
+### 10.3 Progresso geral
+- **Produto / código:** ~100% das fases técnicas 0–15 + limpeza 16.1–16.3/16.5
+- **Fechamento comercial:** pendente validação humana (16.4) e apresentação da proposta (16.6)
+- Branding oficial no app: **Mundo Mental Care**
+
+### 10.4 Atualizações relevantes (histórico recente)
+1. ✅ Navegação login / parâmetros de rota / CSRF
+2. ✅ Acesso total do role `dev`
+3. ✅ Insights IA + preventiva + plano + streak
+4. ✅ Portal Admin completo + migration `006`
+5. ✅ Humor unificado (`moods.ts`) no check-in e bem-estar
+6. ✅ Markdown no chat; System Logs no Dev Tools
+7. ✅ Nav Companion com **Plano** (`/plano-de-cuidado`)
+8. ✅ Posicionamento documentado; proposta comercial em rascunho
 
 ---
 
 ## 11. Observações
 
 ### 11.1 Arquitetura
-- **Mobile-first** com suporte desktop
-- **SSR** para melhor performance e SEO
-- **Server Functions** para lógica server-side
-- **Context API** para estado global
-- **React Query** para cache de dados
+- Mobile-first com pares mobile/desktop
+- SSR (TanStack Start) + Server Functions
+- Camada `services/` entre UI e `api/*.server.ts`
+- Context API (auth/theme) + React Query
 
 ### 11.2 Padrões
-- `.server.ts` para código server-side
-- Componentes separados por dispositivo (mobile/desktop)
-- Services layer entre componentes e APIs
-- Validação com Zod
-- Tipagem forte em TypeScript
+- `.server.ts` para código server-only
+- Validação Zod nas server functions
+- `auth-token.ts` para extrair identidade do JWT
+- Logging centralizado via `logs.server.ts`
 
 ### 11.3 Performance
-- Lazy loading de componentes
-- Cache de dados com React Query
-- Otimização de imagens
-- CSS otimizado com Tailwind
-- Build otimizado com Vite
+- Lazy loading, cache React Query, Vite + Tailwind
+- Cache de detecção preventiva server-side
 
 ---
 
 ## 12. Documentação
 
-### 12.1 Arquivos de Documentação
-- `TODO-MundoMental.md` - Plano de implementação completo
-- `ANALISE_COMPLETA.md` - Este arquivo
-- `CORRECOES_ROTAS.md` - Correções realizadas
-- `DEV_ACESSO_COMPLETO.md` - Sistema de acesso por role
-- `FASE_10_INSIGHTS_IA.md` - Documentação de insights IA
+### 12.1 Arquivos
+| Arquivo | Conteúdo |
+|---|---|
+| `TODO-MundoMental.md` | Plano de fases e checklist |
+| `ANALISE_COMPLETA.md` | Este arquivo |
+| `docs/POSICIONAMENTO.md` | O que o produto é / não é |
+| `docs/PROPOSTA-COMERCIAL.md` | Rascunho comercial |
+| `PLANS/PLANO_BACKEND.md` | Plano histórico de backend (pode estar desatualizado vs. código atual) |
+| `src/routes/README.md` | Notas de rotas |
 
-### 12.2 Scripts
-- `dev` - Servidor de desenvolvimento
-- `build` - Build de produção
-- `build:dev` - Build modo dev
-- `preview` - Preview do build
-- `lint` - Lint ESLint
-- `format` - Formatação Prettier
+### 12.2 Scripts (`package.json`)
+| Script | Função |
+|---|---|
+| `dev` | Servidor de desenvolvimento |
+| `build` | Build de produção |
+| `build:dev` | Build modo development |
+| `preview` | Preview do build |
+| `lint` | ESLint |
+| `format` | Prettier |
 
 ---
 
 ## 13. Conclusão
 
-A aplicação evoluiu de um MVP de demonstração para uma plataforma completa de bem-estar corporativo, com:
+A aplicação está posicionada como **Mundo Mental Care**: companion de engajamento e autocuidado emocional no ritmo do trabalho, com:
 
-- ✅ Backend real com Supabase
-- ✅ Chat com IA contextual
-- ✅ Dashboard emocional com gráficos
-- ✅ Timeline integrada
-- ✅ Check-in matinal inteligente (humor expandido: 6 + 19 opções)
-- ✅ Visão consolidada de bem-estar
-- ✅ Insights gerados por IA
-- ✅ IA preventiva, plano de cuidado e gamificação
-- ✅ Painel de RH com métricas e alertas
-- ✅ **Portal Administrativo** (super-admin) para a Mundo Mental
-- ✅ Sistema de roles (Companion, Manager, Admin, Dev)
-- ✅ Proteção de rotas e CSRF
-- ✅ Design responsivo e profissional (Companion clay + Admin B2B)
+- ✅ Backend Supabase + roles Companion / Manager / Admin / Dev
+- ✅ Chat contextual com Markdown e memória de conversa
+- ✅ Check-in, bem-estar, timeline, dashboard emocional
+- ✅ Insights IA, alertas preventivos, plano de cuidado e streaks
+- ✅ Painel de RH (dados agregados) e Portal Administrativo B2B
+- ✅ CSRF, proteção de rotas, Dev Tools (LLM + logs)
+- ✅ Design responsivo (clay Companion + slate Admin)
+- ✅ Posicionamento documentado (não substitui clínica / plataforma MM)
 
-O sistema está pronto para uso diário e demonstração comercial, com ~99% das funcionalidades planejadas implementadas (resta a Fase 16 — limpeza e refinamento).
+**Próximos passos externos ao código:** feedback de percepção “enterprise” (16.4) e fechamento/apresentação da proposta comercial (16.6).

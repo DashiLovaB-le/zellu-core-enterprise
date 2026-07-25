@@ -1,54 +1,27 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRouterState } from "@tanstack/react-router";
-import { useRef, useState, useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
-const variants = {
-  forward: {
-    initial: { opacity: 0, x: 15 },
-    animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -15 },
-  },
-  back: {
-    initial: { opacity: 0, x: -15 },
-    animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: 15 },
-  },
-};
-
+/**
+ * Transição leve entre páginas.
+ *
+ * Motivo do micro-travamento anterior:
+ * - AnimatePresence mode="wait" bloqueava a entrada até terminar a saída (~200ms+200ms)
+ * - translateX em páginas pesadas forçava layout/paint a cada frame
+ *
+ * Aqui só fazemos um fade-in curto na página nova (sem esperar exit).
+ */
 export function PageTransition({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const [direction, setDirection] = useState<"forward" | "back">("forward");
-  const prevPathname = useRef(pathname);
-  const isPopState = useRef(false);
-
-  useEffect(() => {
-    const onPopState = () => {
-      isPopState.current = true;
-    };
-    window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
-  }, []);
-
-  useEffect(() => {
-    if (prevPathname.current !== pathname) {
-      setDirection(isPopState.current ? "back" : "forward");
-      isPopState.current = false;
-      prevPathname.current = pathname;
-    }
-  }, [pathname]);
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.div
-        key={pathname}
-        variants={variants[direction]}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        transition={{ duration: 0.2, ease: "easeInOut" }}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      key={pathname}
+      initial={{ opacity: 0.92 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.1, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
   );
 }
