@@ -117,7 +117,7 @@ export function DesktopHabitosPage({
                 <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/70 text-2xl shadow-sm">
                   {m.emoji}
                 </span>
-                <span className="text-sm font-semibold" style={{ color: m.textColor }}>
+                <span className="text-sm font-semibold">
                   {m.name}
                 </span>
               </button>

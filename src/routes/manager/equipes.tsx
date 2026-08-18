@@ -75,7 +75,11 @@ function ManagerEquipes() {
               </div>
               <div>
                 <p className="font-display text-sm text-[var(--clay-title)]">{team.name}</p>
-                <p className="text-xs text-[var(--clay-text)]/60">{team.memberCount} membros</p>
+                <p className="text-xs text-[var(--clay-text)]/60">
+                  {team.metricsHidden
+                    ? `${team.memberCount} membros · métricas ocultas (k-anonimato)`
+                    : `${team.memberCount} membros`}
+                </p>
               </div>
             </div>
             <StatusBadge stress={team.stress} energy={team.energy} sleep={team.sleep} />

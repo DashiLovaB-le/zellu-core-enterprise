@@ -3,6 +3,7 @@ import { ManagerShell } from "@/components/ManagerShell";
 import { AdminShell } from "@/components/AdminShell";
 import { Avatar, AVATAR_LIST } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
+import type { ReactNode } from "react";
 
 interface PerfilPageProps {
   user: { email?: string | null } | null;
@@ -44,6 +45,7 @@ interface PerfilPageProps {
   onToggleTheme: () => void;
   onSignOut: () => void;
   onSwitchMode?: () => void;
+  extraSections?: ReactNode;
 }
 
 export function DesktopPerfilPage({
@@ -86,6 +88,7 @@ export function DesktopPerfilPage({
   onToggleTheme,
   onSignOut,
   onSwitchMode,
+  extraSections,
 }: PerfilPageProps) {
   const Shell =
     role === "admin" ? AdminShell : role === "manager" ? ManagerShell : DesktopShell;
@@ -336,6 +339,8 @@ export function DesktopPerfilPage({
               <span className="text-xs text-[var(--clay-title)]/50">Clique para alternar</span>
             </button>
           </section>
+
+          {extraSections}
 
           <section className="rounded-2xl bg-white/70 p-5 shadow-sm backdrop-blur-md">
             <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">

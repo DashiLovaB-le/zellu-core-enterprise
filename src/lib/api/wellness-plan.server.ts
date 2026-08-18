@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin.server";
 import { logEvent } from "@/lib/api/logs.server";
-import { getUserIdFromAccessToken } from "@/lib/auth-token";
+import { requireCompanionConsent } from "@/lib/require-user";
 
 export interface WellnessPlan {
   id: string;
@@ -63,8 +63,9 @@ export { CHECKLIST_ITEMS };
 export const getWellnessPlan = createServerFn({ method: "GET" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data: { accessToken } }: { data: { accessToken: string } }) => {
-    const userId = getUserIdFromAccessToken(accessToken);
-    if (!userId) return null;
+    const auth = await requireCompanionConsent(accessToken);
+    if ("error" in auth) return null;
+    const userId = auth.userId;
 
     const admin = createAdminClient();
 
@@ -90,8 +91,9 @@ export const saveWellnessPlan = createServerFn({ method: "POST" })
   )
   .handler(
     async ({ data }: { data: { accessToken: string; goal: string; customGoal?: string } }) => {
-      const userId = getUserIdFromAccessToken(data.accessToken);
-      if (!userId) return { error: "Sessão inválida. Faça login novamente." };
+      const auth = await requireCompanionConsent(data.accessToken);
+      if ("error" in auth) return { error: "Sessão inválida. Faça login novamente." };
+      const userId = auth.userId;
 
       try {
         const admin = createAdminClient();
@@ -166,8 +168,9 @@ export const getTodaysChecklist = createServerFn({ method: "GET" })
   .inputValidator(z.object({ accessToken: z.string(), planId: z.string() }))
   .handler(
     async ({ data }: { data: { accessToken: string; planId: string } }) => {
-      const userId = getUserIdFromAccessToken(data.accessToken);
-      if (!userId) return null;
+      const auth = await requireCompanionConsent(data.accessToken);
+      if ("error" in auth) return null;
+      const userId = auth.userId;
 
       const admin = createAdminClient();
       const today = new Date().toISOString().split("T")[0];
@@ -209,8 +212,9 @@ export const updateChecklist = createServerFn({ method: "POST" })
         notes?: string;
       };
     }) => {
-      const userId = getUserIdFromAccessToken(data.accessToken);
-      if (!userId) return null;
+      const auth = await requireCompanionConsent(data.accessToken);
+      if ("error" in auth) return null;
+      const userId = auth.userId;
 
       const admin = createAdminClient();
       const today = new Date().toISOString().split("T")[0];
@@ -242,8 +246,9 @@ export const getPlanProgress = createServerFn({ method: "GET" })
   .inputValidator(z.object({ accessToken: z.string(), planId: z.string() }))
   .handler(
     async ({ data }: { data: { accessToken: string; planId: string } }) => {
-      const userId = getUserIdFromAccessToken(data.accessToken);
-      if (!userId) return null;
+      const auth = await requireCompanionConsent(data.accessToken);
+      if ("error" in auth) return null;
+      const userId = auth.userId;
 
       const admin = createAdminClient();
 

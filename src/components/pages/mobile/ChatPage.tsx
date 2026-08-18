@@ -5,6 +5,8 @@ import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
 import type { Msg } from "@/data";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
+import { MAIN_MOODS, EXTRA_MOODS } from "@/data/moods";
+import { CrisisHelp } from "@/components/CrisisHelp";
 
 interface ChatPageProps {
   messages: Msg[];
@@ -18,37 +20,6 @@ interface ChatPageProps {
   preventiveAlert?: PreventiveAlert;
   onSuggestionClick?: (suggestion: string) => void;
 }
-
-const MAIN_MOODS = [
-  { emoji: "😊", label: "Feliz", value: "feliz" },
-  { emoji: "😌", label: "Calmo", value: "calmo" },
-  { emoji: "😐", label: "Neutro", value: "neutro" },
-  { emoji: "😟", label: "Ansioso", value: "ansioso" },
-  { emoji: "😢", label: "Triste", value: "triste" },
-  { emoji: "😤", label: "Irritado", value: "irritado" },
-];
-
-const EXTRA_MOODS = [
-  { emoji: "🥳", label: "Animado", value: "animado" },
-  { emoji: "😃", label: "Contente", value: "contente" },
-  { emoji: "🤗", label: "Grato", value: "grato" },
-  { emoji: "🧘", label: "Sereno", value: "sereno" },
-  { emoji: "💪", label: "Motivado", value: "motivado" },
-  { emoji: "🎯", label: "Focado", value: "focado" },
-  { emoji: "🙏", label: "Esperançoso", value: "esperancoso" },
-  { emoji: "🤩", label: "Entusiasmado", value: "entusiasmado" },
-  { emoji: "☺️", label: "Orgulhoso", value: "orgulhoso" },
-  { emoji: "🤔", label: "Pensativo", value: "pensativo" },
-  { emoji: "🫤", label: "Confuso", value: "confuso" },
-  { emoji: "😴", label: "Cansado", value: "cansado" },
-  { emoji: "🫂", label: "Acolhido", value: "acolhido" },
-  { emoji: "😰", label: "Preocupado", value: "preocupado" },
-  { emoji: "😥", label: "Inseguro", value: "inseguro" },
-  { emoji: "😞", label: "Desanimado", value: "desanimado" },
-  { emoji: "😡", label: "Bravo", value: "bravo" },
-  { emoji: "🤯", label: "Sobrecarregado", value: "sobrecarregado" },
-  { emoji: "🥺", label: "Precisa de apoio", value: "carente" },
-];
 
 export function MobileChatPage({
   messages,
@@ -206,6 +177,9 @@ export function MobileChatPage({
             </svg>
           </button>
         </form>
+        <div className="mt-3">
+          <CrisisHelp />
+        </div>
       </div>
     </MobileShell>
   );

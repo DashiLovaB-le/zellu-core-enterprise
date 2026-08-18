@@ -1,7 +1,6 @@
 import type { Msg } from "@/data";
 import { getMessages as fetchMessages } from "@/lib/api/chat.server";
 import { sendChatMessage, getContextualGreeting } from "@/lib/api/chat-ai.server";
-import { getUserIdFromAccessToken } from "@/lib/auth-token";
 
 export type ChatRole = "user" | "assistant";
 
@@ -59,9 +58,8 @@ export async function loadGreeting(accessToken: string, context: ChatContext): P
   // Obs: funciona apenas no browser.
   try {
     if (typeof window !== "undefined") {
-      const userId = getUserIdFromAccessToken(accessToken);
       const dateKey = new Date().toISOString().split("T")[0];
-      const cacheKey = userId ? `zellu_chat_greeting:${userId}:${dateKey}` : `zellu_chat_greeting:anon:${dateKey}`;
+      const cacheKey = `mmc_greeting:${dateKey}`;
       const cached = window.localStorage.getItem(cacheKey);
       if (cached === "Bom dia" || cached === "Boa tarde" || cached === "Boa noite") return cached;
 

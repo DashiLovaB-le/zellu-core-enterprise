@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { MobileDashboardEmocionalPage } from "@/components/pages/mobile/DashboardEmocionalPage";
 import { DesktopDashboardEmocionalPage } from "@/components/pages/desktop/DashboardEmocionalPage";
+import { ResponsivePages } from "@/components/pages/ResponsivePages";
+import { CheckinReminderBanner } from "@/components/CheckinReminderBanner";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
 import { Icon } from "@/components/Icon";
@@ -12,6 +14,7 @@ import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import { loadStreak } from "@/lib/services/streak-service";
 import type { StreakData } from "@/lib/api/streak-system.server";
 import { MilestoneBanner } from "@/components/MilestoneBanner";
+import { hasCheckinToday } from "@/lib/api/reminders.server";
 import { BRANDING } from "@/lib/branding";
 
 export const Route = createFileRoute("/")({
@@ -35,6 +38,7 @@ function IndexPage() {
   });
   const [streak, setStreak] = useState<StreakData | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [checkinDone, setCheckinDone] = useState(true);
 
   const navigate = useNavigate();
   const accessToken = session?.access_token ?? null;
@@ -60,12 +64,14 @@ function IndexPage() {
   useEffect(() => {
     if (!accessToken || loaded) return;
     (async () => {
-      const [result, alertResult, streakResult] = await Promise.all([
+      const [result, alertResult, streakResult, checkinToday] = await Promise.all([
         loadDashboard(accessToken),
         loadPreventiveAlert(accessToken),
         loadStreak(accessToken),
+        hasCheckinToday({ data: { accessToken } }),
       ]);
       if (streakResult) setStreak(streakResult);
+      setCheckinDone(!!checkinToday.done);
       setData(result);
       setPreventiveAlert(alertResult);
       setLoaded(true);
@@ -123,6 +129,9 @@ function IndexPage() {
 
   return (
     <>
+      <div className="mx-auto max-w-[440px] px-5 pt-4 md:max-w-none md:px-6">
+        <CheckinReminderBanner done={checkinDone} />
+      </div>
       {streak && (
         <div className="mx-auto max-w-[440px] px-5 pt-4 md:max-w-none md:px-6">
           <MilestoneBanner
@@ -132,22 +141,24 @@ function IndexPage() {
           />
         </div>
       )}
-      <div className="block md:hidden">
-        <MobileDashboardEmocionalPage
-          data={data}
-          aiAnxietyInsight={aiAnxietyInsight}
-          preventiveAlert={preventiveAlert}
-          onSuggestionClick={handlePreventiveSuggestion}
-        />
-      </div>
-      <div className="hidden md:block">
-        <DesktopDashboardEmocionalPage
-          data={data}
-          aiAnxietyInsight={aiAnxietyInsight}
-          preventiveAlert={preventiveAlert}
-          onSuggestionClick={handlePreventiveSuggestion}
-        />
-      </div>
+      <ResponsivePages
+        mobile={
+          <MobileDashboardEmocionalPage
+            data={data}
+            aiAnxietyInsight={aiAnxietyInsight}
+            preventiveAlert={preventiveAlert}
+            onSuggestionClick={handlePreventiveSuggestion}
+          />
+        }
+        desktop={
+          <DesktopDashboardEmocionalPage
+            data={data}
+            aiAnxietyInsight={aiAnxietyInsight}
+            preventiveAlert={preventiveAlert}
+            onSuggestionClick={handlePreventiveSuggestion}
+          />
+        }
+      />
     </>
   );
 }

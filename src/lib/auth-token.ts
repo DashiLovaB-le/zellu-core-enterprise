@@ -1,6 +1,5 @@
 /**
- * Decodifica o JWT localmente para obter o user id sem roundtrip ao Auth API.
- * O token continua sendo validado pelo Postgres/RLS nas queries.
+ * Só para chaves de cache no cliente. Autorização de API usa requireUser (getUser).
  */
 export function getUserIdFromAccessToken(accessToken: string): string | null {
   const payload = decodeJwtPayload(accessToken);

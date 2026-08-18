@@ -1,28 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin.server";
-import { getUserIdFromAccessToken } from "@/lib/auth-token";
-
-async function requireAdminRole(
-  accessToken: string,
-): Promise<{ userId: string } | { error: string }> {
-  const userId = getUserIdFromAccessToken(accessToken);
-  if (!userId) return { error: "Unauthorized" };
-
-  const supabase = await createClient(accessToken);
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (profile?.role !== "admin" && profile?.role !== "dev") {
-    return { error: "Unauthorized" };
-  }
-
-  return { userId };
-}
+import { requireAdmin as requireAdminRole } from "@/lib/require-user";
+import { getMoodScore, isNegativeMood, MAIN_MOOD_ORDER } from "@/data/moods";
+import { K_ANONYMITY_MIN } from "@/lib/tenant";
 
 function slugify(text: string): string {
   return text
@@ -34,24 +15,7 @@ function slugify(text: string): string {
     .slice(0, 60);
 }
 
-function moodScore(mood: string): number {
-  const scores: Record<string, number> = {
-    bem: 5,
-    calmo: 4,
-    energico: 4,
-    neutro: 3,
-    ansioso: 2,
-    triste: 2,
-    irritado: 1,
-  };
-  return scores[mood?.toLowerCase()] ?? 3;
-}
-
-function isNegativeMood(mood: string): boolean {
-  return ["ansioso", "triste", "irritado"].includes(mood?.toLowerCase());
-}
-
-const MOOD_ORDER = ["bem", "calmo", "energico", "neutro", "ansioso", "triste", "irritado"];
+const MOOD_ORDER = MAIN_MOOD_ORDER;
 
 // ─── Types ───
 
@@ -220,7 +184,7 @@ export const getAdminKpis = createServerFn({ method: "POST" })
     const avgMood =
       checkins.length > 0
         ? Math.round(
-            (checkins.reduce((s, c) => s + moodScore(c.mood), 0) / checkins.length) * 10,
+            (checkins.reduce((s, c) => s + getMoodScore(c.mood), 0) / checkins.length) * 10,
           ) / 10
         : 0;
     const negativeMoodPct =
@@ -738,7 +702,7 @@ export const getSentimentData = createServerFn({ method: "POST" })
     const avgMoodScore =
       checkins.length > 0
         ? Math.round(
-            (checkins.reduce((s, c) => s + moodScore(c.mood), 0) / checkins.length) * 10,
+            (checkins.reduce((s, c) => s + getMoodScore(c.mood), 0) / checkins.length) * 10,
           ) / 10
         : 0;
     const negativePct =
@@ -753,18 +717,28 @@ export const getSentimentData = createServerFn({ method: "POST" })
     );
     const companyMap = Object.fromEntries(companies.map((c) => [c.id, c.name]));
 
-    const byCompanyBuckets: Record<string, Array<{ mood: string }>> = {};
+    const byCompanyBuckets: Record<string, Array<{ mood: string; user_id: string }>> = {};
     for (const c of checkins) {
       const companyId = profileCompany[c.user_id];
       if (!companyId) continue;
       if (!byCompanyBuckets[companyId]) byCompanyBuckets[companyId] = [];
-      byCompanyBuckets[companyId].push(c);
+      byCompanyBuckets[companyId].push({ mood: c.mood, user_id: c.user_id });
     }
 
     const byCompany = Object.entries(byCompanyBuckets).map(([companyId, entries]) => {
+      const uniqueUsers = new Set(entries.map((e) => e.user_id)).size;
+      if (uniqueUsers < K_ANONYMITY_MIN) {
+        return {
+          companyId,
+          companyName: companyMap[companyId] ?? "—",
+          avgMood: 0,
+          negativePct: 0,
+          sampleSize: 0,
+        };
+      }
       const avgMood =
         Math.round(
-          (entries.reduce((s, e) => s + moodScore(e.mood), 0) / entries.length) * 10,
+          (entries.reduce((s, e) => s + getMoodScore(e.mood), 0) / entries.length) * 10,
         ) / 10;
       const neg = Math.round(
         (entries.filter((e) => isNegativeMood(e.mood)).length / entries.length) * 100,
@@ -791,7 +765,7 @@ export const getSentimentData = createServerFn({ method: "POST" })
         date,
         avgMood:
           Math.round(
-            (entries.reduce((s, e) => s + moodScore(e.mood), 0) / entries.length) * 10,
+            (entries.reduce((s, e) => s + getMoodScore(e.mood), 0) / entries.length) * 10,
           ) / 10,
         negativePct: Math.round(
           (entries.filter((e) => isNegativeMood(e.mood)).length / entries.length) * 100,
@@ -1117,7 +1091,7 @@ export const exportAdminPdf = createServerFn({ method: "POST" })
     const avgMood =
       checkins.length > 0
         ? (
-            checkins.reduce((s, c) => s + moodScore(c.mood), 0) / checkins.length
+            checkins.reduce((s, c) => s + getMoodScore(c.mood), 0) / checkins.length
           ).toFixed(1)
         : "0";
     const negPct =

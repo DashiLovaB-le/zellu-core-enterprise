@@ -619,6 +619,7 @@ function LlmFailuresSection({ user, session }: { user: import("@supabase/supabas
       );
       setLogs(llmLogs);
     } catch {
+      // Falha de fetch não deve derrubar o painel de logs.
     } finally {
       setLoading(false);
     }

@@ -4,7 +4,7 @@ import { ManagerShell } from "@/components/ManagerShell";
 import { Icon } from "@/components/Icon";
 import { useAuth } from "@/lib/auth-context";
 import { BRANDING } from "@/lib/branding";
-import { loadCheckinStats, downloadCsv } from "@/lib/services/manager-service";
+import { downloadCsv } from "@/lib/services/manager-service";
 
 export const Route = createFileRoute("/manager/relatorios")({
   head: () => ({

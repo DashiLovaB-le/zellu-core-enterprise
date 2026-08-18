@@ -10,8 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RespiroRouteImport } from './routes/respiro'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PlanoDeCuidadoRouteImport } from './routes/plano-de-cuidado'
 import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MeuBemEstarRouteImport } from './routes/meu-bem-estar'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HabitosRouteImport } from './routes/habitos'
@@ -19,6 +21,7 @@ import { Route as DiarioRouteImport } from './routes/diario'
 import { Route as DashboardEmocionalRouteImport } from './routes/dashboard-emocional'
 import { Route as CheckinRouteImport } from './routes/checkin'
 import { Route as ChatRouteImport } from './routes/chat'
+import { Route as AceitarConviteRouteImport } from './routes/aceitar-convite'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ManagerIndexRouteImport } from './routes/manager/index'
 import { Route as DashitecnologyIndexRouteImport } from './routes/dashitecnology/index'
@@ -26,6 +29,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ManagerRhDashboardRouteImport } from './routes/manager/rh-dashboard'
 import { Route as ManagerRelatoriosRouteImport } from './routes/manager/relatorios'
 import { Route as ManagerEquipesRouteImport } from './routes/manager/equipes'
+import { Route as ManagerConvitesRouteImport } from './routes/manager/convites'
 import { Route as DashitecnologyPainelDevRouteImport } from './routes/dashitecnology/$painelDev'
 import { Route as AdminSentimentosRouteImport } from './routes/admin/sentimentos'
 import { Route as AdminRelatoriosRouteImport } from './routes/admin/relatorios'
@@ -40,6 +44,11 @@ const RespiroRoute = RespiroRouteImport.update({
   path: '/respiro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlanoDeCuidadoRoute = PlanoDeCuidadoRouteImport.update({
   id: '/plano-de-cuidado',
   path: '/plano-de-cuidado',
@@ -48,6 +57,11 @@ const PlanoDeCuidadoRoute = PlanoDeCuidadoRouteImport.update({
 const PerfilRoute = PerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MeuBemEstarRoute = MeuBemEstarRouteImport.update({
@@ -85,6 +99,11 @@ const ChatRoute = ChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AceitarConviteRoute = AceitarConviteRouteImport.update({
+  id: '/aceitar-convite',
+  path: '/aceitar-convite',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -118,6 +137,11 @@ const ManagerRelatoriosRoute = ManagerRelatoriosRouteImport.update({
 const ManagerEquipesRoute = ManagerEquipesRouteImport.update({
   id: '/manager/equipes',
   path: '/manager/equipes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerConvitesRoute = ManagerConvitesRouteImport.update({
+  id: '/manager/convites',
+  path: '/manager/convites',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashitecnologyPainelDevRoute = DashitecnologyPainelDevRouteImport.update({
@@ -163,6 +187,7 @@ const AdminAlertasRoute = AdminAlertasRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aceitar-convite': typeof AceitarConviteRoute
   '/chat': typeof ChatRoute
   '/checkin': typeof CheckinRoute
   '/dashboard-emocional': typeof DashboardEmocionalRoute
@@ -170,8 +195,10 @@ export interface FileRoutesByFullPath {
   '/habitos': typeof HabitosRoute
   '/login': typeof LoginRoute
   '/meu-bem-estar': typeof MeuBemEstarRoute
+  '/onboarding': typeof OnboardingRoute
   '/perfil': typeof PerfilRoute
   '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/respiro': typeof RespiroRoute
   '/admin/alertas': typeof AdminAlertasRoute
   '/admin/empresas': typeof AdminEmpresasRoute
@@ -181,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/admin/relatorios': typeof AdminRelatoriosRoute
   '/admin/sentimentos': typeof AdminSentimentosRoute
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
+  '/manager/convites': typeof ManagerConvitesRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
@@ -190,6 +218,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aceitar-convite': typeof AceitarConviteRoute
   '/chat': typeof ChatRoute
   '/checkin': typeof CheckinRoute
   '/dashboard-emocional': typeof DashboardEmocionalRoute
@@ -197,8 +226,10 @@ export interface FileRoutesByTo {
   '/habitos': typeof HabitosRoute
   '/login': typeof LoginRoute
   '/meu-bem-estar': typeof MeuBemEstarRoute
+  '/onboarding': typeof OnboardingRoute
   '/perfil': typeof PerfilRoute
   '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/respiro': typeof RespiroRoute
   '/admin/alertas': typeof AdminAlertasRoute
   '/admin/empresas': typeof AdminEmpresasRoute
@@ -208,6 +239,7 @@ export interface FileRoutesByTo {
   '/admin/relatorios': typeof AdminRelatoriosRoute
   '/admin/sentimentos': typeof AdminSentimentosRoute
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
+  '/manager/convites': typeof ManagerConvitesRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
@@ -218,6 +250,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/aceitar-convite': typeof AceitarConviteRoute
   '/chat': typeof ChatRoute
   '/checkin': typeof CheckinRoute
   '/dashboard-emocional': typeof DashboardEmocionalRoute
@@ -225,8 +258,10 @@ export interface FileRoutesById {
   '/habitos': typeof HabitosRoute
   '/login': typeof LoginRoute
   '/meu-bem-estar': typeof MeuBemEstarRoute
+  '/onboarding': typeof OnboardingRoute
   '/perfil': typeof PerfilRoute
   '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/respiro': typeof RespiroRoute
   '/admin/alertas': typeof AdminAlertasRoute
   '/admin/empresas': typeof AdminEmpresasRoute
@@ -236,6 +271,7 @@ export interface FileRoutesById {
   '/admin/relatorios': typeof AdminRelatoriosRoute
   '/admin/sentimentos': typeof AdminSentimentosRoute
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
+  '/manager/convites': typeof ManagerConvitesRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
@@ -247,6 +283,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/aceitar-convite'
     | '/chat'
     | '/checkin'
     | '/dashboard-emocional'
@@ -254,8 +291,10 @@ export interface FileRouteTypes {
     | '/habitos'
     | '/login'
     | '/meu-bem-estar'
+    | '/onboarding'
     | '/perfil'
     | '/plano-de-cuidado'
+    | '/privacidade'
     | '/respiro'
     | '/admin/alertas'
     | '/admin/empresas'
@@ -265,6 +304,7 @@ export interface FileRouteTypes {
     | '/admin/relatorios'
     | '/admin/sentimentos'
     | '/dashitecnology/$painelDev'
+    | '/manager/convites'
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
@@ -274,6 +314,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/aceitar-convite'
     | '/chat'
     | '/checkin'
     | '/dashboard-emocional'
@@ -281,8 +322,10 @@ export interface FileRouteTypes {
     | '/habitos'
     | '/login'
     | '/meu-bem-estar'
+    | '/onboarding'
     | '/perfil'
     | '/plano-de-cuidado'
+    | '/privacidade'
     | '/respiro'
     | '/admin/alertas'
     | '/admin/empresas'
@@ -292,6 +335,7 @@ export interface FileRouteTypes {
     | '/admin/relatorios'
     | '/admin/sentimentos'
     | '/dashitecnology/$painelDev'
+    | '/manager/convites'
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
@@ -301,6 +345,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/aceitar-convite'
     | '/chat'
     | '/checkin'
     | '/dashboard-emocional'
@@ -308,8 +353,10 @@ export interface FileRouteTypes {
     | '/habitos'
     | '/login'
     | '/meu-bem-estar'
+    | '/onboarding'
     | '/perfil'
     | '/plano-de-cuidado'
+    | '/privacidade'
     | '/respiro'
     | '/admin/alertas'
     | '/admin/empresas'
@@ -319,6 +366,7 @@ export interface FileRouteTypes {
     | '/admin/relatorios'
     | '/admin/sentimentos'
     | '/dashitecnology/$painelDev'
+    | '/manager/convites'
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
@@ -329,6 +377,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AceitarConviteRoute: typeof AceitarConviteRoute
   ChatRoute: typeof ChatRoute
   CheckinRoute: typeof CheckinRoute
   DashboardEmocionalRoute: typeof DashboardEmocionalRoute
@@ -336,8 +385,10 @@ export interface RootRouteChildren {
   HabitosRoute: typeof HabitosRoute
   LoginRoute: typeof LoginRoute
   MeuBemEstarRoute: typeof MeuBemEstarRoute
+  OnboardingRoute: typeof OnboardingRoute
   PerfilRoute: typeof PerfilRoute
   PlanoDeCuidadoRoute: typeof PlanoDeCuidadoRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
   RespiroRoute: typeof RespiroRoute
   AdminAlertasRoute: typeof AdminAlertasRoute
   AdminEmpresasRoute: typeof AdminEmpresasRoute
@@ -347,6 +398,7 @@ export interface RootRouteChildren {
   AdminRelatoriosRoute: typeof AdminRelatoriosRoute
   AdminSentimentosRoute: typeof AdminSentimentosRoute
   DashitecnologyPainelDevRoute: typeof DashitecnologyPainelDevRoute
+  ManagerConvitesRoute: typeof ManagerConvitesRoute
   ManagerEquipesRoute: typeof ManagerEquipesRoute
   ManagerRelatoriosRoute: typeof ManagerRelatoriosRoute
   ManagerRhDashboardRoute: typeof ManagerRhDashboardRoute
@@ -364,6 +416,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RespiroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/plano-de-cuidado': {
       id: '/plano-de-cuidado'
       path: '/plano-de-cuidado'
@@ -376,6 +435,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/meu-bem-estar': {
@@ -427,6 +493,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aceitar-convite': {
+      id: '/aceitar-convite'
+      path: '/aceitar-convite'
+      fullPath: '/aceitar-convite'
+      preLoaderRoute: typeof AceitarConviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -474,6 +547,13 @@ declare module '@tanstack/react-router' {
       path: '/manager/equipes'
       fullPath: '/manager/equipes'
       preLoaderRoute: typeof ManagerEquipesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/convites': {
+      id: '/manager/convites'
+      path: '/manager/convites'
+      fullPath: '/manager/convites'
+      preLoaderRoute: typeof ManagerConvitesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashitecnology/$painelDev': {
@@ -537,6 +617,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AceitarConviteRoute: AceitarConviteRoute,
   ChatRoute: ChatRoute,
   CheckinRoute: CheckinRoute,
   DashboardEmocionalRoute: DashboardEmocionalRoute,
@@ -544,8 +625,10 @@ const rootRouteChildren: RootRouteChildren = {
   HabitosRoute: HabitosRoute,
   LoginRoute: LoginRoute,
   MeuBemEstarRoute: MeuBemEstarRoute,
+  OnboardingRoute: OnboardingRoute,
   PerfilRoute: PerfilRoute,
   PlanoDeCuidadoRoute: PlanoDeCuidadoRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
   RespiroRoute: RespiroRoute,
   AdminAlertasRoute: AdminAlertasRoute,
   AdminEmpresasRoute: AdminEmpresasRoute,
@@ -555,6 +638,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRelatoriosRoute: AdminRelatoriosRoute,
   AdminSentimentosRoute: AdminSentimentosRoute,
   DashitecnologyPainelDevRoute: DashitecnologyPainelDevRoute,
+  ManagerConvitesRoute: ManagerConvitesRoute,
   ManagerEquipesRoute: ManagerEquipesRoute,
   ManagerRelatoriosRoute: ManagerRelatoriosRoute,
   ManagerRhDashboardRoute: ManagerRhDashboardRoute,

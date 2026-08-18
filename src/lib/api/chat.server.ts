@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
-import { getUserIdFromAccessToken } from "@/lib/auth-token";
+import { requireCompanionConsent } from "@/lib/require-user";
 
 export type Message = { id: string; from: "ai" | "user"; text: string; created_at: string };
 
@@ -28,10 +27,9 @@ function checkRateLimit(userId: string): boolean {
 export const getMessages = createServerFn({ method: "GET" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const userId = getUserIdFromAccessToken(data.accessToken);
-    if (!userId) return [];
-
-    const supabase = await createClient(data.accessToken);
+    const auth = await requireCompanionConsent(data.accessToken);
+    if ("error" in auth) return [];
+    const { userId, supabase } = auth;
 
     const { data: messages } = await supabase
       .from("chat_messages")
@@ -52,14 +50,13 @@ export const sendMessage = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }: { data: { accessToken: string; text: string } }) => {
-    const userId = getUserIdFromAccessToken(data.accessToken);
-    if (!userId) return null;
+    const auth = await requireCompanionConsent(data.accessToken);
+    if ("error" in auth) return null;
+    const { userId, supabase } = auth;
 
     if (!checkRateLimit(userId)) {
       return null;
     }
-
-    const supabase = await createClient(data.accessToken);
 
     const { data: msg } = await supabase
       .from("chat_messages")

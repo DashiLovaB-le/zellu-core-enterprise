@@ -200,3 +200,9 @@
 ---
 
 > **Meta final:** O Mundo Mental Care deixa de parecer "um app bonito de saúde mental" e passa a parecer um **ativo estratégico** que amplia o valor da oferta da Mundo Mental para seus próprios clientes.
+
+---
+
+## Próximo trabalho (produção)
+
+Fases 0–16 entregam o produto visual e os modos companion/manager/admin. O que falta para piloto real está em **`todo/TODO-PRIORIDADES-PRODUCAO.md`** (isolamento por empresa, convites, auth, crise/LGPD). O motor de ML (`todo/ROADMAP-MOTOR-INTELIGENCIA-EMOCIONAL.md`) permanece bloqueado até os Blocos 1–2 desse TODO.

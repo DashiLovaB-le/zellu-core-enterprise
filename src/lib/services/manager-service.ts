@@ -4,7 +4,7 @@ import type { DashboardData } from "@/lib/api/manager.server";
 export async function loadDashboard(accessToken: string): Promise<DashboardData | null> {
   try {
     const result = await getManagerDashboard({ data: { accessToken } });
-    if (result.data) return result.data as DashboardData;
+    if ("data" in result && result.data) return result.data as DashboardData;
   } catch {
     // fallback
   }
@@ -14,7 +14,7 @@ export async function loadDashboard(accessToken: string): Promise<DashboardData 
 export async function loadCheckinStats(accessToken: string, periodDays: number = 30) {
   try {
     const result = await getCheckinStats({ data: { accessToken, periodDays } });
-    return result.data ?? [];
+    return "data" in result ? (result.data ?? []) : [];
   } catch {
     return [];
   }

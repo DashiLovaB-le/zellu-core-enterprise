@@ -28,7 +28,11 @@ export async function saveEntry(
   data: { content: string; mood?: string },
 ): Promise<{ data: DiaryEntry | null; error: string | null }> {
   try {
-    return await apiSaveEntry({ data: { accessToken, ...data } });
+    const result = await apiSaveEntry({ data: { accessToken, ...data } });
+    if (!("data" in result)) {
+      return { data: null, error: result.error };
+    }
+    return { data: result.data ?? null, error: result.error ?? null };
   } catch {
     return { data: null, error: "Erro ao salvar entrada" };
   }

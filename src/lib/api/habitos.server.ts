@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
-import { getUserIdFromAccessToken } from "@/lib/auth-token";
+import { requireCompanionConsent } from "@/lib/require-user";
 
 export type HabitsData = {
   id: string;
@@ -19,10 +18,9 @@ export type HabitsData = {
 export const getHabits = createServerFn({ method: "GET" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const userId = getUserIdFromAccessToken(data.accessToken);
-    if (!userId) return null;
-
-    const supabase = await createClient(data.accessToken);
+    const auth = await requireCompanionConsent(data.accessToken);
+    if ("error" in auth) return null;
+    const { userId, supabase } = auth;
     const today = new Date().toISOString().split("T")[0];
 
     const { data: habits } = await supabase
@@ -61,10 +59,9 @@ export const updateHabits = createServerFn({ method: "POST" })
         meals?: string[];
       };
     }) => {
-      const userId = getUserIdFromAccessToken(data.accessToken);
-      if (!userId) return null;
-
-      const supabase = await createClient(data.accessToken);
+      const auth = await requireCompanionConsent(data.accessToken);
+      if ("error" in auth) return null;
+      const { userId, supabase } = auth;
       const today = new Date().toISOString().split("T")[0];
 
       const payload: Record<string, unknown> = { user_id: userId, date: today };

@@ -4,8 +4,8 @@
 >
 > Base atual (já entregue nas Fases 4–14): chat LLM, check-ins, hábitos, timeline, dashboard emocional, insights por LLM, preventiva por regras heurísticas, plano de cuidado, dashboard RH agregado.
 >
-> Status: **Planejado — não iniciado**
-> Última atualização: 2026-07-25
+> Status: **Planejado — bloqueado** até os Blocos 1–2 de `todo/TODO-PRIORIDADES-PRODUCAO.md` (isolamento por empresa + auth).
+> Última atualização: 2026-08-17
 
 ---
 

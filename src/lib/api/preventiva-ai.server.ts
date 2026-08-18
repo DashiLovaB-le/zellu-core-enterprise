@@ -1,17 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
 import { logEvent } from "@/lib/api/logs.server";
-import { getUserIdFromAccessToken } from "@/lib/auth-token";
-
-const MOOD_SCORE: Record<string, number> = {
-  irritado: 1,
-  triste: 2,
-  ansioso: 3,
-  neutro: 4,
-  calmo: 5,
-  feliz: 6,
-};
+import { requireCompanionConsent } from "@/lib/require-user";
+import { getMoodScore } from "@/data/moods";
+import { getTimeOfDay } from "@/lib/timezone";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface PreventiveAlert {
   type: "burnout-risk" | "sleep-crisis" | "mood-crisis" | "disengagement" | "hydration" | "energy" | "movement" | "none";
@@ -30,6 +23,7 @@ export interface PreventiveAlert {
   };
 }
 
+/** Cache em memória: válido só nesta instância do servidor (não compartilhado entre replicas). */
 const DETECT_CACHE_TTL_MS = 30 * 60 * 1000;
 const detectCache = new Map<string, { alert: PreventiveAlert; expiresAt: number }>();
 
@@ -53,25 +47,13 @@ export interface PreventiveNotification {
   severity: string;
   message: string;
   suggestion: string;
-  details: Record<string, unknown>;
+  details: Record<string, string | number | boolean | null>;
   dismissed: boolean;
   created_at: string;
 }
 
 function dateKey(d: Date): string {
   return d.toISOString().split("T")[0];
-}
-
-function getMoodScore(mood: string | null): number {
-  if (!mood) return 0;
-  return MOOD_SCORE[mood] ?? 0;
-}
-
-function getTimeOfDay(): "manha" | "tarde" | "noite" {
-  const hour = new Date().getHours();
-  if (hour < 12) return "manha";
-  if (hour < 18) return "tarde";
-  return "noite";
 }
 
 function calculateStreak(days: Map<string, { mood: string | null; sleepHours: number }>): number {
@@ -126,13 +108,11 @@ function detectCorrelation(
 export const detectPatterns = createServerFn({ method: "POST" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const userId = getUserIdFromAccessToken(data.accessToken);
-    if (!userId) return buildEmptyAlert();
-
+    const auth = await requireCompanionConsent(data.accessToken);
+    if ("error" in auth) return buildEmptyAlert();
+    const { userId, supabase, profile } = auth;
     const cached = getCachedAlert(userId);
     if (cached) return cached;
-
-    const supabase = await createClient(data.accessToken);
 
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
@@ -302,7 +282,7 @@ export const detectPatterns = createServerFn({ method: "POST" })
 
     const streakDays = calculateStreak(dayData);
     const correlation = detectCorrelation(dayData);
-    const timeOfDay = getTimeOfDay();
+    const timeOfDay = getTimeOfDay(profile?.timezone ?? "America/Sao_Paulo");
 
     const sleepDrop = sleepChange <= -1;
     const mildSleepDrop = sleepChange <= -0.5 && sleepChange > -1;
@@ -577,7 +557,7 @@ function getSuggestions(
 }
 
 async function saveNotification(
-  supabaseClient: Awaited<ReturnType<typeof createClient>>,
+  supabaseClient: SupabaseClient,
   userId: string,
   alert: PreventiveAlert,
 ): Promise<void> {
@@ -612,10 +592,9 @@ async function saveNotification(
 export const getNotificationHistory = createServerFn({ method: "POST" })
   .inputValidator(z.object({ accessToken: z.string(), limit: z.number().optional().default(20) }))
   .handler(async ({ data }: { data: { accessToken: string; limit: number } }) => {
-    const userId = getUserIdFromAccessToken(data.accessToken);
-    if (!userId) return [];
-
-    const supabase = await createClient(data.accessToken);
+    const auth = await requireCompanionConsent(data.accessToken);
+    if ("error" in auth) return [];
+    const { userId, supabase } = auth;
 
     const { data: notifications } = await supabase
       .from("preventive_notifications")
@@ -630,10 +609,9 @@ export const getNotificationHistory = createServerFn({ method: "POST" })
 export const dismissNotification = createServerFn({ method: "POST" })
   .inputValidator(z.object({ accessToken: z.string(), notificationId: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string; notificationId: string } }) => {
-    const userId = getUserIdFromAccessToken(data.accessToken);
-    if (!userId) return { success: false };
-
-    const supabase = await createClient(data.accessToken);
+    const auth = await requireCompanionConsent(data.accessToken);
+    if ("error" in auth) return { success: false };
+    const { userId, supabase } = auth;
 
     await supabase
       .from("preventive_notifications")
@@ -647,10 +625,9 @@ export const dismissNotification = createServerFn({ method: "POST" })
 export const getUnreadNotificationCount = createServerFn({ method: "POST" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const userId = getUserIdFromAccessToken(data.accessToken);
-    if (!userId) return { count: 0 };
-
-    const supabase = await createClient(data.accessToken);
+    const auth = await requireCompanionConsent(data.accessToken);
+    if ("error" in auth) return { count: 0 };
+    const { userId, supabase } = auth;
 
     const { count } = await supabase
       .from("preventive_notifications")

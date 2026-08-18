@@ -16,6 +16,7 @@ const NAV: NavItem[] = [
   { to: "/manager/rh-dashboard", icon: "dashboard", label: "Dashboard RH" },
   { to: "/manager/equipes", icon: "groups", label: "Equipes" },
   { to: "/manager/relatorios", icon: "bar_chart", label: "Relatórios" },
+  { to: "/manager/convites", icon: "person_add", label: "Pessoas" },
   { to: "/perfil", icon: "person", label: "Perfil" },
 ];
 

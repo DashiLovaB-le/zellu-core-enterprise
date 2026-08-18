@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
-import { getUserIdFromAccessToken } from "@/lib/auth-token";
+import { requireCompanionConsent } from "@/lib/require-user";
 
 export type StreakData = {
   currentStreak: number;
@@ -22,10 +21,9 @@ function toDateStr(d: Date): string {
 export const getWellnessStreak = createServerFn({ method: "GET" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data: { accessToken } }: { data: { accessToken: string } }) => {
-    const userId = getUserIdFromAccessToken(accessToken);
-    if (!userId) return null;
-
-    const supabase = await createClient(accessToken);
+    const auth = await requireCompanionConsent(accessToken);
+    if ("error" in auth) return null;
+    const { userId, supabase } = auth;
 
     const since = new Date();
     since.setDate(since.getDate() - STREAK_LOOKBACK_DAYS);

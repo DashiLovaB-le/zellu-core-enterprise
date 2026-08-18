@@ -42,7 +42,19 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      const normalized = await normalizeCatastrophicSsrResponse(response);
+      try {
+        normalized.headers.set("X-Content-Type-Options", "nosniff");
+        normalized.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+        normalized.headers.set("X-Frame-Options", "DENY");
+        normalized.headers.set(
+          "Permissions-Policy",
+          "camera=(), microphone=(), geolocation=()",
+        );
+      } catch {
+        // alguns runtimes entregam Headers imutáveis
+      }
+      return normalized;
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {

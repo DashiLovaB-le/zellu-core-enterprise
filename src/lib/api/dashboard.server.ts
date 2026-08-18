@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
-import { getUserIdFromAccessToken } from "@/lib/auth-token";
+import { requireCompanionConsent } from "@/lib/require-user";
+import { getMoodScore } from "@/data/moods";
 
 export interface WeekComparison {
   sleepAvg: number;
@@ -37,15 +37,6 @@ export interface DashboardData {
   daysTracked: number;
 }
 
-const MOOD_SCORE: Record<string, number> = {
-  irritado: 1,
-  triste: 2,
-  ansioso: 3,
-  neutro: 4,
-  calmo: 5,
-  feliz: 6,
-};
-
 function dateKey(d: Date): string {
   return d.toISOString().split("T")[0];
 }
@@ -67,11 +58,6 @@ function formatWeekLabel(monday: Date): string {
   return `${start} - ${endStr}`;
 }
 
-function getMoodScore(mood: string | null): number {
-  if (!mood) return 0;
-  return MOOD_SCORE[mood] ?? 0;
-}
-
 function buildEmptyWeek(): WeekComparison {
   return {
     sleepAvg: 0,
@@ -86,8 +72,8 @@ function buildEmptyWeek(): WeekComparison {
 export const getDashboardData = createServerFn({ method: "GET" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const userId = getUserIdFromAccessToken(data.accessToken);
-    if (!userId) {
+    const auth = await requireCompanionConsent(data.accessToken);
+    if ("error" in auth) {
       return {
         currentWeek: buildEmptyWeek(),
         previousWeek: buildEmptyWeek(),
@@ -99,8 +85,7 @@ export const getDashboardData = createServerFn({ method: "GET" })
         daysTracked: 0,
       };
     }
-
-    const supabase = await createClient(data.accessToken);
+    const { userId, supabase } = auth;
 
     const sixtyDaysAgo = new Date();
     sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
@@ -294,7 +279,7 @@ export const getDashboardData = createServerFn({ method: "GET" })
     const weekStarts: Date[] = [];
     const eightWeeksAgo = new Date();
     eightWeeksAgo.setDate(eightWeeksAgo.getDate() - 56);
-    let iter = getMonday(eightWeeksAgo);
+    const iter = getMonday(eightWeeksAgo);
     while (iter <= today) {
       weekStarts.push(new Date(iter));
       iter.setDate(iter.getDate() + 7);

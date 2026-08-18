@@ -6,7 +6,11 @@ import { useRequireAuth } from "@/lib/use-require-auth";
 import { Icon } from "@/components/Icon";
 import { MobilePerfilPage } from "@/components/pages/mobile/PerfilPage";
 import { DesktopPerfilPage } from "@/components/pages/desktop/PerfilPage";
+import { ResponsivePages } from "@/components/pages/ResponsivePages";
 import { getProfile, updateProfile, updateEmail, updatePassword } from "@/lib/api/auth.server";
+import { exportMyData, deleteMyAccount, updatePrivacyPreferences, withdrawPrivacyConsent } from "@/lib/api/privacy.server";
+import { CrisisHelp } from "@/components/CrisisHelp";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({
@@ -43,15 +47,27 @@ function PerfilPage() {
   const [passwordSuccess, setPasswordSuccess] = useState("");
 
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [aiOptIn, setAiOptIn] = useState(false);
+  const [rhOptIn, setRhOptIn] = useState(false);
+  const [emailOptIn, setEmailOptIn] = useState(false);
 
   useEffect(() => {
     if (!session?.access_token || profileLoaded) return;
     (async () => {
       const profile = await getProfile({ data: { accessToken: session.access_token! } });
       if (profile && "display_name" in profile) {
-        const p = profile as { display_name: string; avatar_url?: string };
+        const p = profile as {
+          display_name: string;
+          avatar_url?: string;
+          privacy_ai_opt_in?: boolean;
+          privacy_rh_opt_in?: boolean;
+          privacy_email_opt_in?: boolean;
+        };
         setDisplayName(p.display_name);
         if (p.avatar_url) setAvatarName(p.avatar_url);
+        setAiOptIn(Boolean(p.privacy_ai_opt_in));
+        setRhOptIn(Boolean(p.privacy_rh_opt_in));
+        setEmailOptIn(Boolean(p.privacy_email_opt_in));
       } else {
         setDisplayName(user?.email?.split("@")[0] ?? "Usuário");
       }
@@ -125,8 +141,8 @@ function PerfilPage() {
       setPasswordError("Nova senha e confirmação não coincidem");
       return;
     }
-    if (newPassword.length < 6) {
-      setPasswordError("Nova senha deve ter no mínimo 6 caracteres");
+    if (newPassword.length < 8) {
+      setPasswordError("Nova senha deve ter no mínimo 8 caracteres");
       return;
     }
     const { error } = await updatePassword({
@@ -210,16 +226,111 @@ function PerfilPage() {
     onToggleTheme: toggle,
     onSignOut: signOut,
     onSwitchMode: role ? switchMode : undefined,
+    extraSections: (
+      <div className="mb-5 space-y-4">
+        <CrisisHelp />
+        <section className="rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">
+          <h3 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
+            Seus dados (LGPD)
+          </h3>
+          <p className="mb-3 text-xs text-[var(--clay-text)]/70">
+            <Link to="/privacidade" className="underline">
+              Política de privacidade
+            </Link>
+          </p>
+          <label className="mb-2 flex items-center justify-between gap-2 text-sm">
+            <span>IA na nuvem (OpenRouter)</span>
+            <input
+              type="checkbox"
+              checked={aiOptIn}
+              onChange={async (e) => {
+                const next = e.target.checked;
+                setAiOptIn(next);
+                if (session?.access_token) {
+                  await updatePrivacyPreferences({ data: { accessToken: session.access_token, aiOptIn: next } });
+                }
+              }}
+            />
+          </label>
+          <label className="mb-2 flex items-center justify-between gap-2 text-sm">
+            <span>Indicadores agregados no RH</span>
+            <input
+              type="checkbox"
+              checked={rhOptIn}
+              onChange={async (e) => {
+                const next = e.target.checked;
+                setRhOptIn(next);
+                if (session?.access_token) {
+                  await updatePrivacyPreferences({ data: { accessToken: session.access_token, rhOptIn: next } });
+                }
+              }}
+            />
+          </label>
+          <label className="mb-3 flex items-center justify-between gap-2 text-sm">
+            <span>E-mail de lembrete</span>
+            <input
+              type="checkbox"
+              checked={emailOptIn}
+              onChange={async (e) => {
+                const next = e.target.checked;
+                setEmailOptIn(next);
+                if (session?.access_token) {
+                  await updatePrivacyPreferences({ data: { accessToken: session.access_token, emailOptIn: next } });
+                }
+              }}
+            />
+          </label>
+          <button
+            type="button"
+            className="mb-2 w-full rounded-xl bg-white/50 p-3 text-left text-sm"
+            onClick={async () => {
+              if (!session?.access_token) return;
+              const result = await exportMyData({ data: { accessToken: session.access_token } });
+              if (!result.data) return;
+              const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: "application/json" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "mundo-mental-meus-dados.json";
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+          >
+            Exportar meus dados
+          </button>
+          <button
+            type="button"
+            className="mb-2 w-full rounded-xl bg-white/50 p-3 text-left text-sm"
+            onClick={async () => {
+              if (!session?.access_token) return;
+              if (!window.confirm("Revogar o consentimento? Você será levado ao termo de novo.")) return;
+              const result = await withdrawPrivacyConsent({ data: { accessToken: session.access_token } });
+              if (!result.error) navigate({ to: "/onboarding", replace: true });
+            }}
+          >
+            Revogar consentimento
+          </button>
+          <button
+            type="button"
+            className="w-full rounded-xl bg-white/50 p-3 text-left text-sm text-red-700"
+            onClick={async () => {
+              if (!session?.access_token) return;
+              if (!window.confirm("Excluir sua conta e dados? Esta ação não pode ser desfeita.")) return;
+              const result = await deleteMyAccount({ data: { accessToken: session.access_token } });
+              if (!result.error) await signOut();
+            }}
+          >
+            Excluir conta
+          </button>
+        </section>
+      </div>
+    ),
   };
 
   return (
-    <>
-      <div className="block md:hidden">
-        <MobilePerfilPage {...props} />
-      </div>
-      <div className="hidden md:block">
-        <DesktopPerfilPage {...props} />
-      </div>
-    </>
+    <ResponsivePages
+      mobile={<MobilePerfilPage {...props} />}
+      desktop={<DesktopPerfilPage {...props} />}
+    />
   );
 }

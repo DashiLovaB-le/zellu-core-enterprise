@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { MobileChatPage } from "@/components/pages/mobile/ChatPage";
 import { DesktopChatPage } from "@/components/pages/desktop/ChatPage";
+import { ResponsivePages } from "@/components/pages/ResponsivePages";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
 import { Icon } from "@/components/Icon";
@@ -157,8 +158,8 @@ function ChatPage() {
   }
 
   return (
-    <>
-      <div className="block md:hidden">
+    <ResponsivePages
+      mobile={
         <MobileChatPage
           messages={messages}
           draft={draft}
@@ -171,8 +172,8 @@ function ChatPage() {
           preventiveAlert={preventiveAlert}
           onSuggestionClick={handlePreventiveSuggestion}
         />
-      </div>
-      <div className="hidden md:block">
+      }
+      desktop={
         <DesktopChatPage
           messages={messages}
           draft={draft}
@@ -185,7 +186,7 @@ function ChatPage() {
           preventiveAlert={preventiveAlert}
           onSuggestionClick={handlePreventiveSuggestion}
         />
-      </div>
-    </>
+      }
+    />
   );
 }

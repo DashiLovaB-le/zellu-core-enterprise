@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin.server";
+import { sanitizeLogDetails, sanitizeLogMessage } from "@/lib/lgpd";
 
 type LogLevel = "info" | "warn" | "error" | "debug";
 
@@ -10,7 +11,7 @@ type LogEntry = {
   level: LogLevel;
   source: string;
   message: string;
-  details: Record<string, unknown> | null;
+  details: Record<string, string | number | boolean | null> | null;
   user_id: string | null;
   created_at: string;
 };
@@ -27,8 +28,8 @@ export async function logEvent(
     await admin.from("system_logs").insert({
       level,
       source,
-      message,
-      details: details ?? null,
+      message: sanitizeLogMessage(message),
+      details: sanitizeLogDetails(details ?? null),
       user_id: userId ?? null,
     });
   } catch (err) {
@@ -111,9 +112,11 @@ export const logClientEvent = createServerFn({ method: "POST" })
     z.object({
       accessToken: z.string(),
       level: z.enum(["info", "warn", "error", "debug"]),
-      source: z.string().min(1),
-      message: z.string().min(1),
-      details: z.any().optional(),
+      source: z.string().min(1).max(80),
+      message: z.string().min(1).max(280),
+      details: z
+        .record(z.union([z.string().max(80), z.number(), z.boolean(), z.null()]))
+        .optional(),
     }),
   )
   .handler(
@@ -125,15 +128,16 @@ export const logClientEvent = createServerFn({ method: "POST" })
         level: LogLevel;
         source: string;
         message: string;
-        details?: unknown;
+        details?: Record<string, string | number | boolean | null>;
       };
     }) => {
       const supabase = await createClient(data.accessToken);
       const {
         data: { user },
-      } = await supabase.auth.getUser();
+      } = await supabase.auth.getUser(data.accessToken);
+      if (!user) return { success: false };
 
-      await logEvent(data.level, data.source, data.message, data.details as Record<string, unknown> | undefined, user?.id);
+      await logEvent(data.level, data.source, data.message, data.details, user.id);
 
       return { success: true };
     },

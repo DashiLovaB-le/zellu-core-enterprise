@@ -119,7 +119,7 @@ export function MobileHabitosPage({
               <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/70 text-xl shadow-sm">
                 {m.emoji}
               </span>
-              <span className="text-xs font-semibold" style={{ color: m.textColor }}>
+              <span className="text-xs font-semibold">
                 {m.name}
               </span>
             </button>

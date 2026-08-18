@@ -42,3 +42,57 @@ export const ALL_MOODS: MoodOption[] = [...MAIN_MOODS, ...EXTRA_MOODS];
 export const MOOD_MAP: Record<string, MoodOption> = Object.fromEntries(
   ALL_MOODS.map((m) => [m.value, m]),
 );
+
+/** Score 1–6 usado em preventiva, dashboard e RH. Extra moods entram no score. */
+export const MOOD_SCORE: Record<string, number> = {
+  irritado: 1,
+  bravo: 1,
+  triste: 2,
+  desanimado: 2,
+  carente: 2,
+  inseguro: 2,
+  ansioso: 3,
+  preocupado: 3,
+  sobrecarregado: 3,
+  confuso: 3,
+  neutro: 4,
+  pensativo: 4,
+  cansado: 4,
+  calmo: 5,
+  sereno: 5,
+  focado: 5,
+  acolhido: 5,
+  feliz: 6,
+  animado: 6,
+  contente: 6,
+  grato: 6,
+  motivado: 6,
+  esperancoso: 6,
+  entusiasmado: 6,
+  orgulhoso: 6,
+};
+
+export const NEGATIVE_MOODS = new Set(
+  Object.entries(MOOD_SCORE)
+    .filter(([, score]) => score <= 3)
+    .map(([mood]) => mood),
+);
+
+export const MAIN_MOOD_ORDER = MAIN_MOODS.map((m) => m.value);
+
+export function getMoodScore(mood: string | null | undefined): number {
+  if (!mood) return 0;
+  return MOOD_SCORE[mood.toLowerCase()] ?? 0;
+}
+
+export function isNegativeMood(mood: string | null | undefined): boolean {
+  if (!mood) return false;
+  return NEGATIVE_MOODS.has(mood.toLowerCase());
+}
+
+export function canonicalMood(mood: string | null | undefined): string | null {
+  if (!mood) return null;
+  const key = mood.toLowerCase();
+  if (MOOD_MAP[key]) return key;
+  return null;
+}

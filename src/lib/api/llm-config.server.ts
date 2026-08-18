@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { createHash } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin.server";
 import { logEvent } from "@/lib/api/logs.server";
-import { getUserIdFromAccessToken } from "@/lib/auth-token";
+import { requireRole } from "@/lib/require-user";
 
 export interface LlmConfig {
   model: string;
@@ -20,24 +20,10 @@ export interface ChatMessage {
   content: string;
 }
 
-async function requireDevRole(
-  accessToken: string,
-): Promise<{ userId: string } | { error: string }> {
-  const userId = getUserIdFromAccessToken(accessToken);
-  if (!userId) return { error: "Unauthorized" };
-
-  const supabase = await createClient(accessToken);
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (profile?.role !== "dev") {
-    return { error: "Unauthorized — role dev required" };
-  }
-
-  return { userId };
+async function requireDevRole(accessToken: string) {
+  const auth = await requireRole(accessToken, ["dev"]);
+  if ("error" in auth) return { error: "Unauthorized — role dev required" };
+  return { userId: auth.userId };
 }
 
 function getEnvApiKey(): string {
@@ -75,6 +61,7 @@ Formatação (markdown leve):
   model_3: "",
 };
 
+/** Cache em memória: válido só nesta instância do servidor (não compartilhado entre replicas). */
 const LLM_CONFIG_CACHE_TTL_MS = 2 * 60 * 1000;
 let llmConfigCache: { config: LlmConfig; expiresAt: number } | null = null;
 
@@ -89,7 +76,7 @@ export async function getActiveLlmConfig(accessToken?: string): Promise<LlmConfi
     const admin = createAdminClient();
     const { data } = await admin
       .from("llm_config")
-      .select("model, temperature, max_tokens, system_prompt, api_key, model_2, model_3")
+      .select("model, temperature, max_tokens, system_prompt, model_2, model_3")
       .limit(1)
       .maybeSingle();
     if (data) {
@@ -98,7 +85,7 @@ export async function getActiveLlmConfig(accessToken?: string): Promise<LlmConfi
         temperature: data.temperature ?? DEFAULT_CONFIG.temperature,
         max_tokens: data.max_tokens ?? DEFAULT_CONFIG.max_tokens,
         system_prompt: data.system_prompt ?? DEFAULT_CONFIG.system_prompt,
-        api_key: data.api_key || envApiKey || "",
+        api_key: envApiKey || "",
         model_2: data.model_2 ?? "",
         model_3: data.model_3 ?? "",
       };
@@ -150,6 +137,9 @@ export async function callLlmWithFallback(
           messages,
           max_tokens: config.max_tokens,
           temperature: config.temperature,
+          user: userId
+            ? `mmc_${createHash("sha256").update(userId).digest("hex").slice(0, 16)}`
+            : undefined,
         }),
         signal: controller.signal,
       });
@@ -232,7 +222,7 @@ export const getLlmConfig = createServerFn({ method: "GET" })
         temperature: data.temperature,
         max_tokens: data.max_tokens,
         system_prompt: data.system_prompt,
-        api_key: data.api_key ? maskKey(data.api_key) : "",
+        api_key: getEnvApiKey() ? maskKey(getEnvApiKey()) : "",
         model_2: data.model_2 ?? "",
         model_3: data.model_3 ?? "",
       };
@@ -282,7 +272,7 @@ export const setLlmConfig = createServerFn({ method: "POST" })
 
         const { data: existing, error: fetchError } = await admin
           .from("llm_config")
-          .select("id, api_key")
+          .select("id")
           .limit(1)
           .maybeSingle();
 
@@ -290,26 +280,14 @@ export const setLlmConfig = createServerFn({ method: "POST" })
           return { error: `Erro ao consultar configuração: ${fetchError.message}` };
         }
 
-        const existingApiKey = existing?.api_key ?? "";
-        const envApiKey = getEnvApiKey();
-
-        const isMasked = api_key.includes("…");
-
-        let resolvedApiKey: string;
-        if (isMasked) {
-          resolvedApiKey = existingApiKey || envApiKey;
-        } else if (api_key && !api_key.startsWith("sk-or-") && existingApiKey.startsWith("sk-or-")) {
-          resolvedApiKey = existingApiKey;
-        } else {
-          resolvedApiKey = api_key;
-        }
+        void api_key;
 
         const payload: Record<string, unknown> = {
           model,
           temperature,
           max_tokens,
           system_prompt,
-          api_key: resolvedApiKey,
+          api_key: "",
           updated_at: new Date().toISOString(),
           updated_by: userId,
           model_2: model_2 ?? "",

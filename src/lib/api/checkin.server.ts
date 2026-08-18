@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
 import { logEvent } from "@/lib/api/logs.server";
-import { getUserIdFromAccessToken } from "@/lib/auth-token";
+import { requireCompanionConsent } from "@/lib/require-user";
+import { canonicalMood } from "@/data/moods";
 
 export type CheckinData = {
   id: string;
@@ -36,10 +36,9 @@ export const saveCheckin = createServerFn({ method: "POST" })
         mood: string;
       };
     }) => {
-      const userId = getUserIdFromAccessToken(data.accessToken);
-      if (!userId) return { error: "Unauthorized" };
-
-      const supabase = await createClient(data.accessToken);
+      const auth = await requireCompanionConsent(data.accessToken);
+      if ("error" in auth) return { error: auth.error };
+      const { userId, supabase } = auth;
 
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
@@ -58,18 +57,19 @@ export const saveCheckin = createServerFn({ method: "POST" })
         return { error: "Você já fez check-in hoje. Volte amanhã!" };
       }
 
+      const mood = canonicalMood(data.mood) ?? data.mood;
       const { error } = await supabase.from("checkins").insert({
         user_id: userId,
         sleep_hours: data.sleepHours,
         sleep_label: data.sleepLabel,
         water_ml: data.waterMl,
-        mood: data.mood,
+        mood,
       });
 
       if (error) {
-        void logEvent("error", "checkin.saveCheckin", `Erro ao salvar checkin: ${userId}`, { error: error.message, mood: data.mood }, userId);
+        void logEvent("error", "checkin.saveCheckin", "Erro ao salvar checkin", { error: error.message }, userId);
       } else {
-        void logEvent("info", "checkin.saveCheckin", `Checkin salvo: ${userId}`, { mood: data.mood, sleepHours: data.sleepHours }, userId);
+        void logEvent("info", "checkin.saveCheckin", "Checkin salvo", {}, userId);
       }
 
       return { error: error?.message ?? null };
@@ -79,10 +79,9 @@ export const saveCheckin = createServerFn({ method: "POST" })
 export const getTodaysCheckin = createServerFn({ method: "POST" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const userId = getUserIdFromAccessToken(data.accessToken);
-    if (!userId) return { data: null, error: null };
-
-    const supabase = await createClient(data.accessToken);
+    const auth = await requireCompanionConsent(data.accessToken);
+    if ("error" in auth) return { data: null, error: auth.error };
+    const { userId, supabase } = auth;
 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);

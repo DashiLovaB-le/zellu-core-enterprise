@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
-import { getUserIdFromAccessToken, getEmailFromAccessToken } from "@/lib/auth-token";
+import { requireCompanionConsent } from "@/lib/require-user";
 
 export interface TimelineEvent {
   type: "sleep" | "water" | "mood" | "movement" | "energy" | "meals" | "chat" | "diary";
@@ -62,10 +61,9 @@ function getDayLabel(dateStr: string): string {
 export const getTimelineData = createServerFn({ method: "GET" })
   .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const userId = getUserIdFromAccessToken(data.accessToken);
-    if (!userId) return { days: [], moodGrid: [], aiInsight: "Faça login para ver seu diário." };
-
-    const supabase = await createClient(data.accessToken);
+    const auth = await requireCompanionConsent(data.accessToken);
+    if ("error" in auth) return { days: [], moodGrid: [], aiInsight: "Faça login para ver seu diário." };
+    const { userId, supabase } = auth;
 
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -228,7 +226,7 @@ export const getTimelineData = createServerFn({ method: "GET" })
     const sortedDays = sortedKeys.map((k) => dayMap.get(k)!).filter(Boolean);
 
     // Insight baseado em regras no caminho crítico (evita 10–15s de LLM no carregamento)
-    const email = getEmailFromAccessToken(data.accessToken) ?? "Usuário";
+    const email = auth.email ?? auth.profile?.display_name ?? "Usuário";
     const aiInsight = generateFallbackInsight(sortedDays, email);
 
     const moodGrid: { color: string | null; mood: string | null; day: number }[] = [];

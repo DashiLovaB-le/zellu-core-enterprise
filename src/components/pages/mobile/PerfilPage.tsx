@@ -3,6 +3,7 @@ import { ManagerShell } from "@/components/ManagerShell";
 import { AdminShell } from "@/components/AdminShell";
 import { Avatar, AVATAR_LIST } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
+import type { ReactNode } from "react";
 
 interface PerfilPageProps {
   user: { email?: string | null } | null;
@@ -44,6 +45,7 @@ interface PerfilPageProps {
   onToggleTheme: () => void;
   onSignOut: () => void;
   onSwitchMode?: () => void;
+  extraSections?: ReactNode;
 }
 
 export function MobilePerfilPage({
@@ -86,6 +88,7 @@ export function MobilePerfilPage({
   onToggleTheme,
   onSignOut,
   onSwitchMode,
+  extraSections,
 }: PerfilPageProps) {
   const Shell =
     role === "admin" ? AdminShell : role === "manager" ? ManagerShell : MobileShell;
@@ -354,6 +357,8 @@ export function MobilePerfilPage({
           <span className="text-[10px] text-[var(--clay-title)]/50">Tocar</span>
         </button>
       </section>
+
+      {extraSections}
 
       {user && (
         <section className="mb-5 rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">

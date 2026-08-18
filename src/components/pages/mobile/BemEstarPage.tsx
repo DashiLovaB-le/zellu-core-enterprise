@@ -11,6 +11,7 @@ interface BemEstarPageProps {
   meals: string[];
   goal: number;
   fromCheckin: { water: boolean; sleep: boolean; mood: boolean };
+  hasCheckin?: boolean;
   saving: boolean;
   lastSaved: string | null;
   hasEdits: boolean;

@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { logEvent } from "@/lib/api/logs.server";
 import { getActiveLlmConfig, callLlmWithFallback } from "@/lib/api/llm-config.server";
 import type { ChatMessage } from "@/lib/api/llm-config.server";
+import { requireCompanionConsent } from "@/lib/require-user";
 
 interface InsightContext {
   // Dados agregados do usuário
@@ -185,17 +186,19 @@ function buildUserPrompt(context: InsightContext): string {
 export const generateInsight = createServerFn({ method: "POST" })
   .inputValidator((data: { accessToken: string; context: InsightContext }) => data)
   .handler(async ({ data }) => {
+    const auth = await requireCompanionConsent(data.accessToken);
+    if ("error" in auth) return { insight: "" };
     const { context } = data;
+    const allowCloudAi = Boolean(auth.profile?.privacy_ai_opt_in);
 
     try {
       const config = await getActiveLlmConfig();
-      if (!config.api_key) {
-        void logEvent("info", "insights-ai.generateInsight", `Insight baseado em regras (sem API key): ${context.contextType}`, { contextType: context.contextType, userName: context.userName });
-        return { insight: generateRuleBasedInsight(context) };
+      if (!allowCloudAi || !config.api_key) {
+        return { insight: generateRuleBasedInsight({ ...context, userName: "você" }) };
       }
 
       const systemContent = buildSystemPrompt(context.contextType);
-      const userContent = buildUserPrompt(context);
+      const userContent = buildUserPrompt({ ...context, userName: "você" });
 
       const messages: ChatMessage[] = [
         { role: "system", content: systemContent },
@@ -210,7 +213,7 @@ export const generateInsight = createServerFn({ method: "POST" })
       }
 
       const insight = result.content.trim();
-      void logEvent("info", "insights-ai.generateInsight", `Insight gerado via ${result.model}: ${context.contextType}`, { contextType: context.contextType, model: result.model, userName: context.userName });
+        void logEvent("info", "insights-ai.generateInsight", "Insight gerado", { contextType: context.contextType, model: result.model }, auth.userId);
       return {
         insight: insight || generateRuleBasedInsight(context),
       };
