@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
+import { useAuth } from "@/lib/auth-context";
 import { SOUNDS, BREATH_PHASES } from "@/data";
 import { BRANDING } from "@/lib/branding";
 
@@ -11,6 +12,7 @@ interface RespiroPageProps {
 }
 
 export function MobileRespiroPage({ activeSound, onSoundToggle }: RespiroPageProps) {
+  const { user } = useAuth();
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
 
@@ -31,7 +33,7 @@ export function MobileRespiroPage({ activeSound, onSoundToggle }: RespiroPagePro
     <MobileShell>
       <header className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Avatar size={32} />
+          <Avatar name={user?.avatar_url ?? undefined} size={32} />
           <span className="font-display text-sm text-[var(--clay-title)]">
             {BRANDING.shortName}
           </span>

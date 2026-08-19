@@ -9,9 +9,20 @@ import { detectCrisisLanguage, buildCrisisReply } from "@/lib/crisis";
 import { getGreeting } from "@/lib/timezone";
 import { selectTrustedChatContext, selectTrustedChatHistory, type ChatTurn } from "@/lib/chat-guard";
 import { detectPatterns } from "@/lib/api/preventiva-ai.server";
-import { COMPANION_JSON_PROTOCOL, parseCompanionAiPayload } from "@/lib/companion-agent";
+import {
+  COMPANION_JSON_PROTOCOL,
+  isCompanionParseFailureMessage,
+  parseCompanionAiPayload,
+} from "@/lib/companion-agent";
 import { buildLocalFallbackReply } from "@/lib/companion-local-fallback";
-import { companionContextBlock, loadCompanionSnapshot, persistCompanionMemory } from "@/lib/api/companion-memory.server";
+import { planGoalLabel } from "@/lib/companion-portrait";
+import {
+  companionContextBlock,
+  loadCompanionSnapshot,
+  persistCompanionMemory,
+  snapshotStreakDays,
+  syncAutoCompanionMemories,
+} from "@/lib/api/companion-memory.server";
 
 export interface PreventiveContext {
   hasAlert: boolean;
@@ -21,7 +32,34 @@ export interface PreventiveContext {
   alertSuggestion?: string;
 }
 
+export type ChatReplySource = "llm" | "fallback-llm-error" | "fallback-cloud-disabled";
+
+export type ChatReplyMeta = {
+  source: ChatReplySource;
+  llmFailed: boolean;
+};
+
 const CHAT_RATE_LIMIT_PER_HOUR = 20;
+
+const PERSONALIZATION_RULES = `## Prioridade nesta conversa
+- Leia o RETRATO DO MOMENTO antes de responder.
+- Soe próximo e atento, como quem acompanha a rotina da pessoa — sem exagerar intimidade.
+- Não repita na mesma sessão a pergunta sobre humor/check-in se ela já respondeu.
+- Ao usar indicadores, integre-os naturalmente (ex.: "Vi que hoje você registrou humor grato…").`;
+
+function resolvePreferredName(profile: { display_name?: string | null } | null): string {
+  const fromProfile = profile?.display_name?.trim();
+  if (fromProfile) return fromProfile.split(/\s+/)[0] ?? fromProfile;
+  return "você";
+}
+
+function logLlmFallback(reason: string, details: Record<string, unknown>) {
+  console.warn(`[chat-ai] LLM falhou na resposta — ${reason}`, details);
+}
+
+function fallbackMeta(source: ChatReplySource): ChatReplyMeta {
+  return { source, llmFailed: source !== "llm" };
+}
 
 export const sendChatMessage = createServerFn({ method: "POST" })
   .inputValidator(
@@ -82,7 +120,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       return { error: "Muitas mensagens nesta hora. Tente novamente em instantes." };
     }
 
-    const name = "você";
+    const preferredName = resolvePreferredName(profile);
     const tz = profile?.timezone ?? "America/Sao_Paulo";
 
     const { data: company } = profile?.company_id
@@ -96,7 +134,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     if (detectCrisisLanguage(data.text)) {
       const reply = buildCrisisReply(undefined, company?.support_channel ?? null);
       await persistExchange(supabase, userId, "[crise — conteúdo não armazenado]", reply);
-      return { reply, suggestion: null, crisis: true };
+      return { reply, suggestion: null, crisis: true, meta: { source: "llm", llmFailed: false } };
     }
 
     const { data: dbMessages } = await supabase
@@ -122,22 +160,38 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       // ignore
     }
 
-    const snapshot = await loadCompanionSnapshot(supabase, userId, preventiveLine);
+    let snapshot = await loadCompanionSnapshot(supabase, userId, preventiveLine);
+    await syncAutoCompanionMemories(supabase, userId, snapshot).catch(() => undefined);
+    snapshot = await loadCompanionSnapshot(supabase, userId, preventiveLine);
+
+    const streakDays = snapshotStreakDays(snapshot);
     const latest = snapshot.checkins[0];
+    const planGoal = planGoalLabel(snapshot);
+
     const serverContext = selectTrustedChatContext(data.context, {
       sleepHours: latest?.sleepHours ?? undefined,
       sleepLabel: latest?.sleepLabel,
       waterMl: latest?.waterMl ?? undefined,
       mood: latest?.mood,
-      userName: name,
+      userName: preferredName,
       recentCheckin: latest ? `Check-in em ${latest.day}` : undefined,
       preventiveLine,
+      planGoal,
     });
+
+    const fallbackContext = {
+      ...serverContext,
+      greeting: getGreeting(tz),
+      preferredName,
+      planGoal,
+    };
 
     const config = await getActiveLlmConfig();
     const greeting = getGreeting(tz);
 
     const personaPrompt = `${config.system_prompt}
+
+${PERSONALIZATION_RULES}
 
 Período: ${greeting}
 Responda sempre em português brasileiro.
@@ -149,6 +203,10 @@ ${COMPANION_JSON_PROTOCOL}`;
     const allowCloudAi = Boolean(profile?.privacy_ai_opt_in) && Boolean(config.api_key);
 
     if (!allowCloudAi) {
+      logLlmFallback("IA na nuvem indisponível (opt-in ou API key)", {
+        aiOptIn: Boolean(profile?.privacy_ai_opt_in),
+        hasApiKey: Boolean(config.api_key),
+      });
       void logEvent(
         "info",
         "chat-ai.sendChatMessage",
@@ -159,16 +217,29 @@ ${COMPANION_JSON_PROTOCOL}`;
         },
         userId,
       );
-      const reply = buildLocalFallbackReply(data.text, name, { ...serverContext, greeting });
+      const reply = buildLocalFallbackReply(
+        data.text,
+        preferredName,
+        fallbackContext,
+        history,
+      );
       await persistExchange(supabase, userId, data.text, reply);
-      return { reply, suggestion: extractSuggestion(reply), crisis: false };
+      return {
+        reply,
+        suggestion: extractSuggestion(reply),
+        crisis: false,
+        meta: fallbackMeta("fallback-cloud-disabled"),
+      };
     }
 
     await persistUserMessage(supabase, userId, data.text);
 
     const messages: ChatMessage[] = [
       { role: "system", content: personaPrompt },
-      { role: "system", content: companionContextBlock(snapshot) },
+      {
+        role: "system",
+        content: companionContextBlock(snapshot, { preferredName, streakDays }),
+      },
       ...history,
       { role: "user", content: data.text },
     ];
@@ -182,7 +253,13 @@ ${COMPANION_JSON_PROTOCOL}`;
     );
 
     if ("error" in result) {
-      const reply = buildLocalFallbackReply(data.text, name, { ...serverContext, greeting });
+      logLlmFallback(String(result.error), { userId });
+      const reply = buildLocalFallbackReply(
+        data.text,
+        preferredName,
+        fallbackContext,
+        history,
+      );
       void logEvent(
         "warn",
         "chat-ai.sendChatMessage",
@@ -191,10 +268,44 @@ ${COMPANION_JSON_PROTOCOL}`;
         userId,
       );
       await persistAssistantMessage(supabase, userId, reply);
-      return { reply, suggestion: extractSuggestion(reply), crisis: false };
+      return {
+        reply,
+        suggestion: extractSuggestion(reply),
+        crisis: false,
+        meta: fallbackMeta("fallback-llm-error"),
+      };
     }
 
     const payload = parseCompanionAiPayload(result.content);
+
+    if (payload.parseFailed && isCompanionParseFailureMessage(payload.message)) {
+      logLlmFallback("JSON inválido ou vazio da LLM", {
+        userId,
+        model: result.model,
+        preview: result.content.slice(0, 120),
+      });
+      const reply = buildLocalFallbackReply(
+        data.text,
+        preferredName,
+        fallbackContext,
+        history,
+      );
+      void logEvent(
+        "warn",
+        "chat-ai.sendChatMessage",
+        "Parse JSON falhou — fallback local",
+        { model: result.model },
+        userId,
+      );
+      await persistAssistantMessage(supabase, userId, reply);
+      return {
+        reply,
+        suggestion: extractSuggestion(reply),
+        crisis: false,
+        meta: fallbackMeta("fallback-llm-error"),
+      };
+    }
+
     let reply = payload.message;
     if (detectCrisisLanguage(reply) && !detectCrisisLanguage(data.text)) {
       reply = buildCrisisReply(undefined, company?.support_channel ?? null);
@@ -210,13 +321,26 @@ ${COMPANION_JSON_PROTOCOL}`;
       );
     }
 
+    if (payload.parseFailed) {
+      void logEvent(
+        "warn",
+        "chat-ai.sendChatMessage",
+        "Resposta em texto plano (JSON esperado) — usando conteúdo direto",
+        { model: result.model },
+        userId,
+      );
+    }
+
     await persistAssistantMessage(supabase, userId, reply);
-    await persistCompanionMemory(supabase, userId, payload).catch(() => undefined);
+    if (!payload.parseFailed) {
+      await persistCompanionMemory(supabase, userId, payload).catch(() => undefined);
+    }
 
     return {
       reply,
       suggestion: payload.suggestion ?? extractSuggestion(reply),
       crisis: false,
+      meta: { source: "llm", llmFailed: payload.parseFailed },
     };
   });
 
@@ -275,6 +399,7 @@ export const getContextualGreeting = createServerFn({ method: "POST" })
           sleepLabel: z.string().optional(),
           waterMl: z.number().optional(),
           userName: z.string().optional(),
+          mood: z.string().optional(),
         })
         .optional(),
     }),
@@ -282,7 +407,21 @@ export const getContextualGreeting = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const auth = await requireUser();
     if ("error" in auth) return { greeting: getGreeting() };
-    return { greeting: getGreeting(auth.profile?.timezone ?? "America/Sao_Paulo") };
+
+    const tz = auth.profile?.timezone ?? "America/Sao_Paulo";
+    const base = getGreeting(tz);
+    const name =
+      auth.profile?.display_name?.trim()?.split(/\s+/)[0] ??
+      data.context?.userName?.trim()?.split(/\s+/)[0];
+
+    if (!name) return { greeting: base };
+
+    const mood = data.context?.mood;
+    if (mood && mood !== "sem dados") {
+      return { greeting: `${base}, ${name}` };
+    }
+
+    return { greeting: `${base}, ${name}` };
   });
 
 function extractSuggestion(text: string): string | null {

@@ -7,9 +7,15 @@ import {
   type CompanionAiPayload,
   type CompanionSnapshot,
 } from "@/lib/companion-agent";
+import { computeCheckinStreak, planGoalLabel } from "@/lib/companion-portrait";
 import { canonicalMood } from "@/data/moods";
 
 type DbClient = Pick<SupabaseClient, "from">;
+
+export type CompanionContextOptions = {
+  preferredName: string;
+  streakDays?: number;
+};
 
 export async function loadCompanionSnapshot(
   supabase: DbClient,
@@ -56,7 +62,7 @@ export async function loadCompanionSnapshot(
       .limit(COMPANION_MEMORY_LIMIT),
   ]);
 
-  const planRow = planRes.data as { id: string; goal: string; custom_goal: string } | null;
+  const planRow = planRes.data as { id: string; goal: string; custom_goal: string | null } | null;
   const checklist = checklistRes.data as {
     water_done: boolean;
     walk_done: boolean;
@@ -84,6 +90,7 @@ export async function loadCompanionSnapshot(
     plan: planRow
       ? {
           goal: planRow.goal === "custom" ? "custom" : planRow.goal,
+          customGoal: planRow.custom_goal,
           today: checklist
             ? {
                 water: checklist.water_done,
@@ -104,8 +111,60 @@ export async function loadCompanionSnapshot(
   return snapshot;
 }
 
-export function companionContextBlock(snapshot: CompanionSnapshot): string {
-  return formatCompanionContextBlock(snapshot);
+export function companionContextBlock(
+  snapshot: CompanionSnapshot,
+  opts: CompanionContextOptions,
+): string {
+  return formatCompanionContextBlock(snapshot, {
+    preferredName: opts.preferredName,
+    streakDays: opts.streakDays,
+  });
+}
+
+export async function syncAutoCompanionMemories(
+  supabase: DbClient,
+  userId: string,
+  snapshot: CompanionSnapshot,
+): Promise<void> {
+  const candidates: Array<{ content: string; importance: number }> = [];
+  const planGoal = planGoalLabel(snapshot);
+  if (planGoal) {
+    candidates.push({ content: `Objetivo de bem-estar: ${planGoal}`, importance: 4 });
+  }
+
+  const streak = computeCheckinStreak(snapshot.checkins.map((c) => c.day));
+  if (streak >= 3) {
+    candidates.push({
+      content: `Mantém sequência de ${streak} dias com check-in`,
+      importance: 3,
+    });
+  }
+
+  for (const candidate of candidates) {
+    const content = sanitizeCompanionMemory(candidate.content);
+    if (!content) continue;
+
+    const { data: existing } = await supabase
+      .from("companion_memories")
+      .select("id, importance")
+      .eq("user_id", userId)
+      .eq("content", content)
+      .maybeSingle();
+
+    if (existing?.id) {
+      const nextImportance = Math.max(Number(existing.importance) || 1, candidate.importance);
+      await supabase
+        .from("companion_memories")
+        .update({ importance: nextImportance })
+        .eq("id", existing.id);
+    } else {
+      await supabase.from("companion_memories").insert({
+        user_id: userId,
+        content,
+        importance: candidate.importance,
+      });
+    }
+  }
 }
 
 export async function persistCompanionMemory(
@@ -146,4 +205,8 @@ export async function persistCompanionMemory(
   if (pruneIds.length > 0) {
     await supabase.from("companion_memories").delete().in("id", pruneIds);
   }
+}
+
+export function snapshotStreakDays(snapshot: CompanionSnapshot): number {
+  return computeCheckinStreak(snapshot.checkins.map((c) => c.day));
 }

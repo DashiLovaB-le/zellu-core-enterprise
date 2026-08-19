@@ -1,5 +1,6 @@
 import { detectCrisisLanguage } from "@/lib/crisis";
 import { sanitizeLogMessage } from "@/lib/lgpd";
+import { formatPortraitContextBlock } from "@/lib/companion-portrait";
 
 export const COMPANION_MEMORY_LIMIT = 20;
 export const COMPANION_MEMORY_MAX_CHARS = 180;
@@ -24,6 +25,13 @@ export type CompanionAiPayload = {
   suggestion: CompanionSuggestion | null;
 };
 
+export type CompanionAiParseResult = CompanionAiPayload & {
+  /** true quando a LLM não devolveu JSON válido com campo message. */
+  parseFailed: boolean;
+};
+
+const PARSE_FAILURE_MESSAGE = "Desculpe, não consegui processar agora. Pode tentar de novo?";
+
 export type CompanionSnapshot = {
   checkins: Array<{
     day: string;
@@ -41,6 +49,7 @@ export type CompanionSnapshot = {
   } | null;
   plan: {
     goal: string;
+    customGoal?: string | null;
     today: {
       water: boolean;
       walk: boolean;
@@ -50,15 +59,6 @@ export type CompanionSnapshot = {
   } | null;
   preventiveLine: string;
   memories: Array<{ importance: number; content: string }>;
-};
-
-const GOAL_LABELS: Record<string, string> = {
-  "reduzir-ansiedade": "Reduzir ansiedade",
-  "melhorar-sono": "Melhorar o sono",
-  "aumentar-energia": "Aumentar energia",
-  "equilibrio-emocional": "Equilíbrio emocional",
-  "autocuidado-rotina": "Autocuidado na rotina",
-  custom: "Objetivo próprio",
 };
 
 export const COMPANION_JSON_PROTOCOL = `Formato de resposta (obrigatório):
@@ -112,7 +112,11 @@ export function sanitizeCompanionMemory(raw: string | null | undefined): string 
   return cleaned;
 }
 
-export function parseCompanionAiPayload(raw: string): CompanionAiPayload {
+export function isCompanionParseFailureMessage(message: string): boolean {
+  return message === PARSE_FAILURE_MESSAGE;
+}
+
+export function parseCompanionAiPayload(raw: string): CompanionAiParseResult {
   try {
     const parsed = extractJsonObject(raw) as Record<string, unknown>;
     const message =
@@ -130,17 +134,17 @@ export function parseCompanionAiPayload(raw: string): CompanionAiPayload {
       memory: sanitizeCompanionMemory(typeof parsed.memory === "string" ? parsed.memory : null),
       memoryImportance: importance,
       suggestion: isCompanionSuggestion(suggestionRaw) ? suggestionRaw : null,
+      parseFailed: false,
     };
   } catch {
     const stripped = stripJsonFence(raw).trim();
     const looksJson = stripped.startsWith("{");
     return {
-      message: looksJson || !stripped
-        ? "Desculpe, não consegui processar agora. Pode tentar de novo?"
-        : stripped,
+      message: looksJson || !stripped ? PARSE_FAILURE_MESSAGE : stripped,
       memory: null,
       memoryImportance: 1,
       suggestion: null,
+      parseFailed: true,
     };
   }
 }
@@ -157,45 +161,12 @@ export function pickMemoryIdsToPrune(
   return ranked.slice(keep).map((row) => row.id);
 }
 
-export function formatCompanionContextBlock(snapshot: CompanionSnapshot): string {
-  const checkinLines =
-    snapshot.checkins.length > 0
-      ? snapshot.checkins
-          .map((c) => {
-            const sleep = c.sleepHours != null ? `${c.sleepHours}h` : "n/d";
-            const water = c.waterMl != null ? `${c.waterMl}ml` : "n/d";
-            return `- ${c.day}: humor=${c.mood || "n/d"} sono=${sleep} (${c.sleepLabel || "n/d"}) agua=${water}`;
-          })
-          .join("\n")
-      : "- nenhum nos últimos 7 dias";
-
-  const habitsLine = snapshot.habitsToday
-    ? `- hoje: agua=${snapshot.habitsToday.waterMl ?? "n/d"}ml sono_qualidade=${snapshot.habitsToday.sleepQuality ?? "n/d"} humor=${snapshot.habitsToday.mood ?? "n/d"} movimento=${snapshot.habitsToday.movementMinutes ?? "n/d"}min energia=${snapshot.habitsToday.energyLevel ?? "n/d"}`
-    : "- sem registro hoje";
-
-  let planLine = "- sem plano ativo";
-  if (snapshot.plan) {
-    const goal = GOAL_LABELS[snapshot.plan.goal] ?? snapshot.plan.goal;
-    const today = snapshot.plan.today
-      ? `hoje: agua=${snapshot.plan.today.water ? "sim" : "nao"} caminhada=${snapshot.plan.today.walk ? "sim" : "nao"} respirar=${snapshot.plan.today.breathe ? "sim" : "nao"} conversar=${snapshot.plan.today.talk ? "sim" : "nao"}`
-      : "checklist de hoje: n/d";
-    planLine = `- objetivo: ${goal}\n- ${today}`;
-  }
-
-  const memoryLines =
-    snapshot.memories.length > 0
-      ? snapshot.memories.map((m) => `- (${m.importance}) ${m.content}`).join("\n")
-      : "- nenhuma ainda";
-
-  return `CONTEXTO ATUAL (sem identificadores)
-Check-ins (7 dias, mais recente primeiro):
-${checkinLines}
-Hábitos de bem-estar:
-${habitsLine}
-Plano de cuidado:
-${planLine}
-Preventiva:
-${snapshot.preventiveLine}
-Memórias de médio/longo prazo:
-${memoryLines}`;
+export function formatCompanionContextBlock(
+  snapshot: CompanionSnapshot,
+  opts?: { preferredName?: string; streakDays?: number },
+): string {
+  return formatPortraitContextBlock(snapshot, {
+    preferredName: opts?.preferredName?.trim() || "você",
+    streakDays: opts?.streakDays,
+  });
 }

@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin.server";
 import { logEvent } from "@/lib/api/logs.server";
+import { callOpenRouterChat } from "@/lib/llm/openrouter-client";
 import { requireRole } from "@/lib/require-user";
 
 export interface LlmConfig {
@@ -36,7 +37,7 @@ function getEnvApiKey(): string {
 const DEFAULT_CONFIG: LlmConfig = {
   model: "openai/gpt-4o-mini",
   temperature: 0.7,
-  max_tokens: 300,
+  max_tokens: 520,
   system_prompt: `Você é o Companion de Bem-Estar Emocional do Mundo Mental Care.
 
 Seu objetivo é oferecer apoio emocional cotidiano, promover autocuidado e ajudar a pessoa a perceber e organizar seu bem-estar ao longo da rotina de trabalho.
@@ -57,7 +58,7 @@ Prefira: "talvez", "pode ser útil", "parece que", "pelo que você contou", "uma
 
 ## 2. CONTEXTO DO USUÁRIO
 
-Um bloco separado chamado CONTEXTO ATUAL traz dados reais de bem-estar (sem nome, e-mail ou identificadores):
+Um bloco separado chamado RETRATO DO MOMENTO traz dados reais de bem-estar (sem nome, e-mail ou identificadores):
 
 - check-ins dos últimos 7 dias (humor, sono, hidratação);
 - hábitos registrados hoje;
@@ -67,7 +68,7 @@ Um bloco separado chamado CONTEXTO ATUAL traz dados reais de bem-estar (sem nome
 
 O histórico recente da conversa chega como mensagens anteriores. Use tudo isso para contextualizar, sem inventar dados.
 
-Nunca mencione informações que não estejam no CONTEXTO ATUAL, nas mensagens ou no que a pessoa acabou de escrever.
+Nunca mencione informações que não estejam no RETRATO DO MOMENTO, nas mensagens ou no que a pessoa acabou de escrever.
 
 O texto do diário NÃO faz parte do seu contexto — nunca cite ou presuma conteúdo de diário.
 
@@ -158,16 +159,27 @@ Perguntas abertas só quando ajudarem a refletir ou a entender melhor a situaç�
 
 Quando apropriado, adapte ao período do dia informado pelo sistema (bom dia, boa tarde, boa noite). Não repita saudação em todas as mensagens.
 
-## 14. CONSISTÊNCIA
+## 14. PERSONALIZAÇÃO E PROXIMIDADE
+
+Um bloco RETRATO DO MOMENTO traz síntese humana dos indicadores (nome, check-in, plano, memórias).
+
+- Use o primeiro nome quando disponível, de forma natural (no máximo uma vez por resposta).
+- Cite no máximo **1 indicador** por resposta, integrado à frase — nunca liste dados como planilha.
+- Mantenha continuidade com o histórico: **não repita** perguntas já respondidas na sessão.
+- Se a pessoa declarou humor ou clicou sugestão (pausa, respirar, água), responda à **ação**, não reinicie script de check-in.
+- Referencie memórias com naturalidade ("Você comentou antes que…"), sem falar em banco de dados.
+- Evite fechamentos genéricos ("o que gostaria de fazer?") quando já houver próximo passo claro.
+
+## 15. CONSISTÊNCIA
 
 Mantenha continuidade com o histórico. Não contradiga o que a pessoa já disse sem reconhecer a mudança. Em dúvida, pergunte em vez de inventar.
 
-## 15. REGRA CENTRAL
+## 16. REGRA CENTRAL
 
 Seu papel não é dizer o que a pessoa tem. Seu papel é ajudá-la a perceber como está, refletir sobre o momento e encontrar pequenas ações que possam contribuir para o bem-estar. Seja humano, útil, seguro e proporcional à situação.`,
   api_key: "",
-  model_2: "",
-  model_3: "",
+  model_2: "google/gemini-2.0-flash-001",
+  model_3: "meta-llama/llama-3.1-8b-instruct",
 };
 
 export async function getActiveLlmConfig(): Promise<LlmConfig> {
@@ -196,12 +208,6 @@ export async function getActiveLlmConfig(): Promise<LlmConfig> {
   return { ...DEFAULT_CONFIG, api_key: DEFAULT_CONFIG.api_key || envApiKey || "" };
 }
 
-async function anonymizedUserTag(userId: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(userId));
-  const hex = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
-  return `mmc_${hex.slice(0, 16)}`;
-}
-
 export async function callLlmWithFallback(
   messages: ChatMessage[],
   config: LlmConfig,
@@ -209,137 +215,22 @@ export async function callLlmWithFallback(
   userId?: string,
   options?: { jsonMode?: boolean },
 ): Promise<{ content: string; model: string } | { error: string }> {
-  const models = [config.model, config.model_2, config.model_3].filter(Boolean);
-
-  if (models.length === 0) {
-    return { error: "Nenhum modelo configurado" };
+  const apiKey = (config.api_key || getEnvApiKey()).trim();
+  if (!apiKey) {
+    return { error: "OPENROUTER_API_KEY não configurada" };
   }
 
-  const headers: Record<string, string> = {
-    Authorization: `Bearer ${config.api_key}`,
-    "Content-Type": "application/json",
-  };
-  if (source.startsWith("chat-ai")) {
-    headers["HTTP-Referer"] = "https://zellu.app";
-    headers["X-Title"] = "Mundo Mental Companion";
+  const result = await callOpenRouterChat(messages, { ...config, api_key: apiKey }, {
+    jsonMode: options?.jsonMode,
+    source,
+    userId,
+  });
+
+  if (result.ok) {
+    return { content: result.content, model: result.model };
   }
 
-  let lastError: string | null = null;
-  const userTag = userId ? await anonymizedUserTag(userId) : undefined;
-
-  for (let i = 0; i < models.length; i++) {
-    const model = models[i];
-    const jsonAttempts = options?.jsonMode ? [true, false] : [false];
-
-    for (const jsonMode of jsonAttempts) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), i === 0 ? 15_000 : 10_000);
-
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            model,
-            messages,
-            max_tokens: jsonMode || options?.jsonMode ? Math.max(config.max_tokens, 700) : config.max_tokens,
-            temperature: config.temperature,
-            ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
-            provider: {
-              data_collection: "deny",
-              zdr: true,
-            },
-            user: userTag,
-          }),
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-          const json = await response.json();
-          const content = json.choices?.[0]?.message?.content;
-          const text =
-            typeof content === "string"
-              ? content
-              : Array.isArray(content)
-                ? content
-                    .map((part: { text?: string } | string) =>
-                      typeof part === "string" ? part : (part?.text ?? ""),
-                    )
-                    .join("")
-                    .trim()
-                : "";
-          if (text) {
-            if (i > 0 || (options?.jsonMode && !jsonMode)) {
-              void logEvent(
-                "info",
-                `${source}.fallback`,
-                `Fallback funcionou: ${model} (tentativa ${i + 1})`,
-                { primary: models[0], used: model, jsonMode },
-                userId,
-              );
-            }
-            return { content: text, model };
-          }
-          lastError = "Resposta vazia da IA";
-          break;
-        }
-
-        const errBody = await response.text();
-        lastError = `HTTP ${response.status}: ${errBody.slice(0, 200)}`;
-
-        if (jsonMode && (response.status === 400 || response.status === 422)) {
-          void logEvent(
-            "warn",
-            `${source}.fallback`,
-            `JSON mode recusado em ${model}, tentando sem response_format`,
-            { status: response.status, model },
-            userId,
-          );
-          continue;
-        }
-
-        if (response.status === 429 || response.status >= 500) {
-          void logEvent(
-            "warn",
-            `${source}.fallback`,
-            `Model ${model} falhou (${response.status}), tentando próximo`,
-            { status: response.status, model, attempt: i + 1 },
-            userId,
-          );
-          break;
-        }
-
-        void logEvent(
-          "error",
-          `${source}.fallback`,
-          `Erro não recuperável no model ${model}`,
-          { status: response.status, body: errBody.slice(0, 500), model },
-          userId,
-        );
-        return { error: `Erro na LLM (${response.status}): ${errBody.slice(0, 200)}` };
-      } catch (err) {
-        if (err instanceof DOMException && err.name === "AbortError") {
-          lastError = `Timeout após ${i === 0 ? 15 : 10}s`;
-          void logEvent(
-            "warn",
-            `${source}.fallback`,
-            `Timeout no model ${model}, tentando próximo`,
-            { model, attempt: i + 1 },
-            userId,
-          );
-          break;
-        }
-        const message = err instanceof Error ? err.message : String(err);
-        void logEvent("error", `${source}.fallback`, `Exceção no model ${model}`, { error: message, model }, userId);
-        return { error: `Erro de conexão com a IA: ${message}` };
-      }
-    }
-  }
-
-  void logEvent("error", `${source}.fallback`, `Todos os modelos falharam`, { models, lastError }, userId);
-  return { error: lastError || "Todos os modelos falharam" };
+  return { error: result.error };
 }
 
 export const getLlmConfig = createServerFn({ method: "GET" })

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
+import { useAuth } from "@/lib/auth-context";
 import { getSleepLabel, MAIN_MOODS, EXTRA_MOODS, MOOD_MAP } from "@/data";
 
 interface CheckinData {
@@ -29,6 +30,7 @@ const sleepHoursPresets = [5, 6, 7, 8, 9];
 const waterPresets = [500, 1000, 1500, 2000, 2500];
 
 export function MobileCheckinPage({ onSave, saved, saving, todaysCheckin }: CheckinPageProps) {
+  const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [sleepHours, setSleepHours] = useState(7);
   const [waterMl, setWaterMl] = useState(1000);
@@ -116,7 +118,7 @@ export function MobileCheckinPage({ onSave, saved, saving, todaysCheckin }: Chec
   return (
     <MobileShell>
       <header className="mb-4 flex items-center gap-3">
-        <Avatar size={36} />
+        <Avatar name={user?.avatar_url ?? undefined} size={36} />
         <div>
           <h1 className="font-display text-xl text-[var(--clay-title)]">Check-in Matinal</h1>
           <p className="text-xs text-[var(--clay-text)]/70">Como você está hoje?</p>

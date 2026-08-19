@@ -8,6 +8,7 @@ export type ServerChatContext = {
   userName?: string;
   recentCheckin?: string;
   preventiveLine: string;
+  planGoal?: string;
 };
 
 /** Cliente pode enviar history/context; o servidor ignora e usa só o banco. */

@@ -1,6 +1,10 @@
 import type { Msg } from "@/data";
 import { getMessages as fetchMessages } from "@/lib/api/chat.server";
-import { sendChatMessage, getContextualGreeting } from "@/lib/api/chat-ai.server";
+import {
+  sendChatMessage,
+  getContextualGreeting,
+  type ChatReplyMeta,
+} from "@/lib/api/chat-ai.server";
 
 export type ChatRole = "user" | "assistant";
 
@@ -23,6 +27,7 @@ export interface ChatContext {
 export interface AiResponse {
   reply: string;
   suggestion: string | null;
+  meta?: ChatReplyMeta;
 }
 
 function toAssistantHistory(
@@ -67,6 +72,7 @@ export async function loadGreeting(context: ChatContext): Promise<string> {
             sleepLabel: context.sleepLabel,
             waterMl: context.waterMl,
             userName: context.userName,
+            mood: context.mood,
           },
         },
       });
@@ -105,8 +111,18 @@ export async function sendMessage(
     throw new Error("Resposta vazia da IA");
   }
 
+  const meta = "meta" in result ? result.meta : undefined;
+  if (meta?.llmFailed) {
+    const reason =
+      meta.source === "fallback-cloud-disabled"
+        ? "IA na nuvem indisponível (opt-in ou API key)"
+        : "erro na chamada da LLM";
+    console.warn(`[Mundo Mental] LLM falhou na resposta — ${reason}`, meta);
+  }
+
   return {
     reply,
     suggestion: ("suggestion" in result ? result.suggestion : null) ?? null,
+    meta,
   };
 }

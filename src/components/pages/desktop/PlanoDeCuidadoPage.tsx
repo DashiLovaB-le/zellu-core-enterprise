@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DesktopShell } from "@/components/DesktopShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
+import { useAuth } from "@/lib/auth-context";
 import type { WellnessPlan, WellnessChecklist, PlanProgress } from "@/lib/services/wellness-plan-service";
 import { CHECKLIST_ITEMS } from "@/lib/api/wellness-plan.server";
 
@@ -150,11 +151,12 @@ export function DesktopPlanoDeCuidadoPage({
   onItemAction,
   onRefreshSuggestion,
 }: Props) {
+  const { user } = useAuth();
   if (!plan || showGoalForm) {
     return (
       <DesktopShell>
         <header className="mb-6 flex items-center gap-4">
-          <Avatar size={48} />
+          <Avatar name={user?.avatar_url ?? undefined} size={48} />
           <div>
             <h1 className="font-display text-2xl text-[var(--clay-title)]">Plano de Cuidado</h1>
             <p className="text-sm text-[var(--clay-text)]/70">
@@ -184,7 +186,7 @@ export function DesktopPlanoDeCuidadoPage({
   return (
     <DesktopShell>
       <header className="mb-6 flex items-center gap-4">
-        <Avatar size={48} />
+        <Avatar name={user?.avatar_url ?? undefined} size={48} />
         <div className="flex-1">
           <h1 className="font-display text-2xl text-[var(--clay-title)]">Plano de Cuidado</h1>
           <p className="text-sm text-[var(--clay-text)]/70">{goalLabel}</p>

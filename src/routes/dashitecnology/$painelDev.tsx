@@ -10,6 +10,7 @@ import {
   resetLlmConfig,
   testLlmConnection,
 } from "@/lib/api/llm-config.server";
+import { DEFAULT_FALLBACK_MODELS } from "@/lib/llm/openrouter-client";
 import { getSystemLogs, type LogEntry, type LogLevel } from "@/lib/api/logs.server";
 
 export const Route = createFileRoute("/dashitecnology/$painelDev")({
@@ -55,6 +56,8 @@ function LlmConfigPanel() {
   const { user, session, loading, role } = useAuth();
   const navigate = useNavigate();
   const [model, setModel] = useState("openai/gpt-4o-mini");
+  const [model2, setModel2] = useState("");
+  const [model3, setModel3] = useState("");
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(300);
   const [systemPrompt, setSystemPrompt] = useState("");
@@ -76,12 +79,16 @@ function LlmConfigPanel() {
     }
     const config = result as {
       model: string;
+      model_2: string;
+      model_3: string;
       temperature: number;
       max_tokens: number;
       system_prompt: string;
       api_key: string;
     };
     setModel(config.model);
+    setModel2(config.model_2 ?? "");
+    setModel3(config.model_3 ?? "");
     setTemperature(config.temperature);
     setMaxTokens(config.max_tokens);
     setSystemPrompt(config.system_prompt);
@@ -111,6 +118,8 @@ function LlmConfigPanel() {
     setMessage(null);
     try {
       const result = await setLlmConfig({ data: { model,
+          model_2: model2.trim(),
+          model_3: model3.trim(),
           temperature,
           max_tokens: maxTokens,
           system_prompt: systemPrompt,
@@ -216,7 +225,7 @@ function LlmConfigPanel() {
 
         <section className="rounded-2xl bg-white/70 p-5 shadow-sm backdrop-blur-md">
           <div className="space-y-5">
-            <Field label="Modelo">
+            <Field label="Modelo principal">
               <input
                 type="text"
                 value={model}
@@ -225,7 +234,35 @@ function LlmConfigPanel() {
                 className="w-full rounded-xl bg-white/50 px-4 py-2.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-[#99BEE5]"
               />
               <p className="mt-1 text-[10px] text-[var(--clay-text)]/50">
-                Ex: openai/gpt-4o-mini, anthropic/claude-sonnet-4, google/gemini-pro
+                Primeiro modelo tentado em cada chamada à OpenRouter
+              </p>
+            </Field>
+
+            <Field label="Fallback 1 (model_2)">
+              <input
+                type="text"
+                value={model2}
+                onChange={(e) => setModel2(e.target.value)}
+                placeholder={DEFAULT_FALLBACK_MODELS[0]}
+                className="w-full rounded-xl bg-white/50 px-4 py-2.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-[#99BEE5]"
+              />
+              <p className="mt-1 text-[10px] text-[var(--clay-text)]/50">
+                Usado se o modelo principal falhar. Vazio ={" "}
+                <code className="text-[9px]">{DEFAULT_FALLBACK_MODELS[0]}</code> no runtime
+              </p>
+            </Field>
+
+            <Field label="Fallback 2 (model_3)">
+              <input
+                type="text"
+                value={model3}
+                onChange={(e) => setModel3(e.target.value)}
+                placeholder={DEFAULT_FALLBACK_MODELS[1]}
+                className="w-full rounded-xl bg-white/50 px-4 py-2.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-[#99BEE5]"
+              />
+              <p className="mt-1 text-[10px] text-[var(--clay-text)]/50">
+                Terceira tentativa na cadeia. Vazio ={" "}
+                <code className="text-[9px]">{DEFAULT_FALLBACK_MODELS[1]}</code> no runtime
               </p>
             </Field>
 

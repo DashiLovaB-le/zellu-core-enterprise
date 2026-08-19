@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { DesktopShell } from "@/components/DesktopShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
+import { useAuth } from "@/lib/auth-context";
 import { SOUNDS, BREATH_PHASES } from "@/data";
 
 interface RespiroPageProps {
@@ -10,6 +11,7 @@ interface RespiroPageProps {
 }
 
 export function DesktopRespiroPage({ activeSound, onSoundToggle }: RespiroPageProps) {
+  const { user } = useAuth();
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
 
@@ -31,7 +33,7 @@ export function DesktopRespiroPage({ activeSound, onSoundToggle }: RespiroPagePr
       <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
         <div className="flex-1">
           <header className="mb-5 flex items-center gap-3">
-            <Avatar size={36} />
+            <Avatar name={user?.avatar_url ?? undefined} size={36} />
             <div>
               <h1 className="font-display text-2xl text-[var(--clay-title)]">Espaço do Respiro</h1>
               <p className="text-sm text-[var(--clay-text)]/70">

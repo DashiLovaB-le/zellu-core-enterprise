@@ -2,6 +2,7 @@ import { useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
+import { useAuth } from "@/lib/auth-context";
 import type { WellnessPlan, WellnessChecklist, PlanProgress } from "@/lib/services/wellness-plan-service";
 import { CHECKLIST_ITEMS } from "@/lib/api/wellness-plan.server";
 
@@ -158,11 +159,12 @@ export function MobilePlanoDeCuidadoPage({
   onItemAction,
   onRefreshSuggestion,
 }: Props) {
+  const { user } = useAuth();
   if (!plan || showGoalForm) {
     return (
       <MobileShell>
         <header className="mb-4 flex items-center gap-3">
-          <Avatar size={36} />
+          <Avatar name={user?.avatar_url ?? undefined} size={36} />
           <div>
             <h1 className="font-display text-xl text-[var(--clay-title)]">Plano de Cuidado</h1>
             <p className="text-xs text-[var(--clay-text)]/70">
@@ -192,7 +194,7 @@ export function MobilePlanoDeCuidadoPage({
   return (
     <MobileShell>
       <header className="mb-4 flex items-center gap-3">
-        <Avatar size={36} />
+        <Avatar name={user?.avatar_url ?? undefined} size={36} />
         <div className="flex-1">
           <h1 className="font-display text-xl text-[var(--clay-title)]">Plano de Cuidado</h1>
           <p className="text-xs text-[var(--clay-text)]/70">{goalLabel}</p>

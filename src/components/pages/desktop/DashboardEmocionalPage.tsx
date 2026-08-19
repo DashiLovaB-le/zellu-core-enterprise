@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { DesktopShell } from "@/components/DesktopShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
+import { useAuth } from "@/lib/auth-context";
 import {
   BarChart,
   Bar,
@@ -32,6 +33,7 @@ const MOOD_LABELS: Record<string, string> = Object.fromEntries(
 );
 
 export function DesktopDashboardEmocionalPage({ data, aiAnxietyInsight, preventiveAlert, onSuggestionClick }: Props) {
+  const { user } = useAuth();
   const weekCompData = [
     { métrica: "Sono (h)", Essa: data.currentWeek.sleepAvg, Anterior: data.previousWeek.sleepAvg },
     { métrica: "Água (ml)", Essa: data.currentWeek.waterAvg, Anterior: data.previousWeek.waterAvg },
@@ -91,7 +93,7 @@ export function DesktopDashboardEmocionalPage({ data, aiAnxietyInsight, preventi
     <DesktopShell>
       <div className="mx-auto max-w-6xl">
         <header className="mb-6 flex items-center gap-3">
-          <Avatar size={40} />
+          <Avatar name={user?.avatar_url ?? undefined} size={40} />
           <div>
             <h1 className="font-display text-2xl text-[var(--clay-title)]">Dashboard Emocional</h1>
             <p className="text-sm text-[var(--clay-text)]/70">Sua evolução em números</p>

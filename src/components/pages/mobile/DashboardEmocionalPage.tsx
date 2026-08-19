@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
+import { useAuth } from "@/lib/auth-context";
 import {
   BarChart,
   Bar,
@@ -32,6 +33,7 @@ const MOOD_LABELS: Record<string, string> = Object.fromEntries(
 );
 
 export function MobileDashboardEmocionalPage({ data, aiAnxietyInsight, preventiveAlert, onSuggestionClick }: Props) {
+  const { user } = useAuth();
   const weekCompData = [
     {
       métrica: "Sono (h)",
@@ -96,7 +98,7 @@ export function MobileDashboardEmocionalPage({ data, aiAnxietyInsight, preventiv
   return (
     <MobileShell>
       <header className="mb-4 flex items-center gap-3">
-        <Avatar size={36} />
+        <Avatar name={user?.avatar_url ?? undefined} size={36} />
         <div>
           <h1 className="font-display text-xl text-[var(--clay-title)]">Dashboard Emocional</h1>
           <p className="text-xs text-[var(--clay-text)]/70">Sua evolução em números</p>

@@ -23,6 +23,7 @@ describe("parseCompanionAiPayload", () => {
     expect(payload.memory).toBe("Prefere respiração curta pela manhã");
     expect(payload.memoryImportance).toBe(4);
     expect(payload.suggestion).toBe("respirar");
+    expect(payload.parseFailed).toBe(false);
   });
 
   it("aceita JSON dentro de fence e ignora suggestion inválida", () => {
@@ -32,12 +33,14 @@ describe("parseCompanionAiPayload", () => {
     expect(payload.message).toBe("Ok");
     expect(payload.memory).toBeNull();
     expect(payload.suggestion).toBeNull();
+    expect(payload.parseFailed).toBe(false);
   });
 
-  it("não mostra JSON cru quando a mensagem vem vazia", () => {
+  it("marca parseFailed quando JSON não tem message", () => {
     const payload = parseCompanionAiPayload('{"memory":"x"}');
     expect(payload.message).not.toContain("{");
     expect(payload.memory).toBeNull();
+    expect(payload.parseFailed).toBe(true);
   });
 });
 
@@ -80,7 +83,7 @@ describe("formatCompanionContextBlock", () => {
       preventiveLine: "- Sem alertas preventivos",
       memories: [{ importance: 4, content: "Prefere pausas curtas" }],
     });
-    expect(block).toMatch(/CONTEXTO ATUAL/);
+    expect(block).toMatch(/RETRATO DO MOMENTO/);
     expect(block).toMatch(/Melhorar o sono/);
     expect(block).toMatch(/Prefere pausas curtas/);
     expect(block).not.toMatch(/diário/i);

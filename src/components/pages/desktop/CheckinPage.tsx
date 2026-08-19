@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { DesktopShell } from "@/components/DesktopShell";
 import { Avatar } from "@/components/Avatar";
+import { useAuth } from "@/lib/auth-context";
 import { getSleepLabel, MAIN_MOODS, EXTRA_MOODS, MOOD_MAP } from "@/data";
 
 interface CheckinData {
@@ -29,6 +30,7 @@ const sleepHoursPresets = [5, 6, 7, 8, 9];
 const waterPresets = [500, 1000, 1500, 2000, 2500];
 
 export function DesktopCheckinPage({ onSave, saved, saving, todaysCheckin }: CheckinPageProps) {
+  const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [sleepHours, setSleepHours] = useState(7);
   const [waterMl, setWaterMl] = useState(1000);
@@ -60,7 +62,7 @@ export function DesktopCheckinPage({ onSave, saved, saving, todaysCheckin }: Che
       <DesktopShell>
         <div className="mx-auto max-w-2xl">
           <header className="mb-6 flex items-center gap-3">
-            <Avatar size={40} />
+            <Avatar name={user?.avatar_url ?? undefined} size={40} />
             <div>
               <h1 className="font-display text-2xl text-[var(--clay-title)]">Check-in Matinal</h1>
               <p className="text-sm text-[var(--clay-text)]/70">
@@ -133,7 +135,7 @@ export function DesktopCheckinPage({ onSave, saved, saving, todaysCheckin }: Che
     <DesktopShell>
       <div className="mx-auto max-w-2xl">
         <header className="mb-6 flex items-center gap-3">
-          <Avatar size={40} />
+          <Avatar name={user?.avatar_url ?? undefined} size={40} />
           <div>
             <h1 className="font-display text-2xl text-[var(--clay-title)]">Check-in Matinal</h1>
             <p className="text-sm text-[var(--clay-text)]/70">Como você está hoje?</p>
