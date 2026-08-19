@@ -10,6 +10,7 @@ import { getGreeting } from "@/lib/timezone";
 import { selectTrustedChatContext, selectTrustedChatHistory, type ChatTurn } from "@/lib/chat-guard";
 import { detectPatterns } from "@/lib/api/preventiva-ai.server";
 import { COMPANION_JSON_PROTOCOL, parseCompanionAiPayload } from "@/lib/companion-agent";
+import { buildLocalFallbackReply } from "@/lib/companion-local-fallback";
 import { companionContextBlock, loadCompanionSnapshot, persistCompanionMemory } from "@/lib/api/companion-memory.server";
 
 export interface PreventiveContext {
@@ -148,7 +149,17 @@ ${COMPANION_JSON_PROTOCOL}`;
     const allowCloudAi = Boolean(profile?.privacy_ai_opt_in) && Boolean(config.api_key);
 
     if (!allowCloudAi) {
-      const reply = buildLocalFallbackReply(data.text, name, serverContext);
+      void logEvent(
+        "info",
+        "chat-ai.sendChatMessage",
+        "Fallback local (IA na nuvem indisponível)",
+        {
+          aiOptIn: Boolean(profile?.privacy_ai_opt_in),
+          hasApiKey: Boolean(config.api_key),
+        },
+        userId,
+      );
+      const reply = buildLocalFallbackReply(data.text, name, { ...serverContext, greeting });
       await persistExchange(supabase, userId, data.text, reply);
       return { reply, suggestion: extractSuggestion(reply), crisis: false };
     }
@@ -171,7 +182,7 @@ ${COMPANION_JSON_PROTOCOL}`;
     );
 
     if ("error" in result) {
-      const reply = buildLocalFallbackReply(data.text, name, serverContext);
+      const reply = buildLocalFallbackReply(data.text, name, { ...serverContext, greeting });
       void logEvent(
         "warn",
         "chat-ai.sendChatMessage",
@@ -253,37 +264,6 @@ async function persistExchange(
 ) {
   await persistUserMessage(supabase, userId, userText);
   await persistAssistantMessage(supabase, userId, reply);
-}
-
-function buildLocalFallbackReply(
-  text: string,
-  name: string,
-  context: {
-    sleepHours?: number;
-    sleepLabel?: string;
-    waterMl?: number;
-    mood?: string;
-  },
-): string {
-  const lower = text.toLowerCase();
-  if (lower.includes("ansios") || lower.includes("preocup") || lower.includes("nervos")) {
-    return `${name}, entendo que a **ansiedade** pode pesar.\n\nQue tal uma respiração curta agora?\n- Inspire pelo nariz contando até **4**\n- Segure por **2**\n- Solte pela boca contando até **6**`;
-  }
-  if (lower.includes("triste") || lower.includes("mal") || lower.includes("baixo")) {
-    return `${name}, obrigado por compartilhar como está se sentindo.\n\nMomentos difíceis fazem parte — um passo pequeno, como *beber água* ou *uma caminhada curta*, pode ajudar.`;
-  }
-  if (lower.includes("sono") || lower.includes("dorm") || lower.includes("cansad")) {
-    return context.sleepLabel
-      ? `Vi que seu sono foi **${context.sleepLabel.toLowerCase()}**.\n\nSe puder, tente:\n- Reduzir telas antes de dormir\n- Manter um horário mais regular`
-      : `${name}, o **cansaço** pede cuidado.\n\nSe possível, priorize uma noite com horário mais estável e uma pausa sem telas antes de dormir.`;
-  }
-  if (lower.includes("água") || lower.includes("hidrat")) {
-    return `Boa ideia cuidar da **hidratação**.\n\nUm copo de água agora já conta — pequenos hábitos sustentam o bem-estar.`;
-  }
-  if (context.mood) {
-    return `${name}, obrigado por compartilhar.\n\nVi que seu humor recente foi **"${context.mood}"**. Estou disponível para ouvir — o que mais está presente para você agora?`;
-  }
-  return `${name}, obrigado por escrever. Estou disponível para conversar.\n\nPode me contar um pouco mais sobre como está se *sentindo*?`;
 }
 
 export const getContextualGreeting = createServerFn({ method: "POST" })

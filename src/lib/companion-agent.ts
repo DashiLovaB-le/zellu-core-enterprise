@@ -71,7 +71,7 @@ Responda APENAS com um JSON válido, sem markdown fora da string message, com as
 }
 Regras:
 - Mantenha o tom já definido acima. Não mude de personagem.
-- message: 2 a 4 frases, markdown leve permitido só dentro dessa string.
+- message: 2 a 5 frases, markdown leve permitido só dentro dessa string.
 - memory: só grave um fato estável e útil para conversas futuras (o que ajuda, preferência, gatilho recorrente). Máximo 180 caracteres. Senão, null.
 - Nunca grave em memory: crise, ideação, nome, e-mail, empresa, texto de diário ou dado de identificação.
 - memory_importance: inteiro 1 a 5 (5 = essencial).
