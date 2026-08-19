@@ -17,6 +17,8 @@ import {
 import type { DashboardData } from "@/lib/services/dashboard-service";
 import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
+import { MoodDistributionChart } from "@/components/MoodDistributionChart";
+import { MOOD_MAP } from "@/data/moods";
 
 interface Props {
   data: DashboardData;
@@ -25,41 +27,11 @@ interface Props {
   onSuggestionClick?: (suggestion: string) => void;
 }
 
-const MOOD_LABELS: Record<string, string> = {
-  feliz: "Feliz",
-  calmo: "Calmo",
-  neutro: "Neutro",
-  ansioso: "Ansioso",
-  triste: "Triste",
-  irritado: "Irritado",
-};
-
-const MOOD_COLORS: Record<string, string> = {
-  feliz: "#C8E6C9",
-  calmo: "#99BEE5",
-  neutro: "#C5D9F1",
-  ansioso: "#FFCC80",
-  triste: "#90CAF9",
-  irritado: "#EF9A9A",
-};
-
-const MOOD_ORDER = ["feliz", "calmo", "neutro", "ansioso", "triste", "irritado"];
+const MOOD_LABELS: Record<string, string> = Object.fromEntries(
+  Object.values(MOOD_MAP).map((m) => [m.value, m.label]),
+);
 
 export function DesktopDashboardEmocionalPage({ data, aiAnxietyInsight, preventiveAlert, onSuggestionClick }: Props) {
-  const moodChartData = useMemo(() => {
-    return MOOD_ORDER.filter(
-      (m) =>
-        (data.currentWeek.moodDistribution[m] ?? 0) > 0 ||
-        (data.previousWeek.moodDistribution[m] ?? 0) > 0,
-    ).map((m) => ({
-      mood: MOOD_LABELS[m] ?? m,
-      Essa: data.currentWeek.moodDistribution[m] ?? 0,
-      Semana: data.currentWeek.moodDistribution[m] ?? 0,
-      Anterior: data.previousWeek.moodDistribution[m] ?? 0,
-      fill: MOOD_COLORS[m] ?? "#C5D9F1",
-    }));
-  }, [data]);
-
   const weekCompData = [
     { métrica: "Sono (h)", Essa: data.currentWeek.sleepAvg, Anterior: data.previousWeek.sleepAvg },
     { métrica: "Água (ml)", Essa: data.currentWeek.waterAvg, Anterior: data.previousWeek.waterAvg },
@@ -98,8 +70,6 @@ export function DesktopDashboardEmocionalPage({ data, aiAnxietyInsight, preventi
       movimento: w.movementAvg,
     }));
   }, [data]);
-
-  const hasCurrentData = data.currentWeek.totalDays > 0;
 
   function formatAnxietyText(): string {
     // Se há insight de IA, usar ele
@@ -164,31 +134,11 @@ export function DesktopDashboardEmocionalPage({ data, aiAnxietyInsight, preventi
             <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
               Distribuição de Humor: Essa Semana
             </h3>
-            {hasCurrentData ? (
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart
-                  data={moodChartData}
-                  layout="vertical"
-                  margin={{ left: 0, right: 8, top: 4, bottom: 4 }}
-                >
-                  <XAxis type="number" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis
-                    type="category"
-                    dataKey="mood"
-                    tick={{ fontSize: 11 }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={70}
-                  />
-                  <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
-                  <Bar dataKey="Semana" radius={[0, 6, 6, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="py-8 text-center text-sm text-[var(--clay-title)]/50">
-                Nenhum registro esta semana.
-              </p>
-            )}
+            <MoodDistributionChart
+              distribution={data.currentWeek.moodDistribution}
+              height={240}
+              tickFontSize={11}
+            />
           </section>
 
           <section className="rounded-2xl bg-white/70 p-5 shadow-sm backdrop-blur-md">

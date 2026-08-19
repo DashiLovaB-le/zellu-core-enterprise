@@ -6,6 +6,30 @@ import { PRIVACY_CONSENT_VERSION, RETENTION_DAYS } from "@/lib/privacy";
 import { logEvent } from "@/lib/api/logs.server";
 import { executeRetentionPurge } from "@/lib/retention";
 
+export type PrivacyPreferences = {
+  aiOptIn: boolean;
+  rhOptIn: boolean;
+  emailOptIn: boolean;
+};
+
+function readPrivacyPreferences(profile: {
+  privacy_ai_opt_in?: boolean | null;
+  privacy_rh_opt_in?: boolean | null;
+  privacy_email_opt_in?: boolean | null;
+} | null): PrivacyPreferences {
+  return {
+    aiOptIn: profile?.privacy_ai_opt_in === true,
+    rhOptIn: profile?.privacy_rh_opt_in === true,
+    emailOptIn: profile?.privacy_email_opt_in === true,
+  };
+}
+
+export const getPrivacyPreferences = createServerFn({ method: "GET" }).handler(async () => {
+  const auth = await requireUser();
+  if ("error" in auth) return { error: "Unauthorized" as const, preferences: null };
+  return { error: null, preferences: readPrivacyPreferences(auth.profile) };
+});
+
 export const savePrivacyConsent = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
@@ -51,10 +75,29 @@ export const updatePrivacyPreferences = createServerFn({ method: "POST" })
     if (data.aiOptIn !== undefined) payload.privacy_ai_opt_in = data.aiOptIn;
     if (data.rhOptIn !== undefined) payload.privacy_rh_opt_in = data.rhOptIn;
     if (data.emailOptIn !== undefined) payload.privacy_email_opt_in = data.emailOptIn;
-    if (Object.keys(payload).length === 0) return { error: null };
+    if (Object.keys(payload).length === 0) {
+      return { error: null, preferences: readPrivacyPreferences(auth.profile) };
+    }
 
-    const { error } = await auth.supabase.from("profiles").update(payload).eq("id", auth.userId);
-    return { error: error?.message ?? null };
+    const { data: updated, error } = await auth.supabase
+      .from("profiles")
+      .update(payload)
+      .eq("id", auth.userId)
+      .select("privacy_ai_opt_in, privacy_rh_opt_in, privacy_email_opt_in")
+      .single();
+
+    if (error) {
+      void logEvent(
+        "warn",
+        "privacy.updatePrivacyPreferences",
+        "Falha ao salvar preferências LGPD",
+        { error: error.message, payload },
+        auth.userId,
+      );
+      return { error: error.message, preferences: null };
+    }
+
+    return { error: null, preferences: readPrivacyPreferences(updated) };
   });
 
 export const withdrawPrivacyConsent = createServerFn({ method: "POST" })

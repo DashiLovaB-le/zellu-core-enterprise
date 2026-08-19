@@ -43,6 +43,20 @@ export function zonedDateKey(timeZone = DEFAULT_TIMEZONE, at = new Date()): stri
   }
 }
 
+export function addDaysToDateKey(key: string, days: number): string {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
+}
+
+/** Segunda-feira da semana civil no fuso (semana começa na segunda). */
+export function mondayOfWeekKey(timeZone = DEFAULT_TIMEZONE, at = new Date()): string {
+  const key = zonedDateKey(timeZone, at);
+  const [y, m, d] = key.split("-").map(Number);
+  const dow = new Date(Date.UTC(y, m - 1, d, 12, 0, 0)).getUTCDay();
+  const diff = dow === 0 ? -6 : 1 - dow;
+  return addDaysToDateKey(key, diff);
+}
+
 export function startOfZonedDayUtc(timeZone = DEFAULT_TIMEZONE, at = new Date()): Date {
   const key = zonedDateKey(timeZone, at);
   const probe = new Date(`${key}T12:00:00.000Z`);

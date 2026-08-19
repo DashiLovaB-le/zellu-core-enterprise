@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireCompanionConsent } from "@/lib/require-user";
-import { getMoodScore } from "@/data/moods";
+import { canonicalMood, getMoodScore } from "@/data/moods";
+import { addDaysToDateKey, DEFAULT_TIMEZONE, mondayOfWeekKey, zonedDateKey } from "@/lib/timezone";
 
 export interface WeekComparison {
   sleepAvg: number;
@@ -36,25 +37,21 @@ export interface DashboardData {
   daysTracked: number;
 }
 
-function dateKey(d: Date): string {
-  return d.toISOString().split("T")[0];
+function formatWeekLabel(mondayKey: string): string {
+  const endKey = addDaysToDateKey(mondayKey, 6);
+  const fmt = (key: string) => {
+    const [y, m, d] = key.split("-").map(Number);
+    return new Date(Date.UTC(y, m - 1, d, 12)).toLocaleDateString("pt-BR", {
+      day: "numeric",
+      month: "short",
+      timeZone: "UTC",
+    });
+  };
+  return `${fmt(mondayKey)} - ${fmt(endKey)}`;
 }
 
-function getMonday(d: Date): Date {
-  const date = new Date(d);
-  const day = date.getDay();
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-  date.setDate(diff);
-  date.setHours(0, 0, 0, 0);
-  return date;
-}
-
-function formatWeekLabel(monday: Date): string {
-  const start = monday.toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
-  const end = new Date(monday);
-  end.setDate(end.getDate() + 6);
-  const endStr = end.toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
-  return `${start} - ${endStr}`;
+function resolveMood(raw: string | null | undefined): string | null {
+  return canonicalMood(raw) ?? (raw ? raw.toLowerCase() : null);
 }
 
 function buildEmptyWeek(): WeekComparison {
@@ -127,7 +124,7 @@ export const getDashboardData = createServerFn({ method: "GET" })
     >();
 
     for (const c of checkins) {
-      const key = dateKey(new Date(c.created_at));
+      const key = zonedDateKey(DEFAULT_TIMEZONE, new Date(c.created_at));
       const existing = dayMap.get(key) ?? {
         mood: null,
         sleepHours: 0,
@@ -158,7 +155,7 @@ export const getDashboardData = createServerFn({ method: "GET" })
     }
 
     for (const e of diaryEntries) {
-      const key = dateKey(new Date(e.created_at));
+      const key = zonedDateKey(DEFAULT_TIMEZONE, new Date(e.created_at));
       const existing = dayMap.get(key) ?? {
         mood: null,
         sleepHours: 0,
@@ -171,40 +168,35 @@ export const getDashboardData = createServerFn({ method: "GET" })
     }
 
     const today = new Date();
-    const todayKey = dateKey(today);
-    const currentMonday = getMonday(today);
-    const prevMonday = new Date(currentMonday);
-    prevMonday.setDate(prevMonday.getDate() - 7);
+    const todayKey = zonedDateKey(DEFAULT_TIMEZONE, today);
+    const currentMondayKey = mondayOfWeekKey(DEFAULT_TIMEZONE, today);
+    const prevMondayKey = addDaysToDateKey(currentMondayKey, -7);
 
-    function inWeek(key: string, weekStart: Date): boolean {
-      const d = new Date(key + "T12:00:00");
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekEnd.getDate() + 7);
-      return d >= weekStart && d < weekEnd;
+    function inWeek(key: string, weekStartKey: string): boolean {
+      const weekEndKey = addDaysToDateKey(weekStartKey, 7);
+      return key >= weekStartKey && key < weekEndKey;
     }
 
-    const currentWeek: WeekComparison = { ...buildEmptyWeek() };
-    const previousWeek: WeekComparison = { ...buildEmptyWeek() };
+    const currentWeek: WeekComparison = { ...buildEmptyWeek(), moodDistribution: {} };
+    const previousWeek: WeekComparison = { ...buildEmptyWeek(), moodDistribution: {} };
     const dailyMoodTrend: DailyDataPoint[] = [];
     const dailySleepTrend: { date: string; hours: number }[] = [];
 
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const thirtyKey = dateKey(thirtyDaysAgo);
+    const thirtyKey = addDaysToDateKey(todayKey, -30);
 
     for (const [key, vals] of dayMap) {
-      const inCurrent = inWeek(key, currentMonday);
-      const inPrev = inWeek(key, prevMonday);
+      const inCurrent = inWeek(key, currentMondayKey);
+      const inPrev = inWeek(key, prevMondayKey);
+      const moodKey = resolveMood(vals.mood);
 
       if (inCurrent) {
         currentWeek.totalDays++;
         if (vals.sleepHours > 0) currentWeek.sleepAvg += vals.sleepHours;
         if (vals.waterMl > 0) currentWeek.waterAvg += vals.waterMl;
         if (vals.movementMinutes > 0) currentWeek.movementAvg += vals.movementMinutes;
-        if (vals.mood) {
-          currentWeek.moodDistribution[vals.mood] =
-            (currentWeek.moodDistribution[vals.mood] ?? 0) + 1;
-          if (vals.mood === "ansioso") currentWeek.anxietyCount++;
+        if (moodKey) {
+          currentWeek.moodDistribution[moodKey] = (currentWeek.moodDistribution[moodKey] ?? 0) + 1;
+          if (getMoodScore(moodKey) === 3) currentWeek.anxietyCount++;
         }
       }
 
@@ -213,19 +205,19 @@ export const getDashboardData = createServerFn({ method: "GET" })
         if (vals.sleepHours > 0) previousWeek.sleepAvg += vals.sleepHours;
         if (vals.waterMl > 0) previousWeek.waterAvg += vals.waterMl;
         if (vals.movementMinutes > 0) previousWeek.movementAvg += vals.movementMinutes;
-        if (vals.mood) {
-          previousWeek.moodDistribution[vals.mood] =
-            (previousWeek.moodDistribution[vals.mood] ?? 0) + 1;
-          if (vals.mood === "ansioso") previousWeek.anxietyCount++;
+        if (moodKey) {
+          previousWeek.moodDistribution[moodKey] =
+            (previousWeek.moodDistribution[moodKey] ?? 0) + 1;
+          if (getMoodScore(moodKey) === 3) previousWeek.anxietyCount++;
         }
       }
 
       if (key >= thirtyKey && key <= todayKey) {
-        if (vals.mood) {
+        if (moodKey) {
           dailyMoodTrend.push({
             date: key,
-            score: getMoodScore(vals.mood),
-            mood: vals.mood,
+            score: getMoodScore(moodKey),
+            mood: moodKey,
             hours: vals.sleepHours,
           });
         }
@@ -259,12 +251,14 @@ export const getDashboardData = createServerFn({ method: "GET" })
       anxietyChangePercent = 100;
     }
 
-    const allMoods = [...dayMap.values()].map((v) => v.mood).filter(Boolean) as string[];
+    const allMoods = [...dayMap.values()]
+      .map((v) => resolveMood(v.mood))
+      .filter(Boolean) as string[];
     const moodCounts: Record<string, number> = {};
     for (const m of allMoods) {
       moodCounts[m] = (moodCounts[m] ?? 0) + 1;
     }
-    let dominantMood = "neutro";
+    let dominantMood = "sem dados";
     let maxCount = 0;
     for (const [m, c] of Object.entries(moodCounts)) {
       if (c > maxCount) {
@@ -274,17 +268,13 @@ export const getDashboardData = createServerFn({ method: "GET" })
     }
 
     const weeklySummaries: WeeklySummary[] = [];
-    const weekStarts: Date[] = [];
-    const eightWeeksAgo = new Date();
-    eightWeeksAgo.setDate(eightWeeksAgo.getDate() - 56);
-    const iter = getMonday(eightWeeksAgo);
-    while (iter <= today) {
-      weekStarts.push(new Date(iter));
-      iter.setDate(iter.getDate() + 7);
-    }
-    for (const ws of weekStarts) {
-      const weekEnd = new Date(ws);
-      weekEnd.setDate(weekEnd.getDate() + 7);
+    const eightWeeksAgoKey = addDaysToDateKey(todayKey, -56);
+    let weekStartKey = mondayOfWeekKey(
+      DEFAULT_TIMEZONE,
+      new Date(`${eightWeeksAgoKey}T12:00:00.000Z`),
+    );
+    while (weekStartKey <= currentMondayKey) {
+      const weekEndKey = addDaysToDateKey(weekStartKey, 7);
       let moodSum = 0;
       let moodCount = 0;
       let sleepSum = 0;
@@ -292,10 +282,10 @@ export const getDashboardData = createServerFn({ method: "GET" })
       let movementSum = 0;
       let movementCount = 0;
       for (const [key, vals] of dayMap) {
-        const d = new Date(key + "T12:00:00");
-        if (d >= ws && d < weekEnd) {
-          if (vals.mood) {
-            moodSum += getMoodScore(vals.mood);
+        if (key >= weekStartKey && key < weekEndKey) {
+          const weekMood = resolveMood(vals.mood);
+          if (weekMood) {
+            moodSum += getMoodScore(weekMood);
             moodCount++;
           }
           if (vals.sleepHours > 0) {
@@ -310,12 +300,13 @@ export const getDashboardData = createServerFn({ method: "GET" })
       }
       if (moodCount > 0 || sleepCount > 0 || movementCount > 0) {
         weeklySummaries.push({
-          weekLabel: formatWeekLabel(ws),
+          weekLabel: formatWeekLabel(weekStartKey),
           moodAvg: moodCount > 0 ? parseFloat((moodSum / moodCount).toFixed(1)) : 0,
           sleepAvg: sleepCount > 0 ? parseFloat((sleepSum / sleepCount).toFixed(1)) : 0,
           movementAvg: movementCount > 0 ? Math.round(movementSum / movementCount) : 0,
         });
       }
+      weekStartKey = weekEndKey;
     }
 
     return {

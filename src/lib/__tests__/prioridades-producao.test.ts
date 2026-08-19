@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { applyKAnonymity, applyProfileUpdateGuard, assertNoPrivateFields, companyMetricsAllowed, scopeByCompanyId } from "@/lib/tenant";
 import { detectCrisisLanguage, buildCrisisReply } from "@/lib/crisis";
 import { selectTrustedChatHistory, selectTrustedChatContext } from "@/lib/chat-guard";
-import { getMoodScore, isNegativeMood } from "@/data/moods";
+import { getMoodScore, isNegativeMood, toMainMood, buildWeeklyMoodBars } from "@/data/moods";
 import { hasValidPrivacyConsent, sanitizeLogDetails, sanitizeLogMessage } from "@/lib/lgpd";
 import { PRIVACY_CONSENT_VERSION, CLINICAL_DISCLAIMER, PRIVACY_AI_PROCESSING } from "@/lib/privacy";
 
@@ -102,6 +102,18 @@ describe("crise e humor", () => {
     expect(getMoodScore("sobrecarregado")).toBeLessThanOrEqual(3);
     expect(isNegativeMood("ansioso")).toBe(true);
     expect(isNegativeMood("calmo")).toBe(false);
+  });
+
+  it("humores extras entram nas 6 categorias do gráfico semanal", () => {
+    expect(toMainMood("grato")).toBe("feliz");
+    expect(toMainMood("sereno")).toBe("calmo");
+    expect(toMainMood("preocupado")).toBe("ansioso");
+    expect(toMainMood("bravo")).toBe("irritado");
+    const bars = buildWeeklyMoodBars({ grato: 2, ansioso: 1, sereno: 1 });
+    expect(bars.find((b) => b.key === "feliz")?.count).toBe(2);
+    expect(bars.find((b) => b.key === "calmo")?.count).toBe(1);
+    expect(bars.find((b) => b.key === "ansioso")?.count).toBe(1);
+    expect(bars).toHaveLength(6);
   });
 });
 

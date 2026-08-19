@@ -80,6 +80,22 @@ export const NEGATIVE_MOODS = new Set(
 
 export const MAIN_MOOD_ORDER = MAIN_MOODS.map((m) => m.value);
 
+export const MAIN_MOOD_COLORS: Record<string, string> = {
+  feliz: "#C8E6C9",
+  calmo: "#99BEE5",
+  neutro: "#C5D9F1",
+  ansioso: "#FFCC80",
+  triste: "#90CAF9",
+  irritado: "#EF9A9A",
+};
+
+export type WeeklyMoodBar = {
+  mood: string;
+  key: string;
+  count: number;
+  fill: string;
+};
+
 export function getMoodScore(mood: string | null | undefined): number {
   if (!mood) return 0;
   return MOOD_SCORE[mood.toLowerCase()] ?? 0;
@@ -95,4 +111,34 @@ export function canonicalMood(mood: string | null | undefined): string | null {
   const key = mood.toLowerCase();
   if (MOOD_MAP[key]) return key;
   return null;
+}
+
+/** Humores extras entram nas 6 categorias do gráfico de distribuição. */
+export function toMainMood(mood: string | null | undefined): string | null {
+  const key = canonicalMood(mood);
+  if (!key) return null;
+  if (MAIN_MOOD_ORDER.includes(key)) return key;
+  const score = getMoodScore(key);
+  if (score >= 6) return "feliz";
+  if (score === 5) return "calmo";
+  if (score === 4) return "neutro";
+  if (score === 3) return "ansioso";
+  if (score === 2) return "triste";
+  if (score === 1) return "irritado";
+  return null;
+}
+
+export function buildWeeklyMoodBars(distribution: Record<string, number>): WeeklyMoodBar[] {
+  const counts: Record<string, number> = Object.fromEntries(MAIN_MOOD_ORDER.map((m) => [m, 0]));
+  for (const [mood, count] of Object.entries(distribution)) {
+    if (!count) continue;
+    const main = toMainMood(mood);
+    if (main) counts[main] = (counts[main] ?? 0) + count;
+  }
+  return MAIN_MOOD_ORDER.map((m) => ({
+    mood: MOOD_MAP[m]?.label ?? m,
+    key: m,
+    count: counts[m] ?? 0,
+    fill: MAIN_MOOD_COLORS[m] ?? "#C5D9F1",
+  }));
 }
