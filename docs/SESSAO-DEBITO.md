@@ -1,5 +1,5 @@
-# Débito de sessão (item 2.6)
+# Sessão httpOnly (item 2.6)
 
-As server functions ainda recebem `accessToken` no body. A validação passou a ser `supabase.auth.getUser(accessToken)` (assinatura + expiração), não decode local do JWT.
+A sessão autentica as server functions por cookies `mmc-at` / `mmc-rt` (`HttpOnly`, `SameSite=Lax`, `Secure` em produção). O JWT não vai no body.
 
-**Próximo passo:** cookie httpOnly via `@supabase/ssr` e parar de enviar o token no body. Não expandir o padrão atual para novas APIs quando for possível ler a sessão no servidor.
+Login: `signInWithPassword` no servidor. Identidade: `requireUser()` lê o cookie e valida com `supabase.auth.getUser`.

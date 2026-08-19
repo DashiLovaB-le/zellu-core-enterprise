@@ -12,42 +12,35 @@ import {
 
 export type { WellnessPlan, WellnessChecklist, PlanProgress } from "@/lib/api/wellness-plan.server";
 
-export async function loadWellnessPlan(accessToken: string | null): Promise<WellnessPlan | null> {
-  if (!accessToken) return null;
+export async function loadWellnessPlan(): Promise<WellnessPlan | null> {
   try {
-    return await getWellnessPlan({ data: { accessToken } });
+    return await getWellnessPlan();
   } catch {
     return null;
   }
 }
 
 export async function createWellnessPlan(
-  accessToken: string,
   goal: string,
   customGoal?: string,
 ): Promise<{ data?: WellnessPlan; error?: string }> {
   try {
-    return await saveWellnessPlan({ data: { accessToken, goal, customGoal } });
+    return await saveWellnessPlan({ data: { goal, customGoal } });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erro ao salvar plano";
     return { error: message };
   }
 }
 
-export async function loadTodaysChecklist(
-  accessToken: string | null,
-  planId: string,
-): Promise<WellnessChecklist | null> {
-  if (!accessToken) return null;
+export async function loadTodaysChecklist(planId: string): Promise<WellnessChecklist | null> {
   try {
-    return await getTodaysChecklist({ data: { accessToken, planId } });
+    return await getTodaysChecklist({ data: { planId } });
   } catch {
     return null;
   }
 }
 
 export async function saveChecklist(
-  accessToken: string,
   planId: string,
   data: {
     waterDone?: boolean;
@@ -58,40 +51,32 @@ export async function saveChecklist(
   },
 ): Promise<WellnessChecklist | null> {
   try {
-    return await updateChecklist({ data: { accessToken, planId, ...data } });
+    return await updateChecklist({ data: { planId, ...data } });
   } catch {
     return null;
   }
 }
 
-export async function loadPlanProgress(
-  accessToken: string | null,
-  planId: string,
-): Promise<PlanProgress | null> {
-  if (!accessToken) return null;
+export async function loadPlanProgress(planId: string): Promise<PlanProgress | null> {
   try {
-    return await getPlanProgress({ data: { accessToken, planId } });
+    return await getPlanProgress({ data: { planId } });
   } catch {
     return null;
   }
 }
 
-export async function loadPlanSuggestion(
-  accessToken: string | null,
-  plan: {
-    goal: string;
-    completionRate: number;
-    currentStreak: number;
-    totalDays: number;
-    waterRate: number;
-    walkRate: number;
-    breatheRate: number;
-    talkRate: number;
-  },
-): Promise<string> {
-  if (!accessToken) return generateFallbackSuggestion(plan);
+export async function loadPlanSuggestion(plan: {
+  goal: string;
+  completionRate: number;
+  currentStreak: number;
+  totalDays: number;
+  waterRate: number;
+  walkRate: number;
+  breatheRate: number;
+  talkRate: number;
+}): Promise<string> {
   try {
-    const result = await generatePlanSuggestion({ data: { accessToken, plan } });
+    const result = await generatePlanSuggestion({ data: { plan } });
     return result.suggestion;
   } catch {
     return generateFallbackSuggestion(plan);

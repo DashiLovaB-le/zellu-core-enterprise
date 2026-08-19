@@ -9,7 +9,6 @@ import {
   hideAlertsForSmallTeams,
   type TeamAggregate,
 } from "@/lib/tenant";
-import { createAdminClient } from "@/lib/supabase/admin.server";
 
 export type TeamMetrics = {
   name: string;
@@ -200,6 +199,21 @@ export function buildRhDashboard(input: {
     if (key && moodDist[key] !== undefined) moodDist[key] += 1;
   }
 
+  const alerts = buildRhAlerts(teams);
+
+  return {
+    totalUsers,
+    checkinsToday,
+    checkinsThisWeek,
+    weeklyAdhesion,
+    teams,
+    trends: companyAllowed ? trends : [],
+    alerts: companyAllowed ? hideAlertsForSmallTeams(alerts, teams) : [],
+    moodDistribution: companyAllowed ? moodDist : {},
+  };
+}
+
+export function buildRhAlerts(teams: RhTeamMetrics[]): RhAlert[] {
   const alerts: RhAlert[] = [];
   let alertId = 0;
   for (const team of teams) {
@@ -240,90 +254,85 @@ export function buildRhDashboard(input: {
       });
     }
   }
+  return alerts;
+}
 
+const rhTeamSchema = z.object({
+  name: z.string(),
+  memberCount: z.coerce.number(),
+  avgSleep: z.coerce.number(),
+  avgMood: z.coerce.number(),
+  avgWater: z.coerce.number(),
+  negativeMoodPct: z.coerce.number(),
+  status: z.enum(["stable", "attention", "monitor"]),
+  metricsHidden: z.boolean(),
+});
+
+const rhRpcSchema = z.object({
+  totalUsers: z.coerce.number(),
+  checkinsToday: z.coerce.number(),
+  checkinsThisWeek: z.coerce.number(),
+  weeklyAdhesion: z.coerce.number(),
+  companyMetricsAllowed: z.boolean(),
+  teams: z.array(rhTeamSchema),
+  trends: z.array(
+    z.object({
+      date: z.string(),
+      avgMood: z.coerce.number(),
+      avgSleep: z.coerce.number(),
+      avgWater: z.coerce.number(),
+      checkinCount: z.coerce.number(),
+    }),
+  ),
+  moodDistribution: z.record(z.coerce.number()),
+});
+
+function dashboardFromRpc(parsed: z.infer<typeof rhRpcSchema>): RhDashboardData {
+  const teams = parsed.teams.map((team) => applyKAnonymity(team));
+  const companyAllowed = parsed.companyMetricsAllowed && companyMetricsAllowed(parsed.totalUsers);
+  const alerts = companyAllowed ? hideAlertsForSmallTeams(buildRhAlerts(teams), teams) : [];
   return {
-    totalUsers,
-    checkinsToday,
-    checkinsThisWeek,
-    weeklyAdhesion,
+    totalUsers: parsed.totalUsers,
+    checkinsToday: parsed.checkinsToday,
+    checkinsThisWeek: parsed.checkinsThisWeek,
+    weeklyAdhesion: parsed.weeklyAdhesion,
     teams,
-    trends: companyAllowed ? trends : [],
-    alerts: companyAllowed ? hideAlertsForSmallTeams(alerts, teams) : [],
-    moodDistribution: companyAllowed ? moodDist : {},
+    trends: companyAllowed ? parsed.trends : [],
+    alerts,
+    moodDistribution: companyAllowed ? parsed.moodDistribution : {},
   };
 }
 
-async function loadCompanyScope(
-  accessToken: string,
+async function fetchManagerRhDashboard(
   periodDays = 30,
-): Promise<
-  | { error: string }
-  | {
-      companyId: string | null;
-      isDev: boolean;
-      userId: string;
-      members: MemberRow[];
-      teams: Array<{ id: string; name: string }>;
-      checkins: CheckinRow[];
-    }
-> {
-  const auth = await requireManager(accessToken);
+): Promise<{ error: string } | { companyId: string; userId: string; dashboard: RhDashboardData }> {
+  const auth = await requireManager();
   if ("error" in auth) return auth;
+  if (!auth.companyId) return { error: "Unauthorized — sem empresa" };
 
-  const { companyId, isDev, userId } = auth;
+  const { data, error } = await auth.supabase.rpc("get_rh_dashboard", {
+    p_period_days: periodDays,
+  });
+  if (error) return { error: error.message };
 
-  if (!companyId) return { error: "Unauthorized — sem empresa" };
-
-  const admin = createAdminClient();
-
-  const membersQuery = admin
-    .from("profiles")
-    .select("id, team_id, role, company_id, privacy_rh_opt_in")
-    .eq("company_id", companyId)
-    .in("role", ["companion", "manager"]);
-  const teamsQuery = admin.from("teams").select("id, name, company_id").eq("company_id", companyId);
-
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - periodDays);
-
-  const [membersRes, teamsRes] = await Promise.all([membersQuery, teamsQuery]);
-  const members = ((membersRes.data ?? []) as Array<MemberRow & { privacy_rh_opt_in?: boolean | null }>).filter(
-    (m) => m.role !== "companion" || m.privacy_rh_opt_in === true,
-  );
-  const optedInIds = members.filter((m) => m.role === "companion").map((m) => m.id);
-
-  let checkins: CheckinRow[] = [];
-  if (optedInIds.length > 0) {
-    const { data } = await admin
-      .from("checkins")
-      .select("user_id, created_at, mood, sleep_hours, water_ml")
-      .in("user_id", optedInIds)
-      .gte("created_at", startDate.toISOString())
-      .order("created_at", { ascending: true });
-    checkins = (data ?? []) as CheckinRow[];
-  }
+  const payload = typeof data === "string" ? JSON.parse(data) : data;
+  const parsed = rhRpcSchema.safeParse(payload);
+  if (!parsed.success) return { error: "Painel RH indisponível" };
 
   return {
-    companyId,
-    isDev,
-    userId,
-    members,
-    teams: (teamsRes.data ?? []).map((t) => ({ id: t.id, name: t.name })),
-    checkins,
+    companyId: auth.companyId,
+    userId: auth.userId,
+    dashboard: dashboardFromRpc(parsed.data),
   };
 }
 
 export const getManagerDashboard = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const scope = await loadCompanyScope(data.accessToken, 7);
+
+  .handler(async () => {
+    const scope = await fetchManagerRhDashboard( 7);
     if ("error" in scope) return scope;
 
-    const rh = buildRhDashboard({
-      members: scope.members,
-      teams: scope.teams,
-      checkins: scope.checkins,
-    });
+    const rh = scope.dashboard;
 
     void logEvent(
       "info",
@@ -358,17 +367,13 @@ export const getManagerDashboard = createServerFn({ method: "POST" })
 
 export const getCheckinStats = createServerFn({ method: "POST" })
   .inputValidator(
-    z.object({ accessToken: z.string(), periodDays: z.number().min(1).max(90).default(30) }),
+    z.object({ periodDays: z.number().min(1).max(90).default(30) }),
   )
-  .handler(async ({ data }: { data: { accessToken: string; periodDays: number } }) => {
-    const scope = await loadCompanyScope(data.accessToken, data.periodDays);
+  .handler(async ({ data }: { data: { periodDays: number } }) => {
+    const scope = await fetchManagerRhDashboard( data.periodDays);
     if ("error" in scope) return scope;
 
-    const rh = buildRhDashboard({
-      members: scope.members,
-      teams: scope.teams,
-      checkins: scope.checkins,
-    });
+    const rh = scope.dashboard;
 
     const anonymized = companyMetricsAllowed(rh.totalUsers)
       ? rh.trends.map((t) => ({
@@ -385,17 +390,13 @@ export const getCheckinStats = createServerFn({ method: "POST" })
 
 export const exportCsv = createServerFn({ method: "POST" })
   .inputValidator(
-    z.object({ accessToken: z.string(), periodDays: z.number().min(1).max(365).default(30) }),
+    z.object({ periodDays: z.number().min(1).max(365).default(30) }),
   )
-  .handler(async ({ data }: { data: { accessToken: string; periodDays: number } }) => {
-    const scope = await loadCompanyScope(data.accessToken, data.periodDays);
+  .handler(async ({ data }: { data: { periodDays: number } }) => {
+    const scope = await fetchManagerRhDashboard( data.periodDays);
     if ("error" in scope) return scope;
 
-    const rh = buildRhDashboard({
-      members: scope.members,
-      teams: scope.teams,
-      checkins: scope.checkins,
-    });
+    const rh = scope.dashboard;
 
     void logEvent(
       "info",
@@ -423,16 +424,12 @@ export const exportCsv = createServerFn({ method: "POST" })
   });
 
 export const getRhDashboard = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const scope = await loadCompanyScope(data.accessToken, 30);
+
+  .handler(async () => {
+    const scope = await fetchManagerRhDashboard( 30);
     if ("error" in scope) return scope;
 
-    const dashboard = buildRhDashboard({
-      members: scope.members,
-      teams: scope.teams,
-      checkins: scope.checkins,
-    });
+    const dashboard = scope.dashboard;
 
     void logEvent(
       "info",
@@ -446,14 +443,9 @@ export const getRhDashboard = createServerFn({ method: "POST" })
   });
 
 export const listManagerTeams = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const scope = await loadCompanyScope(data.accessToken, 30);
+
+  .handler(async () => {
+    const scope = await fetchManagerRhDashboard( 30);
     if ("error" in scope) return scope;
-    const rh = buildRhDashboard({
-      members: scope.members,
-      teams: scope.teams,
-      checkins: scope.checkins,
-    });
-    return { data: rh.teams, error: null };
+    return { data: scope.dashboard.teams, error: null };
   });

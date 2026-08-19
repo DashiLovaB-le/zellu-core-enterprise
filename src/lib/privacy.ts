@@ -1,4 +1,4 @@
-export const PRIVACY_CONSENT_VERSION = "2.0";
+export const PRIVACY_CONSENT_VERSION = "3.0";
 
 export const RETENTION_DAYS = {
   chat: 180,
@@ -8,12 +8,16 @@ export const RETENTION_DAYS = {
   logs: 90,
 } as const;
 
+export const CLINICAL_DISCLAIMER =
+  "Este aplicativo não substitui atendimento psicológico, psiquiátrico, terapia nem diagnóstico. É um companion de bem-estar e autocuidado, não um serviço clínico.";
+
 export const PRIVACY_SUMMARY = {
   title: "Como usamos seus dados",
   collected: [
     "Check-ins (sono, hidratação, humor)",
     "Hábitos e plano de cuidado",
     "Diário e conversas com o companion (se você usar)",
+    "Resumos curtos do companion (memória de médio/longo prazo, se a IA estiver autorizada)",
   ],
   rhSees: [
     "Só indicadores agregados por equipe, e somente se você autorizar o compartilhamento com o RH",
@@ -26,6 +30,21 @@ export const PRIVACY_SUMMARY = {
   ],
 };
 
+export const PRIVACY_AI_PROCESSING = {
+  sent: [
+    "O texto que você escreve no chat",
+    "Contexto de bem-estar (humor, sono, hidratação, hábitos, plano de cuidado e alerta preventivo), sem nome ou e-mail",
+    "Resumos curtos que o companion guarda para lembrar o que te ajuda (nunca o texto do diário)",
+  ],
+  neverSent: ["Nome", "E-mail", "Texto do diário", "Identificadores da empresa"],
+  routing:
+    "Com o opt-in de IA, o servidor envia esse contexto à OpenRouter, que roteia a um modelo. Pedimos explicitamente data_collection=deny (sem treino/armazenamento pelo provedor) e zero data retention (ZDR) — o prompt não deve ser retido após a resposta.",
+  localFallback:
+    "Sem o opt-in, o companion responde só com frases locais no nosso servidor. Nada é enviado a modelo externo.",
+  ourRetention: `O histórico da conversa e os resumos do companion ficam na plataforma por ${RETENTION_DAYS.chat} dias e depois são apagados automaticamente.`,
+  transfer: "O processamento da IA ocorre fora do Brasil (transferência internacional, art. 33 da LGPD), somente com o seu opt-in.",
+} as const;
+
 export const PRIVACY_OPERATORS = [
   {
     name: "Supabase",
@@ -34,7 +53,8 @@ export const PRIVACY_OPERATORS = [
   },
   {
     name: "OpenRouter (modelos de IA)",
-    purpose: "Gerar respostas do companion e insights — só com o seu opt-in de IA",
+    purpose:
+      "Gerar respostas do companion e insights — só com o seu opt-in de IA; sem treino e com retenção zero no provedor",
     location: "Fora do Brasil (transferência internacional, art. 33)",
   },
   {

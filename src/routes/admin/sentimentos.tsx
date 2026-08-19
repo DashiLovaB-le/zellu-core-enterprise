@@ -37,9 +37,9 @@ function AdminSentimentosPage() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!session?.access_token || ready) return;
+    if (!session || ready) return;
     (async () => {
-      const s = await loadSentimentData(session.access_token!);
+      const s = await loadSentimentData();
       setData(s);
       setReady(true);
     })();

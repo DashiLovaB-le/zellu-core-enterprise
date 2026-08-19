@@ -4,11 +4,11 @@ import { createAdminClient } from "@/lib/supabase/admin.server";
 import { requireAdmin, requireCompanionConsent, requireUser } from "@/lib/require-user";
 import { PRIVACY_CONSENT_VERSION, RETENTION_DAYS } from "@/lib/privacy";
 import { logEvent } from "@/lib/api/logs.server";
+import { executeRetentionPurge } from "@/lib/retention";
 
 export const savePrivacyConsent = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       adultConfirmed: z.literal(true),
       aiOptIn: z.boolean(),
       rhOptIn: z.boolean(),
@@ -16,7 +16,7 @@ export const savePrivacyConsent = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    const auth = await requireUser(data.accessToken);
+    const auth = await requireUser();
     if ("error" in auth) return { error: "Unauthorized" };
 
     const now = new Date().toISOString();
@@ -38,14 +38,13 @@ export const savePrivacyConsent = createServerFn({ method: "POST" })
 export const updatePrivacyPreferences = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       aiOptIn: z.boolean().optional(),
       rhOptIn: z.boolean().optional(),
       emailOptIn: z.boolean().optional(),
     }),
   )
   .handler(async ({ data }) => {
-    const auth = await requireUser(data.accessToken);
+    const auth = await requireUser();
     if ("error" in auth) return { error: "Unauthorized" };
 
     const payload: Record<string, boolean> = {};
@@ -59,9 +58,9 @@ export const updatePrivacyPreferences = createServerFn({ method: "POST" })
   });
 
 export const withdrawPrivacyConsent = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
+
   .handler(async ({ data }) => {
-    const auth = await requireUser(data.accessToken);
+    const auth = await requireUser();
     if ("error" in auth) return { error: "Unauthorized" };
 
     const { error } = await auth.supabase
@@ -79,13 +78,13 @@ export const withdrawPrivacyConsent = createServerFn({ method: "POST" })
   });
 
 export const exportMyData = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
+
   .handler(async ({ data }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return { error: auth.error, data: null };
     const { supabase, userId } = auth;
 
-    const [profile, checkins, habits, diary, chat, plans, checklist, preventive] = await Promise.all([
+    const [profile, checkins, habits, diary, chat, plans, checklist, preventive, memories] = await Promise.all([
       supabase
         .from("profiles")
         .select(
@@ -100,6 +99,7 @@ export const exportMyData = createServerFn({ method: "POST" })
       supabase.from("wellness_plans").select("*").eq("user_id", userId),
       supabase.from("wellness_checklist").select("*").eq("user_id", userId),
       supabase.from("preventive_notifications").select("*").eq("user_id", userId),
+      supabase.from("companion_memories").select("*").eq("user_id", userId),
     ]);
 
     return {
@@ -115,14 +115,15 @@ export const exportMyData = createServerFn({ method: "POST" })
         wellness_plans: plans.data ?? [],
         wellness_checklist: checklist.data ?? [],
         preventive_notifications: preventive.data ?? [],
+        companion_memories: memories.data ?? [],
       },
     };
   });
 
 export const deleteMyAccount = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
+
   .handler(async ({ data }) => {
-    const auth = await requireUser(data.accessToken);
+    const auth = await requireUser();
     if ("error" in auth) return { error: "Unauthorized" };
 
     const admin = createAdminClient();
@@ -146,22 +147,9 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
   });
 
 export const purgeExpiredPersonalData = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
+
   .handler(async ({ data }) => {
-    const auth = await requireAdmin(data.accessToken);
+    const auth = await requireAdmin();
     if ("error" in auth) return { error: auth.error };
-
-    const admin = createAdminClient();
-    const now = new Date();
-    const cut = (days: number) => new Date(now.getTime() - days * 86400000).toISOString();
-    await Promise.all([
-      admin.from("chat_messages").delete().lt("created_at", cut(RETENTION_DAYS.chat)),
-      admin.from("diary_entries").delete().lt("created_at", cut(RETENTION_DAYS.diary)),
-      admin.from("preventive_notifications").delete().lt("created_at", cut(RETENTION_DAYS.preventive)),
-      admin.from("checkins").delete().lt("created_at", cut(RETENTION_DAYS.checkins)),
-      admin.from("system_logs").delete().lt("created_at", cut(RETENTION_DAYS.logs)),
-    ]);
-
-    void logEvent("info", "privacy.purgeExpiredPersonalData", "Retenção executada", {}, auth.userId);
-    return { error: null };
+    return executeRetentionPurge(auth.userId);
   });

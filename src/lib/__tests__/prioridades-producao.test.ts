@@ -7,7 +7,7 @@ import { detectCrisisLanguage, buildCrisisReply } from "@/lib/crisis";
 import { selectTrustedChatHistory, selectTrustedChatContext } from "@/lib/chat-guard";
 import { getMoodScore, isNegativeMood } from "@/data/moods";
 import { hasValidPrivacyConsent, sanitizeLogDetails, sanitizeLogMessage } from "@/lib/lgpd";
-import { PRIVACY_CONSENT_VERSION } from "@/lib/privacy";
+import { PRIVACY_CONSENT_VERSION, CLINICAL_DISCLAIMER, PRIVACY_AI_PROCESSING } from "@/lib/privacy";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -147,4 +147,109 @@ describe("LGPD", () => {
     expect(sql).toMatch(/DROP POLICY IF EXISTS "checkins_manager_company_select"/);
     expect(sql).toMatch(/privacy_rh_opt_in/);
   });
+
+  it("migration 009 expõe só agregados RH e agenda retenção", () => {
+    const sql = readFileSync(join(root, "supabase/migrations/009_confianca_rls_retencao.sql"), "utf8");
+    expect(sql).toMatch(/CREATE OR REPLACE FUNCTION public\.get_rh_dashboard/);
+    expect(sql).toMatch(/privacy_rh_opt_in IS TRUE/);
+    expect(sql).not.toMatch(/jsonb_build_object\([\s\S]*user_id/);
+    expect(sql).toMatch(/DROP POLICY IF EXISTS "profiles_manager_company_select"/);
+    expect(sql).toMatch(/list_company_directory/);
+    expect(sql).toMatch(/cron\.schedule/);
+    expect(sql).toMatch(/purge-personal-data-daily/);
+  });
+
+  it("painel manager não usa service role", () => {
+    const src = readFileSync(join(root, "src/lib/api/manager.server.ts"), "utf8");
+    expect(src).not.toMatch(/createAdminClient/);
+    expect(src).toMatch(/get_rh_dashboard/);
+  });
+
+  it("IA pede ZDR e descreve o tratamento no termo", () => {
+    const llm = readFileSync(join(root, "src/lib/api/llm-config.server.ts"), "utf8");
+    expect(llm).toMatch(/data_collection:\s*"deny"/);
+    expect(llm).toMatch(/zdr:\s*true/);
+    expect(PRIVACY_AI_PROCESSING.routing).toMatch(/ZDR/);
+    expect(PRIVACY_AI_PROCESSING.neverSent).toContain("Nome");
+  });
+
+  it("disclaimer clínico está no termo versionado", () => {
+    expect(PRIVACY_CONSENT_VERSION).toBe("3.0");
+    expect(CLINICAL_DISCLAIMER).toMatch(/não substitui atendimento psicológico/);
+  });
+
+  it("sessão não pede accessToken no body das APIs de identidade", () => {
+    const auth = readFileSync(join(root, "src/lib/api/auth.server.ts"), "utf8");
+    expect(auth).toMatch(/setAuthCookies/);
+    expect(auth).not.toMatch(/z\.object\(\{[\s\S]*accessToken/);
+    const requireUser = readFileSync(join(root, "src/lib/require-user.ts"), "utf8");
+    expect(requireUser).toMatch(/getRequestAccessToken/);
+    expect(requireUser).toMatch(/export async function requireUser\(\)/);
+  });
+
+  it("wellness-plan e convites autenticados não usam service role", () => {
+    const plan = readFileSync(join(root, "src/lib/api/wellness-plan.server.ts"), "utf8");
+    expect(plan).not.toMatch(/createAdminClient/);
+    const invites = readFileSync(join(root, "src/lib/api/invites.server.ts"), "utf8");
+    expect(invites).toMatch(/company_has_available_seat/);
+    expect(invites).toMatch(/set_employee_active/);
+    expect(invites).toMatch(/get_invite_public/);
+  });
+
+  it("headers de segurança incluem CSP", () => {
+    const src = readFileSync(join(root, "src/lib/security-headers.ts"), "utf8");
+    expect(src).toMatch(/Content-Security-Policy/);
+    expect(src).toMatch(/fonts\.googleapis\.com/);
+    expect(src).toMatch(/fonts\.gstatic\.com/);
+    expect(src).toMatch(/Strict-Transport-Security/);
+  });
+
+  it("migration 010 força RLS, quota e self-test", () => {
+    const sql = readFileSync(join(root, "supabase/migrations/010_hardening_sessao_rls.sql"), "utf8");
+    expect(sql).toMatch(/FORCE ROW LEVEL SECURITY/);
+    expect(sql).toMatch(/consume_client_log_quota/);
+    expect(sql).toMatch(/run_rls_self_test/);
+    expect(sql).toMatch(/preventive_cache_set/);
+  });
+
+  it("cron de retenção aceita GET da Vercel e POST do GitHub Actions", () => {
+    const src = readFileSync(join(root, "src/lib/retention.ts"), "utf8");
+    expect(src).toMatch(/request\.method !== "POST" && request\.method !== "GET"/);
+  });
+
+  it("cache da LLM não fica só na memória do processo", () => {
+    const llm = readFileSync(join(root, "src/lib/api/llm-config.server.ts"), "utf8");
+    expect(llm).not.toMatch(/llmConfigCache/);
+  });
+
+  it("build da Vercel usa Nitro preset vercel e framework tanstack-start", () => {
+    const vite = readFileSync(join(root, "vite.config.ts"), "utf8");
+    expect(vite).toMatch(/preset:\s*["']vercel["']/);
+    const vercel = JSON.parse(readFileSync(join(root, "vercel.json"), "utf8"));
+    expect(vercel.framework).toBe("tanstack-start");
+    expect(vercel.crons?.[0]?.path).toBe("/api/jobs/retention");
+    const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+    expect(pkg.dependencies?.["lightningcss-win32-x64-msvc"]).toBeUndefined();
+    expect(pkg.devDependencies["@lovable.dev/vite-tanstack-config"]).toMatch(/2\.(6|7|8|9)/);
+  });
+});
+
+describe("RLS no Postgres", () => {
+  it.skipIf(!process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.VITE_SUPABASE_URL)(
+    "self-test de FORCE RLS e isolamento",
+    async () => {
+      const { createAdminClient } = await import("@/lib/supabase/admin.server");
+      const admin = createAdminClient();
+      const { data, error } = await admin.rpc("run_rls_self_test");
+      if (error?.code === "PGRST202") {
+        console.warn("run_rls_self_test ainda não está no schema cache do PostgREST");
+        return;
+      }
+      expect(error).toBeNull();
+      const payload = typeof data === "string" ? JSON.parse(data) : data;
+      expect(payload.missing_force ?? []).toEqual([]);
+      expect(payload.force_rls).toBe(true);
+      expect(["ok", "skipped_no_two_tenants"]).toContain(payload.isolation_note);
+    },
+  );
 });

@@ -59,7 +59,7 @@ export function DesktopShell({ children }: { children: ReactNode }) {
           </nav>
 
           <Link to="/perfil" className="shrink-0">
-            <Avatar name={user?.user_metadata?.avatar_url} size={32} />
+            <Avatar name={user?.avatar_url ?? undefined} size={32} />
           </Link>
         </div>
       </header>

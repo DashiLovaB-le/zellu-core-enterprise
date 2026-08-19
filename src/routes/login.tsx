@@ -4,6 +4,7 @@ import * as React from "react";
 import { useAuth } from "@/lib/auth-context";
 import { Icon } from "@/components/Icon";
 import { BRANDING } from "@/lib/branding";
+import { CLINICAL_DISCLAIMER } from "@/lib/privacy";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -25,12 +26,12 @@ function LoginPage() {
   React.useEffect(() => {
     if (user && role) {
       const target =
-        role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/";
+        role === "admin" ? "/admin" : role === "manager" ? "/manager/rh-dashboard" : "/";
       navigate({ to: target, replace: true });
     }
   }, [user, role, navigate]);
 
-  if (user && role) {
+  if (loading || user) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center">
         <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
@@ -51,6 +52,20 @@ function LoginPage() {
         <img src="/logo.png" alt={BRANDING.appName} width={56} height={56} className="rounded-2xl" />
         <h1 className="font-display text-xl text-[var(--clay-title)]">{BRANDING.shortName}</h1>
         <p className="text-center text-sm text-[var(--clay-text)]/70">{BRANDING.tagline}</p>
+        <ul className="mt-3 w-full max-w-sm space-y-1.5 text-left text-xs text-[var(--clay-text)]/80">
+          <li>
+            <span className="font-semibold text-[var(--clay-title)]">Colaborador</span>
+            {" — "}check-in, chat, bem-estar e plano de cuidado
+          </li>
+          <li>
+            <span className="font-semibold text-[var(--clay-title)]">RH</span>
+            {" — "}adesão, indicadores agregados, equipes e relatórios
+          </li>
+          <li>
+            <span className="font-semibold text-[var(--clay-title)]">Mundo Mental</span>
+            {" — "}empresas, contratos, licenças, uso e alertas
+          </li>
+        </ul>
       </div>
 
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-3">
@@ -94,7 +109,10 @@ function LoginPage() {
         </button>
       </form>
 
-      <p className="mt-5 text-center text-xs text-[var(--clay-title)]/60">
+      <p className="mt-5 max-w-sm text-center text-[11px] leading-relaxed text-[var(--clay-title)]/60">
+        {CLINICAL_DISCLAIMER}
+      </p>
+      <p className="mt-3 text-center text-xs text-[var(--clay-title)]/60">
         Acesso por convite da sua empresa.{" "}
         <Link to="/aceitar-convite" search={{ token: "" }} className="font-semibold text-[var(--clay-cta)] underline">
           Recebi um convite

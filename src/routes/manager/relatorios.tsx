@@ -28,18 +28,17 @@ function ManagerRelatorios() {
     // Dev tem acesso livre
     if (role === "dev") return;
     
-    // Manager precisa ter role de manager
-    if (!loading && user && role !== "manager") {
-      navigate({ to: "/login", replace: true });
+    if (!loading && user && role && role !== "manager") {
+      navigate({ to: role === "admin" ? "/admin" : "/", replace: true });
     }
   }, [user, loading, role, navigate]);
 
   const handleExport = useCallback(async () => {
-    if (!session?.access_token) return;
+    if (!session) return;
     setExporting(true);
     setMessage(null);
     try {
-      const csv = await downloadCsv(session.access_token, 30);
+      const csv = await downloadCsv(30);
       if (csv) {
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);

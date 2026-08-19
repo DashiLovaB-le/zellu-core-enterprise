@@ -29,18 +29,18 @@ import {
   type AdminEvaluatedAlert,
 } from "@/lib/api/admin.server";
 
-export async function loadAdminKpis(accessToken: string): Promise<AdminKpiData | null> {
+export async function loadAdminKpis(): Promise<AdminKpiData | null> {
   try {
-    const result = await getAdminKpis({ data: { accessToken } });
+    const result = await getAdminKpis();
     return result.data ?? null;
   } catch {
     return null;
   }
 }
 
-export async function loadCompanies(accessToken: string): Promise<AdminCompany[]> {
+export async function loadCompanies(): Promise<AdminCompany[]> {
   try {
-    const result = await listCompanies({ data: { accessToken } });
+    const result = await listCompanies();
     return result.data ?? [];
   } catch {
     return [];
@@ -48,7 +48,6 @@ export async function loadCompanies(accessToken: string): Promise<AdminCompany[]
 }
 
 export async function saveCompany(
-  accessToken: string,
   payload: {
     id?: string;
     name: string;
@@ -61,19 +60,18 @@ export async function saveCompany(
     notes?: string | null;
   },
 ) {
-  return upsertCompany({ data: { accessToken, ...payload } });
+  return upsertCompany({ data: { ...payload } });
 }
 
-export async function removeCompany(accessToken: string, id: string) {
-  return deleteCompany({ data: { accessToken, id } });
+export async function removeCompany(id: string) {
+  return deleteCompany({ data: { id } });
 }
 
 export async function loadEmployees(
-  accessToken: string,
   companyId?: string,
 ): Promise<AdminEmployee[]> {
   try {
-    const result = await listEmployees({ data: { accessToken, companyId } });
+    const result = await listEmployees({ data: { companyId } });
     return result.data ?? [];
   } catch {
     return [];
@@ -81,7 +79,6 @@ export async function loadEmployees(
 }
 
 export async function saveEmployee(
-  accessToken: string,
   payload: {
     id: string;
     company_id?: string | null;
@@ -92,12 +89,12 @@ export async function saveEmployee(
     display_name?: string;
   },
 ) {
-  return updateEmployee({ data: { accessToken, ...payload } });
+  return updateEmployee({ data: { ...payload } });
 }
 
-export async function loadTeams(accessToken: string, companyId?: string) {
+export async function loadTeams(companyId?: string) {
   try {
-    const result = await listTeams({ data: { accessToken, companyId } });
+    const result = await listTeams({ data: { companyId } });
     return result.data ?? [];
   } catch {
     return [];
@@ -105,7 +102,6 @@ export async function loadTeams(accessToken: string, companyId?: string) {
 }
 
 export async function saveTeam(
-  accessToken: string,
   payload: {
     id?: string;
     company_id: string;
@@ -113,12 +109,12 @@ export async function saveTeam(
     description?: string | null;
   },
 ) {
-  return upsertTeam({ data: { accessToken, ...payload } });
+  return upsertTeam({ data: { ...payload } });
 }
 
-export async function loadLicenses(accessToken: string): Promise<AdminLicense[]> {
+export async function loadLicenses(): Promise<AdminLicense[]> {
   try {
-    const result = await listLicenses({ data: { accessToken } });
+    const result = await listLicenses();
     return result.data ?? [];
   } catch {
     return [];
@@ -126,7 +122,6 @@ export async function loadLicenses(accessToken: string): Promise<AdminLicense[]>
 }
 
 export async function saveLicense(
-  accessToken: string,
   payload: {
     id?: string;
     company_id: string;
@@ -138,12 +133,12 @@ export async function saveLicense(
     ends_at?: string | null;
   },
 ) {
-  return upsertLicense({ data: { accessToken, ...payload } });
+  return upsertLicense({ data: { ...payload } });
 }
 
-export async function loadContracts(accessToken: string): Promise<AdminContract[]> {
+export async function loadContracts(): Promise<AdminContract[]> {
   try {
-    const result = await listContracts({ data: { accessToken } });
+    const result = await listContracts();
     return result.data ?? [];
   } catch {
     return [];
@@ -151,7 +146,6 @@ export async function loadContracts(accessToken: string): Promise<AdminContract[
 }
 
 export async function saveContract(
-  accessToken: string,
   payload: {
     id?: string;
     company_id: string;
@@ -164,30 +158,30 @@ export async function saveContract(
     notes?: string | null;
   },
 ) {
-  return upsertContract({ data: { accessToken, ...payload } });
+  return upsertContract({ data: { ...payload } });
 }
 
-export async function loadUsageMetrics(accessToken: string): Promise<AdminUsageMetrics | null> {
+export async function loadUsageMetrics(): Promise<AdminUsageMetrics | null> {
   try {
-    const result = await getUsageMetrics({ data: { accessToken } });
+    const result = await getUsageMetrics();
     return result.data ?? null;
   } catch {
     return null;
   }
 }
 
-export async function loadSentimentData(accessToken: string): Promise<AdminSentimentData | null> {
+export async function loadSentimentData(): Promise<AdminSentimentData | null> {
   try {
-    const result = await getSentimentData({ data: { accessToken } });
+    const result = await getSentimentData();
     return result.data ?? null;
   } catch {
     return null;
   }
 }
 
-export async function loadAlertConfigs(accessToken: string): Promise<AdminAlertConfig[]> {
+export async function loadAlertConfigs(): Promise<AdminAlertConfig[]> {
   try {
-    const result = await listAlertConfigs({ data: { accessToken } });
+    const result = await listAlertConfigs();
     return result.data ?? [];
   } catch {
     return [];
@@ -195,7 +189,6 @@ export async function loadAlertConfigs(accessToken: string): Promise<AdminAlertC
 }
 
 export async function saveAlertConfig(
-  accessToken: string,
   payload: {
     id?: string;
     company_id?: string | null;
@@ -208,14 +201,12 @@ export async function saveAlertConfig(
     enabled?: boolean;
   },
 ) {
-  return upsertAlertConfig({ data: { accessToken, ...payload } });
+  return upsertAlertConfig({ data: { ...payload } });
 }
 
-export async function loadEvaluatedAlerts(
-  accessToken: string,
-): Promise<AdminEvaluatedAlert[]> {
+export async function loadEvaluatedAlerts(): Promise<AdminEvaluatedAlert[]> {
   try {
-    const result = await evaluateAlerts({ data: { accessToken } });
+    const result = await evaluateAlerts();
     return result.data ?? [];
   } catch {
     return [];
@@ -223,18 +214,16 @@ export async function loadEvaluatedAlerts(
 }
 
 export async function downloadAdminCsv(
-  accessToken: string,
   periodDays = 30,
   reportType: "checkins" | "companies" | "employees" = "checkins",
 ): Promise<string> {
-  const result = await exportAdminCsv({ data: { accessToken, periodDays, reportType } });
+  const result = await exportAdminCsv({ data: { periodDays, reportType } });
   return result.csv ?? "";
 }
 
 export async function downloadAdminPdf(
-  accessToken: string,
   periodDays = 30,
 ): Promise<string> {
-  const result = await exportAdminPdf({ data: { accessToken, periodDays } });
+  const result = await exportAdminPdf({ data: { periodDays } });
   return result.pdfBase64 ?? "";
 }

@@ -23,7 +23,7 @@ function OnboardingPage() {
   const [error, setError] = useState<string | null>(null);
   const timezone =
     typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : DEFAULT_TIMEZONE;
-  const token = session?.access_token;
+  const token = session;
 
   useEffect(() => {
     if (!authLoading && (!user || !token)) {
@@ -41,7 +41,6 @@ function OnboardingPage() {
     setSaving(true);
     const result = await savePrivacyConsent({
       data: {
-        accessToken: token,
         adultConfirmed: true,
         aiOptIn: values.aiOptIn,
         rhOptIn: values.rhOptIn,
@@ -60,7 +59,7 @@ function OnboardingPage() {
     e.preventDefault();
     setSaving(true);
     const result = await completeOnboarding({
-      data: { accessToken: token, displayName: name, timezone },
+      data: { displayName: name, timezone },
     });
     setSaving(false);
     if (result.error) {

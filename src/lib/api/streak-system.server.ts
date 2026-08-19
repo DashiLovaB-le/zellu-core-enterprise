@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import { requireCompanionConsent } from "@/lib/require-user";
 
 export type StreakData = {
@@ -19,9 +18,8 @@ function toDateStr(d: Date): string {
 }
 
 export const getWellnessStreak = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data: { accessToken } }: { data: { accessToken: string } }) => {
-    const auth = await requireCompanionConsent(accessToken);
+  .handler(async () => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return null;
     const { userId, supabase } = auth;
 

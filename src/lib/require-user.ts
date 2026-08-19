@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getRequestAccessToken } from "@/lib/supabase/server";
 import { hasValidPrivacyConsent, type ConsentProfile } from "@/lib/lgpd";
 
 export type AppRole = "companion" | "manager" | "dev" | "admin";
@@ -14,10 +14,12 @@ export type ProfileRow = {
   onboarding_completed_at: string | null;
   is_active: boolean | null;
   support_channel?: string | null;
-  privacy_ai_opt_in: boolean | null;
-  privacy_rh_opt_in: boolean | null;
-  privacy_email_opt_in: boolean | null;
-  adult_confirmed_at: string | null;
+  privacy_ai_opt_in?: boolean | null;
+  privacy_rh_opt_in?: boolean | null;
+  privacy_email_opt_in?: boolean | null;
+  adult_confirmed_at?: string | null;
+  email?: string | null;
+  avatar_url?: string | null;
 };
 
 export type AuthedUser = {
@@ -28,13 +30,11 @@ export type AuthedUser = {
 };
 
 /**
- * Valida o JWT com o Auth API (assinatura + expiração).
- * Débito 2.6: o accessToken ainda chega no body das server functions;
- * cookie httpOnly é o próximo passo e não deve ser expandido o padrão atual.
+ * Identidade a partir do cookie httpOnly (mmc-at / mmc-rt).
+ * O JWT não deve ir no body das server functions.
  */
-export async function requireUser(
-  accessToken: string,
-): Promise<AuthedUser | { error: string }> {
+export async function requireUser(): Promise<AuthedUser | { error: string }> {
+  const accessToken = await getRequestAccessToken();
   if (!accessToken) return { error: "Unauthorized" };
 
   const supabase = await createClient(accessToken);
@@ -47,9 +47,7 @@ export async function requireUser(
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select(
-      "role, company_id, team_id, display_name, timezone, privacy_consent_at, privacy_consent_version, onboarding_completed_at, is_active, privacy_ai_opt_in, privacy_rh_opt_in, privacy_email_opt_in, adult_confirmed_at",
-    )
+    .select("*")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -65,10 +63,8 @@ export async function requireUser(
   };
 }
 
-export async function requireCompanionConsent(
-  accessToken: string,
-): Promise<AuthedUser | { error: string }> {
-  const auth = await requireUser(accessToken);
+export async function requireCompanionConsent(): Promise<AuthedUser | { error: string }> {
+  const auth = await requireUser();
   if ("error" in auth) return auth;
   const role = auth.profile?.role;
   if (role && role !== "companion") return auth;
@@ -79,20 +75,19 @@ export async function requireCompanionConsent(
 }
 
 export async function requireRole(
-  accessToken: string,
   roles: AppRole[],
 ): Promise<(AuthedUser & { role: AppRole }) | { error: string }> {
-  const auth = await requireUser(accessToken);
+  const auth = await requireUser();
   if ("error" in auth) return auth;
   const role = auth.profile?.role;
   if (!role || !roles.includes(role)) return { error: "Unauthorized" };
   return { ...auth, role };
 }
 
-export async function requireManager(
-  accessToken: string,
-): Promise<(AuthedUser & { role: AppRole; companyId: string | null; isDev: boolean }) | { error: string }> {
-  const auth = await requireRole(accessToken, ["manager", "dev"]);
+export async function requireManager(): Promise<
+  (AuthedUser & { role: AppRole; companyId: string | null; isDev: boolean }) | { error: string }
+> {
+  const auth = await requireRole(["manager", "dev"]);
   if ("error" in auth) return auth;
   if (auth.role === "dev") {
     return { ...auth, companyId: auth.profile?.company_id ?? null, isDev: true };
@@ -102,10 +97,8 @@ export async function requireManager(
   return { ...auth, companyId, isDev: false };
 }
 
-export async function requireAdmin(
-  accessToken: string,
-): Promise<(AuthedUser & { role: AppRole }) | { error: string }> {
-  return requireRole(accessToken, ["admin", "dev"]);
+export async function requireAdmin(): Promise<(AuthedUser & { role: AppRole }) | { error: string }> {
+  return requireRole(["admin", "dev"]);
 }
 
 export function isAppRole(value: string | null | undefined): value is AppRole {

@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin.server";
 import { sanitizeLogDetails, sanitizeLogMessage } from "@/lib/lgpd";
+import { requireUser } from "@/lib/require-user";
 
 type LogLevel = "info" | "warn" | "error" | "debug";
 
@@ -37,32 +37,18 @@ export async function logEvent(
   }
 }
 
-async function requireDevRole(
-  accessToken: string,
-): Promise<{ user: import("@supabase/supabase-js").User } | { error: string }> {
-  const supabase = await createClient(accessToken);
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Unauthorized" };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (profile?.role !== "dev") {
+async function requireDevRole(): Promise<{ user: import("@supabase/supabase-js").User } | { error: string }> {
+  const auth = await requireUser();
+  if ("error" in auth) return auth;
+  if (auth.profile?.role !== "dev") {
     return { error: "Unauthorized — role dev required" };
   }
-
-  return { user };
+  return { user: { id: auth.userId, email: auth.email ?? undefined } as import("@supabase/supabase-js").User };
 }
 
 export const getSystemLogs = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       limit: z.number().int().min(1).max(500).default(100),
       offset: z.number().int().min(0).default(0),
       level: z.enum(["info", "warn", "error", "debug"]).optional(),
@@ -74,14 +60,13 @@ export const getSystemLogs = createServerFn({ method: "POST" })
       data,
     }: {
       data: {
-        accessToken: string;
         limit: number;
         offset: number;
         level?: LogLevel;
         source?: string;
       };
     }) => {
-      const auth = await requireDevRole(data.accessToken);
+      const auth = await requireDevRole();
       if ("error" in auth) return auth;
 
       const admin = createAdminClient();
@@ -110,7 +95,6 @@ export const getSystemLogs = createServerFn({ method: "POST" })
 export const logClientEvent = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       level: z.enum(["info", "warn", "error", "debug"]),
       source: z.string().min(1).max(80),
       message: z.string().min(1).max(280),
@@ -124,20 +108,19 @@ export const logClientEvent = createServerFn({ method: "POST" })
       data,
     }: {
       data: {
-        accessToken: string;
         level: LogLevel;
         source: string;
         message: string;
         details?: Record<string, string | number | boolean | null>;
       };
     }) => {
-      const supabase = await createClient(data.accessToken);
-      const {
-        data: { user },
-      } = await supabase.auth.getUser(data.accessToken);
-      if (!user) return { success: false };
+      const auth = await requireUser();
+      if ("error" in auth) return { success: false };
 
-      await logEvent(data.level, data.source, data.message, data.details, user.id);
+      const { data: allowed, error: quotaError } = await auth.supabase.rpc("consume_client_log_quota");
+      if (quotaError || allowed !== true) return { success: false };
+
+      await logEvent(data.level, data.source, data.message, data.details, auth.userId);
 
       return { success: true };
     },

@@ -34,10 +34,9 @@ function toAssistantHistory(
   }));
 }
 
-export async function loadMessages(accessToken: string | null): Promise<Msg[]> {
-  if (!accessToken) return [];
-  try {
-    const serverMsgs = await fetchMessages({ data: { accessToken } });
+export async function loadMessages(): Promise<Msg[]> {
+    try {
+    const serverMsgs = await fetchMessages();
     if (serverMsgs.length > 0) {
       return serverMsgs.map((m: { from: string; text: string }) => ({
         from: m.from === "user" ? "user" : "ai",
@@ -50,7 +49,7 @@ export async function loadMessages(accessToken: string | null): Promise<Msg[]> {
   return [];
 }
 
-export async function loadGreeting(accessToken: string, context: ChatContext): Promise<string> {
+export async function loadGreeting(context: ChatContext): Promise<string> {
   const hour = new Date().getHours();
   const salutation = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
 
@@ -63,10 +62,7 @@ export async function loadGreeting(accessToken: string, context: ChatContext): P
       const cached = window.localStorage.getItem(cacheKey);
       if (cached === "Bom dia" || cached === "Boa tarde" || cached === "Boa noite") return cached;
 
-      const result = await getContextualGreeting({
-        data: {
-          accessToken,
-          context: {
+      const result = await getContextualGreeting({ data: { context: {
             sleepHours: context.sleepHours,
             sleepLabel: context.sleepLabel,
             waterMl: context.waterMl,
@@ -90,15 +86,11 @@ export async function loadGreeting(accessToken: string, context: ChatContext): P
 }
 
 export async function sendMessage(
-  accessToken: string,
   text: string,
   history: { role: ChatRole | "ai" | "user"; content: string }[],
   context: ChatContext,
 ): Promise<AiResponse> {
-  const result = await sendChatMessage({
-    data: {
-      accessToken,
-      text: text.trim(),
+  const result = await sendChatMessage({ data: { text: text.trim(),
       history: toAssistantHistory(history),
       context,
     },

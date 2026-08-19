@@ -1,13 +1,14 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import type { User, Session } from "@supabase/supabase-js";
-import { createClient } from "@/lib/supabase/client";
-import { getUserRole } from "@/lib/api/auth.server";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { getAuthSnapshot, signInWithPassword, signOutSession, updateProfile } from "@/lib/api/auth.server";
+import type { AuthSnapshot } from "@/lib/api/auth.server";
 
 export type UserRole = "companion" | "manager" | "dev" | "admin" | null;
 
+export type AuthUser = AuthSnapshot["user"];
+
 export interface AuthState {
-  user: User | null;
-  session: Session | null;
+  user: AuthUser | null;
+  session: { user: AuthUser } | null;
   loading: boolean;
   role: UserRole;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
@@ -57,109 +58,71 @@ function clearCachedRole(userId?: string) {
   }
 }
 
-async function fetchRoleFromProfile(
-  accessToken: string,
-): Promise<"companion" | "manager" | "dev" | "admin" | null> {
-  try {
-    return await getUserRole({ data: { accessToken } });
-  } catch {
-    return null;
-  }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [role, setRoleState] = useState<UserRole>(null);
 
-  const applyOptimisticRole = (u: User) => {
-    const cached = readCachedRole(u.id);
-    setRoleState(cached);
-  };
-
-  const syncRole = async (u: User, accessToken: string) => {
-    const profileRole = await fetchRoleFromProfile(accessToken);
-    setRoleState(profileRole);
-    if (profileRole) writeCachedRole(u.id, profileRole);
-  };
-
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getSession().then(async ({ data: { session: current } }) => {
-      setSession(current);
-      setUser(current?.user ?? null);
-      if (current?.user && current.access_token) {
-        applyOptimisticRole(current.user);
-        setLoading(false);
-        void syncRole(current.user, current.access_token);
-      } else {
-        setRoleState(null);
-        setLoading(false);
-      }
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
-      setSession(nextSession);
-      setUser(nextSession?.user ?? null);
-
-      if (event === "TOKEN_REFRESHED") {
-        setLoading(false);
-        return;
-      }
-
-      if (nextSession?.user && nextSession.access_token) {
-        applyOptimisticRole(nextSession.user);
-        setLoading(false);
-        if (event === "SIGNED_IN" || event === "USER_UPDATED" || event === "INITIAL_SESSION") {
-          void syncRole(nextSession.user, nextSession.access_token);
+    let cancelled = false;
+    void (async () => {
+      try {
+        const snapshot = await getAuthSnapshot();
+        if (cancelled) return;
+        if (!snapshot) {
+          clearCachedRole();
+          setUser(null);
+          setRoleState(null);
+          return;
         }
-      } else {
-        clearCachedRole();
-        setRoleState(null);
-        setLoading(false);
+        setUser(snapshot.user);
+        const nextRole = snapshot.role ?? readCachedRole(snapshot.user.id);
+        setRoleState(nextRole);
+        if (snapshot.role) writeCachedRole(snapshot.user.id, snapshot.role);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-    });
-
-    return () => subscription.unsubscribe();
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (!error && data.user && data.session?.access_token) {
-      applyOptimisticRole(data.user);
-      await syncRole(data.user, data.session.access_token);
+  const signIn = useCallback(async (email: string, password: string) => {
+    const result = await signInWithPassword({ data: { email, password } });
+    if (result.error || !result.snapshot) {
+      return { error: result.error ?? "Não foi possível entrar." };
     }
-    return { error: error?.message ?? null };
-  };
+    setUser(result.snapshot.user);
+    setRoleState(result.snapshot.role);
+    if (result.snapshot.role) writeCachedRole(result.snapshot.user.id, result.snapshot.role);
+    return { error: null };
+  }, []);
 
-  const signOut = async () => {
-    const supabase = createClient();
+  const signOut = useCallback(async () => {
     const userId = user?.id;
-    await supabase.auth.signOut();
+    await signOutSession();
     clearCachedRole(userId);
+    setUser(null);
     setRoleState(null);
-  };
+  }, [user?.id]);
 
-  const setAvatarUrl = async (url: string) => {
+  const setAvatarUrl = useCallback(async (url: string) => {
     if (!user) return;
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.updateUser({
-      data: { avatar_url: url },
-    });
-    if (!error && data.user) {
-      setUser(data.user);
+    const result = await updateProfile({ data: { avatarUrl: url } });
+    if (!result.error) {
+      setUser({ ...user, avatar_url: url });
     }
-  };
+  }, [user]);
 
-  return (
-    <AuthContext.Provider value={{ user, session, loading, role, signIn, signOut, setAvatarUrl }}>
-      {children}
-    </AuthContext.Provider>
+  const session = user ? { user } : null;
+
+  const value = useMemo(
+    () => ({ user, session, loading, role, signIn, signOut, setAvatarUrl }),
+    [user, session, loading, role, signIn, signOut, setAvatarUrl],
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthState {

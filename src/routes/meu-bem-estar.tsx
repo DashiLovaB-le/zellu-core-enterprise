@@ -35,12 +35,12 @@ function BemEstarPage() {
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
 
-  const accessToken = session?.access_token ?? null;
+  const accessToken = session ?? null;
 
   useEffect(() => {
     if (!accessToken || loaded) return;
     (async () => {
-      const state = await loadBemEstar(accessToken);
+      const state = await loadBemEstar();
       setWater(state.water);
       setSleepQuality(state.sleepQuality);
       setMood(state.mood);
@@ -55,10 +55,9 @@ function BemEstarPage() {
   }, [accessToken, loaded]);
 
   const handleSave = useCallback(async () => {
-    if (!accessToken) return;
-    setSaving(true);
+        setSaving(true);
     try {
-      const payload: Parameters<typeof saveBemEstar>[1] = {};
+      const payload: Parameters<typeof saveBemEstar>[0] = {};
 
       if (!fromCheckin.water) payload.waterMl = water;
       if (!fromCheckin.sleep) payload.sleepQuality = sleepQuality;
@@ -67,7 +66,7 @@ function BemEstarPage() {
       payload.energyLevel = energyLevel;
       payload.meals = meals;
 
-      await saveBemEstar(accessToken, payload);
+      await saveBemEstar(payload);
       setLastSaved(new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }));
     } catch {
       // silent

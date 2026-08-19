@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin.server";
+import { getAppBaseUrl } from "@/lib/config.server";
 import { requireAdmin, requireManager, requireUser } from "@/lib/require-user";
 import { logEvent } from "@/lib/api/logs.server";
 
@@ -11,49 +13,24 @@ function randomToken(): string {
 }
 
 function appBaseUrl(): string {
-  return (
-    process.env.APP_BASE_URL ??
-    process.env.VITE_APP_URL ??
-    "http://localhost:8080"
-  ).replace(/\/$/, "");
+  return getAppBaseUrl();
 }
 
-async function assertSeatsAvailable(companyId: string): Promise<string | null> {
-  const admin = createAdminClient();
-  const { data: license } = await admin
-    .from("licenses")
-    .select("seats, seats_used, status")
-    .eq("company_id", companyId)
-    .in("status", ["active", "trial"])
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  const { count: activeCount } = await admin
-    .from("profiles")
-    .select("id", { count: "exact", head: true })
-    .eq("company_id", companyId)
-    .eq("is_active", true);
-
-  const { count: pendingCount } = await admin
-    .from("invites")
-    .select("id", { count: "exact", head: true })
-    .eq("company_id", companyId)
-    .is("accepted_at", null)
-    .gt("expires_at", new Date().toISOString());
-
-  const used = (activeCount ?? 0) + (pendingCount ?? 0);
-  const seats = license?.seats ?? 50;
-  if (used >= seats) {
-    return `Limite de licenças atingido (${used}/${seats}).`;
-  }
+async function assertSeatsAvailable(
+  supabase: SupabaseClient,
+  companyId: string,
+): Promise<string | null> {
+  const { data, error } = await supabase.rpc("company_has_available_seat", {
+    p_company_id: companyId,
+  });
+  if (error) return error.message;
+  if (data === false) return "Limite de licenças atingido.";
   return null;
 }
 
 export const createInvite = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       email: z.string().email(),
       role: z.enum(["companion", "manager"]),
       teamId: z.string().uuid().nullable().optional(),
@@ -61,37 +38,36 @@ export const createInvite = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    const manager = await requireManager(data.accessToken);
-    const adminAuth = await requireAdmin(data.accessToken);
+    const manager = await requireManager();
+    const adminAuth = await requireAdmin();
     const isAdmin = !("error" in adminAuth);
 
     let companyId: string | null = null;
     let userId: string;
+    let supabase: SupabaseClient;
 
     if (isAdmin) {
       userId = adminAuth.userId;
       companyId = data.companyId ?? adminAuth.profile?.company_id ?? null;
+      supabase = adminAuth.supabase;
       if (!companyId) return { error: "Informe a empresa do convite.", inviteUrl: null };
     } else if (!("error" in manager)) {
       userId = manager.userId;
       companyId = manager.companyId;
-      if (data.role === "manager" && manager.role !== "dev") {
-        // manager pode convidar managers da própria empresa
-      }
+      supabase = manager.supabase;
     } else {
       return { error: "Unauthorized", inviteUrl: null };
     }
 
     if (!companyId) return { error: "Empresa não encontrada.", inviteUrl: null };
 
-    const seatError = await assertSeatsAvailable(companyId);
+    const seatError = await assertSeatsAvailable(supabase, companyId);
     if (seatError) return { error: seatError, inviteUrl: null };
 
-    const admin = createAdminClient();
     const token = randomToken();
     const expires = new Date(Date.now() + 7 * 86400000).toISOString();
 
-    const { data: row, error } = await admin
+    const { data: row, error } = await supabase
       .from("invites")
       .insert({
         company_id: companyId,
@@ -122,33 +98,29 @@ export const createInvite = createServerFn({ method: "POST" })
 export const listInvites = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       companyId: z.string().uuid().optional(),
     }),
   )
   .handler(async ({ data }) => {
-    const manager = await requireManager(data.accessToken);
-    const adminAuth = await requireAdmin(data.accessToken);
-    const isAdmin = !("error" in adminAuth);
-    if (!isAdmin && "error" in manager) return { data: [], error: manager.error };
+    const adminAuth = await requireAdmin();
+    if (!("error" in adminAuth)) {
+      const companyId = data.companyId ?? adminAuth.profile?.company_id ?? null;
+      let query = adminAuth.supabase
+        .from("invites")
+        .select("id, email, role, team_id, expires_at, accepted_at, created_at, company_id")
+        .order("created_at", { ascending: false });
+      if (companyId) query = query.eq("company_id", companyId);
+      const { data: rows, error } = await query;
+      return { data: rows ?? [], error: error?.message ?? null };
+    }
 
-    const companyId = isAdmin
-      ? (data.companyId ?? adminAuth.profile?.company_id ?? null)
-      : !("error" in manager)
-        ? manager.companyId
-        : null;
-
-    const client = isAdmin
-      ? createAdminClient()
-      : !("error" in manager)
-        ? manager.supabase
-        : createAdminClient();
-    let query = client
+    const manager = await requireManager();
+    if ("error" in manager) return { data: [], error: manager.error };
+    let query = manager.supabase
       .from("invites")
       .select("id, email, role, team_id, expires_at, accepted_at, created_at, company_id")
       .order("created_at", { ascending: false });
-    if (companyId) query = query.eq("company_id", companyId);
-
+    if (manager.companyId) query = query.eq("company_id", manager.companyId);
     const { data: rows, error } = await query;
     return { data: rows ?? [], error: error?.message ?? null };
   });
@@ -156,28 +128,22 @@ export const listInvites = createServerFn({ method: "POST" })
 export const getInviteByToken = createServerFn({ method: "POST" })
   .inputValidator(z.object({ token: z.string().min(16) }))
   .handler(async ({ data }) => {
-    const admin = createAdminClient();
-    const { data: invite } = await admin
-      .from("invites")
-      .select("id, email, role, team_id, company_id, expires_at, accepted_at")
-      .eq("token", data.token)
-      .maybeSingle();
+    const { createAnonClient } = await import("@/lib/supabase/server");
+    const supabase = createAnonClient();
+    const { data: invite, error } = await supabase.rpc("get_invite_public", {
+      p_token: data.token,
+    });
 
-    if (!invite) return { data: null, error: "Convite inválido." };
-    if (invite.accepted_at) return { data: null, error: "Este convite já foi usado." };
-    if (new Date(invite.expires_at) < new Date()) return { data: null, error: "Convite expirado." };
-
-    const { data: company } = await admin
-      .from("companies")
-      .select("name")
-      .eq("id", invite.company_id)
-      .maybeSingle();
+    const row = Array.isArray(invite) ? invite[0] : invite;
+    if (error || !row) return { data: null, error: "Convite inválido." };
+    if (row.accepted_at) return { data: null, error: "Este convite já foi usado." };
+    if (new Date(row.expires_at) < new Date()) return { data: null, error: "Convite expirado." };
 
     return {
       data: {
-        email: invite.email,
-        role: invite.role,
-        companyName: company?.name ?? "sua empresa",
+        email: row.email,
+        role: row.role,
+        companyName: row.company_name ?? "sua empresa",
       },
       error: null,
     };
@@ -266,77 +232,54 @@ export const acceptInvite = createServerFn({ method: "POST" })
 export const setEmployeeActive = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       profileId: z.string().uuid(),
       isActive: z.boolean(),
     }),
   )
   .handler(async ({ data }) => {
-    const manager = await requireManager(data.accessToken);
-    const adminAuth = await requireAdmin(data.accessToken);
+    const manager = await requireManager();
+    const adminAuth = await requireAdmin();
     const isAdmin = !("error" in adminAuth);
     if ("error" in manager && !isAdmin) return { error: manager.error };
 
-    const admin = createAdminClient();
-    const { data: target } = await admin
-      .from("profiles")
-      .select("id, company_id, role")
-      .eq("id", data.profileId)
-      .maybeSingle();
+    const actor = isAdmin ? adminAuth : manager;
+    if ("error" in actor) return { error: actor.error };
 
-    if (!target) return { error: "Colaborador não encontrado." };
-    if (!isAdmin) {
-      if ("error" in manager) return { error: manager.error };
-      if (target.company_id !== manager.companyId) return { error: "Unauthorized" };
-    }
-    if (target.role === "admin" || target.role === "dev") return { error: "Unauthorized" };
-
-    const { error } = await admin
-      .from("profiles")
-      .update({ is_active: data.isActive })
-      .eq("id", data.profileId);
-
-    const actorId = isAdmin ? adminAuth.userId : "error" in manager ? undefined : manager.userId;
+    const { error } = await actor.supabase.rpc("set_employee_active", {
+      p_profile_id: data.profileId,
+      p_active: data.isActive,
+    });
 
     void logEvent(
       "info",
       "invites.setEmployeeActive",
       `is_active=${data.isActive} para ${data.profileId}`,
-      { company_id: target.company_id },
-      actorId,
+      {},
+      actor.userId,
     );
 
     return { error: error?.message ?? null };
   });
 
-export const listCompanyMembers = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }) => {
-    const auth = await requireManager(data.accessToken);
+export const listCompanyMembers = createServerFn({ method: "POST" }).handler(async () => {
+    const auth = await requireManager();
     if ("error" in auth) return { data: [], error: auth.error };
     if (!auth.companyId && !auth.isDev) return { data: [], error: "Unauthorized" };
 
-    let query = auth.supabase
-      .from("profiles")
-      .select("id, email, display_name, role, team_id, is_active, company_id")
-      .in("role", ["companion", "manager"])
-      .order("display_name");
-    if (auth.companyId) query = query.eq("company_id", auth.companyId);
-
-    const { data: rows, error } = await query;
-    return { data: rows ?? [], error: error?.message ?? null };
+    const { data: rows, error } = await auth.supabase.rpc("list_company_directory");
+    if (error) return { data: [], error: error.message };
+    return { data: rows ?? [], error: null };
   });
 
 export const completeOnboarding = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       displayName: z.string().min(1).max(100),
       timezone: z.string().min(1).max(80),
     }),
   )
   .handler(async ({ data }) => {
-    const auth = await requireUser(data.accessToken);
+    const auth = await requireUser();
     if ("error" in auth) return { error: "Unauthorized" };
 
     const { error } = await auth.supabase

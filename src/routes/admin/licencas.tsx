@@ -56,11 +56,11 @@ function AdminLicencasPage() {
   });
   const [error, setError] = useState("");
 
-  const refresh = async (token: string) => {
+  const refresh = async () => {
     const [l, c, comps] = await Promise.all([
-      loadLicenses(token),
-      loadContracts(token),
-      loadCompanies(token),
+      loadLicenses(),
+      loadContracts(),
+      loadCompanies(),
     ]);
     setLicenses(l);
     setContracts(c);
@@ -68,17 +68,17 @@ function AdminLicencasPage() {
   };
 
   useEffect(() => {
-    if (!session?.access_token || ready) return;
+    if (!session || ready) return;
     (async () => {
-      await refresh(session.access_token!);
+      await refresh();
       setReady(true);
     })();
   }, [session, ready]);
 
   const handleSaveLicense = async () => {
-    if (!session?.access_token || !licenseForm.company_id) return;
+    if (!session || !licenseForm.company_id) return;
     setError("");
-    const result = await saveLicense(session.access_token, {
+    const result = await saveLicense({
       company_id: licenseForm.company_id,
       plan_name: licenseForm.plan_name,
       seats: licenseForm.seats,
@@ -91,13 +91,13 @@ function AdminLicencasPage() {
       return;
     }
     setShowLicenseForm(false);
-    await refresh(session.access_token);
+    await refresh();
   };
 
   const handleSaveContract = async () => {
-    if (!session?.access_token || !contractForm.company_id || !contractForm.title.trim()) return;
+    if (!session || !contractForm.company_id || !contractForm.title.trim()) return;
     setError("");
-    const result = await saveContract(session.access_token, {
+    const result = await saveContract({
       company_id: contractForm.company_id,
       title: contractForm.title,
       contract_type: contractForm.contract_type,
@@ -112,7 +112,7 @@ function AdminLicencasPage() {
       return;
     }
     setShowContractForm(false);
-    await refresh(session.access_token);
+    await refresh();
   };
 
   if (loading || !isAuthorized) return <AdminPageFrame loading />;

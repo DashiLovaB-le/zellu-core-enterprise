@@ -2,6 +2,7 @@ import { useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
+import { useAuth } from "@/lib/auth-context";
 import type { TimelineData } from "@/lib/services/timeline-service";
 import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
@@ -29,6 +30,7 @@ function getWeekday(date: Date): number {
 }
 
 export function MobileTimelinePage({ data, onSaveEntry, preventiveAlert, onSuggestionClick }: TimelinePageProps) {
+  const { user } = useAuth();
   const [showNewEntry, setShowNewEntry] = useState(false);
   const [newContent, setNewContent] = useState("");
   const [newMood, setNewMood] = useState("");
@@ -51,7 +53,7 @@ export function MobileTimelinePage({ data, onSaveEntry, preventiveAlert, onSugge
   return (
     <MobileShell>
       <header className="mb-4 flex items-center gap-3">
-        <Avatar size={36} />
+        <Avatar name={user?.avatar_url ?? undefined} size={36} />
         <div className="flex-1">
           <h1 className="font-display text-xl text-[var(--clay-title)]">Meu Diário</h1>
           <p className="text-xs text-[var(--clay-text)]/70">

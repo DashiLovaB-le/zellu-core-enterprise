@@ -22,7 +22,7 @@ export interface BemEstarState extends BemEstarData {
   hasCheckin: boolean;
 }
 
-export async function loadBemEstar(accessToken: string | null): Promise<BemEstarState> {
+export async function loadBemEstar(): Promise<BemEstarState> {
   const defaults: BemEstarState = {
     water: 0, sleepQuality: 50, mood: "", movementMinutes: 0,
     energyLevel: 50, meals: [], goal: WATER_GOAL,
@@ -30,12 +30,11 @@ export async function loadBemEstar(accessToken: string | null): Promise<BemEstar
     hasCheckin: false,
   };
 
-  if (!accessToken) return defaults;
-
+  
   try {
     const [checkinResult, habitsResult] = await Promise.allSettled([
-      getTodaysCheckin({ data: { accessToken } }),
-      fetchHabits({ data: { accessToken } }),
+      getTodaysCheckin(),
+      fetchHabits(),
     ]);
 
     const checkin = checkinResult.status === "fulfilled" ? checkinResult.value.data : null;
@@ -62,7 +61,6 @@ export async function loadBemEstar(accessToken: string | null): Promise<BemEstar
 }
 
 export async function saveBemEstar(
-  accessToken: string,
   data: {
     waterMl?: number;
     sleepQuality?: number;
@@ -73,7 +71,7 @@ export async function saveBemEstar(
   },
 ): Promise<void> {
   try {
-    await saveHabits({ data: { accessToken, ...data } });
+    await saveHabits({ data: { ...data } });
   } catch {
     // silent fail
   }

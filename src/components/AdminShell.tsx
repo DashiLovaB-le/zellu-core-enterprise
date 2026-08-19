@@ -48,7 +48,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <Link to="/perfil">
-            <Avatar name={user?.user_metadata?.avatar_url} size={32} />
+            <Avatar name={user?.avatar_url ?? undefined} size={32} />
           </Link>
         </header>
 
@@ -109,7 +109,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 Super-admin
               </span>
               <Link to="/perfil">
-                <Avatar name={user?.user_metadata?.avatar_url} size={32} />
+                <Avatar name={user?.avatar_url ?? undefined} size={32} />
               </Link>
             </div>
           </div>

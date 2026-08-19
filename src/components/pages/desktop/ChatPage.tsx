@@ -6,7 +6,6 @@ import { ChatMarkdown } from "@/components/ChatMarkdown";
 import type { Msg } from "@/data";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 import { MAIN_MOODS, EXTRA_MOODS } from "@/data/moods";
-import { CrisisHelp } from "@/components/CrisisHelp";
 
 interface ChatPageProps {
   messages: Msg[];
@@ -79,7 +78,15 @@ export function DesktopChatPage({
                   Sugestão
                 </h3>
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    if (aiSuggestion === "checkin") {
+                      onSuggestionClick?.("fazer check-in");
+                      return;
+                    }
+                    if (aiSuggestion === "plano") {
+                      onSuggestionClick?.("abrir plano de cuidado");
+                      return;
+                    }
                     onQuickReply(
                       aiSuggestion === "respirar"
                         ? "Vamos respirar"
@@ -88,18 +95,22 @@ export function DesktopChatPage({
                           : aiSuggestion === "pausa"
                             ? "Fazer uma pausa"
                             : "Fazer um alongamento",
-                    )
-                  }
+                    );
+                  }}
                   disabled={isAiThinking}
                   className="w-full rounded-xl bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 p-3 text-center text-sm font-semibold text-[var(--clay-title)] shadow-sm active:translate-y-px disabled:opacity-50"
                 >
                   {aiSuggestion === "respirar"
-                    ? "🌬️ Respirar"
+                    ? "Respirar"
                     : aiSuggestion === "agua"
-                      ? "💧 Beber água"
+                      ? "Beber água"
                       : aiSuggestion === "pausa"
-                        ? "☕ Fazer pausa"
-                        : "🤸 Alongar"}
+                        ? "Fazer pausa"
+                        : aiSuggestion === "checkin"
+                          ? "Fazer check-in"
+                          : aiSuggestion === "plano"
+                            ? "Abrir plano"
+                            : "Alongar"}
                 </button>
               </>
             )}
@@ -178,9 +189,6 @@ export function DesktopChatPage({
               </svg>
             </button>
           </form>
-          <div className="mt-3">
-            <CrisisHelp />
-          </div>
         </div>
       </div>
     </DesktopShell>

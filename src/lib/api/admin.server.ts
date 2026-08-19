@@ -140,9 +140,8 @@ export type AdminEvaluatedAlert = {
 // ─── KPIs globais ───
 
 export const getAdminKpis = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const auth = await requireAdminRole(data.accessToken);
+  .handler(async () => {
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: null, error: auth.error };
 
     const admin = createAdminClient();
@@ -219,9 +218,8 @@ export const getAdminKpis = createServerFn({ method: "POST" })
 // ─── Companies CRUD ───
 
 export const listCompanies = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const auth = await requireAdminRole(data.accessToken);
+  .handler(async () => {
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: [] as AdminCompany[], error: auth.error };
 
     const admin = createAdminClient();
@@ -253,7 +251,6 @@ export const listCompanies = createServerFn({ method: "POST" })
 export const upsertCompany = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       id: z.string().uuid().optional(),
       name: z.string().min(2).max(120),
       document: z.string().max(30).optional().nullable(),
@@ -266,7 +263,7 @@ export const upsertCompany = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: null, error: auth.error };
 
     const admin = createAdminClient();
@@ -297,9 +294,9 @@ export const upsertCompany = createServerFn({ method: "POST" })
   });
 
 export const deleteCompany = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string(), id: z.string().uuid() }))
+  .inputValidator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { error: auth.error };
 
     const admin = createAdminClient();
@@ -312,12 +309,11 @@ export const deleteCompany = createServerFn({ method: "POST" })
 export const listEmployees = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       companyId: z.string().uuid().optional(),
     }),
   )
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: [] as AdminEmployee[], error: auth.error };
 
     const admin = createAdminClient();
@@ -353,7 +349,6 @@ export const listEmployees = createServerFn({ method: "POST" })
 export const updateEmployee = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       id: z.string().uuid(),
       company_id: z.string().uuid().nullable().optional(),
       team_id: z.string().uuid().nullable().optional(),
@@ -364,7 +359,7 @@ export const updateEmployee = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { error: auth.error };
 
     const admin = createAdminClient();
@@ -383,12 +378,11 @@ export const updateEmployee = createServerFn({ method: "POST" })
 export const listTeams = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       companyId: z.string().uuid().optional(),
     }),
   )
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: [], error: auth.error };
 
     const admin = createAdminClient();
@@ -402,7 +396,6 @@ export const listTeams = createServerFn({ method: "POST" })
 export const upsertTeam = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       id: z.string().uuid().optional(),
       company_id: z.string().uuid(),
       name: z.string().min(2).max(80),
@@ -410,7 +403,7 @@ export const upsertTeam = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: null, error: auth.error };
 
     const admin = createAdminClient();
@@ -437,9 +430,8 @@ export const upsertTeam = createServerFn({ method: "POST" })
 // ─── Licenses & Contracts ───
 
 export const listLicenses = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: [] as AdminLicense[], error: auth.error };
 
     const admin = createAdminClient();
@@ -464,7 +456,6 @@ export const listLicenses = createServerFn({ method: "POST" })
 export const upsertLicense = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       id: z.string().uuid().optional(),
       company_id: z.string().uuid(),
       plan_name: z.string().min(1).max(80).default("standard"),
@@ -476,7 +467,7 @@ export const upsertLicense = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: null, error: auth.error };
 
     const admin = createAdminClient();
@@ -505,9 +496,8 @@ export const upsertLicense = createServerFn({ method: "POST" })
   });
 
 export const listContracts = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: [] as AdminContract[], error: auth.error };
 
     const admin = createAdminClient();
@@ -533,7 +523,6 @@ export const listContracts = createServerFn({ method: "POST" })
 export const upsertContract = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       id: z.string().uuid().optional(),
       company_id: z.string().uuid(),
       title: z.string().min(2).max(120),
@@ -546,7 +535,7 @@ export const upsertContract = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: null, error: auth.error };
 
     const admin = createAdminClient();
@@ -578,9 +567,8 @@ export const upsertContract = createServerFn({ method: "POST" })
 // ─── Usage metrics ───
 
 export const getUsageMetrics = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: null, error: auth.error };
 
     const admin = createAdminClient();
@@ -667,9 +655,8 @@ export const getUsageMetrics = createServerFn({ method: "POST" })
 // ─── Sentiments ───
 
 export const getSentimentData = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: null, error: auth.error };
 
     const admin = createAdminClient();
@@ -786,9 +773,8 @@ export const getSentimentData = createServerFn({ method: "POST" })
 // ─── Alert configs ───
 
 export const listAlertConfigs = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: [] as AdminAlertConfig[], error: auth.error };
 
     const admin = createAdminClient();
@@ -813,7 +799,6 @@ export const listAlertConfigs = createServerFn({ method: "POST" })
 export const upsertAlertConfig = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       id: z.string().uuid().optional(),
       company_id: z.string().uuid().nullable().optional(),
       name: z.string().min(2).max(80),
@@ -826,7 +811,7 @@ export const upsertAlertConfig = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: null, error: auth.error };
 
     const admin = createAdminClient();
@@ -860,9 +845,8 @@ export const upsertAlertConfig = createServerFn({ method: "POST" })
   });
 
 export const evaluateAlerts = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { data: [] as AdminEvaluatedAlert[], error: auth.error };
 
     const admin = createAdminClient();
@@ -1002,13 +986,12 @@ export const evaluateAlerts = createServerFn({ method: "POST" })
 export const exportAdminCsv = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       periodDays: z.number().min(1).max(365).default(30),
       reportType: z.enum(["checkins", "companies", "employees"]).default("checkins"),
     }),
   )
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { csv: "", error: auth.error };
 
     const admin = createAdminClient();
@@ -1057,12 +1040,11 @@ export const exportAdminCsv = createServerFn({ method: "POST" })
 export const exportAdminPdf = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       periodDays: z.number().min(1).max(365).default(30),
     }),
   )
   .handler(async ({ data }: { data: any }) => {
-    const auth = await requireAdminRole(data.accessToken);
+    const auth = await requireAdminRole();
     if ("error" in auth) return { pdfBase64: "", error: auth.error };
 
     const admin = createAdminClient();

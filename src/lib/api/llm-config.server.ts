@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createHash } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin.server";
 import { logEvent } from "@/lib/api/logs.server";
 import { requireRole } from "@/lib/require-user";
@@ -20,8 +19,8 @@ export interface ChatMessage {
   content: string;
 }
 
-async function requireDevRole(accessToken: string) {
-  const auth = await requireRole(accessToken, ["dev"]);
+async function requireDevRole() {
+  const auth = await requireRole(["dev"]);
   if ("error" in auth) return { error: "Unauthorized — role dev required" };
   return { userId: auth.userId };
 }
@@ -61,16 +60,7 @@ Formatação (markdown leve):
   model_3: "",
 };
 
-/** Cache em memória: válido só nesta instância do servidor (não compartilhado entre replicas). */
-const LLM_CONFIG_CACHE_TTL_MS = 2 * 60 * 1000;
-let llmConfigCache: { config: LlmConfig; expiresAt: number } | null = null;
-
-export async function getActiveLlmConfig(accessToken?: string): Promise<LlmConfig> {
-  const now = Date.now();
-  if (llmConfigCache && llmConfigCache.expiresAt > now) {
-    return llmConfigCache.config;
-  }
-
+export async function getActiveLlmConfig(): Promise<LlmConfig> {
   const envApiKey = getEnvApiKey();
   try {
     const admin = createAdminClient();
@@ -80,7 +70,7 @@ export async function getActiveLlmConfig(accessToken?: string): Promise<LlmConfi
       .limit(1)
       .maybeSingle();
     if (data) {
-      const config = {
+      return {
         model: data.model ?? DEFAULT_CONFIG.model,
         temperature: data.temperature ?? DEFAULT_CONFIG.temperature,
         max_tokens: data.max_tokens ?? DEFAULT_CONFIG.max_tokens,
@@ -89,15 +79,17 @@ export async function getActiveLlmConfig(accessToken?: string): Promise<LlmConfi
         model_2: data.model_2 ?? "",
         model_3: data.model_3 ?? "",
       };
-      llmConfigCache = { config, expiresAt: now + LLM_CONFIG_CACHE_TTL_MS };
-      return config;
     }
   } catch {
     // fall through to defaults
   }
-  const fallback = { ...DEFAULT_CONFIG, api_key: DEFAULT_CONFIG.api_key || envApiKey || "" };
-  llmConfigCache = { config: fallback, expiresAt: now + LLM_CONFIG_CACHE_TTL_MS };
-  return fallback;
+  return { ...DEFAULT_CONFIG, api_key: DEFAULT_CONFIG.api_key || envApiKey || "" };
+}
+
+async function anonymizedUserTag(userId: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(userId));
+  const hex = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+  return `mmc_${hex.slice(0, 16)}`;
 }
 
 export async function callLlmWithFallback(
@@ -105,6 +97,7 @@ export async function callLlmWithFallback(
   config: LlmConfig,
   source: string,
   userId?: string,
+  options?: { jsonMode?: boolean },
 ): Promise<{ content: string; model: string } | { error: string }> {
   const models = [config.model, config.model_2, config.model_3].filter(Boolean);
 
@@ -122,65 +115,112 @@ export async function callLlmWithFallback(
   }
 
   let lastError: string | null = null;
+  const userTag = userId ? await anonymizedUserTag(userId) : undefined;
 
   for (let i = 0; i < models.length; i++) {
     const model = models[i];
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), i === 0 ? 15_000 : 10_000);
+    const jsonAttempts = options?.jsonMode ? [true, false] : [false];
 
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          model,
-          messages,
-          max_tokens: config.max_tokens,
-          temperature: config.temperature,
-          user: userId
-            ? `mmc_${createHash("sha256").update(userId).digest("hex").slice(0, 16)}`
-            : undefined,
-        }),
-        signal: controller.signal,
-      });
+    for (const jsonMode of jsonAttempts) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), i === 0 ? 15_000 : 10_000);
 
-      clearTimeout(timeoutId);
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            model,
+            messages,
+            max_tokens: jsonMode || options?.jsonMode ? Math.max(config.max_tokens, 700) : config.max_tokens,
+            temperature: config.temperature,
+            ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
+            provider: {
+              data_collection: "deny",
+              zdr: true,
+            },
+            user: userTag,
+          }),
+          signal: controller.signal,
+        });
 
-      if (response.ok) {
-        const json = await response.json();
-        const content = json.choices?.[0]?.message?.content;
-        const text =
-          typeof content === "string"
-            ? content
-            : Array.isArray(content)
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const json = await response.json();
+          const content = json.choices?.[0]?.message?.content;
+          const text =
+            typeof content === "string"
               ? content
-                  .map((part: { text?: string } | string) =>
-                    typeof part === "string" ? part : (part?.text ?? ""),
-                  )
-                  .join("")
-                  .trim()
-              : "";
-        if (text) {
-          if (i > 0) {
-            void logEvent("info", `${source}.fallback`, `Fallback funcionou: ${model} (tentativa ${i + 1})`, { primary: models[0], used: model }, userId);
+              : Array.isArray(content)
+                ? content
+                    .map((part: { text?: string } | string) =>
+                      typeof part === "string" ? part : (part?.text ?? ""),
+                    )
+                    .join("")
+                    .trim()
+                : "";
+          if (text) {
+            if (i > 0 || (options?.jsonMode && !jsonMode)) {
+              void logEvent(
+                "info",
+                `${source}.fallback`,
+                `Fallback funcionou: ${model} (tentativa ${i + 1})`,
+                { primary: models[0], used: model, jsonMode },
+                userId,
+              );
+            }
+            return { content: text, model };
           }
-          return { content: text, model };
+          lastError = "Resposta vazia da IA";
+          break;
         }
-        lastError = "Resposta vazia da IA";
-      } else if (response.status === 429 || response.status >= 500) {
+
         const errBody = await response.text();
         lastError = `HTTP ${response.status}: ${errBody.slice(0, 200)}`;
-        void logEvent("warn", `${source}.fallback`, `Model ${model} falhou (${response.status}), tentando próximo`, { status: response.status, model, attempt: i + 1 }, userId);
-      } else {
-        const errBody = await response.text();
-        void logEvent("error", `${source}.fallback`, `Erro não recuperável no model ${model}`, { status: response.status, body: errBody.slice(0, 500), model }, userId);
+
+        if (jsonMode && (response.status === 400 || response.status === 422)) {
+          void logEvent(
+            "warn",
+            `${source}.fallback`,
+            `JSON mode recusado em ${model}, tentando sem response_format`,
+            { status: response.status, model },
+            userId,
+          );
+          continue;
+        }
+
+        if (response.status === 429 || response.status >= 500) {
+          void logEvent(
+            "warn",
+            `${source}.fallback`,
+            `Model ${model} falhou (${response.status}), tentando próximo`,
+            { status: response.status, model, attempt: i + 1 },
+            userId,
+          );
+          break;
+        }
+
+        void logEvent(
+          "error",
+          `${source}.fallback`,
+          `Erro não recuperável no model ${model}`,
+          { status: response.status, body: errBody.slice(0, 500), model },
+          userId,
+        );
         return { error: `Erro na LLM (${response.status}): ${errBody.slice(0, 200)}` };
-      }
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") {
-        lastError = `Timeout após ${i === 0 ? 15 : 10}s`;
-        void logEvent("warn", `${source}.fallback`, `Timeout no model ${model}, tentando próximo`, { model, attempt: i + 1 }, userId);
-      } else {
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          lastError = `Timeout após ${i === 0 ? 15 : 10}s`;
+          void logEvent(
+            "warn",
+            `${source}.fallback`,
+            `Timeout no model ${model}, tentando próximo`,
+            { model, attempt: i + 1 },
+            userId,
+          );
+          break;
+        }
         const message = err instanceof Error ? err.message : String(err);
         void logEvent("error", `${source}.fallback`, `Exceção no model ${model}`, { error: message, model }, userId);
         return { error: `Erro de conexão com a IA: ${message}` };
@@ -193,10 +233,10 @@ export async function callLlmWithFallback(
 }
 
 export const getLlmConfig = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data: { accessToken } }: { data: { accessToken: string } }) => {
+
+  .handler(async () => {
     try {
-      const auth = await requireDevRole(accessToken);
+      const auth = await requireDevRole();
       if ("error" in auth) return auth;
 
       const admin = createAdminClient();
@@ -238,7 +278,6 @@ export const getLlmConfig = createServerFn({ method: "GET" })
 export const setLlmConfig = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       model: z.string().min(1),
       temperature: z.number().min(0).max(2),
       max_tokens: z.number().int().min(1).max(8192),
@@ -249,11 +288,9 @@ export const setLlmConfig = createServerFn({ method: "POST" })
     }),
   )
   .handler(
-    async ({
-      data: { accessToken, model, temperature, max_tokens, system_prompt, api_key, model_2, model_3 },
+    async ({ data: { model, temperature, max_tokens, system_prompt, api_key, model_2, model_3 },
     }: {
       data: {
-        accessToken: string;
         model: string;
         temperature: number;
         max_tokens: number;
@@ -264,7 +301,7 @@ export const setLlmConfig = createServerFn({ method: "POST" })
       };
     }) => {
       try {
-        const auth = await requireDevRole(accessToken);
+        const auth = await requireDevRole();
         if ("error" in auth) return auth;
         const { userId } = auth;
 
@@ -318,7 +355,6 @@ export const setLlmConfig = createServerFn({ method: "POST" })
         }
 
         void logEvent("info", "llm-config.setLlmConfig", `LLM config atualizada por ${userId}`, { model, model_2, model_3, temperature, max_tokens }, userId);
-        llmConfigCache = null;
         return { success: true };
       } catch (err) {
         const message = err instanceof Error ? err.message : "Erro desconhecido ao salvar";
@@ -329,10 +365,10 @@ export const setLlmConfig = createServerFn({ method: "POST" })
   );
 
 export const resetLlmConfig = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data: { accessToken } }: { data: { accessToken: string } }) => {
+
+  .handler(async () => {
     try {
-      const auth = await requireDevRole(accessToken);
+      const auth = await requireDevRole();
       if ("error" in auth) return auth;
 
       const admin = createAdminClient();
@@ -360,7 +396,6 @@ export const resetLlmConfig = createServerFn({ method: "POST" })
       }
 
       await logEvent("info", "llm-config.resetLlmConfig", `LLM config resetada para padrão`);
-      llmConfigCache = null;
       return { success: true };
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro desconhecido";
@@ -373,19 +408,17 @@ export const resetLlmConfig = createServerFn({ method: "POST" })
 export const testLlmConnection = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       model: z.string().min(1),
       api_key: z.string(),
     }),
   )
   .handler(
-    async ({
-      data: { accessToken, model, api_key },
+    async ({ data: { model, api_key },
     }: {
-      data: { accessToken: string; model: string; api_key: string };
+      data: { model: string; api_key: string };
     }) => {
       try {
-        const auth = await requireDevRole(accessToken);
+        const auth = await requireDevRole();
         if ("error" in auth) return auth;
 
         const key = api_key.startsWith("sk-or-") ? api_key : getEnvApiKey();

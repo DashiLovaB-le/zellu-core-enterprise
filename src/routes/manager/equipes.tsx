@@ -29,16 +29,15 @@ function ManagerEquipes() {
     // Dev tem acesso livre
     if (role === "dev") return;
     
-    // Manager precisa ter role de manager
-    if (!loading && user && role !== "manager") {
-      navigate({ to: "/login", replace: true });
+    if (!loading && user && role && role !== "manager") {
+      navigate({ to: role === "admin" ? "/admin" : "/", replace: true });
     }
   }, [user, loading, role, navigate]);
 
   useEffect(() => {
-    if (!session?.access_token || dataLoaded) return;
+    if (!session || dataLoaded) return;
     (async () => {
-      const data = await loadDashboard(session.access_token!);
+      const data = await loadDashboard();
       if (data) setDashboard(data);
       setDataLoaded(true);
     })();

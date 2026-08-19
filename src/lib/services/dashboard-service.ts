@@ -5,59 +5,35 @@ import {
 
 export type { DashboardData, WeekComparison, WeeklySummary } from "@/lib/api/dashboard.server";
 
-export async function loadDashboard(accessToken: string | null): Promise<DashboardData> {
-  if (!accessToken) {
-    return {
-      currentWeek: {
-        sleepAvg: 0,
-        waterAvg: 0,
-        movementAvg: 0,
-        moodDistribution: {},
-        anxietyCount: 0,
-        totalDays: 0,
-      },
-      previousWeek: {
-        sleepAvg: 0,
-        waterAvg: 0,
-        movementAvg: 0,
-        moodDistribution: {},
-        anxietyCount: 0,
-        totalDays: 0,
-      },
-      dailyMoodTrend: [],
-      dailySleepTrend: [],
-      weeklySummaries: [],
-      anxietyChangePercent: null,
-      dominantMood: "sem dados",
-      daysTracked: 0,
-    };
-  }
+const EMPTY_DASHBOARD: DashboardData = {
+  currentWeek: {
+    sleepAvg: 0,
+    waterAvg: 0,
+    movementAvg: 0,
+    moodDistribution: {},
+    anxietyCount: 0,
+    totalDays: 0,
+  },
+  previousWeek: {
+    sleepAvg: 0,
+    waterAvg: 0,
+    movementAvg: 0,
+    moodDistribution: {},
+    anxietyCount: 0,
+    totalDays: 0,
+  },
+  dailyMoodTrend: [],
+  dailySleepTrend: [],
+  weeklySummaries: [],
+  anxietyChangePercent: null,
+  dominantMood: "sem dados",
+  daysTracked: 0,
+};
+
+export async function loadDashboard(): Promise<DashboardData> {
   try {
-    return await apiGetDashboard({ data: { accessToken } });
+    return await apiGetDashboard();
   } catch {
-    return {
-      currentWeek: {
-        sleepAvg: 0,
-        waterAvg: 0,
-        movementAvg: 0,
-        moodDistribution: {},
-        anxietyCount: 0,
-        totalDays: 0,
-      },
-      previousWeek: {
-        sleepAvg: 0,
-        waterAvg: 0,
-        movementAvg: 0,
-        moodDistribution: {},
-        anxietyCount: 0,
-        totalDays: 0,
-      },
-      dailyMoodTrend: [],
-      dailySleepTrend: [],
-      weeklySummaries: [],
-      anxietyChangePercent: null,
-      dominantMood: "sem dados",
-      daysTracked: 0,
-    };
+    return EMPTY_DASHBOARD;
   }
 }

@@ -23,11 +23,11 @@ function AdminDashboard() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!session?.access_token || ready) return;
+    if (!session || ready) return;
     (async () => {
       const [k, a] = await Promise.all([
-        loadAdminKpis(session.access_token!),
-        loadEvaluatedAlerts(session.access_token!),
+        loadAdminKpis(),
+        loadEvaluatedAlerts(),
       ]);
       if (k) setKpis(k);
       setAlerts(a);
@@ -42,9 +42,9 @@ function AdminDashboard() {
   return (
     <AdminPageFrame>
       <div>
-        <h1 className="font-display text-2xl text-slate-800">KPIs globais</h1>
+        <h1 className="font-display text-2xl text-slate-800">Operação Mundo Mental</h1>
         <p className="mt-1 text-xs text-slate-500">
-          Visão consolidada de clientes, adesão e bem-estar · Mundo Mental
+          Empresas, contratos, licenças, colaboradores, uso e alertas — visão global da operadora
         </p>
       </div>
 

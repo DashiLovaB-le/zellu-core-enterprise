@@ -26,7 +26,7 @@ export function DevShell({ children }: { children: ReactNode }) {
       <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-[440px] flex-col px-5 pb-28 pt-6 md:hidden">
         <header className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Avatar name={user?.user_metadata?.avatar_url} size={32} />
+            <Avatar name={user?.avatar_url ?? undefined} size={32} />
             <div>
               <span className="font-display text-sm text-[var(--clay-title)]">Dev Panel</span>
               <p className="text-[10px] text-[var(--clay-title)]/50">{BRANDING.shortName}</p>
@@ -79,14 +79,14 @@ export function DevShell({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-50 border-b border-border/30 bg-background/70 backdrop-blur-lg">
           <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
             <Link to="/dashitecnology" className="flex items-center gap-2">
-              <Avatar name={user?.user_metadata?.avatar_url} size={32} />
+              <Avatar name={user?.avatar_url ?? undefined} size={32} />
               <span className="font-display text-base text-[var(--clay-title)]">
                 {BRANDING.shortName}
               </span>
             </Link>
             <span className="text-xs text-[var(--clay-title)]/50">Dev Panel</span>
             <Link to="/perfil">
-              <Avatar name={user?.user_metadata?.avatar_url} size={32} />
+              <Avatar name={user?.avatar_url ?? undefined} size={32} />
             </Link>
           </div>
         </header>

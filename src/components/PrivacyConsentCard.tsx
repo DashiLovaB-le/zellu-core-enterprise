@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { PRIVACY_CONTACTS, PRIVACY_OPERATORS, PRIVACY_SUMMARY } from "@/lib/privacy";
+import { PRIVACY_CONTACTS, PRIVACY_OPERATORS, PRIVACY_SUMMARY, CLINICAL_DISCLAIMER } from "@/lib/privacy";
 
 export type PrivacyConsentValues = {
   adultConfirmed: boolean;
@@ -26,6 +26,7 @@ export function PrivacyConsentCard({
   return (
     <div className="mx-auto max-w-md rounded-2xl bg-white/80 p-5 shadow-sm">
       <h2 className="font-display text-lg text-[var(--clay-title)]">{PRIVACY_SUMMARY.title}</h2>
+      <p className="mt-2 text-xs font-medium text-[var(--clay-title)]">{CLINICAL_DISCLAIMER}</p>
       <p className="mt-2 text-xs text-[var(--clay-text)]/80">{PRIVACY_CONTACTS.controllerNote}</p>
       <div className="mt-4 space-y-3 text-xs text-[var(--clay-text)]/80">
         <div>
@@ -86,8 +87,8 @@ export function PrivacyConsentCard({
             <Link to="/privacidade" className="underline">
               política de privacidade
             </Link>{" "}
-            e autorizo o tratamento essencial do companion (check-in, hábitos, diário). Posso
-            revogar no Perfil.
+            e autorizo o tratamento essencial do companion (check-in, hábitos, diário). Entendo que
+            o app não substitui atendimento psicológico. Posso revogar no Perfil.
           </span>
         </label>
         <label className="flex items-start gap-2">
@@ -98,8 +99,9 @@ export function PrivacyConsentCard({
             onChange={(e) => setAiOptIn(e.target.checked)}
           />
           <span>
-            Autorizo envio de contexto de bem-estar a modelos de IA fora do Brasil (OpenRouter).
-            Sem isto, o companion usa só respostas locais.
+            Autorizo envio de contexto de bem-estar a modelos de IA fora do Brasil (OpenRouter), sem
+            treino e sem retenção do prompt no provedor. Sem isto, o companion usa só respostas
+            locais.
           </span>
         </label>
         <label className="flex items-start gap-2">

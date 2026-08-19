@@ -1,5 +1,3 @@
-import process from "node:process";
-
 // Server-only config. The .server.ts suffix prevents Vite from bundling
 // this file into the client — values here never reach the browser.
 //
@@ -16,11 +14,27 @@ import process from "node:process";
 //     and server (analytics IDs, public URLs). Define in .env with the
 //     VITE_ prefix. Never put secrets here — they ship to the browser.
 
+function vercelHostUrl(host: string | undefined): string | undefined {
+  if (!host) return undefined;
+  return (host.startsWith("http") ? host : `https://${host}`).replace(/\/$/, "");
+}
+
+/** URL canônica do app (convites, cron). Em preview usa o host do deploy. */
+export function getAppBaseUrl(): string {
+  const explicit = process.env.APP_BASE_URL ?? process.env.VITE_APP_URL;
+  if (explicit) return explicit.replace(/\/$/, "");
+
+  const productionHost = vercelHostUrl(process.env.VERCEL_PROJECT_PRODUCTION_URL);
+  const deployHost = vercelHostUrl(process.env.VERCEL_URL);
+  if (process.env.VERCEL_ENV === "production") {
+    return productionHost ?? deployHost ?? "http://localhost:8080";
+  }
+  return deployHost ?? productionHost ?? "http://localhost:8080";
+}
+
 export function getServerConfig() {
   return {
     nodeEnv: process.env.NODE_ENV,
-    // Add server-only values here, e.g.:
-    //   databaseUrl: process.env.DATABASE_URL,
-    //   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+    appBaseUrl: getAppBaseUrl(),
   };
 }

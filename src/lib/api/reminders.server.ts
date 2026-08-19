@@ -4,15 +4,16 @@ import { createAdminClient } from "@/lib/supabase/admin.server";
 import { requireAdmin } from "@/lib/require-user";
 import { getZonedHour, zonedDateKey, DEFAULT_TIMEZONE } from "@/lib/timezone";
 import { logEvent } from "@/lib/api/logs.server";
+import { executeRetentionPurge } from "@/lib/retention";
 
 /**
  * Job diário (cron / admin): lembra companions sem check-in no dia local.
  * E-mail: loga o envio; se RESEND_API_KEY existir, tenta disparar.
  */
 export const sendCheckinReminders = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string(), hour: z.number().int().min(0).max(23).default(9) }))
+  .inputValidator(z.object({ hour: z.number().int().min(0).max(23).default(9) }))
   .handler(async ({ data }) => {
-    const auth = await requireAdmin(data.accessToken);
+    const auth = await requireAdmin();
     if ("error" in auth) return { error: auth.error, sent: 0 };
 
     const admin = createAdminClient();
@@ -87,14 +88,16 @@ export const sendCheckinReminders = createServerFn({ method: "POST" })
       sent += 1;
     }
 
+    void executeRetentionPurge(auth.userId);
+
     return { error: null, sent };
   });
 
 export const hasCheckinToday = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
+
   .handler(async ({ data }) => {
     const { requireUser } = await import("@/lib/require-user");
-    const auth = await requireUser(data.accessToken);
+    const auth = await requireUser();
     if ("error" in auth) return { done: false };
     const tz = auth.profile?.timezone || DEFAULT_TIMEZONE;
     const todayKey = zonedDateKey(tz);

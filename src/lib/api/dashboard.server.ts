@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import { requireCompanionConsent } from "@/lib/require-user";
 import { getMoodScore } from "@/data/moods";
 
@@ -70,9 +69,8 @@ function buildEmptyWeek(): WeekComparison {
 }
 
 export const getDashboardData = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+  .handler(async () => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) {
       return {
         currentWeek: buildEmptyWeek(),

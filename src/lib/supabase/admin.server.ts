@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import process from "node:process";
 
 export function createAdminClient() {
   const url = process.env.VITE_SUPABASE_URL ?? import.meta.env.VITE_SUPABASE_URL;

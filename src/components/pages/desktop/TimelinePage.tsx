@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DesktopShell } from "@/components/DesktopShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
+import { useAuth } from "@/lib/auth-context";
 import type { TimelineData } from "@/lib/services/timeline-service";
 import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
@@ -29,6 +30,7 @@ function getWeekday(date: Date): number {
 }
 
 export function DesktopTimelinePage({ data, onSaveEntry, preventiveAlert, onSuggestionClick }: TimelinePageProps) {
+  const { user } = useAuth();
   const [showNewEntry, setShowNewEntry] = useState(false);
   const [newContent, setNewContent] = useState("");
   const [newMood, setNewMood] = useState("");
@@ -54,7 +56,7 @@ export function DesktopTimelinePage({ data, onSaveEntry, preventiveAlert, onSugg
     <DesktopShell>
       <div className="mx-auto max-w-6xl">
         <header className="mb-6 flex items-center gap-3">
-          <Avatar size={40} />
+          <Avatar name={user?.avatar_url ?? undefined} size={40} />
           <div className="flex-1">
             <h1 className="font-display text-2xl text-[var(--clay-title)]">Meu Diário</h1>
             <p className="text-sm text-[var(--clay-text)]/70">

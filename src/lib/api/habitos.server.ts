@@ -15,10 +15,9 @@ export type HabitsData = {
   updated_at: string;
 };
 
-export const getHabits = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+export const getHabits = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return null;
     const { userId, supabase } = auth;
     const today = new Date().toISOString().split("T")[0];
@@ -35,9 +34,7 @@ export const getHabits = createServerFn({ method: "GET" })
 
 export const updateHabits = createServerFn({ method: "POST" })
   .inputValidator(
-    z.object({
-      accessToken: z.string(),
-      waterMl: z.number().min(0).max(10000).optional(),
+    z.object({      waterMl: z.number().min(0).max(10000).optional(),
       sleepQuality: z.number().min(0).max(100).optional(),
       mood: z.string().optional(),
       movementMinutes: z.number().min(0).max(600).optional(),
@@ -49,9 +46,7 @@ export const updateHabits = createServerFn({ method: "POST" })
     async ({
       data,
     }: {
-      data: {
-        accessToken: string;
-        waterMl?: number;
+      data: {        waterMl?: number;
         sleepQuality?: number;
         mood?: string;
         movementMinutes?: number;
@@ -59,7 +54,7 @@ export const updateHabits = createServerFn({ method: "POST" })
         meals?: string[];
       };
     }) => {
-      const auth = await requireCompanionConsent(data.accessToken);
+      const auth = await requireCompanionConsent();
       if ("error" in auth) return null;
       const { userId, supabase } = auth;
       const today = new Date().toISOString().split("T")[0];

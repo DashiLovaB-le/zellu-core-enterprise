@@ -16,9 +16,7 @@ export type CheckinData = {
 
 export const saveCheckin = createServerFn({ method: "POST" })
   .inputValidator(
-    z.object({
-      accessToken: z.string(),
-      sleepHours: z.number().min(0).max(24),
+    z.object({      sleepHours: z.number().min(0).max(24),
       sleepLabel: z.string(),
       waterMl: z.number().min(0).max(10000),
       mood: z.string(),
@@ -28,15 +26,13 @@ export const saveCheckin = createServerFn({ method: "POST" })
     async ({
       data,
     }: {
-      data: {
-        accessToken: string;
-        sleepHours: number;
+      data: {        sleepHours: number;
         sleepLabel: string;
         waterMl: number;
         mood: string;
       };
     }) => {
-      const auth = await requireCompanionConsent(data.accessToken);
+      const auth = await requireCompanionConsent();
       if ("error" in auth) return { error: auth.error };
       const { userId, supabase } = auth;
 
@@ -76,10 +72,9 @@ export const saveCheckin = createServerFn({ method: "POST" })
     },
   );
 
-export const getTodaysCheckin = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+export const getTodaysCheckin = createServerFn({ method: "POST" })
+  .handler(async () => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return { data: null, error: auth.error };
     const { userId, supabase } = auth;
 

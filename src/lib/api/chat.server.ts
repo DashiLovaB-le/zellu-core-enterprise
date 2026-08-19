@@ -24,10 +24,9 @@ function checkRateLimit(userId: string): boolean {
   return true;
 }
 
-export const getMessages = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+export const getMessages = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return [];
     const { userId, supabase } = auth;
 
@@ -44,13 +43,11 @@ export const getMessages = createServerFn({ method: "GET" })
 
 export const sendMessage = createServerFn({ method: "POST" })
   .inputValidator(
-    z.object({
-      accessToken: z.string(),
-      text: z.string().min(1).max(MESSAGE_MAX_LENGTH),
+    z.object({      text: z.string().min(1).max(MESSAGE_MAX_LENGTH),
     }),
   )
-  .handler(async ({ data }: { data: { accessToken: string; text: string } }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+  .handler(async ({ data }: { data: { text: string } }) => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return null;
     const { userId, supabase } = auth;
 

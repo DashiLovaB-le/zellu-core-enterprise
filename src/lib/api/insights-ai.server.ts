@@ -184,9 +184,9 @@ function buildUserPrompt(context: InsightContext): string {
 }
 
 export const generateInsight = createServerFn({ method: "POST" })
-  .inputValidator((data: { accessToken: string; context: InsightContext }) => data)
+  .inputValidator((data: { context: InsightContext }) => data)
   .handler(async ({ data }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return { insight: "" };
     const { context } = data;
     const allowCloudAi = Boolean(auth.profile?.privacy_ai_opt_in);

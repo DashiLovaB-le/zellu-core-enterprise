@@ -23,22 +23,13 @@ export interface PreventiveAlert {
   };
 }
 
-/** Cache em memória: válido só nesta instância do servidor (não compartilhado entre replicas). */
-const DETECT_CACHE_TTL_MS = 30 * 60 * 1000;
-const detectCache = new Map<string, { alert: PreventiveAlert; expiresAt: number }>();
-
-function getCachedAlert(userId: string): PreventiveAlert | null {
-  const entry = detectCache.get(userId);
-  if (!entry) return null;
-  if (entry.expiresAt <= Date.now()) {
-    detectCache.delete(userId);
-    return null;
-  }
-  return entry.alert;
+async function getCachedAlert(supabase: SupabaseClient): Promise<PreventiveAlert | null> {
+  const { data } = await supabase.rpc("preventive_cache_get");
+  return (data as PreventiveAlert | null) ?? null;
 }
 
-function setCachedAlert(userId: string, alert: PreventiveAlert) {
-  detectCache.set(userId, { alert, expiresAt: Date.now() + DETECT_CACHE_TTL_MS });
+async function setCachedAlert(supabase: SupabaseClient, alert: PreventiveAlert) {
+  await supabase.rpc("preventive_cache_set", { p_payload: alert });
 }
 
 export interface PreventiveNotification {
@@ -106,12 +97,11 @@ function detectCorrelation(
 }
 
 export const detectPatterns = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+  .handler(async () => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return buildEmptyAlert();
     const { userId, supabase, profile } = auth;
-    const cached = getCachedAlert(userId);
+    const cached = await getCachedAlert(supabase);
     if (cached) return cached;
 
     const fourteenDaysAgo = new Date();
@@ -314,104 +304,104 @@ export const detectPatterns = createServerFn({ method: "POST" })
 
     if ((sleepDrop && moodDrop && interactionDrop) && baselineSleepCount >= 2 && baselineMoodCount >= 2) {
       const alert = buildAlert("burnout-risk", "high", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (((sleepDrop || mildSleepDrop) && (moodDrop || mildMoodDrop) && (interactionDrop || mildInteractionDrop)) && baselineSleepCount >= 2 && baselineMoodCount >= 2) {
       const alert = buildAlert("burnout-risk", "medium", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (sleepDrop) {
       const alert = buildAlert("sleep-crisis", "high", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (moodDrop) {
       const alert = buildAlert("mood-crisis", "high", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (hydrationDrop) {
       const alert = buildAlert("hydration", "medium", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (movementDrop) {
       const alert = buildAlert("movement", "medium", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (energyDrop) {
       const alert = buildAlert("energy", "medium", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (mildSleepDrop) {
       const alert = buildAlert("sleep-crisis", "low", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (mildMoodDrop) {
       const alert = buildAlert("mood-crisis", "low", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (mildHydrationDrop) {
       const alert = buildAlert("hydration", "low", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (mildMovementDrop) {
       const alert = buildAlert("movement", "low", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (mildEnergyDrop) {
       const alert = buildAlert("energy", "low", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (interactionDrop) {
       const alert = buildAlert("disengagement", "medium", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     if (mildInteractionDrop) {
       const alert = buildAlert("disengagement", "low", baseDetails, timeOfDay, streakDays, correlation);
-      setCachedAlert(userId, alert);
+      setCachedAlert(supabase, alert);
       void saveNotification(supabase, userId, alert);
       return alert;
     }
 
     const empty = buildEmptyAlert();
-    setCachedAlert(userId, empty);
+    setCachedAlert(supabase, empty);
     return empty;
   });
 
@@ -590,9 +580,9 @@ async function saveNotification(
 }
 
 export const getNotificationHistory = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string(), limit: z.number().optional().default(20) }))
-  .handler(async ({ data }: { data: { accessToken: string; limit: number } }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+  .inputValidator(z.object({ limit: z.number().optional().default(20) }))
+  .handler(async ({ data }: { data: { limit: number } }) => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return [];
     const { userId, supabase } = auth;
 
@@ -607,9 +597,9 @@ export const getNotificationHistory = createServerFn({ method: "POST" })
   });
 
 export const dismissNotification = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string(), notificationId: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string; notificationId: string } }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+  .inputValidator(z.object({ notificationId: z.string() }))
+  .handler(async ({ data }: { data: { notificationId: string } }) => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return { success: false };
     const { userId, supabase } = auth;
 
@@ -623,9 +613,8 @@ export const dismissNotification = createServerFn({ method: "POST" })
   });
 
 export const getUnreadNotificationCount = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+  .handler(async () => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return { count: 0 };
     const { userId, supabase } = auth;
 

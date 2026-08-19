@@ -6,7 +6,6 @@ import { ChatMarkdown } from "@/components/ChatMarkdown";
 import type { Msg } from "@/data";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 import { MAIN_MOODS, EXTRA_MOODS } from "@/data/moods";
-import { CrisisHelp } from "@/components/CrisisHelp";
 
 interface ChatPageProps {
   messages: Msg[];
@@ -104,7 +103,15 @@ export function MobileChatPage({
           messages[messages.length - 1]?.from === "ai" &&
           aiSuggestion && (
             <button
-              onClick={() =>
+              onClick={() => {
+                if (aiSuggestion === "checkin") {
+                  onSuggestionClick?.("fazer check-in");
+                  return;
+                }
+                if (aiSuggestion === "plano") {
+                  onSuggestionClick?.("abrir plano de cuidado");
+                  return;
+                }
                 onQuickReply(
                   aiSuggestion === "respirar"
                     ? "Vamos respirar"
@@ -115,23 +122,27 @@ export function MobileChatPage({
                         : aiSuggestion === "movimento"
                           ? "Fazer um alongamento"
                           : "Como está meu humor",
-                )
-              }
+                );
+              }}
               className="w-full rounded-lg bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 px-4 py-2 text-xs font-semibold text-[var(--clay-title)] shadow-sm active:translate-y-px"
             >
               {aiSuggestion === "respirar"
-                ? "🌬️ Respirar"
+                ? "Respirar"
                 : aiSuggestion === "agua"
-                  ? "💧 Beber água"
+                  ? "Beber água"
                   : aiSuggestion === "pausa"
-                    ? "☕ Fazer pausa"
+                    ? "Fazer pausa"
                     : aiSuggestion === "movimento"
-                      ? "🤸 Alongar"
+                      ? "Alongar"
                       : aiSuggestion === "humor"
-                        ? "📊 Ver humor"
+                        ? "Ver humor"
                         : aiSuggestion === "sono"
-                          ? "🌙 Ver sono"
-                          : "Sugestão"}
+                          ? "Ver sono"
+                          : aiSuggestion === "checkin"
+                            ? "Fazer check-in"
+                            : aiSuggestion === "plano"
+                              ? "Abrir plano"
+                              : "Sugestão"}
             </button>
           )}
 
@@ -177,9 +188,6 @@ export function MobileChatPage({
             </svg>
           </button>
         </form>
-        <div className="mt-3">
-          <CrisisHelp />
-        </div>
       </div>
     </MobileShell>
   );

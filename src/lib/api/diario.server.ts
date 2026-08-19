@@ -2,10 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireCompanionConsent } from "@/lib/require-user";
 
-export const getDiaryEntries = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+export const getDiaryEntries = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return [];
     const { userId, supabase } = auth;
 
@@ -21,14 +20,12 @@ export const getDiaryEntries = createServerFn({ method: "GET" })
 
 export const saveDiaryEntry = createServerFn({ method: "POST" })
   .inputValidator(
-    z.object({
-      accessToken: z.string(),
-      content: z.string().min(1).max(5000),
+    z.object({      content: z.string().min(1).max(5000),
       mood: z.string().optional(),
     }),
   )
-  .handler(async ({ data }: { data: { accessToken: string; content: string; mood?: string } }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+  .handler(async ({ data }: { data: { content: string; mood?: string } }) => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return { error: auth.error };
     const { userId, supabase } = auth;
 
@@ -42,9 +39,9 @@ export const saveDiaryEntry = createServerFn({ method: "POST" })
   });
 
 export const deleteDiaryEntry = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string(), entryId: z.string().uuid() }))
-  .handler(async ({ data }: { data: { accessToken: string; entryId: string } }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+  .inputValidator(z.object({ entryId: z.string().uuid() }))
+  .handler(async ({ data }: { data: { entryId: string } }) => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return { error: auth.error };
     const { userId, supabase } = auth;
 

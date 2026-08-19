@@ -9,7 +9,8 @@ import { detectCrisisLanguage, buildCrisisReply } from "@/lib/crisis";
 import { getGreeting } from "@/lib/timezone";
 import { selectTrustedChatContext, selectTrustedChatHistory, type ChatTurn } from "@/lib/chat-guard";
 import { detectPatterns } from "@/lib/api/preventiva-ai.server";
-import { canonicalMood } from "@/data/moods";
+import { COMPANION_JSON_PROTOCOL, parseCompanionAiPayload } from "@/lib/companion-agent";
+import { companionContextBlock, loadCompanionSnapshot, persistCompanionMemory } from "@/lib/api/companion-memory.server";
 
 export interface PreventiveContext {
   hasAlert: boolean;
@@ -24,7 +25,6 @@ const CHAT_RATE_LIMIT_PER_HOUR = 20;
 export const sendChatMessage = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string().min(1),
       text: z.string().min(1).max(2000),
       history: z
         .array(
@@ -58,7 +58,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return { error: auth.error };
     const { userId, supabase, profile } = auth;
 
@@ -109,55 +109,41 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       role: m.from === "user" ? "user" : "assistant",
       content: m.text,
     }));
-    const history = selectTrustedChatHistory(data.history, dbHistory, 10);
-
-    const { data: latestCheckin } = await supabase
-      .from("checkins")
-      .select("sleep_hours, sleep_label, water_ml, mood, created_at")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const history = selectTrustedChatHistory(data.history, dbHistory, 14);
 
     let preventiveLine = "- Sem alertas preventivos";
     try {
-      const alert = await detectPatterns({ data: { accessToken: data.accessToken } });
+      const alert = await detectPatterns();
       if (alert && alert.type !== "none") {
-        preventiveLine = `- Alerta preventivo: ${alert.message}. Sugestão: ${alert.suggestion}`;
+        preventiveLine = `- Alerta preventivo (${alert.severity}): ${alert.message}. Sugestão: ${alert.suggestion}`;
       }
     } catch {
       // ignore
     }
 
+    const snapshot = await loadCompanionSnapshot(supabase, userId, preventiveLine);
+    const latest = snapshot.checkins[0];
     const serverContext = selectTrustedChatContext(data.context, {
-      sleepHours: latestCheckin?.sleep_hours,
-      sleepLabel: latestCheckin?.sleep_label,
-      waterMl: latestCheckin?.water_ml,
-      mood: canonicalMood(latestCheckin?.mood) ?? latestCheckin?.mood,
+      sleepHours: latest?.sleepHours ?? undefined,
+      sleepLabel: latest?.sleepLabel,
+      waterMl: latest?.waterMl ?? undefined,
+      mood: latest?.mood,
       userName: name,
-      recentCheckin: latestCheckin
-        ? `Check-in em ${new Date(latestCheckin.created_at).toISOString()}`
-        : undefined,
+      recentCheckin: latest ? `Check-in em ${latest.day}` : undefined,
       preventiveLine,
     });
 
     const config = await getActiveLlmConfig();
     const greeting = getGreeting(tz);
 
-    const systemContent = `${config.system_prompt}
-
-Contexto do usuário (sem identificadores):
-- Sono: ${serverContext.sleepLabel ?? "não informado"} (${serverContext.sleepHours ? `${serverContext.sleepHours}h` : "n/d"})
-- Água: ${serverContext.waterMl ? `${serverContext.waterMl}ml hoje` : "não informado"}
-- Humor: ${serverContext.mood ?? "não informado"}
-- Check-in recente: ${serverContext.recentCheckin ?? "não informado"}
-${serverContext.preventiveLine}
+    const personaPrompt = `${config.system_prompt}
 
 Período: ${greeting}
 Responda sempre em português brasileiro.
 Não peça nome, e-mail ou dados de identificação.
-Use markdown leve: **negrito** para destaques pontuais, quebras de linha entre ideias e, se útil, uma lista curta com "- ". Nada exagerado.
-Se a pessoa descrever risco imediato à vida, NÃO aconselhe: oriente CVV 188 e ajuda profissional.`;
+Se a pessoa descrever risco imediato à vida, NÃO aconselhe: oriente CVV 188 e ajuda profissional.
+
+${COMPANION_JSON_PROTOCOL}`;
 
     const allowCloudAi = Boolean(profile?.privacy_ai_opt_in) && Boolean(config.api_key);
 
@@ -167,13 +153,22 @@ Se a pessoa descrever risco imediato à vida, NÃO aconselhe: oriente CVV 188 e 
       return { reply, suggestion: extractSuggestion(reply), crisis: false };
     }
 
+    await persistUserMessage(supabase, userId, data.text);
+
     const messages: ChatMessage[] = [
-      { role: "system", content: systemContent },
+      { role: "system", content: personaPrompt },
+      { role: "system", content: companionContextBlock(snapshot) },
       ...history,
       { role: "user", content: data.text },
     ];
 
-    const result = await callLlmWithFallback(messages, config, "chat-ai.sendChatMessage", userId);
+    const result = await callLlmWithFallback(
+      messages,
+      config,
+      "chat-ai.sendChatMessage",
+      userId,
+      { jsonMode: true },
+    );
 
     if ("error" in result) {
       const reply = buildLocalFallbackReply(data.text, name, serverContext);
@@ -184,12 +179,13 @@ Se a pessoa descrever risco imediato à vida, NÃO aconselhe: oriente CVV 188 e 
         { error: result.error },
         userId,
       );
-      await persistExchange(supabase, userId, data.text, reply);
+      await persistAssistantMessage(supabase, userId, reply);
       return { reply, suggestion: extractSuggestion(reply), crisis: false };
     }
 
-    let reply = result.content.trim();
-      if (detectCrisisLanguage(reply) && !detectCrisisLanguage(data.text)) {
+    const payload = parseCompanionAiPayload(result.content);
+    let reply = payload.message;
+    if (detectCrisisLanguage(reply) && !detectCrisisLanguage(data.text)) {
       reply = buildCrisisReply(undefined, company?.support_channel ?? null);
     }
 
@@ -203,9 +199,51 @@ Se a pessoa descrever risco imediato à vida, NÃO aconselhe: oriente CVV 188 e 
       );
     }
 
-    await persistExchange(supabase, userId, data.text, reply);
-    return { reply, suggestion: extractSuggestion(reply), crisis: false };
+    await persistAssistantMessage(supabase, userId, reply);
+    await persistCompanionMemory(supabase, userId, payload).catch(() => undefined);
+
+    return {
+      reply,
+      suggestion: payload.suggestion ?? extractSuggestion(reply),
+      crisis: false,
+    };
   });
+
+async function persistUserMessage(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  userText: string,
+) {
+  try {
+    await supabase.from("chat_messages").insert({ user_id: userId, text: userText, from: "user" });
+  } catch (err) {
+    void logEvent(
+      "warn",
+      "chat-ai.persistUserMessage",
+      "Falha ao persistir mensagem do usuário",
+      { error: String(err) },
+      userId,
+    );
+  }
+}
+
+async function persistAssistantMessage(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  reply: string,
+) {
+  try {
+    await supabase.from("chat_messages").insert({ user_id: userId, text: reply, from: "ai" });
+  } catch (err) {
+    void logEvent(
+      "warn",
+      "chat-ai.persistAssistantMessage",
+      "Falha ao persistir resposta do companion",
+      { error: String(err) },
+      userId,
+    );
+  }
+}
 
 async function persistExchange(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -213,20 +251,8 @@ async function persistExchange(
   userText: string,
   reply: string,
 ) {
-  try {
-    await supabase.from("chat_messages").insert([
-      { user_id: userId, text: userText, from: "user" },
-      { user_id: userId, text: reply, from: "ai" },
-    ]);
-  } catch (err) {
-    void logEvent(
-      "warn",
-      "chat-ai.persistExchange",
-      "Falha ao persistir mensagens do chat",
-      { error: String(err) },
-      userId,
-    );
-  }
+  await persistUserMessage(supabase, userId, userText);
+  await persistAssistantMessage(supabase, userId, reply);
 }
 
 function buildLocalFallbackReply(
@@ -263,7 +289,6 @@ function buildLocalFallbackReply(
 export const getContextualGreeting = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       context: z
         .object({
           sleepHours: z.number().optional(),
@@ -275,7 +300,7 @@ export const getContextualGreeting = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    const auth = await requireUser(data.accessToken);
+    const auth = await requireUser();
     if ("error" in auth) return { greeting: getGreeting() };
     return { greeting: getGreeting(auth.profile?.timezone ?? "America/Sao_Paulo") };
   });
@@ -287,6 +312,8 @@ function extractSuggestion(text: string): string | null {
   if (lower.includes("pausa") || lower.includes("descans")) return "pausa";
   if (lower.includes("along") || lower.includes("movimento") || lower.includes("caminh"))
     return "movimento";
+  if (lower.includes("check-in") || lower.includes("checkin")) return "checkin";
+  if (lower.includes("plano")) return "plano";
   if (lower.includes("humor") || lower.includes("emoç")) return "humor";
   if (lower.includes("sono") || lower.includes("dorm")) return "sono";
   return null;

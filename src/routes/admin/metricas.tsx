@@ -37,9 +37,9 @@ function AdminMetricasPage() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!session?.access_token || ready) return;
+    if (!session || ready) return;
     (async () => {
-      const m = await loadUsageMetrics(session.access_token!);
+      const m = await loadUsageMetrics();
       setData(m);
       setReady(true);
     })();

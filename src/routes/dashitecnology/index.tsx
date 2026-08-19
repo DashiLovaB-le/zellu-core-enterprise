@@ -42,9 +42,8 @@ function DevIndex() {
       return;
     }
     
-    // Apenas dev tem acesso a dashitecnology
-    if (!loading && user && role !== "dev") {
-      const target = role === "manager" ? "/manager" : "/";
+    if (!loading && user && role && role !== "dev") {
+      const target = role === "manager" ? "/manager/rh-dashboard" : role === "admin" ? "/admin" : "/";
       navigate({ to: target, replace: true });
     }
   }, [user, loading, role, navigate]);

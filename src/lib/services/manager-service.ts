@@ -1,9 +1,9 @@
 import { getManagerDashboard, getCheckinStats, exportCsv } from "@/lib/api/manager.server";
 import type { DashboardData } from "@/lib/api/manager.server";
 
-export async function loadDashboard(accessToken: string): Promise<DashboardData | null> {
+export async function loadDashboard(): Promise<DashboardData | null> {
   try {
-    const result = await getManagerDashboard({ data: { accessToken } });
+    const result = await getManagerDashboard();
     if ("data" in result && result.data) return result.data as DashboardData;
   } catch {
     // fallback
@@ -11,9 +11,9 @@ export async function loadDashboard(accessToken: string): Promise<DashboardData 
   return null;
 }
 
-export async function loadCheckinStats(accessToken: string, periodDays: number = 30) {
+export async function loadCheckinStats(periodDays: number = 30) {
   try {
-    const result = await getCheckinStats({ data: { accessToken, periodDays } });
+    const result = await getCheckinStats({ data: { periodDays } });
     return "data" in result ? (result.data ?? []) : [];
   } catch {
     return [];
@@ -21,11 +21,10 @@ export async function loadCheckinStats(accessToken: string, periodDays: number =
 }
 
 export async function downloadCsv(
-  accessToken: string,
   periodDays: number = 30,
 ): Promise<string | null> {
   try {
-    const result = await exportCsv({ data: { accessToken, periodDays } });
+    const result = await exportCsv({ data: { periodDays } });
     if (result.error) return null;
     return (result as { csv: string }).csv ?? null;
   } catch {

@@ -52,9 +52,9 @@ function PerfilPage() {
   const [emailOptIn, setEmailOptIn] = useState(false);
 
   useEffect(() => {
-    if (!session?.access_token || profileLoaded) return;
+    if (!session || profileLoaded) return;
     (async () => {
-      const profile = await getProfile({ data: { accessToken: session.access_token! } });
+      const profile = await getProfile();
       if (profile && "display_name" in profile) {
         const p = profile as {
           display_name: string;
@@ -105,9 +105,8 @@ function PerfilPage() {
 
   const handleSaveName = async () => {
     setNameSuccess("");
-    if (!session?.access_token || !editName.trim()) return;
-    const { error } = await updateProfile({
-      data: { accessToken: session.access_token, displayName: editName.trim() },
+    if (!session || !editName.trim()) return;
+    const { error } = await updateProfile({ data: { displayName: editName.trim() },
     });
     if (!error) {
       setDisplayName(editName.trim());
@@ -120,9 +119,8 @@ function PerfilPage() {
   const handleSaveEmail = async () => {
     setEmailError("");
     setEmailSuccess("");
-    if (!session?.access_token || !newEmail.trim()) return;
-    const { error } = await updateEmail({
-      data: { accessToken: session.access_token, email: newEmail.trim() },
+    if (!session || !newEmail.trim()) return;
+    const { error } = await updateEmail({ data: { email: newEmail.trim() },
     });
     if (error) {
       setEmailError(error);
@@ -136,7 +134,7 @@ function PerfilPage() {
   const handleSavePassword = async () => {
     setPasswordError("");
     setPasswordSuccess("");
-    if (!session?.access_token || !user?.email) return;
+    if (!session || !user?.email) return;
     if (newPassword !== confirmPassword) {
       setPasswordError("Nova senha e confirmação não coincidem");
       return;
@@ -145,10 +143,7 @@ function PerfilPage() {
       setPasswordError("Nova senha deve ter no mínimo 8 caracteres");
       return;
     }
-    const { error } = await updatePassword({
-      data: {
-        accessToken: session.access_token,
-        email: user.email,
+    const { error } = await updatePassword({ data: { email: user.email,
         currentPassword,
         newPassword,
       },
@@ -197,8 +192,8 @@ function PerfilPage() {
     onSetAvatarName: async (name: string) => {
       setAvatarName(name);
       setEditingAvatar(false);
-      if (session?.access_token) {
-        await updateProfile({ data: { accessToken: session.access_token, avatarUrl: name } });
+      if (session) {
+        await updateProfile({ data: { avatarUrl: name } });
         await setAvatarUrl(name);
       }
     },
@@ -246,8 +241,8 @@ function PerfilPage() {
               onChange={async (e) => {
                 const next = e.target.checked;
                 setAiOptIn(next);
-                if (session?.access_token) {
-                  await updatePrivacyPreferences({ data: { accessToken: session.access_token, aiOptIn: next } });
+                if (session) {
+                  await updatePrivacyPreferences({ data: { aiOptIn: next } });
                 }
               }}
             />
@@ -260,8 +255,8 @@ function PerfilPage() {
               onChange={async (e) => {
                 const next = e.target.checked;
                 setRhOptIn(next);
-                if (session?.access_token) {
-                  await updatePrivacyPreferences({ data: { accessToken: session.access_token, rhOptIn: next } });
+                if (session) {
+                  await updatePrivacyPreferences({ data: { rhOptIn: next } });
                 }
               }}
             />
@@ -274,8 +269,8 @@ function PerfilPage() {
               onChange={async (e) => {
                 const next = e.target.checked;
                 setEmailOptIn(next);
-                if (session?.access_token) {
-                  await updatePrivacyPreferences({ data: { accessToken: session.access_token, emailOptIn: next } });
+                if (session) {
+                  await updatePrivacyPreferences({ data: { emailOptIn: next } });
                 }
               }}
             />
@@ -284,8 +279,8 @@ function PerfilPage() {
             type="button"
             className="mb-2 w-full rounded-xl bg-white/50 p-3 text-left text-sm"
             onClick={async () => {
-              if (!session?.access_token) return;
-              const result = await exportMyData({ data: { accessToken: session.access_token } });
+              if (!session) return;
+              const result = await exportMyData();
               if (!result.data) return;
               const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: "application/json" });
               const url = URL.createObjectURL(blob);
@@ -302,9 +297,9 @@ function PerfilPage() {
             type="button"
             className="mb-2 w-full rounded-xl bg-white/50 p-3 text-left text-sm"
             onClick={async () => {
-              if (!session?.access_token) return;
+              if (!session) return;
               if (!window.confirm("Revogar o consentimento? Você será levado ao termo de novo.")) return;
-              const result = await withdrawPrivacyConsent({ data: { accessToken: session.access_token } });
+              const result = await withdrawPrivacyConsent();
               if (!result.error) navigate({ to: "/onboarding", replace: true });
             }}
           >
@@ -314,9 +309,9 @@ function PerfilPage() {
             type="button"
             className="w-full rounded-xl bg-white/50 p-3 text-left text-sm text-red-700"
             onClick={async () => {
-              if (!session?.access_token) return;
+              if (!session) return;
               if (!window.confirm("Excluir sua conta e dados? Esta ação não pode ser desfeita.")) return;
-              const result = await deleteMyAccount({ data: { accessToken: session.access_token } });
+              const result = await deleteMyAccount();
               if (!result.error) await signOut();
             }}
           >

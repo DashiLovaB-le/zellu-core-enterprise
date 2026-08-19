@@ -1,0 +1,22 @@
+name: Retenção LGPD
+
+on:
+  schedule:
+    - cron: "15 9 * * *"
+  workflow_dispatch:
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar exclusão automática
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "APP_URL ou CRON_SECRET não configurados — pulando"
+            exit 0
+          fi
+          curl -fsS -X POST "${APP_URL%/}/api/jobs/retention" \
+            -H "Authorization: Bearer ${CRON_SECRET}"

@@ -37,7 +37,7 @@ export function ManagerShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <Link to="/perfil">
-            <Avatar name={user?.user_metadata?.avatar_url} size={32} />
+            <Avatar name={user?.avatar_url ?? undefined} size={32} />
           </Link>
         </header>
 
@@ -93,7 +93,7 @@ export function ManagerShell({ children }: { children: ReactNode }) {
             </Link>
             <span className="text-xs text-[var(--clay-title)]/50">Painel RH</span>
             <Link to="/perfil">
-              <Avatar name={user?.user_metadata?.avatar_url} size={32} />
+              <Avatar name={user?.avatar_url ?? undefined} size={32} />
             </Link>
           </div>
         </header>

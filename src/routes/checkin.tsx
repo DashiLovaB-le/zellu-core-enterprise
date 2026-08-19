@@ -28,16 +28,16 @@ function CheckinPage() {
   const [loadingCheckin, setLoadingCheckin] = useState(true);
 
   useEffect(() => {
-    if (!session?.access_token) return;
+    if (!session) return;
     setLoadingCheckin(true);
-    getTodaysCheckin({ data: { accessToken: session.access_token } }).then((res) => {
+    getTodaysCheckin().then((res) => {
       if (res.data) {
         setTodaysCheckin(res.data);
         setSaved(true);
       }
       setLoadingCheckin(false);
     });
-  }, [session?.access_token]);
+  }, [session]);
 
   if (loading || !isAuthorized) {
     return (
@@ -61,13 +61,10 @@ function CheckinPage() {
     waterMl: number;
     mood: string;
   }) => {
-    if (!session?.access_token) return;
+    if (!session) return;
     setSaving(true);
     try {
-      const result = await saveCheckin({
-        data: {
-          accessToken: session.access_token,
-          sleepHours: data.sleepHours,
+      const result = await saveCheckin({ data: { sleepHours: data.sleepHours,
           sleepLabel: data.sleepLabel,
           waterMl: data.waterMl,
           mood: data.mood,
@@ -77,7 +74,7 @@ function CheckinPage() {
         console.error(result.error);
         return;
       }
-      const refreshed = await getTodaysCheckin({ data: { accessToken: session.access_token } });
+      const refreshed = await getTodaysCheckin();
       if (refreshed.data) {
         setTodaysCheckin(refreshed.data);
       }

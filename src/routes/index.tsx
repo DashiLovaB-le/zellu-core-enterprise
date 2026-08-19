@@ -41,7 +41,7 @@ function IndexPage() {
   const [checkinDone, setCheckinDone] = useState(true);
 
   const navigate = useNavigate();
-  const accessToken = session?.access_token ?? null;
+  const accessToken = session ?? null;
 
   const handlePreventiveSuggestion = useCallback(
     (suggestion: string) => {
@@ -65,10 +65,10 @@ function IndexPage() {
     if (!accessToken || loaded) return;
     (async () => {
       const [result, alertResult, streakResult, checkinToday] = await Promise.all([
-        loadDashboard(accessToken),
-        loadPreventiveAlert(accessToken),
-        loadStreak(accessToken),
-        hasCheckinToday({ data: { accessToken } }),
+        loadDashboard(),
+        loadPreventiveAlert(),
+        loadStreak(),
+        hasCheckinToday(),
       ]);
       if (streakResult) setStreak(streakResult);
       setCheckinDone(!!checkinToday.done);
@@ -105,8 +105,7 @@ function IndexPage() {
             },
           };
 
-          const insightResult = await generateInsight({
-            data: { accessToken, context },
+          const insightResult = await generateInsight({ data: { context },
           });
 
           if (insightResult.insight) {

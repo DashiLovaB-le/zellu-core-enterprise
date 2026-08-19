@@ -81,13 +81,12 @@ function PlanoDeCuidadoPage() {
   const [loaded, setLoaded] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const accessToken = session?.access_token ?? null;
+  const accessToken = session ?? null;
   const insight = buildInsight(progress, checklist);
 
   const refreshSuggestion = useCallback(
     async (activePlan: WellnessPlan, activeProgress: PlanProgress) => {
-      if (!accessToken) return;
-      const suggestion = await loadPlanSuggestion(accessToken, {
+            const suggestion = await loadPlanSuggestion({
         goal: activePlan.custom_goal || activePlan.goal,
         completionRate: activeProgress.completionRate,
         currentStreak: activeProgress.currentStreak,
@@ -103,10 +102,9 @@ function PlanoDeCuidadoPage() {
   );
 
   const loadData = useCallback(async () => {
-    if (!accessToken) return;
-    const [currentPlan, streakResult] = await Promise.all([
-      loadWellnessPlan(accessToken),
-      loadStreak(accessToken),
+        const [currentPlan, streakResult] = await Promise.all([
+      loadWellnessPlan(),
+      loadStreak(),
     ]);
     if (streakResult) setStreak(streakResult);
     setPlan(currentPlan);
@@ -116,8 +114,8 @@ function PlanoDeCuidadoPage() {
 
     if (currentPlan) {
       const [currentChecklist, currentProgress] = await Promise.all([
-        loadTodaysChecklist(accessToken, currentPlan.id),
-        loadPlanProgress(accessToken, currentPlan.id),
+        loadTodaysChecklist(currentPlan.id),
+        loadPlanProgress(currentPlan.id),
       ]);
       setChecklist(currentChecklist);
       setProgress(currentProgress);
@@ -148,17 +146,16 @@ function PlanoDeCuidadoPage() {
 
   const persistChecklist = useCallback(
     async (next: WellnessChecklist, planId: string) => {
-      if (!accessToken) return;
-      setSaving(true);
+            setSaving(true);
       try {
-        const saved = await saveChecklist(accessToken, planId, {
+        const saved = await saveChecklist(planId, {
           waterDone: next.water_done,
           walkDone: next.walk_done,
           breatheDone: next.breathe_done,
           talkDone: next.talk_done,
         });
         if (saved) setChecklist(saved);
-        const refreshedProgress = await loadPlanProgress(accessToken, planId);
+        const refreshedProgress = await loadPlanProgress(planId);
         setProgress(refreshedProgress);
       } finally {
         setSaving(false);
@@ -173,7 +170,7 @@ function PlanoDeCuidadoPage() {
       setCreating(true);
       setGoalError("");
       try {
-        const result = await createWellnessPlan(accessToken, goal, customGoal);
+        const result = await createWellnessPlan(goal, customGoal);
         if (result.error) {
           setGoalError(result.error);
           return;

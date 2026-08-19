@@ -25,11 +25,11 @@ function AdminRelatoriosPage() {
   const [message, setMessage] = useState("");
 
   const handleCsv = async () => {
-    if (!session?.access_token) return;
+    if (!session) return;
     setBusy("csv");
     setMessage("");
     try {
-      const csv = await downloadAdminCsv(session.access_token, periodDays, reportType);
+      const csv = await downloadAdminCsv(periodDays, reportType);
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -46,11 +46,11 @@ function AdminRelatoriosPage() {
   };
 
   const handlePdf = async () => {
-    if (!session?.access_token) return;
+    if (!session) return;
     setBusy("pdf");
     setMessage("");
     try {
-      const pdfBase64 = await downloadAdminPdf(session.access_token, periodDays);
+      const pdfBase64 = await downloadAdminPdf(periodDays);
       if (!pdfBase64) {
         setMessage("Falha ao gerar PDF.");
         return;

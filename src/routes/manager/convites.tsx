@@ -20,7 +20,6 @@ export const Route = createFileRoute("/manager/convites")({
 
 function ManagerConvitesPage() {
   const { session } = useAuth();
-  const token = session?.access_token ?? "";
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"companion" | "manager">("companion");
   const [inviteUrl, setInviteUrl] = useState<string | null>(null);
@@ -31,10 +30,10 @@ function ManagerConvitesPage() {
   >([]);
 
   const reload = async () => {
-    if (!token) return;
+    if (!session) return;
     const [inv, mem] = await Promise.all([
-      listInvites({ data: { accessToken: token } }),
-      listCompanyMembers({ data: { accessToken: token } }),
+      listInvites({ data: {} }),
+      listCompanyMembers(),
     ]);
     setInvites((inv.data ?? []) as typeof invites);
     setMembers((mem.data ?? []) as typeof members);
@@ -42,15 +41,15 @@ function ManagerConvitesPage() {
 
   useEffect(() => {
     void reload();
-    void listManagerTeams({ data: { accessToken: token } });
-  }, [token]);
+    void listManagerTeams();
+  }, [session]);
 
   const sendInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setInviteUrl(null);
     const result = await createInvite({
-      data: { accessToken: token, email, role },
+      data: { email, role },
     });
     if (result.error) {
       setError(result.error);
@@ -119,7 +118,7 @@ function ManagerConvitesPage() {
               type="button"
               onClick={async () => {
                 await setEmployeeActive({
-                  data: { accessToken: token, profileId: m.id, isActive: !m.is_active },
+                  data: { profileId: m.id, isActive: !m.is_active },
                 });
                 await reload();
               }}

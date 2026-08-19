@@ -4,8 +4,14 @@ import { useAuth, type UserRole } from "@/lib/auth-context";
 import { getProfile } from "@/lib/api/auth.server";
 import { companionNeedsOnboarding } from "@/lib/lgpd";
 
+function homeForRole(role: UserRole): "/" | "/admin" | "/manager/rh-dashboard" {
+  if (role === "admin") return "/admin";
+  if (role === "manager") return "/manager/rh-dashboard";
+  return "/";
+}
+
 export function useRequireAuth(allowedRole?: UserRole) {
-  const { user, loading, role, session } = useAuth();
+  const { user, loading, role } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [gateReady, setGateReady] = useState(allowedRole !== "companion");
@@ -14,9 +20,11 @@ export function useRequireAuth(allowedRole?: UserRole) {
     if (loading) return;
 
     if (!user) {
-      navigate({ to: "/login", replace: true });
+      if (pathname !== "/login") navigate({ to: "/login", replace: true });
       return;
     }
+
+    if (!role) return;
 
     if (role === "dev") {
       setGateReady(true);
@@ -24,23 +32,15 @@ export function useRequireAuth(allowedRole?: UserRole) {
     }
 
     if (allowedRole && role !== allowedRole) {
-      const target =
-        role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/";
-      navigate({ to: target, replace: true });
+      const target = homeForRole(role);
+      if (pathname !== target) navigate({ to: target, replace: true });
       return;
     }
 
-    if (allowedRole === "companion" && session?.access_token && pathname !== "/onboarding") {
+    if (allowedRole === "companion" && pathname !== "/onboarding") {
       void (async () => {
-        const profile = await getProfile({ data: { accessToken: session.access_token } });
-        const p = profile as {
-          onboarding_completed_at?: string | null;
-          privacy_consent_at?: string | null;
-          privacy_consent_version?: string | null;
-          adult_confirmed_at?: string | null;
-          role?: string | null;
-        } | null;
-        if (companionNeedsOnboarding(p)) {
+        const profile = await getProfile();
+        if (profile && companionNeedsOnboarding(profile)) {
           navigate({ to: "/onboarding", replace: true });
           return;
         }
@@ -50,12 +50,12 @@ export function useRequireAuth(allowedRole?: UserRole) {
     }
 
     setGateReady(true);
-  }, [user, loading, role, allowedRole, navigate, session, pathname]);
+  }, [user, loading, role, allowedRole, navigate, pathname]);
 
   return {
     user,
-    loading: loading || !gateReady,
+    loading: loading || !role || (allowedRole === "companion" && !gateReady),
     role,
-    isAuthorized: !!user && (role === "dev" || !allowedRole || role === allowedRole),
+    isAuthorized: !!user && !!role && (role === "dev" || !allowedRole || role === allowedRole),
   };
 }

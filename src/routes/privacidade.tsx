@@ -4,8 +4,10 @@ import {
   PRIVACY_OPERATORS,
   PRIVACY_RIGHTS,
   PRIVACY_SUMMARY,
+  PRIVACY_AI_PROCESSING,
   RETENTION_DAYS,
   PRIVACY_CONSENT_VERSION,
+  CLINICAL_DISCLAIMER,
 } from "@/lib/privacy";
 import { BRANDING } from "@/lib/branding";
 
@@ -33,6 +35,9 @@ function PrivacidadePage() {
       <h1 className="mt-4 font-display text-2xl text-[var(--clay-title)]">Política de privacidade</h1>
       <p className="mt-2 text-xs text-[var(--clay-title)]/60">
         Versão {PRIVACY_CONSENT_VERSION} · Lei 13.709/2018 (LGPD)
+      </p>
+      <p className="mt-4 rounded-xl bg-white/70 p-3 text-xs font-medium text-[var(--clay-title)]">
+        {CLINICAL_DISCLAIMER}
       </p>
 
       <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">Quem trata os dados</h2>
@@ -72,6 +77,24 @@ function PrivacidadePage() {
         ))}
       </ul>
 
+      <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">Como a IA trata seus dados</h2>
+      <p className="mt-2">{PRIVACY_AI_PROCESSING.routing}</p>
+      <p className="mt-2">{PRIVACY_AI_PROCESSING.localFallback}</p>
+      <p className="mt-2">{PRIVACY_AI_PROCESSING.transfer}</p>
+      <p className="mt-2 font-semibold">O que pode ser enviado (só com opt-in)</p>
+      <ul className="mt-1 list-disc pl-5">
+        {PRIVACY_AI_PROCESSING.sent.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+      <p className="mt-2 font-semibold">O que nunca é enviado à IA</p>
+      <ul className="mt-1 list-disc pl-5">
+        {PRIVACY_AI_PROCESSING.neverSent.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+      <p className="mt-2">{PRIVACY_AI_PROCESSING.ourRetention}</p>
+
       <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">Operadores</h2>
       <ul className="mt-2 list-disc pl-5">
         {PRIVACY_OPERATORS.map((op) => (
@@ -84,8 +107,9 @@ function PrivacidadePage() {
       <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">Retenção</h2>
       <p className="mt-2">
         Chat e diário: {RETENTION_DAYS.chat} dias. Check-ins numéricos: {RETENTION_DAYS.checkins}{" "}
-        dias. Logs de sistema (sem conteúdo de saúde): {RETENTION_DAYS.logs} dias. Depois disso os
-        registros são apagados. Você pode excluir a conta a qualquer momento no Perfil.
+        dias. Logs de sistema (sem conteúdo de saúde): {RETENTION_DAYS.logs} dias. A exclusão roda
+        automaticamente todo dia (e também junto ao job de lembretes). Você pode excluir a conta a
+        qualquer momento no Perfil.
       </p>
 
       <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">Seus direitos</h2>

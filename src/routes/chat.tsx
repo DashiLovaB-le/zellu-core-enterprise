@@ -6,6 +6,7 @@ import { ResponsivePages } from "@/components/pages/ResponsivePages";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
 import { Icon } from "@/components/Icon";
+import { CrisisHelpChatModal } from "@/components/CrisisHelp";
 import {
   loadMessages,
   loadGreeting,
@@ -45,16 +46,16 @@ function ChatPage() {
     userName: user?.email?.split("@")[0] ?? "Ana",
   });
 
-  const accessToken = session?.access_token ?? null;
+  const accessToken = session ?? null;
 
   useEffect(() => {
     if (!accessToken || initialized) return;
     (async () => {
       const [latestCheckinRes, profile, alertResult, msgs] = await Promise.all([
-        getLatestCheckin({ data: { accessToken } }),
-        getProfile({ data: { accessToken } }),
-        loadPreventiveAlert(accessToken),
-        loadMessages(accessToken),
+        getLatestCheckin(),
+        getProfile(),
+        loadPreventiveAlert(),
+        loadMessages(),
       ]);
 
       const checkinData = latestCheckinRes?.data ?? null;
@@ -82,7 +83,7 @@ function ChatPage() {
       setTodayContext(context);
       setMessages(msgs);
 
-      const g = await loadGreeting(accessToken, context);
+      const g = await loadGreeting(context);
       setGreeting(g);
       setInitialized(true);
     })();
@@ -104,7 +105,7 @@ function ChatPage() {
       }));
 
       try {
-        const result = await sendMessage(accessToken, text, history, todayContext);
+        const result = await sendMessage(text, history, todayContext);
         if (!result.reply?.trim()) {
           throw new Error("Resposta vazia da IA");
         }
@@ -127,7 +128,11 @@ function ChatPage() {
   const handlePreventiveSuggestion = useCallback(
     (suggestion: string) => {
       const lower = suggestion.toLowerCase();
-      if (lower.includes("respir") || lower.includes("respiração")) {
+      if (lower.includes("check-in") || lower.includes("checkin")) {
+        navigate({ to: "/checkin" });
+      } else if (lower.includes("plano")) {
+        navigate({ to: "/plano-de-cuidado" });
+      } else if (lower.includes("respir") || lower.includes("respiração")) {
         navigate({ to: "/respiro" });
       } else if (lower.includes("convers") || lower.includes("conversar")) {
         navigate({ to: "/chat" });
@@ -158,35 +163,38 @@ function ChatPage() {
   }
 
   return (
-    <ResponsivePages
-      mobile={
-        <MobileChatPage
-          messages={messages}
-          draft={draft}
-          onDraftChange={setDraft}
-          onSend={send}
-          greeting={greeting}
-          isAiThinking={isAiThinking}
-          aiSuggestion={aiSuggestion}
-          onQuickReply={handleQuickReply}
-          preventiveAlert={preventiveAlert}
-          onSuggestionClick={handlePreventiveSuggestion}
-        />
-      }
-      desktop={
-        <DesktopChatPage
-          messages={messages}
-          draft={draft}
-          onDraftChange={setDraft}
-          onSend={send}
-          greeting={greeting}
-          isAiThinking={isAiThinking}
-          aiSuggestion={aiSuggestion}
-          onQuickReply={handleQuickReply}
-          preventiveAlert={preventiveAlert}
-          onSuggestionClick={handlePreventiveSuggestion}
-        />
-      }
-    />
+    <>
+      <CrisisHelpChatModal />
+      <ResponsivePages
+        mobile={
+          <MobileChatPage
+            messages={messages}
+            draft={draft}
+            onDraftChange={setDraft}
+            onSend={send}
+            greeting={greeting}
+            isAiThinking={isAiThinking}
+            aiSuggestion={aiSuggestion}
+            onQuickReply={handleQuickReply}
+            preventiveAlert={preventiveAlert}
+            onSuggestionClick={handlePreventiveSuggestion}
+          />
+        }
+        desktop={
+          <DesktopChatPage
+            messages={messages}
+            draft={draft}
+            onDraftChange={setDraft}
+            onSend={send}
+            greeting={greeting}
+            isAiThinking={isAiThinking}
+            aiSuggestion={aiSuggestion}
+            onQuickReply={handleQuickReply}
+            preventiveAlert={preventiveAlert}
+            onSuggestionClick={handlePreventiveSuggestion}
+          />
+        }
+      />
+    </>
   );
 }

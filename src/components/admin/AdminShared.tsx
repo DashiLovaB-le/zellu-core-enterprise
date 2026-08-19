@@ -16,8 +16,9 @@ export function useAdminGate() {
       navigate({ to: "/login", replace: true });
       return;
     }
-    if (role && !allowed) {
-      const target = role === "manager" ? "/manager" : "/";
+    if (!role) return;
+    if (!allowed) {
+      const target = role === "manager" ? "/manager/rh-dashboard" : "/";
       navigate({ to: target, replace: true });
     }
   }, [user, loading, role, allowed, navigate]);
@@ -25,7 +26,7 @@ export function useAdminGate() {
   return {
     user,
     session,
-    loading,
+    loading: loading || (!!user && !role),
     role,
     isAuthorized: !!user && allowed,
   };

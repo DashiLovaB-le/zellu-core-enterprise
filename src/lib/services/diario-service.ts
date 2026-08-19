@@ -13,10 +13,9 @@ export type DiaryEntry = {
   updated_at: string;
 };
 
-export async function loadDiaryEntries(accessToken: string | null): Promise<DiaryEntry[]> {
-  if (!accessToken) return [];
-  try {
-    const entries = await getDiaryEntries({ data: { accessToken } });
+export async function loadDiaryEntries(): Promise<DiaryEntry[]> {
+    try {
+    const entries = await getDiaryEntries();
     return (entries ?? []) as DiaryEntry[];
   } catch {
     return [];
@@ -24,11 +23,10 @@ export async function loadDiaryEntries(accessToken: string | null): Promise<Diar
 }
 
 export async function saveEntry(
-  accessToken: string,
   data: { content: string; mood?: string },
 ): Promise<{ data: DiaryEntry | null; error: string | null }> {
   try {
-    const result = await apiSaveEntry({ data: { accessToken, ...data } });
+    const result = await apiSaveEntry({ data: { ...data } });
     if (!("data" in result)) {
       return { data: null, error: result.error };
     }
@@ -39,11 +37,10 @@ export async function saveEntry(
 }
 
 export async function deleteEntry(
-  accessToken: string,
   entryId: string,
 ): Promise<{ error: string | null }> {
   try {
-    return await apiDeleteEntry({ data: { accessToken, entryId } });
+    return await apiDeleteEntry({ data: { entryId } });
   } catch {
     return { error: "Erro ao excluir entrada" };
   }

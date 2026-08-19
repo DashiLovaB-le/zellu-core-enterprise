@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import { requireCompanionConsent } from "@/lib/require-user";
 
 export interface TimelineEvent {
@@ -59,9 +58,8 @@ function getDayLabel(dateStr: string): string {
 }
 
 export const getTimelineData = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const auth = await requireCompanionConsent(data.accessToken);
+  .handler(async () => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return { days: [], moodGrid: [], aiInsight: "Faça login para ver seu diário." };
     const { userId, supabase } = auth;
 

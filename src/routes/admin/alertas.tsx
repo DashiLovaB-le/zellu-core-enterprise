@@ -45,11 +45,11 @@ function AdminAlertasPage() {
   });
   const [error, setError] = useState("");
 
-  const refresh = async (token: string) => {
+  const refresh = async () => {
     const [c, a, comps] = await Promise.all([
-      loadAlertConfigs(token),
-      loadEvaluatedAlerts(token),
-      loadCompanies(token),
+      loadAlertConfigs(),
+      loadEvaluatedAlerts(),
+      loadCompanies(),
     ]);
     setConfigs(c);
     setAlerts(a);
@@ -57,9 +57,9 @@ function AdminAlertasPage() {
   };
 
   useEffect(() => {
-    if (!session?.access_token || ready) return;
+    if (!session || ready) return;
     (async () => {
-      await refresh(session.access_token!);
+      await refresh();
       setReady(true);
     })();
   }, [session, ready]);
@@ -97,8 +97,8 @@ function AdminAlertasPage() {
   };
 
   const handleSave = async () => {
-    if (!session?.access_token || !form.name.trim()) return;
-    const result = await saveAlertConfig(session.access_token, {
+    if (!session || !form.name.trim()) return;
+    const result = await saveAlertConfig({
       id: editingId ?? undefined,
       name: form.name,
       company_id: form.company_id || null,
@@ -114,7 +114,7 @@ function AdminAlertasPage() {
       return;
     }
     setShowForm(false);
-    await refresh(session.access_token);
+    await refresh();
   };
 
   if (loading || !isAuthorized) return <AdminPageFrame loading />;

@@ -1,598 +1,403 @@
-# Análise Completa da Aplicação — LVB-ZelluApp (Mundo Mental Care)
+# Análise Completa — Mundo Mental Care
 
-> **Última atualização:** 2026-07-25  
-> **Fonte de status:** código em `src/`, `TODO-MundoMental.md`, `docs/`
+> **Última atualização:** 2026-08-19  
+> **Fonte:** código em `src/`, migrations `007`–`010` aplicadas no remoto, `documentacao/` v1.1, preparação para deploy na Vercel concluída.
 
 ---
 
 ## 1. Visão Geral
 
-**Nome do projeto:** `tanstack_start_ts` (nome interno)
-**Nome de exibição:** Mundo Mental Care (`src/lib/branding.ts`)
-**Tagline:** Cuidado emocional no ritmo do trabalho
-**Descrição:** Companion digital de bem-estar emocional corporativo da oferta Mundo Mental — chat terapêutico com IA, check-in, diário/timeline, hábitos, plano de cuidado, dashboard emocional, insights e alertas preventivos, painel de RH e Portal Administrativo (super-admin).
+| Campo | Valor |
+|---|---|
+| **Nome do pacote** | `mundo-mental-care` |
+| **Nome de exibição** | Mundo Mental Care (`src/lib/branding.ts`) |
+| **Tagline** | Cuidado emocional no ritmo do trabalho |
+| **Tipo** | Companion digital B2B de bem-estar emocional (white-label Mundo Mental) |
+| **O que não é** | Não substitui psicólogo, psiquiatra, terapia nem diagnóstico. Disclaimer no login, termo v3.0, onboarding, Chat e Perfil. |
 
-**Posicionamento:** não substitui psicólogos nem a plataforma clínica da Mundo Mental; aumenta engajamento e sustenta o cuidado entre interações especializadas (`docs/POSICIONAMENTO.md`).
+O produto cobre o dia a dia do colaborador (check-in, chat, diário, hábitos, plano, respiro) e entrega **sinais agregados** para RH, com isolamento por empresa. Cadastro aberto com escolha de role **foi removido**: entrada é exclusivamente por convite.
 
-**Template base:** `tanstack_start_ts` (via Lovable.dev)
-**Gerenciador de pacotes:** bun (com `bun.lock` e `bunfig.toml`; também há `package-lock.json`)
-**Node:** Módulos ES (`"type": "module"`)
-**Linguagem:** TypeScript + TSX (React 19)
-**Build tool:** Vite 7
-**Estilo:** Tailwind CSS 4 + shadcn/ui (New York style)
-**Ícones:** Google Material Symbols Outlined + lucide-react
-**Backend:** Supabase (PostgreSQL + Auth + Storage)
-**IA:** OpenRouter (GPT-4o-mini)
+**Stack resumida:** React 19 + TanStack Start (SSR) + Vite 7 + Tailwind 4 · Supabase (Auth + PostgreSQL + RLS) · OpenRouter (LLM) · Nitro (Vercel) · Vitest + Playwright no CI.
 
 ---
 
-## 2. Estrutura de Diretórios
+## 2. Estrutura de Diretórios (relevante)
 
 ```
-LVB-ZelluApp/
-├── .git/
-├── .gitignore
-├── .lovable/
-│   └── project.json
-├── .prettierrc
-├── .prettierignore
-├── .tanstack/tmp/
-├── .vscode/
-├── bun.lock
-├── bunfig.toml
-├── components.json
-├── eslint.config.js
-├── node_modules/
-├── package.json
-├── package-lock.json
-├── public/
-│   ├── favicon.ico
-│   └── logo.png
-├── docs/
-│   ├── POSICIONAMENTO.md          # O que o app é / não é (Fase 16.5)
-│   └── PROPOSTA-COMERCIAL.md      # Rascunho comercial (Fase 16.6 pendente)
-├── PLANS/
-│   └── PLANO_BACKEND.md           # Plano histórico de backend
-├── PadrãoDashi/                   # Skills/agents de referência (não runtime)
-├── src/
-│   ├── assets/avatar/cabeca/
-│   │   ├── Amora.png
-│   │   ├── Chico.png
-│   │   ├── Pipoca.png
-│   │   └── Zeca.png
-│   ├── components/
-│   │   ├── Avatar.tsx               # Avatares Amora, Chico, Pipoca, Zeca
-│   │   ├── Icon.tsx                 # Wrapper Material Symbols Outlined
-│   │   ├── ChatMarkdown.tsx         # Renderização Markdown nas respostas da IA
-│   │   ├── PageTransition.tsx       # Transição de página (shells Companion)
-│   │   ├── MilestoneBanner.tsx      # Celebração de streaks (Fase 13)
-│   │   ├── PreventiveAlertBanner.tsx # Alertas preventivos (Fase 11)
-│   │   ├── MobileShell.tsx          # Layout mobile + nav inferior
-│   │   ├── DesktopShell.tsx         # Layout desktop com sidebar
-│   │   ├── ManagerShell.tsx         # Layout RH/Manager
-│   │   ├── AdminShell.tsx           # Layout B2B do Portal Admin
-│   │   ├── DevShell.tsx             # Layout Dev Tools
-│   │   ├── admin/
-│   │   │   └── AdminShared.tsx      # Gate, KPIs e UI compartilhada do admin
-│   │   └── ui/                      # 46 componentes shadcn/ui
-│   ├── data/
-│   │   ├── index.ts
-│   │   ├── moods.ts                 # MAIN_MOODS + EXTRA_MOODS
-│   │   ├── chat.ts / diario.ts / habitos.ts / respiro.ts
-│   ├── hooks/
-│   │   └── use-mobile.tsx
-│   ├── lib/
-│   │   ├── api/                     # Server Functions
-│   │   │   ├── auth.server.ts
-│   │   │   ├── checkin.server.ts
-│   │   │   ├── chat-ai.server.ts
-│   │   │   ├── chat.server.ts
-│   │   │   ├── diario.server.ts
-│   │   │   ├── habitos.server.ts
-│   │   │   ├── dashboard.server.ts
-│   │   │   ├── timeline.server.ts
-│   │   │   ├── manager.server.ts    # RH (+ Dashboard Fase 14)
-│   │   │   ├── admin.server.ts      # Portal Admin
-│   │   │   ├── preventiva-ai.server.ts
-│   │   │   ├── wellness-plan.server.ts
-│   │   │   ├── streak-system.server.ts
-│   │   │   ├── llm-config.server.ts
-│   │   │   ├── insights-ai.server.ts
-│   │   │   ├── logs.server.ts       # system_logs + painel System Logs
-│   │   │   └── example.functions.ts
-│   │   ├── services/
-│   │   │   ├── chat-service.ts
-│   │   │   ├── diario-service.ts
-│   │   │   ├── habitos-service.ts
-│   │   │   ├── dashboard-service.ts
-│   │   │   ├── timeline-service.ts
-│   │   │   ├── manager-service.ts
-│   │   │   ├── rh-dashboard-service.ts
-│   │   │   ├── admin-service.ts
-│   │   │   ├── preventiva-service.ts
-│   │   │   ├── wellness-plan-service.ts
-│   │   │   └── streak-service.ts
-│   │   ├── supabase/
-│   │   │   ├── client.ts
-│   │   │   ├── server.ts
-│   │   │   └── admin.server.ts
-│   │   ├── auth-context.tsx         # Roles: companion|manager|dev|admin
-│   │   ├── auth-token.ts            # Helpers JWT (userId/email do access token)
-│   │   ├── use-require-auth.ts
-│   │   ├── branding.ts              # Mundo Mental Care
-│   │   ├── theme.tsx
-│   │   ├── config.server.ts
-│   │   ├── error-capture.ts
-│   │   ├── error-page.ts
-│   │   ├── lovable-error-reporting.ts
-│   │   └── utils.ts
-│   ├── routes/
-│   │   ├── README.md
-│   │   ├── __root.tsx
-│   │   ├── index.tsx                # Dashboard Emocional (/)
-│   │   ├── login.tsx
-│   │   ├── chat.tsx
-│   │   ├── checkin.tsx
-│   │   ├── diario.tsx
-│   │   ├── habitos.tsx              # Redirect → /meu-bem-estar
-│   │   ├── meu-bem-estar.tsx
-│   │   ├── plano-de-cuidado.tsx     # Plano de bem-estar + streak (Fases 12/13)
-│   │   ├── respiro.tsx
-│   │   ├── perfil.tsx
-│   │   ├── dashboard-emocional.tsx  # Redirect → /
-│   │   ├── manager/
-│   │   │   ├── index.tsx
-│   │   │   ├── rh-dashboard.tsx
-│   │   │   ├── equipes.tsx
-│   │   │   └── relatorios.tsx
-│   │   ├── admin/
-│   │   │   ├── index.tsx
-│   │   │   ├── empresas.tsx
-│   │   │   ├── funcionarios.tsx
-│   │   │   ├── licencas.tsx
-│   │   │   ├── metricas.tsx
-│   │   │   ├── sentimentos.tsx
-│   │   │   ├── alertas.tsx
-│   │   │   └── relatorios.tsx
-│   │   └── dashitecnology/
-│   │       ├── index.tsx            # LLM Config + System Logs
-│   │       └── $painelDev.tsx
-│   ├── components/pages/
-│   │   ├── mobile/
-│   │   │   ├── ChatPage.tsx
-│   │   │   ├── CheckinPage.tsx
-│   │   │   ├── TimelinePage.tsx
-│   │   │   ├── BemEstarPage.tsx
-│   │   │   ├── PlanoDeCuidadoPage.tsx
-│   │   │   ├── RespiroPage.tsx
-│   │   │   ├── PerfilPage.tsx
-│   │   │   ├── DashboardEmocionalPage.tsx
-│   │   │   ├── DiarioPage.tsx       # legado / auxiliar
-│   │   │   └── HabitosPage.tsx     # legado / auxiliar
-│   │   └── desktop/
-│   │       ├── (mesmos pares mobile)
-│   ├── routeTree.gen.ts
-│   ├── router.tsx
-│   ├── server.ts
-│   ├── start.ts                     # CSRF middleware
-│   └── styles.css
+mundo-mental-care/
+├── .github/workflows/
+│   ├── ci.yml                    # tsc + lint + vitest + playwright
+│   └── retention.yml             # POST /api/jobs/retention (secrets APP_URL + CRON_SECRET)
+├── .env.example                  # variáveis documentadas sem valores
+├── .vercelignore
+├── vercel.json                   # framework: tanstack-start, cron: /api/jobs/retention
+├── documentacao/                 # BRD, PRD, FRD, SDD, API-DOCS, ROADMAP, USER-STORIES, TEST-PLAN, DEPLOY-PLAYBOOK
+├── e2e/
+│   └── smoke.spec.ts             # Playwright: login, cookie httpOnly, headers, disclaimer
 ├── supabase/migrations/
 │   ├── 000_schema_inicial.sql
 │   ├── 003_llm_fallback.sql
 │   ├── 004_preventiva_notifications.sql
 │   ├── 005_wellness_plan.sql
-│   └── 006_admin_portal.sql
-├── tsconfig.json
-├── vite.config.ts
-├── .env
-├── TODO-MundoMental.md
-└── ANALISE_COMPLETA.md              # Este arquivo
+│   ├── 006_admin_portal.sql
+│   ├── 007_prioridades_producao.sql    # convites, tenant, role no perfil
+│   ├── 008_lgpd_controles.sql          # opt-ins, retenção, RH sem check-in nominal
+│   ├── 009_confianca_rls_retencao.sql  # RPC RH + diretório + cron de purge
+│   ├── 010_hardening_sessao_rls.sql    # FORCE RLS, quota, cache, self-test
+│   └── 010_companion_memories.sql     # tabela companion_memories + RLS
+├── src/
+│   ├── components/
+│   │   ├── CrisisHelp.tsx
+│   │   ├── PrivacyConsentCard.tsx
+│   │   ├── CheckinReminderBanner.tsx
+│   │   ├── pages/mobile/  e  pages/desktop/
+│   │   └── ui/            # shadcn
+│   ├── lib/
+│   │   ├── api/*.server.ts
+│   │   ├── companion-agent.ts         # memória curada, snapshot, payload
+│   │   ├── api/companion-memory.server.ts
+│   │   ├── supabase/session.ts        # cookies httpOnly mmc-at / mmc-rt
+│   │   ├── supabase/server.ts         # createClient com token do cookie
+│   │   ├── config.server.ts           # getAppBaseUrl (VERCEL_URL / VERCEL_PROJECT_PRODUCTION_URL)
+│   │   ├── security-headers.ts        # CSP + HSTS + X-Frame-Options + …
+│   │   ├── retention.ts               # cron (POST e GET)
+│   │   ├── privacy.ts / lgpd.ts / tenant.ts / crisis.ts / chat-guard.ts
+│   │   ├── require-user.ts            # gate de identidade: lê cookie, valida getUser
+│   │   └── __tests__/
+│   │       ├── prioridades-producao.test.ts   # 25 testes (inclui RLS no Postgres)
+│   │       └── companion-agent.test.ts         # 7 testes (memória, snapshot, payload)
+│   ├── routes/
+│   │   ├── login.tsx, aceitar-convite.tsx, onboarding.tsx, privacidade.tsx
+│   │   ├── companion: /, /chat, /checkin, /diario, /meu-bem-estar, …
+│   │   ├── manager/: rh-dashboard, equipes, relatorios, convites
+│   │   ├── admin/  e  dashitecnology/
+│   ├── server.ts                 # SSR + GET|POST /api/jobs/retention
+│   └── start.ts                  # CSRF
+├── vite.config.ts                # nitro.preset: "vercel"
+├── playwright.config.ts
+└── ANALISE_COMPLETA.md           # este arquivo
 ```
 
+`PadrãoDashi/` e `PLANS/` são histórico/referência — não descrevem o runtime atual.
+
 ---
 
-## 3. Stack Tecnológica Detalhada
+## 3. Stack
 
 ### 3.1 Core
+
 | Tecnologia | Versão | Função |
 |---|---|---|
-| React | ^19.2.0 | UI Library |
+| React | ^19.2.0 | UI |
 | TypeScript | ^5.8.3 | Tipagem |
-| Vite | ^7.3.1 | Bundler / Dev Server |
-| TanStack React Router | ^1.168.25 | Roteamento SPA/SSR |
-| TanStack React Query | ^5.83.0 | Cache / estado server |
-| TanStack React Start | ^1.168.20 | Framework full-stack SSR |
-| Nitro (beta) | 3.0.260429-beta | Servidor de produção SSR |
-| Tailwind CSS | ^4.2.1 | Utilitários CSS |
-| shadcn/ui | — | Componentes headless estilizados |
-| Supabase | ^2.110.3 | Auth, DB, Storage |
-| OpenRouter | — | Gateway LLM (GPT-4o-mini) |
+| Vite | ^7.3.1 | Bundler |
+| TanStack Router | ^1.168.25 | Rotas file-based |
+| TanStack Query | ^5.83.0 | Cache |
+| TanStack Start | ^1.168.20 | SSR + server functions |
+| Nitro | 3.0.260603-beta | Runtime — preset `vercel` |
+| @lovable.dev/vite-tanstack-config | 2.6.2 | Wrapper Vite (detectado pela Vercel) |
+| Tailwind CSS | ^4.3.3 | Estilo |
+| Supabase JS / SSR | ^2.110.3 / ^0.12.1 | Auth + DB |
+| Zod | ^3.24.2 | Validação |
+| Vitest | ^3.2.4 | Testes unitários |
+| Playwright | ^1.55.0 | E2E (smoke) |
 
-### 3.2 Componentes e UI
-| Pacote | Versão | Uso |
-|---|---|---|
-| @radix-ui/* | múltiplos | Primitivas headless acessíveis |
-| class-variance-authority | ^0.7.1 | Variantes (cva) |
-| clsx + tailwind-merge | ^2.1.1 / ^3.5.0 | Classes CSS |
-| lucide-react | ^0.575.0 | Ícones |
-| Material Symbols Outlined | — | Ícones (Google Fonts) |
-| recharts | ^2.15.4 | Gráficos |
-| embla-carousel-react | ^8.6.0 | Carrossel |
-| cmdk | ^1.1.1 | Command palette |
-| input-otp | ^1.4.2 | OTP |
-| react-day-picker | ^9.14.0 | Calendário |
-| react-hook-form | ^7.81.0 | Formulários |
-| @hookform/resolvers | ^5.2.2 | Validação de forms |
-| react-markdown | ^10.1.0 | Markdown no chat IA |
-| sonner | ^2.0.7 | Toasts |
-| vaul | ^1.1.2 | Drawer |
-| react-resizable-panels | ^4.6.5 | Painéis |
-| date-fns | ^4.1.0 | Datas |
-| zod | ^3.24.2 | Schemas |
-| framer-motion | ^12.42.2 | Animações / PageTransition |
-| tw-animate-css | ^1.3.4 | Animações CSS |
+Node.js ≥ 20.18 (`.nvmrc` = 22; CI usa Node 22).
+
+### 3.2 UI e dados
+
+Radix/shadcn, recharts, framer-motion, react-markdown, lucide + Material Symbols, date-fns. Login/auth no cliente (`auth-context.tsx`); APIs no servidor (`createServerFn`).
 
 ---
 
-## 4. Sistema de Rotas (TanStack Router)
+## 4. Rotas e papéis
 
-**Tipo:** File-based routing com proteção por role
+### 4.1 Públicas
 
-### 4.1 Rotas Públicas
-| Arquivo | URL | Descrição |
-|---|---|---|
-| `__root.tsx` | — | Layout raiz, providers, error/404 |
-| `login.tsx` | `/login` | Login e cadastro com seleção de role |
-
-### 4.2 Rotas de Colaborador (Companion)
-| Arquivo | URL | Descrição |
-|---|---|---|
-| `index.tsx` | `/` | Dashboard Emocional + insights + alertas preventivos |
-| `chat.tsx` | `/chat` | Chat com IA (Markdown + preventiva) |
-| `checkin.tsx` | `/checkin` | Check-in matinal (sono, água, humor) |
-| `diario.tsx` | `/diario` | Timeline + insights + preventiva |
-| `meu-bem-estar.tsx` | `/meu-bem-estar` | Indicadores consolidados do dia |
-| `plano-de-cuidado.tsx` | `/plano-de-cuidado` | Plano de bem-estar + checklist + streak |
-| `respiro.tsx` | `/respiro` | Exercícios de respiração |
-| `perfil.tsx` | `/perfil` | Perfil e configurações |
-| `habitos.tsx` | `/habitos` | Redirect → `/meu-bem-estar` |
-| `dashboard-emocional.tsx` | `/dashboard-emocional` | Redirect → `/` |
-
-**Navegação Companion (MobileShell / DesktopShell):**
-Dashboard · Check-in · Chat · Diário · Plano · Bem-estar · Respiro · Perfil
-
-### 4.3 Rotas de Manager (RH/Gestor)
-| Arquivo | URL | Descrição |
-|---|---|---|
-| `manager/index.tsx` | `/manager` | Dashboard RH (visão inicial) |
-| `manager/rh-dashboard.tsx` | `/manager/rh-dashboard` | Dashboard RH completo (Fase 14) |
-| `manager/equipes.tsx` | `/manager/equipes` | Gestão de equipes |
-| `manager/relatorios.tsx` | `/manager/relatorios` | Exportação CSV |
-
-**Navegação Manager:** Dashboard RH · Equipes · Relatórios · Perfil
-
-### 4.4 Rotas de Admin (Portal Administrativo — Fase 15)
-| Arquivo | URL | Descrição |
-|---|---|---|
-| `admin/index.tsx` | `/admin` | KPIs globais + alertas ativos |
-| `admin/empresas.tsx` | `/admin/empresas` | CRUD empresas/clientes |
-| `admin/funcionarios.tsx` | `/admin/funcionarios` | Pessoas e equipes |
-| `admin/licencas.tsx` | `/admin/licencas` | Licenças e contratos |
-| `admin/metricas.tsx` | `/admin/metricas` | DAU/WAU/MAU e adesão |
-| `admin/sentimentos.tsx` | `/admin/sentimentos` | Humor agregado (30 dias) |
-| `admin/alertas.tsx` | `/admin/alertas` | Thresholds + avaliação |
-| `admin/relatorios.tsx` | `/admin/relatorios` | Export CSV/PDF |
-
-### 4.5 Rotas de Dev
-| Arquivo | URL | Descrição |
-|---|---|---|
-| `dashitecnology/index.tsx` | `/dashitecnology` | Índice (LLM Config + System Logs) |
-| `dashitecnology/$painelDev.tsx` | `/dashitecnology/:painelDev` | Painéis dinâmicos |
-
-### 4.6 Hierarquia de Acesso por Role
-
-**Companion:** rotas companion · bloqueado em `/manager`, `/admin`, `/dashitecnology`
-
-**Manager:** rotas manager · bloqueado em companion exclusivas, `/admin`, `/dashitecnology`
-
-**Admin:** `/admin/*` · redirect pós-login → `/admin` · shell B2B (`AdminShell`)
-
-**Dev:** acesso total (companion + manager + admin + dev) · pode alternar modos
-
----
-
-## 5. Funcionalidades Implementadas
-
-### 5.1 Autenticação e Autorização
-- Login/cadastro com email e senha
-- Seleção de role no cadastro (Colaborador ou RH/Gestor)
-- Redirect pós-login por role (`admin` → `/admin`, `manager` → `/manager`, demais → `/`)
-- Proteção via `useRequireAuth()` + `AuthProvider`
-- Sessão persistente (Supabase Auth)
-- Helpers de token em `auth-token.ts`
-
-### 5.2 Dashboard Emocional (`/`)
-- Gráficos (recharts): humor, comparativo semanal, tendência humor/sono 30d
-- Métricas: dias rastreados, humor predominante, média de sono
-- Insights de IA + comparação semanal (sono, água, movimento)
-- Banner de alerta preventivo (`PreventiveAlertBanner`)
-- Banner de milestone de streak quando aplicável
-- Versões mobile e desktop
-
-### 5.3 Chat com IA (`/chat`)
-- OpenRouter (GPT-4o-mini) com contexto (nome, check-in, período do dia)
-- Histórico (últimos 10 turnos) + sugestões pós-resposta
-- Typing indicator + persistência no Supabase
-- Respostas em **Markdown** (`ChatMarkdown` / `react-markdown`)
-- Integração com alertas preventivos no topo do chat
-
-### 5.4 Check-in Matinal (`/checkin`)
-- Fluxo em 3 etapas: sono → água → humor
-- Humor alinhado a Meu Bem-estar: 6 principais + **“Ver +19 humores”** (`src/data/moods.ts`)
-- Persistência Supabase; alimenta contexto do chat
-- Evita duplicata no mesmo dia
-
-### 5.5 Timeline/Diário (`/diario`)
-- Timeline agregada: diário, check-ins, hábitos, chat
-- Calendário de humor (14 dias)
-- Insight de IA + alerta preventivo
-- Nova entrada de texto
-
-### 5.6 Meu Bem-estar (`/meu-bem-estar`)
-- Água, sono, humor (6 + 19), movimento, energia, refeições, link Respiro
-- Pré-popula do check-in; salvamento consolidado
-
-### 5.7 Espaço do Respiro (`/respiro`)
-- Ciclo guiado (inspirar / segurar / expirar) com animação CSS
-- Sons ambiente: chuva, floresta, fogueira, ondas
-
-### 5.8 Perfil (`/perfil`)
-- Nome, avatar (Amora/Chico/Pipoca/Zeca), email, senha
-- Tema claro/escuro + logout
-- Dev/Admin: troca de modos (inclui Portal Admin)
-
-### 5.9 Dashboard RH (`/manager` e `/manager/rh-dashboard`)
-- KPIs por equipe (estresse, energia, sono, engajamento)
-- Resumo: colaboradores, check-ins, adesão, alertas
-- Fase 14: tendências 30d, distribuição de humor, alertas por equipe
-- Dados agregados/anonimizados (`getRhDashboard`)
-
-### 5.10 Gestão de Equipes (`/manager/equipes`)
-- Lista por departamento com status (Estável / Monitorar / Atenção)
-- Grid responsivo
-
-### 5.11 Relatórios Manager (`/manager/relatorios`)
-- Exportação CSV (últimos 30 dias), indicadores agregados
-
-### 5.12 Dev Tools (`/dashitecnology`)
-- **LLM Config:** modelo, temperatura, max tokens, system prompt, API key, teste, reset
-- **System Logs:** visualização de logs (`logs.server.ts` → tabela `system_logs`)
-- Acesso: apenas role `dev`
-
-### 5.13 Portal Administrativo (`/admin`) — Fase 15 ✅
-- Shell B2B (`AdminShell`)
-- Acesso: `admin` e `dev`
-- Módulos: KPIs · Empresas · Funcionários · Licenças · Métricas · Sentimentos · Alertas · Relatórios
-- API: `admin.server.ts` + `admin-service.ts`
-- Schema: `006_admin_portal.sql`
-
-### 5.14 IA Preventiva — Fase 11 ✅
-- Detecção de padrões (sono, humor, engajamento, hidratação, energia, movimento)
-- Tipos: `burnout-risk`, `sleep-crisis`, `mood-crisis`, `disengagement`, etc.
-- Severidade low/medium/high; mensagem + sugestão acionável
-- UI: `PreventiveAlertBanner` no Dashboard, Chat e Timeline
-- Persistência: `preventive_notifications` (`004_preventiva_notifications.sql`)
-- Cache em memória (~30 min) na detecção server-side
-
-### 5.15 Plano de Cuidado — Fase 12 ✅
-- Rota `/plano-de-cuidado` com páginas mobile/desktop
-- Objetivo definido pelo usuário + checklist diário (água, caminhada, respirar, conversar)
-- Progresso visual + sugestões da IA para ajustes
-- API: `wellness-plan.server.ts` + `wellness-plan-service.ts`
-- Schema: `005_wellness_plan.sql` (`wellness_plans`, `wellness_checklist`)
-
-### 5.16 Gamificação Elegante — Fase 13 ✅
-- Streak com base em check-ins + checklist (`streak-system.server.ts`)
-- Marcos: 3, 7, 14, 21, 30, 60, 90 dias
-- `MilestoneBanner` no Dashboard e Plano de Cuidado (tom corporativo, sem celebração infantil)
-
----
-
-## 6. Insights com IA (Fase 10)
-
-### 6.1 Sistema (`insights-ai.server.ts`)
-Contextos: `timeline`, `dashboard`, `anxiety-change`, `sleep-quality`, `weekly-summary`, `chat`
-
-### 6.2 Dados e correlações
-Médias (sono, água, movimento, energia), distribuição de humor, tendências, comparação semanal; correlações sono↔humor, movimento↔energia, etc.
-
-### 6.3 Fallback
-Regras locais quando a API não está disponível — sempre retorna insight relevante
-
----
-
-## 7. Sistema de Design
-
-### 7.1 Paleta (OKLCH / clay)
-| Variável | Uso |
+| URL | Função |
 |---|---|
-| `--clay-cream` | Fundo principal |
-| `--clay-title` | Títulos |
-| `--clay-text` | Texto corporal |
-| `--clay-cta` / `--clay-cta-2` | CTAs |
-| `--clay-anxiety` / `--clay-stress` / `--clay-joy` | Estados emocionais |
+| `/login` | Login. Sem cadastro aberto. Disclaimer clínico + link de convite e privacidade. |
+| `/aceitar-convite` | Aceite de token (cria usuário, vincula empresa/role). |
+| `/privacidade` | Política LGPD v3.0 (IA, retenção, RH, direitos). |
 
-### 7.2 Componentes de UI
-`clay-card`, `clay-soft`, `clay-pressed`, `clay-cta` — glassmorphism contido (Fase 3)
+### 4.2 Companion (após consentimento)
 
-### 7.3 Tipografia
-- Display: Quicksand · Corpo: Nunito Sans · Ícones: Material Symbols Outlined
+| URL | Função |
+|---|---|
+| `/onboarding` | Termo + maioridade + opt-ins IA/RH/e-mail → nome/fuso |
+| `/` | Dashboard emocional |
+| `/chat` | Companion IA + `CrisisHelp` |
+| `/checkin` | Sono → água → humor (1×/dia) |
+| `/diario` | Timeline |
+| `/meu-bem-estar` | Indicadores do dia |
+| `/plano-de-cuidado` | Checklist + streak |
+| `/respiro` | Respiração guiada |
+| `/perfil` | Conta, opt-ins, exportar/excluir, crise |
 
-### 7.4 Tema
-ThemeProvider + toggle claro/escuro com persistência
+Termo desatualizado → `useRequireAuth` manda de volta ao onboarding.
 
-### 7.5 Portal Admin (B2B)
-Visual slate distinto do Companion; tabelas densas, badges, recharts
+### 4.3 Manager
 
-### 7.6 Motion
-`PageTransition` (framer-motion) nos shells Companion; animações de respiração e banners sutis
+| URL | Função |
+|---|---|
+| `/manager` e `/manager/rh-dashboard` | KPIs agregados da **própria** empresa |
+| `/manager/equipes` | Times reais + k-anonimato |
+| `/manager/relatorios` | CSV agregado |
+| `/manager/convites` | Pessoas, convites, `is_active` |
+
+### 4.4 Admin e Dev
+
+- `/admin/*` — empresas, funcionários, licenças, contratos, métricas, sentimentos, alertas, CSV/PDF.
+- `/dashitecnology/*` — LLM config e system logs (role `dev`).
+
+### 4.5 Hierarquia
+
+`dev` (tudo) → `admin` (portal B2B) → `manager` (só a empresa) → `companion` (só os próprios dados).  
+Role **somente** em `profiles.role`. JWT `user_metadata.role` não autoriza.
+
+---
+
+## 5. Funcionalidades
+
+### 5.1 Acesso B2B
+
+- Convites (`invites`): e-mail, role `companion` | `manager`, token, validade, teto de licenças.
+- Aceite cria Auth user + profile com `company_id` / `team_id` / `role`.
+- Trigger `handle_new_user` sempre começa como `companion`; o aceite ajusta no servidor.
+- Companion/manager **não** alteram `role`, `company_id`, `team_id`, `is_active` (trigger + guard).
+
+### 5.2 LGPD e confiança
+
+- Consentimento versionado **3.0** + declaração de maioridade.
+- Opt-ins separados: IA, RH (agregados), e-mail de lembrete.
+- Exportar JSON e excluir conta no Perfil.
+- Retenção: chat/diário/preventiva/memórias 180 dias, check-ins 365 dias, logs 90 dias.
+- Purge: `private.purge_expired_personal_data`, cron `15 9 * * *` (Vercel + GitHub Action), endpoint `GET|POST /api/jobs/retention`.
+- Logs sanitizados (sem e-mail, humor, texto de saúde).
+- Disclaimer clínico único (`CLINICAL_DISCLAIMER`).
+
+### 5.3 Check-in
+
+Três etapas; 6 humores + 19 extras (`moods.ts`). Segundo check-in no mesmo dia **falha** (não atualiza). Alimenta chat, dashboard e preventiva.
+
+### 5.4 Chat IA e Memória do Companion
+
+- `sendChatMessage` ignora `history`/`context` do cliente (`chat-guard.ts`).
+- 20 msgs/hora; timeout 15s / 10s nos fallbacks.
+- Crise (regex no servidor) → CVV 188, sem LLM.
+- Cloud só com `privacy_ai_opt_in`; senão fallback local.
+- OpenRouter: `data_collection: "deny"`, `zdr: true`. Prompt **sem** nome/e-mail. userId anonimizado com SHA-256 via `crypto.subtle` (sem `node:crypto` no bundle do cliente).
+- **Memória curada** (`companion_memories`): até 20 registros, máx 180 chars cada, importância 1–5. Só o titular via RLS. Retenção 180 dias. Snapshot semanal carregado no contexto da IA.
+
+### 5.5 Companion (resto)
+
+Dashboard, timeline, bem-estar, respiro, plano + streak (3–90 dias), insights com fallback, preventiva (`burnout-risk`, `sleep-crisis`, etc.), banner de check-in pendente, fuso em `profiles.timezone`.
+
+### 5.6 RH
+
+- `get_rh_dashboard` (SECURITY DEFINER no schema `private`, wrapper em `public`).
+- Só companions com `privacy_rh_opt_in`.
+- K-anonimato: time com < 5 pessoas oculta métricas; empresa com < 5 opt-ins zera trends/alertas.
+- Sem service role no painel. Sem diário/chat/humor individual.
+- Diretório de pessoas: RPC `list_company_directory` (nome/e-mail/papel; sem flags de saúde).
+
+### 5.7 Admin / Dev
+
+Portal B2B completo. LLM: chave em `OPENROUTER_API_KEY`. Logs só para `dev`.
+
+---
+
+## 6. Insights e preventiva
+
+`insights-ai.server.ts` — contextos timeline, dashboard, anxiety-change, sleep-quality, weekly-summary, chat. Sem opt-in de IA, só regras locais.
+
+`preventiva-ai.server.ts` — padrões + persistência em `preventive_notifications` + cache ~30 min via `private.compute_cache` (banco — sem estado in-process). UI: `PreventiveAlertBanner`.
+
+Cache da LLM (`llm_config`): sem cache in-process; lido do banco por request.
+
+---
+
+## 7. Design
+
+- Companion: paleta clay/OKLCH, Quicksand + Nunito Sans, glassmorphism contido.
+- Admin: visual slate, tabelas densas.
+- Tema claro/escuro persistente.
+- Avatares: Amora, Chico, Pipoca, Zeca.
+- Páginas companion ainda têm pares mobile/desktop; `ResponsivePages.tsx` começou a unificar.
 
 ---
 
 ## 8. Backend (Supabase)
 
-### 8.1 Tabelas principais
-| Tabela | Função |
-|---|---|
-| `profiles` | Usuário (role, display_name, avatar, company_id, team_id, …) — roles: `companion` \| `manager` \| `dev` \| `admin` |
-| `checkins` | Check-in matinal |
-| `habits` | Hábitos do dia |
-| `diary_entries` | Diário |
-| `chat_messages` | Chat |
-| `llm_config` | Config IA (dev) |
-| `preventive_notifications` | Alertas preventivos (Fase 11) |
-| `wellness_plans` / `wellness_checklist` | Plano de cuidado (Fase 12) |
-| `companies` / `teams` / `licenses` / `contracts` / `alert_configs` | Portal Admin (Fase 15) |
-| `system_logs` | Logs operacionais (Dev Tools) |
+Projeto remoto: `cxogfjczajhxgyffxcbk`. Histórico CLI não espelha 000–006 (schema legado num timestamp); migrations **008, 009 e 010** foram aplicadas via SQL no remoto.
 
-### 8.2 RLS
-Políticas por tabela; companion vê próprios dados; manager vê agregados; admin/dev gerenciam entidades B2B
+### 8.1 Tabelas
 
-### 8.3 Autenticação
-Email + senha, JWT, refresh; redirect por role
+`profiles`, `checkins`, `habits`, `diary_entries`, `chat_messages`, `llm_config`, `preventive_notifications`, `wellness_plans`, `wellness_checklist`, `companies`, `teams`, `licenses`, `contracts`, `alert_configs`, `system_logs`, `invites`, **`companion_memories`**.
 
-### 8.4 Observabilidade
-`logEvent()` em várias server functions → `system_logs`; painel em `/dashitecnology/system-logs`
+`private`: `compute_cache` (cache de preventiva/LLM), `client_log_quota` (rate limit 20 eventos/min por usuário).
+
+`profiles` inclui timezone, consentimento, opt-ins, `adult_confirmed_at`, `onboarding_completed_at`, `is_active`.
+
+### 8.2 RLS (pós-010)
+
+FORCE ROW LEVEL SECURITY em todas as tabelas públicas (via `ALTER TABLE … FORCE ROW LEVEL SECURITY`).
+
+| Dado | Companion | Manager |
+|---|---|---|
+| Próprios check-ins / hábitos / diário / chat / memórias | CRUD | Diário/chat: nunca. Check-in individual: sem SELECT |
+| Painel RH | — | Só JSON agregado (`get_rh_dashboard`) |
+| Colegas | — | Diretório operacional via RPC |
+| Outra empresa | — | Impossível pela RPC (company do JWT) |
+
+RPCs de convite: `company_has_available_seat`, `set_employee_active`, `get_invite_public`.  
+Self-test: `public.run_rls_self_test()` (service_role).  
+Helpers: `private.current_user_role()`, `private.current_user_company_id()`.
+
+### 8.3 Auth — sessão httpOnly
+
+JWT **não vai no body** das server functions. Fluxo:
+
+1. `signInWithPassword` no servidor → `setAuthCookies` define `mmc-at` e `mmc-rt` (`HttpOnly`, `SameSite=Lax`, `Secure` em produção e em deploys Vercel).
+2. `requireUser()` lê o cookie, valida com `supabase.auth.getUser`.
+3. `getRequestAccessToken` em `server.ts` refresca automaticamente o `mmc-rt` se o access token expirou.
+4. Em preview Vercel (`VERCEL=1`), `Secure` também é ativado mesmo sem `NODE_ENV=production`.
 
 ---
 
 ## 9. Segurança
 
-### 9.1 CSRF
-Middleware em `start.ts` protegendo server functions
+| Camada | Estado |
+|---|---|
+| CSRF | `start.ts` nas server functions |
+| Authn | Cookie httpOnly `mmc-at`; validado com `getUser` no servidor |
+| Authz | `requireUser` / `requireManager` / `requireAdmin` + RLS + RPCs |
+| FORCE RLS | Todas as tabelas públicas — migration 010 |
+| Tenant | `company_id` no profile; manager sem empresa = 401 |
+| IA | Opt-in + ZDR + deny collection; crise fora do LLM |
+| Rate limit | `consume_client_log_quota`: 20 eventos/min por usuário |
+| Headers | CSP (Google Fonts permitidas), HSTS, `X-Frame-Options: DENY`, nosniff, Referrer-Policy, Permissions-Policy |
+| Service role | Só admin portal, jobs, `llm_config`, `system_logs`; wellness-plan e convites usam JWT + RLS |
+| `node:crypto` | Removido do bundle do cliente; anonimização do userId usa `crypto.subtle` |
 
-### 9.2 Auth
-Supabase Auth (JWT + refresh)
+**Variáveis de ambiente (nomes reais):**
 
-### 9.3 Autorização
-`useRequireAuth()` + checagens de role nas rotas/shells
+| Variável | Tipo |
+|---|---|
+| `VITE_SUPABASE_URL` | pública (bundle) |
+| `VITE_SUPABASE_ANON_KEY` | pública (bundle) |
+| `SUPABASE_SERVICE_ROLE_KEY` | somente servidor |
+| `OPENROUTER_API_KEY` | somente servidor |
+| `CRON_SECRET` | somente servidor |
+| `APP_BASE_URL` / `VITE_APP_URL` | URL canônica (convites) |
+| `RESEND_API_KEY` / `REMINDER_FROM_EMAIL` | opcional (e-mails) |
 
-### 9.4 Variáveis de ambiente
-```
-SUPABASE_URL=...
-SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...
-OPENROUTER_API_KEY=sk-or-v1-...
-```
+Em ambientes Vercel, `VERCEL_URL` e `VERCEL_PROJECT_PRODUCTION_URL` são usadas como fallback de URL canônica quando as explícitas não estão definidas.
 
 ---
 
-## 10. Status do Projeto
+## 10. Deploy — Vercel
 
-### 10.1 Fases Concluídas ✅
+| Arquivo | O que faz |
+|---|---|
+| `vite.config.ts` | `nitro: { preset: "vercel" }` — Nitro gera `.vercel/output` |
+| `vercel.json` | `framework: "tanstack-start"`, cron `GET /api/jobs/retention` às 09:15 UTC |
+| `.nvmrc` | Node 22 |
+| `.env.example` | Template com nomes reais das variáveis (sem valores) |
+| `.vercelignore` | Exclui `e2e/`, `PadrãoDashi/`, `supabase/.temp` |
+| `.gitignore` | `.env`, `.env.*` (exceto `.env.example`), `.vercel` |
+| `package.json` | `engines.node >=20.18.0`; sem `lightningcss-win32-*` (binário Windows removido) |
 
-| Fase | Descrição | Status |
+Build local passa em `npm run build` (saída em `.vercel/output/`). `npm test` passa com 32 testes.
+
+**Passos pós-merge para subir:**
+1. Importar repo em vercel.com/new → confirmar preset **TanStack Start**.
+2. Cadastrar variáveis (seção 9) em Production + Preview + Build.
+3. Atualizar Site URL e Redirect URLs no Supabase Auth.
+4. Primeiro deploy — cron fica ativo automaticamente.
+
+---
+
+## 11. Status
+
+### 11.1 Fases de produto
+
+| Fase | Tema | Status |
 |---|---|---|
-| 0 | Fundação Arquitetural | ✅ |
-| 1 | White Label & Rebranding | ✅ |
-| 2 | Dois Modos (Companion + Manager) | ✅ |
-| 3 | Redesign Visual | ✅ |
-| 4 | Chat com IA Contextual | ✅ |
-| 5 | Check-in Matinal | ✅ |
-| 6 | Manager Pages Responsivas | ✅ |
-| 7 | Hábitos → Meu Bem-estar | ✅ |
-| 8 | Diário → Timeline | ✅ |
-| 9 | Dashboard Emocional | ✅ |
-| 10 | Insights IA | ✅ |
-| 11 | IA Preventiva | ✅ |
-| 12 | Plano de Cuidado | ✅ |
-| 13 | Gamificação Elegante | ✅ |
-| 14 | Dashboard do RH | ✅ |
-| 15 | Portal Administrativo | ✅ |
-| 16 | Limpeza & Refinamento | 🟡 quase concluída |
+| 0–15 | Fundação até Portal Admin | ✅ |
+| 16 | Limpeza / tom enterprise | 🟡 16.4 percepção humana e 16.6 proposta pendentes |
+| 17 | Testes | ✅ Vitest 32 testes + Playwright smoke + RLS no Postgres |
+| 18 | Deploy | ✅ Build Vercel ok; pendente: primeiro deploy em produção |
+| 19 | LGPD, convites, RLS, crise | ✅ código + banco |
+| 20 | Expansão (push, nativo, …) | 🔮 |
 
-### 10.2 Fase 16 — detalhe
-| Item | Status |
-|---|---|
-| 16.1 Textos corporativo-acolhedor | ✅ |
-| 16.2 Eliminar sinais de MVP | ✅ |
-| 16.3 Experiência “produto pronto” | ✅ |
-| 16.4 Testes de percepção (feedback humano) | ⏳ pendente |
-| 16.5 Documentar posicionamento | ✅ (`docs/POSICIONAMENTO.md`) |
-| 16.6 Apresentar proposta comercial | ⏳ rascunho em `docs/PROPOSTA-COMERCIAL.md` |
+### 11.2 Hardenings implementados (nesta sessão)
 
-### 10.3 Progresso geral
-- **Produto / código:** ~100% das fases técnicas 0–15 + limpeza 16.1–16.3/16.5
-- **Fechamento comercial:** pendente validação humana (16.4) e apresentação da proposta (16.6)
-- Branding oficial no app: **Mundo Mental Care**
+| # | Item | Artefato |
+|---|---|---|
+| 1 | Sessão httpOnly — JWT sai do body | `session.ts`, `require-user.ts`, `server.ts`, `auth.server.ts`, `auth-context.tsx` |
+| 2 | Service role só onde precisa | `wellness-plan.server.ts`, `invites.server.ts` (RPCs); admin/jobs: mantido |
+| 3 | Headers de segurança (CSP + HSTS + Google Fonts) | `security-headers.ts` |
+| 4 | Rate limit `logClientEvent` | RPC `consume_client_log_quota` (migration 010) |
+| 5 | Cache compartilhado preventiva/LLM via banco | `private.compute_cache` (migration 010) |
+| 6 | Playwright E2E smoke | `e2e/smoke.spec.ts`, `playwright.config.ts` |
+| 7 | FORCE RLS em todas as tabelas + self-test | Migration `010_hardening_sessao_rls.sql` |
+| 8 | Memória curada do companion | `companion_memories`, `companion-agent.ts`, `companion-memory.server.ts`, migration `010_companion_memories.sql` |
+| 9 | Preset Nitro Vercel + vercel.json + env | `vite.config.ts`, `vercel.json`, `.env.example`, `config.server.ts` (VERCEL_URL) |
 
-### 10.4 Atualizações relevantes (histórico recente)
-1. ✅ Navegação login / parâmetros de rota / CSRF
-2. ✅ Acesso total do role `dev`
-3. ✅ Insights IA + preventiva + plano + streak
-4. ✅ Portal Admin completo + migration `006`
-5. ✅ Humor unificado (`moods.ts`) no check-in e bem-estar
-6. ✅ Markdown no chat; System Logs no Dev Tools
-7. ✅ Nav Companion com **Plano** (`/plano-de-cuidado`)
-8. ✅ Posicionamento documentado; proposta comercial em rascunho
+### 11.3 Testes e CI
+
+- **Vitest (32):** isolamento tenant, k-anonimato, chat-guard, crise, consentimento v3, logs, RLS no Postgres, sessão httpOnly, Vercel preset/vercel.json, cron GET+POST, memória do companion.
+- **Playwright smoke:** login, cookie httpOnly, headers de hardening, disclaimer clínico.
+- **CI GitHub Actions:** `tsc --noEmit`, lint, `npm test`, Playwright Chromium — em todo push/PR.
+
+### 11.4 Débitos conscientes
+
+1. Histórico `supabase_migrations` local vs remoto ainda desalinhado para 000–007 (risco de repair vs benefício baixo).
+2. Secrets do GitHub (`APP_URL`, `CRON_SECRET`) precisam ser cadastrados para o retention workflow funcionar.
+3. Primeiro deploy em produção na Vercel ainda não feito — repo pronto, pendente cadastro de env e merge.
+4. 16.4 (percepção enterprise) e 16.6 (proposta comercial) ainda em aberto.
 
 ---
 
-## 11. Observações
+## 12. Arquitetura
 
-### 11.1 Arquitetura
-- Mobile-first com pares mobile/desktop
-- SSR (TanStack Start) + Server Functions
-- Camada `services/` entre UI e `api/*.server.ts`
-- Context API (auth/theme) + React Query
-
-### 11.2 Padrões
-- `.server.ts` para código server-only
-- Validação Zod nas server functions
-- `auth-token.ts` para extrair identidade do JWT
-- Logging centralizado via `logs.server.ts`
-
-### 11.3 Performance
-- Lazy loading, cache React Query, Vite + Tailwind
-- Cache de detecção preventiva server-side
+- Server functions + camada `services/` + shells por papel.
+- Autorização em três níveis: rota → `require*` → RLS/RPC.
+- Agregação de RH no **banco**, não no Node com service role.
+- Identificadores pessoais não entram no prompt da IA.
+- URL canônica resolvida dinamicamente: explícita (`APP_BASE_URL`) > `VERCEL_PROJECT_PRODUCTION_URL` > `VERCEL_URL` > localhost.
+- Cache de estado do servidor no **banco** (preventiva, LLM) — serverless-safe.
+- Padrões: `*.server.ts`, Zod, `logEvent`, `require-user.ts` como único gate de identidade.
 
 ---
 
-## 12. Documentação
+## 13. Documentação
 
-### 12.1 Arquivos
-| Arquivo | Conteúdo |
+| Onde | O quê |
 |---|---|
-| `TODO-MundoMental.md` | Plano de fases e checklist |
-| `ANALISE_COMPLETA.md` | Este arquivo |
-| `docs/POSICIONAMENTO.md` | O que o produto é / não é |
-| `docs/PROPOSTA-COMERCIAL.md` | Rascunho comercial |
-| `PLANS/PLANO_BACKEND.md` | Plano histórico de backend (pode estar desatualizado vs. código atual) |
-| `src/routes/README.md` | Notas de rotas |
+| `documentacao/DEPLOY-PLAYBOOK.md` | Playbook Vercel v1.1 (variáveis reais, cron, checklist) |
+| `documentacao/` demais | BRD, PRD, FRD, SDD, API-DOCS, ROADMAP, USER-STORIES, TEST-PLAN |
+| `README.md` | Início rápido, stack, env, deploy Vercel |
+| `.env.example` | Template de variáveis sem valores |
+| `docs/SESSAO-DEBITO.md` | Histórico do débito de sessão (fechado) |
+| `charlie-metodo/` | Método de reprodução do companion (referência) |
 
-### 12.2 Scripts (`package.json`)
-| Script | Função |
-|---|---|
-| `dev` | Servidor de desenvolvimento |
-| `build` | Build de produção |
-| `build:dev` | Build modo development |
-| `preview` | Preview do build |
-| `lint` | ESLint |
-| `format` | Prettier |
+Scripts disponíveis: `dev`, `build`, `build:dev`, `preview`, `lint`, `format`, `test`, `test:e2e`.
 
 ---
 
-## 13. Conclusão
+## 14. Conclusão
 
-A aplicação está posicionada como **Mundo Mental Care**: companion de engajamento e autocuidado emocional no ritmo do trabalho, com:
+Mundo Mental Care é um **produto B2B isolado por empresa**, com núcleo de confiança completo:
 
-- ✅ Backend Supabase + roles Companion / Manager / Admin / Dev
-- ✅ Chat contextual com Markdown e memória de conversa
-- ✅ Check-in, bem-estar, timeline, dashboard emocional
-- ✅ Insights IA, alertas preventivos, plano de cuidado e streaks
-- ✅ Painel de RH (dados agregados) e Portal Administrativo B2B
-- ✅ CSRF, proteção de rotas, Dev Tools (LLM + logs)
-- ✅ Design responsivo (clay Companion + slate Admin)
-- ✅ Posicionamento documentado (não substitui clínica / plataforma MM)
+- Entrada por convite; papel imutável no cliente.
+- RH só vê agregado com opt-in e k-anonimato; diário/chat fora do alcance.
+- Termo 3.0, retenção automática, ZDR na IA, disclaimer clínico visível.
+- Sessão httpOnly — JWT nunca circula no body das server functions.
+- FORCE RLS em todas as tabelas; self-test via RPC.
+- 32 testes Vitest + Playwright smoke passando no CI.
+- Build Vercel gerado e validado localmente (`.vercel/output/`).
 
-**Próximos passos externos ao código:** feedback de percepção “enterprise” (16.4) e fechamento/apresentação da proposta comercial (16.6).
+**Próximo passo operacional:** cadastrar variáveis de ambiente na Vercel e fazer o primeiro deploy em produção.  
+**Próximo passo de produto:** 16.4 (percepção enterprise) e 16.6 (proposta comercial).

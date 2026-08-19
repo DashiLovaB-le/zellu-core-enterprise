@@ -66,8 +66,8 @@ function LlmConfigPanel() {
   const [loaded, setLoaded] = useState(false);
 
   const loadConfig = useCallback(async () => {
-    if (!user || !session?.access_token) return;
-    const result = await getLlmConfig({ data: { accessToken: session.access_token } });
+    if (!user || !session) return;
+    const result = await getLlmConfig();
     if ("error" in result && result.error) {
       if (result.error !== "Unauthorized — role dev required") {
         setMessage({ type: "error", text: result.error });
@@ -96,8 +96,8 @@ function LlmConfigPanel() {
     }
     
     // Apenas dev tem acesso a dashitecnology
-    if (!loading && user && role !== "dev") {
-      const target = role === "manager" ? "/manager" : "/";
+    if (!loading && user && role && role !== "dev") {
+      const target = role === "manager" ? "/manager/rh-dashboard" : role === "admin" ? "/admin" : "/";
       navigate({ to: target, replace: true });
       return;
     }
@@ -106,14 +106,11 @@ function LlmConfigPanel() {
   }, [user, loading, role, navigate, loaded, loadConfig]);
 
   const handleSave = async () => {
-    if (!user || !session?.access_token) return;
+    if (!user || !session) return;
     setSaving(true);
     setMessage(null);
     try {
-      const result = await setLlmConfig({
-        data: {
-          accessToken: session.access_token,
-          model,
+      const result = await setLlmConfig({ data: { model,
           temperature,
           max_tokens: maxTokens,
           system_prompt: systemPrompt,
@@ -142,11 +139,11 @@ function LlmConfigPanel() {
   };
 
   const handleReset = async () => {
-    if (!user || !session?.access_token) return;
+    if (!user || !session) return;
     setSaving(true);
     setMessage(null);
     try {
-      const result = await resetLlmConfig({ data: { accessToken: session.access_token } });
+      const result = await resetLlmConfig();
       if ("success" in result && result.success) {
         setMessage({ type: "success", text: "Configuração resetada para o padrão." });
         loadConfig();
@@ -165,12 +162,11 @@ function LlmConfigPanel() {
   };
 
   const handleTest = async () => {
-    if (!user || !session?.access_token) return;
+    if (!user || !session) return;
     setTesting(true);
     setMessage(null);
     try {
-      const result = await testLlmConnection({
-        data: { accessToken: session.access_token, model, api_key: apiKey },
+      const result = await testLlmConnection({ data: { model, api_key: apiKey },
       });
       if ("success" in result && result.success) {
         setMessage({ type: "success", text: "Conexão com OpenRouter OK!" });
@@ -328,7 +324,7 @@ function LlmConfigPanel() {
           </button>
         </div>
 
-        <LlmFailuresSection user={user} session={session} />
+        <LlmFailuresSection session={session} />
       </div>
     </DevShell>
   );
@@ -356,14 +352,11 @@ function SystemLogsPanel() {
   const pageSize = 50;
 
   const fetchLogs = useCallback(async () => {
-    if (!user || !session?.access_token) return;
+    if (!user || !session) return;
     setLoadingLogs(true);
     setError(null);
     try {
-      const result = await getSystemLogs({
-        data: {
-          accessToken: session.access_token,
-          limit: pageSize,
+      const result = await getSystemLogs({ data: { limit: pageSize,
           offset: page * pageSize,
           level: levelFilter || undefined,
           source: sourceFilter || undefined,
@@ -389,8 +382,8 @@ function SystemLogsPanel() {
       navigate({ to: "/login", replace: true });
       return;
     }
-    if (!loading && user && role !== "dev") {
-      const target = role === "manager" ? "/manager" : "/";
+    if (!loading && user && role && role !== "dev") {
+      const target = role === "manager" ? "/manager/rh-dashboard" : role === "admin" ? "/admin" : "/";
       navigate({ to: target, replace: true });
       return;
     }
@@ -592,19 +585,16 @@ function SystemLogsPanel() {
   );
 }
 
-function LlmFailuresSection({ user, session }: { user: import("@supabase/supabase-js").User; session: import("@supabase/supabase-js").Session | null }) {
+function LlmFailuresSection({ session }: { session: { user: { id: string } } | null }) {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const fetchFailures = useCallback(async () => {
-    if (!session?.access_token) return;
+    if (!session) return;
     setLoading(true);
     try {
-      const result = await getSystemLogs({
-        data: {
-          accessToken: session.access_token,
-          level: "error",
+      const result = await getSystemLogs({ data: { level: "error",
           limit: 20,
           offset: 0,
         },

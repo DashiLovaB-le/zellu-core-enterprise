@@ -32,13 +32,12 @@ function DiarioPage() {
   });
   const [loaded, setLoaded] = useState(false);
 
-  const accessToken = session?.access_token ?? null;
+  const accessToken = session ?? null;
 
   const loadData = useCallback(async () => {
-    if (!accessToken) return;
-    const [data, alertResult] = await Promise.all([
-      loadTimeline(accessToken),
-      loadPreventiveAlert(accessToken),
+        const [data, alertResult] = await Promise.all([
+      loadTimeline(),
+      loadPreventiveAlert(),
     ]);
     setTimelineData(data);
     setPreventiveAlert(alertResult);
@@ -70,8 +69,7 @@ function DiarioPage() {
 
   const handleSaveEntry = useCallback(
     async (content: string, mood?: string) => {
-      if (!accessToken) return;
-      const result = await saveEntry(accessToken, { content, mood });
+            const result = await saveEntry({ content, mood });
       if (result.data) {
         loadData();
       }

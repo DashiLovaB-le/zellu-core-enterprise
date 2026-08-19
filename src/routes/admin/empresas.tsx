@@ -46,15 +46,15 @@ function AdminEmpresasPage() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const refresh = async (token: string) => {
-    const list = await loadCompanies(token);
+  const refresh = async () => {
+    const list = await loadCompanies();
     setCompanies(list);
   };
 
   useEffect(() => {
-    if (!session?.access_token || ready) return;
+    if (!session || ready) return;
     (async () => {
-      await refresh(session.access_token!);
+      await refresh();
       setReady(true);
     })();
   }, [session, ready]);
@@ -83,10 +83,10 @@ function AdminEmpresasPage() {
   };
 
   const handleSave = async () => {
-    if (!session?.access_token || !form.name.trim()) return;
+    if (!session || !form.name.trim()) return;
     setSaving(true);
     setError("");
-    const result = await saveCompany(session.access_token, {
+    const result = await saveCompany({
       id: editingId ?? undefined,
       name: form.name,
       document: form.document || null,
@@ -103,14 +103,14 @@ function AdminEmpresasPage() {
       return;
     }
     setShowForm(false);
-    await refresh(session.access_token);
+    await refresh();
   };
 
   const handleDelete = async (id: string) => {
-    if (!session?.access_token) return;
+    if (!session) return;
     if (!confirm("Remover esta empresa? Equipes, licenças e contratos serão apagados.")) return;
-    await removeCompany(session.access_token, id);
-    await refresh(session.access_token);
+    await removeCompany(id);
+    await refresh();
   };
 
   if (loading || !isAuthorized) return <AdminPageFrame loading />;

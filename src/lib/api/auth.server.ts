@@ -1,45 +1,108 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { logEvent } from "@/lib/api/logs.server";
-import { requireUser } from "@/lib/require-user";
+import { requireUser, type AppRole, type ProfileRow } from "@/lib/require-user";
 import { DEFAULT_TIMEZONE } from "@/lib/timezone";
+import { createAnonClient, createClient } from "@/lib/supabase/server";
+import { clearAuthCookies, setAuthCookies } from "@/lib/supabase/session";
 
-export const getProfile = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const auth = await requireUser(data.accessToken);
-    if ("error" in auth) return null;
+export type AuthSnapshot = {
+  user: { id: string; email: string | null; avatar_url: string | null };
+  role: AppRole | null;
+  profile: ProfileRow | null;
+};
 
-    const { data: profile } = await auth.supabase
+export const getAuthSnapshot = createServerFn({ method: "GET" }).handler(async () => {
+  const auth = await requireUser();
+  if ("error" in auth) return null;
+  return {
+    user: {
+      id: auth.userId,
+      email: auth.email,
+      avatar_url: auth.profile?.avatar_url ?? null,
+    },
+    role: auth.profile?.role ?? null,
+    profile: auth.profile,
+  } satisfies AuthSnapshot;
+});
+
+export const signInWithPassword = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      email: z.string().email(),
+      password: z.string().min(1),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const supabase = createAnonClient();
+    const { data: result, error } = await supabase.auth.signInWithPassword({
+      email: data.email.trim().toLowerCase(),
+      password: data.password,
+    });
+    if (error || !result.session || !result.user) {
+      return { error: error?.message ?? "Não foi possível entrar.", snapshot: null };
+    }
+
+    setAuthCookies(result.session);
+
+    const authed = await createClient(result.session.access_token);
+    const { data: profile } = await authed
       .from("profiles")
-      .select(
-      "id, email, display_name, role, avatar_url, company_id, team_id, timezone, privacy_consent_at, privacy_consent_version, onboarding_completed_at, is_active, privacy_ai_opt_in, privacy_rh_opt_in, privacy_email_opt_in, adult_confirmed_at",
-      )
-      .eq("id", auth.userId)
+      .select("*")
+      .eq("id", result.user.id)
       .maybeSingle();
 
-    return profile ?? null;
+    if (profile && profile.is_active === false) {
+      clearAuthCookies();
+      return { error: "Unauthorized", snapshot: null };
+    }
+
+    const role = (profile?.role as AppRole | undefined) ?? null;
+    return {
+      error: null,
+      snapshot: {
+        user: {
+          id: result.user.id,
+          email: result.user.email ?? null,
+          avatar_url: (profile?.avatar_url as string | null) ?? null,
+        },
+        role,
+        profile: (profile as ProfileRow | null) ?? null,
+      } satisfies AuthSnapshot,
+    };
   });
 
-export const getUserRole = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data }: { data: { accessToken: string } }) => {
-    const auth = await requireUser(data.accessToken);
-    if ("error" in auth) return null;
-    return auth.profile?.role ?? null;
-  });
+export const signOutSession = createServerFn({ method: "POST" }).handler(async () => {
+  const auth = await requireUser();
+  if (!("error" in auth)) {
+    await auth.supabase.auth.signOut();
+  }
+  clearAuthCookies();
+  return { error: null };
+});
+
+export const getProfile = createServerFn({ method: "GET" }).handler(async () => {
+  const auth = await requireUser();
+  if ("error" in auth) return null;
+  return auth.profile ?? null;
+});
+
+export const getUserRole = createServerFn({ method: "GET" }).handler(async () => {
+  const auth = await requireUser();
+  if ("error" in auth) return null;
+  return auth.profile?.role ?? null;
+});
 
 export const updateProfile = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       displayName: z.string().min(1).max(100).optional(),
       avatarUrl: z.string().max(500).optional(),
       timezone: z.string().min(1).max(80).optional(),
     }),
   )
   .handler(async ({ data }) => {
-    const auth = await requireUser(data.accessToken);
+    const auth = await requireUser();
     if ("error" in auth) return { error: "Unauthorized" };
 
     const payload: Record<string, unknown> = {};
@@ -47,10 +110,7 @@ export const updateProfile = createServerFn({ method: "POST" })
     if (data.avatarUrl !== undefined) payload.avatar_url = data.avatarUrl;
     if (data.timezone !== undefined) payload.timezone = data.timezone;
 
-    const { error } = await auth.supabase
-      .from("profiles")
-      .update(payload)
-      .eq("id", auth.userId);
+    const { error } = await auth.supabase.from("profiles").update(payload).eq("id", auth.userId);
 
     if (error) {
       void logEvent(
@@ -68,12 +128,11 @@ export const updateProfile = createServerFn({ method: "POST" })
 export const updateEmail = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       email: z.string().email("E-mail inválido"),
     }),
   )
   .handler(async ({ data }) => {
-    const auth = await requireUser(data.accessToken);
+    const auth = await requireUser();
     if ("error" in auth) return { error: "Unauthorized" };
 
     const { error } = await auth.supabase.auth.updateUser({ email: data.email });
@@ -92,17 +151,17 @@ export const updateEmail = createServerFn({ method: "POST" })
 export const updatePassword = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       email: z.string().email(),
       currentPassword: z.string().min(1, "Senha atual é obrigatória"),
       newPassword: z.string().min(8, "Nova senha deve ter no mínimo 8 caracteres"),
     }),
   )
   .handler(async ({ data }) => {
-    const auth = await requireUser(data.accessToken);
+    const auth = await requireUser();
     if ("error" in auth) return { error: "Unauthorized" };
 
-    const { error: signInError } = await auth.supabase.auth.signInWithPassword({
+    const probe = createAnonClient();
+    const { error: signInError } = await probe.auth.signInWithPassword({
       email: data.email,
       password: data.currentPassword,
     });

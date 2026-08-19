@@ -65,7 +65,7 @@ export function MobileShell({ children }: { children: ReactNode }) {
           </span>
         </Link>
         <Link to="/perfil">
-          <Avatar name={user?.user_metadata?.avatar_url} size={32} />
+          <Avatar name={user?.avatar_url ?? undefined} size={32} />
         </Link>
       </header>
 

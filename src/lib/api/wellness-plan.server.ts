@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createAdminClient } from "@/lib/supabase/admin.server";
 import { logEvent } from "@/lib/api/logs.server";
 import { requireCompanionConsent } from "@/lib/require-user";
 
@@ -61,13 +60,12 @@ export { CHECKLIST_ITEMS };
 // ─── Wellness Plan ───
 
 export const getWellnessPlan = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ accessToken: z.string() }))
-  .handler(async ({ data: { accessToken } }: { data: { accessToken: string } }) => {
-    const auth = await requireCompanionConsent(accessToken);
+  .handler(async () => {
+    const auth = await requireCompanionConsent();
     if ("error" in auth) return null;
     const userId = auth.userId;
 
-    const admin = createAdminClient();
+    const admin = auth.supabase;
 
     const { data } = await admin
       .from("wellness_plans")
@@ -84,19 +82,18 @@ export const getWellnessPlan = createServerFn({ method: "GET" })
 export const saveWellnessPlan = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       goal: z.string().min(1),
       customGoal: z.string().optional(),
     }),
   )
   .handler(
-    async ({ data }: { data: { accessToken: string; goal: string; customGoal?: string } }) => {
-      const auth = await requireCompanionConsent(data.accessToken);
+    async ({ data }: { data: { goal: string; customGoal?: string } }) => {
+      const auth = await requireCompanionConsent();
       if ("error" in auth) return { error: "Sessão inválida. Faça login novamente." };
       const userId = auth.userId;
 
       try {
-        const admin = createAdminClient();
+        const admin = auth.supabase;
         const today = new Date().toISOString().split("T")[0];
 
         const { data: existing, error: existingError } = await admin
@@ -165,14 +162,14 @@ export const saveWellnessPlan = createServerFn({ method: "POST" })
 // ─── Checklist ───
 
 export const getTodaysChecklist = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ accessToken: z.string(), planId: z.string() }))
+  .inputValidator(z.object({ planId: z.string() }))
   .handler(
-    async ({ data }: { data: { accessToken: string; planId: string } }) => {
-      const auth = await requireCompanionConsent(data.accessToken);
+    async ({ data }: { data: { planId: string } }) => {
+      const auth = await requireCompanionConsent();
       if ("error" in auth) return null;
       const userId = auth.userId;
 
-      const admin = createAdminClient();
+      const admin = auth.supabase;
       const today = new Date().toISOString().split("T")[0];
 
       const { data: checklist } = await admin
@@ -189,7 +186,6 @@ export const getTodaysChecklist = createServerFn({ method: "GET" })
 export const updateChecklist = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       planId: z.string(),
       waterDone: z.boolean().optional(),
       walkDone: z.boolean().optional(),
@@ -203,7 +199,6 @@ export const updateChecklist = createServerFn({ method: "POST" })
       data,
     }: {
       data: {
-        accessToken: string;
         planId: string;
         waterDone?: boolean;
         walkDone?: boolean;
@@ -212,11 +207,11 @@ export const updateChecklist = createServerFn({ method: "POST" })
         notes?: string;
       };
     }) => {
-      const auth = await requireCompanionConsent(data.accessToken);
+      const auth = await requireCompanionConsent();
       if ("error" in auth) return null;
       const userId = auth.userId;
 
-      const admin = createAdminClient();
+      const admin = auth.supabase;
       const today = new Date().toISOString().split("T")[0];
 
       const payload: Record<string, unknown> = {
@@ -243,14 +238,14 @@ export const updateChecklist = createServerFn({ method: "POST" })
 // ─── Progress ───
 
 export const getPlanProgress = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ accessToken: z.string(), planId: z.string() }))
+  .inputValidator(z.object({ planId: z.string() }))
   .handler(
-    async ({ data }: { data: { accessToken: string; planId: string } }) => {
-      const auth = await requireCompanionConsent(data.accessToken);
+    async ({ data }: { data: { planId: string } }) => {
+      const auth = await requireCompanionConsent();
       if ("error" in auth) return null;
       const userId = auth.userId;
 
-      const admin = createAdminClient();
+      const admin = auth.supabase;
 
       const [planRes, checklistRes] = await Promise.allSettled([
         admin
@@ -344,7 +339,6 @@ export const getPlanProgress = createServerFn({ method: "GET" })
 export const generatePlanSuggestion = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      accessToken: z.string(),
       plan: z.object({
         goal: z.string(),
         completionRate: z.number(),
@@ -362,7 +356,6 @@ export const generatePlanSuggestion = createServerFn({ method: "POST" })
       data,
     }: {
       data: {
-        accessToken: string;
         plan: {
           goal: string;
           completionRate: number;

@@ -47,11 +47,11 @@ function AdminFuncionariosPage() {
   const [teamForm, setTeamForm] = useState({ company_id: "", name: "" });
   const [msg, setMsg] = useState("");
 
-  const refresh = async (token: string, companyId?: string) => {
+  const refresh = async (companyId?: string) => {
     const [emps, comps, tms] = await Promise.all([
-      loadEmployees(token, companyId || undefined),
-      loadCompanies(token),
-      loadTeams(token, companyId || undefined),
+      loadEmployees(companyId || undefined),
+      loadCompanies(),
+      loadTeams(companyId || undefined),
     ]);
     setEmployees(emps);
     setCompanies(comps);
@@ -59,17 +59,17 @@ function AdminFuncionariosPage() {
   };
 
   useEffect(() => {
-    if (!session?.access_token || ready) return;
+    if (!session || ready) return;
     (async () => {
-      await refresh(session.access_token!);
+      await refresh();
       setReady(true);
     })();
   }, [session, ready]);
 
   const applyFilter = async (companyId: string) => {
     setFilterCompany(companyId);
-    if (!session?.access_token) return;
-    await refresh(session.access_token, companyId || undefined);
+    if (!session) return;
+    await refresh(companyId || undefined);
   };
 
   const openEdit = (e: AdminEmployee) => {
@@ -84,8 +84,8 @@ function AdminFuncionariosPage() {
   };
 
   const handleSaveEmployee = async () => {
-    if (!session?.access_token || !editId) return;
-    const result = await saveEmployee(session.access_token, {
+    if (!session || !editId) return;
+    const result = await saveEmployee({
       id: editId,
       company_id: editForm.company_id || null,
       team_id: editForm.team_id || null,
@@ -99,13 +99,13 @@ function AdminFuncionariosPage() {
     }
     setEditId(null);
     setMsg("Funcionário atualizado");
-    await refresh(session.access_token, filterCompany || undefined);
+    await refresh(filterCompany || undefined);
     setTimeout(() => setMsg(""), 2000);
   };
 
   const handleCreateTeam = async () => {
-    if (!session?.access_token || !teamForm.company_id || !teamForm.name.trim()) return;
-    const result = await saveTeam(session.access_token, {
+    if (!session || !teamForm.company_id || !teamForm.name.trim()) return;
+    const result = await saveTeam({
       company_id: teamForm.company_id,
       name: teamForm.name,
     });
@@ -115,7 +115,7 @@ function AdminFuncionariosPage() {
     }
     setTeamForm({ company_id: "", name: "" });
     setMsg("Equipe criada");
-    await refresh(session.access_token, filterCompany || undefined);
+    await refresh(filterCompany || undefined);
     setTimeout(() => setMsg(""), 2000);
   };
 

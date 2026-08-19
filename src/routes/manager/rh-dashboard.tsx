@@ -40,15 +40,15 @@ function RhDashboard() {
       return;
     }
     if (role === "dev") return;
-    if (!loading && user && role !== "manager") {
-      navigate({ to: "/login", replace: true });
+    if (!loading && user && role && role !== "manager") {
+      navigate({ to: role === "admin" ? "/admin" : "/", replace: true });
     }
   }, [user, loading, role, navigate]);
 
   useEffect(() => {
-    if (!session?.access_token || loaded) return;
+    if (!session || loaded) return;
     (async () => {
-      const d = await loadRhDashboard(session.access_token!);
+      const d = await loadRhDashboard();
       if (d) setData(d);
       setLoaded(true);
     })();
@@ -68,9 +68,9 @@ function RhDashboard() {
     <ManagerShell>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="font-display text-2xl text-[var(--clay-title)]">Dashboard RH</h1>
+          <h1 className="font-display text-2xl text-[var(--clay-title)]">Painel RH</h1>
           <p className="mt-1 text-xs text-[var(--clay-text)]/70">
-            Indicadores anônimos agregados · {data?.teams.length ?? 0} equipes
+            Adesão, indicadores agregados e tendências por equipe — nunca humor individual
           </p>
         </div>
         <Link
@@ -81,6 +81,13 @@ function RhDashboard() {
           Ver Equipes
         </Link>
       </div>
+
+      {data && data.totalUsers > 0 && data.totalUsers < 5 && (
+        <p className="mt-4 rounded-xl bg-white/70 px-4 py-3 text-xs text-[var(--clay-text)]/80">
+          Indicadores de humor, sono e tendências só aparecem com pelo menos 5 colaboradores
+          desta empresa que autorizaram o compartilhamento com o RH.
+        </p>
+      )}
 
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <KpiCard icon="people" label="Colaboradores" value={String(data?.totalUsers ?? "—")} />
