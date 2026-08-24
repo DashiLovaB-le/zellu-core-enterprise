@@ -9,6 +9,13 @@ import {
   hideAlertsForSmallTeams,
   type TeamAggregate,
 } from "@/lib/tenant";
+import {
+  assertRhSummarySafe,
+  unavailableWellness,
+  type RhMemberSignalRow,
+  type RhMemberSummary,
+  type RhWellnessSignals,
+} from "@/lib/rh-member-summary";
 
 export type TeamMetrics = {
   name: string;
@@ -448,4 +455,244 @@ export const listManagerTeams = createServerFn({ method: "POST" })
     const scope = await fetchManagerRhDashboard( 30);
     if ("error" in scope) return scope;
     return { data: scope.dashboard.teams, error: null };
+  });
+
+export type ManagerDirectoryMember = {
+  id: string;
+  email: string | null;
+  display_name: string | null;
+  role: string;
+  team_id: string | null;
+  is_active: boolean;
+  company_id: string | null;
+  job_title: string | null;
+  created_at: string | null;
+};
+
+export type ManagerTeamRecord = {
+  id: string;
+  name: string;
+  description: string | null;
+};
+
+export type ManagerTeamRoster = {
+  teams: ManagerTeamRecord[];
+  members: ManagerDirectoryMember[];
+};
+
+const DIRECTORY_FORBIDDEN = ["mood", "sleep", "water", "diary", "chat", "privacy_"];
+
+export function assertDirectoryHasNoHealthFields(row: Record<string, unknown>): string[] {
+  return Object.keys(row).filter((key) =>
+    DIRECTORY_FORBIDDEN.some((f) => key.toLowerCase().includes(f)),
+  );
+}
+
+function mapDirectoryRow(row: Record<string, unknown>): ManagerDirectoryMember {
+  return {
+    id: String(row.id),
+    email: typeof row.email === "string" ? row.email : null,
+    display_name: typeof row.display_name === "string" ? row.display_name : null,
+    role: typeof row.role === "string" ? row.role : "companion",
+    team_id: typeof row.team_id === "string" ? row.team_id : null,
+    is_active: row.is_active !== false,
+    company_id: typeof row.company_id === "string" ? row.company_id : null,
+    job_title: typeof row.job_title === "string" ? row.job_title : null,
+    created_at: typeof row.created_at === "string" ? row.created_at : null,
+  };
+}
+
+export const getManagerTeamRoster = createServerFn({ method: "POST" }).handler(async () => {
+  const auth = await requireManager();
+  if ("error" in auth) return { data: null as ManagerTeamRoster | null, error: auth.error };
+  if (!auth.companyId) return { data: null, error: "Unauthorized — sem empresa" };
+
+  const [teamsRes, membersRes] = await Promise.all([
+    auth.supabase
+      .from("teams")
+      .select("id, name, description")
+      .eq("company_id", auth.companyId)
+      .order("name"),
+    auth.supabase.rpc("list_company_directory"),
+  ]);
+
+  if (teamsRes.error) return { data: null, error: teamsRes.error.message };
+  if (membersRes.error) return { data: null, error: membersRes.error.message };
+
+  const rawRows = (membersRes.data as Record<string, unknown>[]) ?? [];
+  for (const raw of rawRows) {
+    const leaked = assertDirectoryHasNoHealthFields(raw);
+    if (leaked.length > 0) return { data: null, error: "Diretório indisponível" };
+  }
+
+  return {
+    data: {
+      teams: (teamsRes.data ?? []) as ManagerTeamRecord[],
+      members: rawRows.map(mapDirectoryRow),
+    } satisfies ManagerTeamRoster,
+    error: null,
+  };
+});
+
+export const renameManagerTeam = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      teamId: z.string().uuid(),
+      name: z.string().min(2).max(80),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const auth = await requireManager();
+    if ("error" in auth) return { error: auth.error };
+    if (!auth.companyId) return { error: "Unauthorized — sem empresa" };
+
+    const name = data.name.trim().replace(/\s+/g, " ");
+    if (name.length < 2) return { error: "Informe um nome válido" };
+
+    const { error } = await auth.supabase
+      .from("teams")
+      .update({ name })
+      .eq("id", data.teamId)
+      .eq("company_id", auth.companyId);
+
+    if (error) {
+      if (error.code === "23505") return { error: "Já existe uma equipe com esse nome." };
+      return { error: error.message };
+    }
+
+    void logEvent(
+      "info",
+      "manager.renameManagerTeam",
+      "Equipe renomeada",
+      { team_id: data.teamId, company_id: auth.companyId },
+      auth.userId,
+    );
+    return { error: null };
+  });
+
+export const assignManagerTeamMember = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      profileId: z.string().uuid(),
+      teamId: z.string().uuid().nullable(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const auth = await requireManager();
+    if ("error" in auth) return { error: auth.error };
+    if (!auth.companyId) return { error: "Unauthorized — sem empresa" };
+
+    const { error } = await auth.supabase.rpc("assign_team_member", {
+      p_profile_id: data.profileId,
+      p_team_id: data.teamId,
+    });
+
+    if (error) return { error: error.message };
+
+    void logEvent(
+      "info",
+      "manager.assignManagerTeamMember",
+      data.teamId ? "Colaborador adicionado à equipe" : "Colaborador removido da equipe",
+      { team_id: data.teamId, company_id: auth.companyId },
+      auth.userId,
+    );
+    return { error: null };
+  });
+
+function parseWellness(raw: unknown): RhWellnessSignals {
+  if (!raw || typeof raw !== "object") return unavailableWellness();
+  const row = raw as Record<string, unknown>;
+  return {
+    available: row.available === true,
+    status:
+      row.status === "stable" || row.status === "monitor" || row.status === "attention"
+        ? row.status
+        : "unknown",
+    trend:
+      row.trend === "improving" || row.trend === "stable" || row.trend === "worsening"
+        ? row.trend
+        : "unknown",
+    participation:
+      row.participation === "regular" || row.participation === "low" || row.participation === "none"
+        ? row.participation
+        : "none",
+    lastActivity: typeof row.lastActivity === "string" ? row.lastActivity : "Resumo indisponível",
+    sleepSignal:
+      row.sleepSignal === "ok" || row.sleepSignal === "attention" ? row.sleepSignal : "unknown",
+  };
+}
+
+export const getRhMemberSummary = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ profileId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const auth = await requireManager();
+    if ("error" in auth) return { data: null as RhMemberSummary | null, error: auth.error };
+    if (!auth.companyId) return { data: null, error: "Unauthorized — sem empresa" };
+
+    const { data: payload, error } = await auth.supabase.rpc("get_rh_member_summary", {
+      p_profile_id: data.profileId,
+    });
+    if (error) return { data: null, error: error.message };
+
+    const parsed = typeof payload === "string" ? JSON.parse(payload) : payload;
+    if (!parsed || typeof parsed !== "object") return { data: null, error: "Resumo indisponível" };
+    const leaked = assertRhSummarySafe(parsed as Record<string, unknown>);
+    if (leaked.length > 0) return { data: null, error: "Resumo indisponível" };
+
+    const row = parsed as Record<string, unknown>;
+    const summary: RhMemberSummary = {
+      id: String(row.id),
+      displayName: typeof row.displayName === "string" ? row.displayName : null,
+      email: typeof row.email === "string" ? row.email : null,
+      role: typeof row.role === "string" ? row.role : "companion",
+      jobTitle: typeof row.jobTitle === "string" ? row.jobTitle : null,
+      isActive: row.isActive !== false,
+      teamId: typeof row.teamId === "string" ? row.teamId : null,
+      teamName: typeof row.teamName === "string" ? row.teamName : null,
+      createdAt:
+        typeof row.createdAt === "string"
+          ? row.createdAt
+          : row.createdAt
+            ? String(row.createdAt)
+            : null,
+      wellness: parseWellness(row.wellness),
+    };
+
+    void logEvent(
+      "info",
+      "manager.getRhMemberSummary",
+      "Resumo RH de colaborador lido",
+      { company_id: auth.companyId },
+      auth.userId,
+    );
+
+    return { data: summary, error: null };
+  });
+
+export const listRhMemberSignals = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      teamId: z.string().uuid().nullable().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const auth = await requireManager();
+    if ("error" in auth) return { data: [] as RhMemberSignalRow[], error: auth.error };
+    if (!auth.companyId) return { data: [], error: "Unauthorized — sem empresa" };
+
+    const { data: payload, error } = await auth.supabase.rpc("list_rh_member_signals", {
+      p_team_id: data.teamId ?? null,
+    });
+    if (error) return { data: [], error: error.message };
+
+    const parsed = typeof payload === "string" ? JSON.parse(payload) : payload;
+    if (!Array.isArray(parsed)) return { data: [], error: null };
+    const leaked = assertRhSummarySafe({ items: parsed });
+    if (leaked.length > 0) return { data: [], error: "Sinais indisponíveis" };
+
+    const rows: RhMemberSignalRow[] = parsed.map((item: Record<string, unknown>) => ({
+      id: String(item.id),
+      wellness: parseWellness(item.wellness),
+    }));
+    return { data: rows, error: null };
   });

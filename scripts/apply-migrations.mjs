@@ -28,6 +28,8 @@ const migrations = [
   ["010_companion_memories", "supabase/migrations/010_companion_memories.sql"],
   ["011_hardening_sessao_rls", "supabase/migrations/011_hardening_sessao_rls.sql"],
   ["012_profiles_authenticated_grants", "supabase/migrations/012_profiles_authenticated_grants.sql"],
+  ["013_manager_team_edit", "supabase/migrations/013_manager_team_edit.sql"],
+  ["014_rh_member_summary", "supabase/migrations/014_rh_member_summary.sql"],
 ];
 
 async function listMigrations() {

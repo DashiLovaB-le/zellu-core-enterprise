@@ -38,6 +38,8 @@ import { Route as AdminLicencasRouteImport } from './routes/admin/licencas'
 import { Route as AdminFuncionariosRouteImport } from './routes/admin/funcionarios'
 import { Route as AdminEmpresasRouteImport } from './routes/admin/empresas'
 import { Route as AdminAlertasRouteImport } from './routes/admin/alertas'
+import { Route as ManagerEquipeTeamIdRouteImport } from './routes/manager/equipe/$teamId'
+import { Route as ManagerColaboradorProfileIdRouteImport } from './routes/manager/colaborador/$profileId'
 
 const RespiroRoute = RespiroRouteImport.update({
   id: '/respiro',
@@ -184,6 +186,17 @@ const AdminAlertasRoute = AdminAlertasRouteImport.update({
   path: '/admin/alertas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManagerEquipeTeamIdRoute = ManagerEquipeTeamIdRouteImport.update({
+  id: '/manager/equipe/$teamId',
+  path: '/manager/equipe/$teamId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerColaboradorProfileIdRoute =
+  ManagerColaboradorProfileIdRouteImport.update({
+    id: '/manager/colaborador/$profileId',
+    path: '/manager/colaborador/$profileId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -215,6 +228,8 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/dashitecnology/': typeof DashitecnologyIndexRoute
   '/manager/': typeof ManagerIndexRoute
+  '/manager/colaborador/$profileId': typeof ManagerColaboradorProfileIdRoute
+  '/manager/equipe/$teamId': typeof ManagerEquipeTeamIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -246,6 +261,8 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/dashitecnology': typeof DashitecnologyIndexRoute
   '/manager': typeof ManagerIndexRoute
+  '/manager/colaborador/$profileId': typeof ManagerColaboradorProfileIdRoute
+  '/manager/equipe/$teamId': typeof ManagerEquipeTeamIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -278,6 +295,8 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/dashitecnology/': typeof DashitecnologyIndexRoute
   '/manager/': typeof ManagerIndexRoute
+  '/manager/colaborador/$profileId': typeof ManagerColaboradorProfileIdRoute
+  '/manager/equipe/$teamId': typeof ManagerEquipeTeamIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -311,6 +330,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/dashitecnology/'
     | '/manager/'
+    | '/manager/colaborador/$profileId'
+    | '/manager/equipe/$teamId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -342,6 +363,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashitecnology'
     | '/manager'
+    | '/manager/colaborador/$profileId'
+    | '/manager/equipe/$teamId'
   id:
     | '__root__'
     | '/'
@@ -373,6 +396,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/dashitecnology/'
     | '/manager/'
+    | '/manager/colaborador/$profileId'
+    | '/manager/equipe/$teamId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -399,12 +424,16 @@ export interface RootRouteChildren {
   AdminSentimentosRoute: typeof AdminSentimentosRoute
   DashitecnologyPainelDevRoute: typeof DashitecnologyPainelDevRoute
   ManagerConvitesRoute: typeof ManagerConvitesRoute
+  ManagerEquipeTeamIdRoute: typeof ManagerEquipeTeamIdRoute
+  ManagerColaboradorProfileIdRoute: typeof ManagerColaboradorProfileIdRoute
   ManagerEquipesRoute: typeof ManagerEquipesRoute
   ManagerRelatoriosRoute: typeof ManagerRelatoriosRoute
   ManagerRhDashboardRoute: typeof ManagerRhDashboardRoute
   AdminIndexRoute: typeof AdminIndexRoute
   DashitecnologyIndexRoute: typeof DashitecnologyIndexRoute
   ManagerIndexRoute: typeof ManagerIndexRoute
+  ManagerColaboradorProfileIdRoute: typeof ManagerColaboradorProfileIdRoute
+  ManagerEquipeTeamIdRoute: typeof ManagerEquipeTeamIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -556,6 +585,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerConvitesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manager/equipe/$teamId': {
+      id: '/manager/equipe/$teamId'
+      path: '/manager/equipe/$teamId'
+      fullPath: '/manager/equipe/$teamId'
+      preLoaderRoute: typeof ManagerEquipeTeamIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/colaborador/$profileId': {
+      id: '/manager/colaborador/$profileId'
+      path: '/manager/colaborador/$profileId'
+      fullPath: '/manager/colaborador/$profileId'
+      preLoaderRoute: typeof ManagerColaboradorProfileIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashitecnology/$painelDev': {
       id: '/dashitecnology/$painelDev'
       path: '/dashitecnology/$painelDev'
@@ -612,6 +655,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAlertasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manager/equipe/$teamId': {
+      id: '/manager/equipe/$teamId'
+      path: '/manager/equipe/$teamId'
+      fullPath: '/manager/equipe/$teamId'
+      preLoaderRoute: typeof ManagerEquipeTeamIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/colaborador/$profileId': {
+      id: '/manager/colaborador/$profileId'
+      path: '/manager/colaborador/$profileId'
+      fullPath: '/manager/colaborador/$profileId'
+      preLoaderRoute: typeof ManagerColaboradorProfileIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -639,12 +696,16 @@ const rootRouteChildren: RootRouteChildren = {
   AdminSentimentosRoute: AdminSentimentosRoute,
   DashitecnologyPainelDevRoute: DashitecnologyPainelDevRoute,
   ManagerConvitesRoute: ManagerConvitesRoute,
+  ManagerEquipeTeamIdRoute: ManagerEquipeTeamIdRoute,
+  ManagerColaboradorProfileIdRoute: ManagerColaboradorProfileIdRoute,
   ManagerEquipesRoute: ManagerEquipesRoute,
   ManagerRelatoriosRoute: ManagerRelatoriosRoute,
   ManagerRhDashboardRoute: ManagerRhDashboardRoute,
   AdminIndexRoute: AdminIndexRoute,
   DashitecnologyIndexRoute: DashitecnologyIndexRoute,
   ManagerIndexRoute: ManagerIndexRoute,
+  ManagerColaboradorProfileIdRoute: ManagerColaboradorProfileIdRoute,
+  ManagerEquipeTeamIdRoute: ManagerEquipeTeamIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

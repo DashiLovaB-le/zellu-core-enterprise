@@ -13,7 +13,7 @@ import {
 type PreferenceKey = keyof PrivacyPreferences;
 
 const PREFERENCE_ROWS: Array<{ key: PreferenceKey; label: string }> = [
-  { key: "aiOptIn", label: "IA na nuvem (OpenRouter)" },
+  { key: "aiOptIn", label: "IA na nuvem" },
   { key: "rhOptIn", label: "Indicadores agregados no RH" },
   { key: "emailOptIn", label: "E-mail de lembrete" },
 ];

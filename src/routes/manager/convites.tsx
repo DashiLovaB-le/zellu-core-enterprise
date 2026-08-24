@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ManagerShell } from "@/components/ManagerShell";
 import { useAuth } from "@/lib/auth-context";
@@ -111,9 +111,13 @@ function ManagerConvitesPage() {
       <ul className="mt-2 space-y-2">
         {members.map((m) => (
           <li key={m.id} className="flex items-center justify-between rounded-xl bg-white/70 p-3 text-xs shadow-sm">
-            <span>
+            <Link
+              to="/manager/colaborador/$profileId"
+              params={{ profileId: m.id }}
+              className="min-w-0 font-medium text-[var(--clay-title)] underline-offset-2 hover:underline"
+            >
               {m.display_name ?? m.email} · {m.role}
-            </span>
+            </Link>
             <button
               type="button"
               onClick={async () => {
