@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mundo Mental Care — Apresentação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --cream: #F3EEE1;
+      --title: #4A6A8A;
+      --text: #3D4A5C;
+      --cta: #99BEE5;
+      --cta-2: #C5D9F1;
+      --anxiety: #F5D6C1;
+      --stress: #F9E7B5;
+      --self: #D7CBE8;
+      --joy: #C8E6C9;
+      --surface: rgba(255, 255, 255, 0.72);
+      --surface-solid: #fff;
+      --border: rgba(74, 106, 138, 0.12);
+      --shadow: 0 10px 40px rgba(74, 106, 138, 0.08);
+      --bg-grad: radial-gradient(ellipse 80% 60% at 10% 0%, #C5D9F1 0%, transparent 55%),
+                 radial-gradient(ellipse 70% 50% at 100% 100%, #D7CBE8 0%, transparent 50%),
+                 radial-gradient(ellipse 50% 40% at 50% 50%, #C8E6C9 0%, transparent 45%),
+                 var(--cream);
+      --mermaid-bg: #ffffff;
+      --mermaid-line: #4A6A8A;
+      --mermaid-text: #3D4A5C;
+      --mermaid-node: #C5D9F1;
+      --mermaid-node2: #D7CBE8;
+      --mermaid-node3: #C8E6C9;
+      --mermaid-accent: #99BEE5;
+    }
+
+    html[data-theme="dark"] {
+      --cream: #1a2230;
+      --title: #C5D9F1;
+      --text: #d8e0ea;
+      --cta: #6fa3d4;
+      --cta-2: #3d5a7a;
+      --anxiety: #6b4a38;
+      --stress: #6b5c2e;
+      --self: #4a3d5c;
+      --joy: #355a3a;
+      --surface: rgba(28, 36, 50, 0.85);
+      --surface-solid: #243044;
+      --border: rgba(197, 217, 241, 0.14);
+      --shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+      --bg-grad: radial-gradient(ellipse 80% 60% at 10% 0%, #2a4060 0%, transparent 55%),
+                 radial-gradient(ellipse 70% 50% at 100% 100%, #3a2f4a 0%, transparent 50%),
+                 radial-gradient(ellipse 50% 40% at 50% 50%, #2a4030 0%, transparent 45%),
+                 var(--cream);
+      --mermaid-bg: #243044;
+      --mermaid-line: #C5D9F1;
+      --mermaid-text: #e8eef6;
+      --mermaid-node: #3d5a7a;
+      --mermaid-node2: #4a3d5c;
+      --mermaid-node3: #355a3a;
+      --mermaid-accent: #6fa3d4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: "Nunito Sans", system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg-grad);
+      background-attachment: fixed;
+      overflow: hidden;
+    }
+
+    .deck {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.75rem 1.25rem;
+      backdrop-filter: blur(12px);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      min-width: 0;
+    }
+
+    .brand img {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .brand span {
+      font-family: "Quicksand", system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--title);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface-solid);
+      color: var(--title);
+      border-radius: 999px;
+      padding: 0.4rem 0.85rem;
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-cta {
+      background: linear-gradient(135deg, var(--cta), var(--cta-2));
+      color: #1e3348;
+      border: none;
+    }
+
+    html[data-theme="dark"] .btn-cta { color: #eef5fb; }
+
+    .progress {
+      height: 3px;
+      background: var(--border);
+    }
+
+    .progress > i {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cta), var(--self));
+      transition: width 0.25s ease;
+    }
+
+    .stage {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1.25rem, 4vw, 3.5rem);
+      display: none;
+      overflow: auto;
+      animation: fadeIn 0.28s ease;
+    }
+
+    .slide.active { display: flex; flex-direction: column; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .eyebrow {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--title);
+      opacity: 0.65;
+      margin-bottom: 0.5rem;
+    }
+
+    h1, h2, h3 {
+      font-family: "Quicksand", system-ui, sans-serif;
+      color: var(--title);
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    h1 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700; }
+    h2 { font-size: clamp(1.45rem, 3vw, 2.2rem); font-weight: 700; margin-bottom: 0.75rem; }
+    h3 { font-size: 1.05rem; font-weight: 700; }
+
+    p, li {
+      font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+
+    .lede {
+      max-width: 42rem;
+      opacity: 0.9;
+      margin-top: 0.75rem;
+    }
+
+    .hero {
+      flex: 1;
+      display: grid;
+      place-content: center;
+      text-align: center;
+      gap: 1.25rem;
+    }
+
+    .hero-logo {
+      width: clamp(88px, 12vw, 128px);
+      height: clamp(88px, 12vw, 128px);
+      border-radius: 28px;
+      margin: 0 auto;
+      box-shadow: var(--shadow);
+      object-fit: cover;
+    }
+
+    .avatars {
+      display: flex;
+      justify-content: center;
+      gap: 0.65rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .avatars img {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: var(--shadow);
+      border: 3px solid var(--surface-solid);
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 0.75rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(153, 190, 229, 0.35), rgba(215, 203, 232, 0.4));
+      color: var(--title);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.9rem;
+      margin-top: 1rem;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1.15rem;
+      padding: 1rem 1.1rem;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      min-width: 0;
+    }
+
+    .card p { margin-top: 0.4rem; font-size: 0.92rem; opacity: 0.92; }
+
+    .card.tint-joy { background: color-mix(in srgb, var(--joy) 35%, var(--surface)); }
+    .card.tint-self { background: color-mix(in srgb, var(--self) 35%, var(--surface)); }
+    .card.tint-cta { background: color-mix(in srgb, var(--cta-2) 40%, var(--surface)); }
+    .card.tint-anxiety { background: color-mix(in srgb, var(--anxiety) 35%, var(--surface)); }
+    .card.tint-stress { background: color-mix(in srgb, var(--stress) 35%, var(--surface)); }
+
+    .list {
+      margin-top: 0.85rem;
+      padding-left: 1.15rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .split {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 1.25rem;
+      align-items: start;
+      margin-top: 0.5rem;
+      min-height: 0;
+    }
+
+    @media (max-width: 980px) {
+      .split { grid-template-columns: 1fr; }
+    }
+
+    .mermaid-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1.15rem;
+      padding: 0.85rem;
+      box-shadow: var(--shadow);
+      overflow: auto;
+      min-width: 0;
+    }
+
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      min-width: min(100%, 720px);
+    }
+
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .footer-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.7rem 1.25rem 1rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      opacity: 0.6;
+      color: var(--title);
+    }
+
+    .counter {
+      font-weight: 700;
+      color: var(--title);
+      font-size: 0.85rem;
+    }
+
+    .feature-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.65rem;
+    }
+
+    .feature-row img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 2px solid var(--surface-solid);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.85rem;
+    }
+
+    .pill {
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: var(--surface-solid);
+      border: 1px solid var(--border);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--title);
+    }
+
+    .note {
+      margin-top: 0.9rem;
+      font-size: 0.85rem;
+      opacity: 0.75;
+      max-width: 48rem;
+    }
+
+    .center-block {
+      max-width: 52rem;
+      margin: 0 auto;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <header class="topbar">
+      <div class="brand">
+        <img src="assets/logo.png" alt="Mundo Mental Care" />
+        <span>Mundo Mental Care · ZelluApp</span>
+      </div>
+      <div class="controls">
+        <button class="btn" id="themeBtn" type="button" aria-label="Alternar tema">Escuro</button>
+        <button class="btn" id="prevBtn" type="button">←</button>
+        <button class="btn btn-cta" id="nextBtn" type="button">→</button>
+      </div>
+    </header>
+    <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+
+    <main class="stage" id="stage">
+
+      <!-- 1 -->
+      <section class="slide active" data-title="Capa">
+        <div class="hero">
+          <img class="hero-logo" src="assets/logo.png" alt="Logo Mundo Mental Care" />
+          <div>
+            <p class="eyebrow">ZelluApp · Dashitecnology · primeiro cliente white-label</p>
+            <h1>Mundo Mental Care</h1>
+            <p class="lede" style="margin-inline:auto">
+              Companion digital de bem-estar emocional para o dia a dia do trabalho.
+              Criado pela <strong>Dashitecnology</strong>, no núcleo <strong>ZelluApp</strong> —
+              adaptado para a Mundo Mental como primeiro cliente white-label.
+            </p>
+            <span class="tag">Cuidado emocional no ritmo do trabalho</span>
+          </div>
+          <div class="avatars" aria-label="Avatares do companion">
+            <img src="assets/avatar/Amora.png" alt="Amora" />
+            <img src="assets/avatar/Chico.png" alt="Chico" />
+            <img src="assets/avatar/Pipoca.png" alt="Pipoca" />
+            <img src="assets/avatar/Zeca.png" alt="Zeca" />
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 -->
+      <section class="slide" data-title="Agenda">
+        <p class="eyebrow">Roteiro · 10–15 min</p>
+        <h2>O que vamos percorrer</h2>
+        <div class="grid-2">
+          <div class="card tint-cta">
+            <h3>1. Contexto</h3>
+            <p>Problema corporativo e por que o bem-estar precisa de hábito diário — não só campanhas.</p>
+          </div>
+          <div class="card tint-self">
+            <h3>2. Produto</h3>
+            <p>Como o companion, o RH e a operação se conectam em uma única plataforma.</p>
+          </div>
+          <div class="card tint-joy">
+            <h3>3. Tecnologia</h3>
+            <p>Arquitetura ZelluApp, IA com consentimento, privacidade e o núcleo licenciável.</p>
+          </div>
+          <div class="card tint-anxiety">
+            <h3>4. White-label</h3>
+            <p>Como a Dashitecnology adapta o núcleo para clientes — começando pela Mundo Mental.</p>
+          </div>
+        </div>
+        <p class="note">Sem métricas de tração nesta versão — o foco é o produto e o modelo white-label já em aplicação.</p>
+      </section>
+
+      <!-- 3 -->
+      <section class="slide" data-title="Problema">
+        <p class="eyebrow">Oportunidade</p>
+        <h2>Empresas investem em saúde mental — e o hábito some entre as sessões</h2>
+        <div class="grid-3">
+          <div class="card">
+            <h3>Baixa adesão</h3>
+            <p>Programas de wellness existem, mas o colaborador raramente mantém contato leve e frequente.</p>
+          </div>
+          <div class="card">
+            <h3>RH sem visão útil</h3>
+            <p>Falta sinal agregado (e ético) sobre tendências de equipes — sem invadir a privacidade individual.</p>
+          </div>
+          <div class="card">
+            <h3>Gap clínico × dia a dia</h3>
+            <p>Entre consultas e campanhas, o cuidado emocional não acompanha a rotina de trabalho.</p>
+          </div>
+        </div>
+        <p class="note">O produto <strong>não substitui</strong> psicólogo, psiquiatra ou terapia. É companion de bem-estar e autocuidado.</p>
+      </section>
+
+      <!-- 4 -->
+      <section class="slide" data-title="Solução">
+        <p class="eyebrow">Proposta · núcleo ZelluApp</p>
+        <h2>Uma plataforma SaaS B2B de companion emocional</h2>
+        <div class="split">
+          <div>
+            <p class="lede" style="margin-top:0">
+              O núcleo <strong>ZelluApp</strong>, da <strong>Dashitecnology</strong>, entrega companion,
+              RH e operação B2B. Nesta versão, a marca e a experiência estão adaptadas para a
+              <strong>Mundo Mental</strong> como <strong>Mundo Mental Care</strong> — nosso primeiro cliente white-label.
+            </p>
+            <ul class="list">
+              <li>Uso diário pelo colaborador (mobile e desktop)</li>
+              <li>Painel de RH só com indicadores agregados e anônimos</li>
+              <li>Portal administrativo para empresas, licenças e operação</li>
+              <li>IA na nuvem apenas com consentimento explícito</li>
+            </ul>
+            <div class="pill-row">
+              <span class="pill">ZelluApp</span>
+              <span class="pill">Dashitecnology</span>
+              <span class="pill">White-label ativo</span>
+              <span class="pill">LGPD</span>
+            </div>
+          </div>
+          <div class="card tint-cta">
+            <div class="feature-row">
+              <img src="assets/avatar/Amora.png" alt="" />
+              <div>
+                <h3>Para o colaborador</h3>
+                <p>Companion acolhedor, sem tom clínico.</p>
+              </div>
+            </div>
+            <div class="feature-row">
+              <img src="assets/avatar/Chico.png" alt="" />
+              <div>
+                <h3>Para o RH</h3>
+                <p>Tendências de equipe, nunca o diário pessoal.</p>
+              </div>
+            </div>
+            <div class="feature-row">
+              <img src="assets/avatar/Zeca.png" alt="" />
+              <div>
+                <h3>Para o cliente white-label</h3>
+                <p>Marca e experiência adaptadas — como na Mundo Mental.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 -->
+      <section class="slide" data-title="Três níveis">
+        <p class="eyebrow">Arquitetura de produto · ZelluApp</p>
+        <h2>Três níveis, um só núcleo</h2>
+        <div class="mermaid-wrap">
+          <div class="mermaid" data-diagram="levels"></div>
+        </div>
+        <p class="note">Cada nível tem telas e permissões próprias. O RH nunca acessa chat, diário ou humor identificado. No white-label Mundo Mental Care, a operação segue este mesmo desenho.</p>
+      </section>
+
+      <!-- 6 -->
+      <section class="slide" data-title="Jornada">
+        <p class="eyebrow">Experiência do colaborador</p>
+        <h2>Do check-in ao cuidado — em minutos</h2>
+        <div class="mermaid-wrap">
+          <div class="mermaid" data-diagram="journey"></div>
+        </div>
+        <div class="grid-4" style="margin-top:1rem">
+          <div class="card tint-cta"><h3>Check-in</h3><p>Registro matinal rápido.</p></div>
+          <div class="card tint-self"><h3>Chat</h3><p>Companion com contexto.</p></div>
+          <div class="card tint-joy"><h3>Respiro</h3><p>Exercício guiado.</p></div>
+          <div class="card tint-stress"><h3>Diário</h3><p>Espaço privado.</p></div>
+        </div>
+      </section>
+
+      <!-- 7 -->
+      <section class="slide" data-title="Companion">
+        <p class="eyebrow">Módulo colaborador</p>
+        <h2>O que o companion entrega no dia a dia</h2>
+        <div class="grid-3">
+          <div class="card">
+            <div class="feature-row">
+              <img src="assets/avatar/Pipoca.png" alt="" />
+              <h3>Conversa</h3>
+            </div>
+            <p>Apoio emocional cotidiano, tom maduro e não clínico. Sugestões práticas (respirar, água, pausa).</p>
+          </div>
+          <div class="card">
+            <div class="feature-row">
+              <img src="assets/avatar/Amora.png" alt="" />
+              <h3>Contexto</h3>
+            </div>
+            <p>Usa check-ins, hábitos, plano e memórias curadas — sem inventar dados e sem texto do diário na IA.</p>
+          </div>
+          <div class="card">
+            <div class="feature-row">
+              <img src="assets/avatar/Chico.png" alt="" />
+              <h3>Prevenção</h3>
+            </div>
+            <p>Alertas de tendência para o próprio usuário; camada de crise com orientação a ajuda humana (CVV 188).</p>
+          </div>
+        </div>
+        <div class="pill-row">
+          <span class="pill">Check-in</span>
+          <span class="pill">Chat</span>
+          <span class="pill">Diário</span>
+          <span class="pill">Hábitos</span>
+          <span class="pill">Plano de cuidado</span>
+          <span class="pill">Respiro</span>
+          <span class="pill">Dashboard</span>
+          <span class="pill">Insights</span>
+        </div>
+      </section>
+
+      <!-- 8 -->
+      <section class="slide" data-title="IA e memória">
+        <p class="eyebrow">Inteligência</p>
+        <h2>IA sob consentimento — com fallback local</h2>
+        <div class="split">
+          <div class="mermaid-wrap">
+            <div class="mermaid" data-diagram="ai-flow"></div>
+          </div>
+          <div>
+            <div class="card tint-cta">
+              <h3>O que a IA recebe</h3>
+              <p>Texto do chat + contexto de bem-estar (humor, sono, água, hábitos, plano) — sem nome, e-mail ou diário.</p>
+            </div>
+            <div class="card tint-self" style="margin-top:0.75rem">
+              <h3>Memória curada</h3>
+              <p>Resumos curtos do que ajuda a pessoa — retenção limitada, sem vigilância e sem conteúdo de crise.</p>
+            </div>
+            <div class="card tint-anxiety" style="margin-top:0.75rem">
+              <h3>Opt-in no Perfil</h3>
+              <p>IA na nuvem, indicadores no RH e e-mail de lembrete — três booleans independentes.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9 -->
+      <section class="slide" data-title="RH">
+        <p class="eyebrow">Módulo RH</p>
+        <h2>Visibilidade ética para a empresa</h2>
+        <div class="grid-2">
+          <div class="card tint-cta">
+            <h3>O RH vê</h3>
+            <ul class="list">
+              <li>Indicadores agregados por equipe</li>
+              <li>Adesão e tendências (com mínimo de pessoas)</li>
+              <li>Alertas de tendência — nunca individuais</li>
+            </ul>
+          </div>
+          <div class="card tint-anxiety">
+            <h3>O RH nunca vê</h3>
+            <ul class="list">
+              <li>Texto do diário</li>
+              <li>Mensagens do chat</li>
+              <li>Humor, sono ou água identificados</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mermaid-wrap" style="margin-top:1rem">
+          <div class="mermaid" data-diagram="rh-agg"></div>
+        </div>
+        <p class="note">Regra de k-anonimato: com menos de 5 pessoas opt-in, métricas sensíveis ficam ocultas.</p>
+      </section>
+
+      <!-- 10 -->
+      <section class="slide" data-title="Licenciamento">
+        <p class="eyebrow">Dashitecnology · ZelluApp</p>
+        <h2>Núcleo licenciável — com white-label já em produção</h2>
+        <div class="split">
+          <div>
+            <ul class="list">
+              <li><strong>Produto companion</strong> — web app mobile/desktop</li>
+              <li><strong>Painel RH</strong> — agregados e governança de equipes</li>
+              <li><strong>Portal Admin</strong> — empresas, licenças, convites, métricas de uso</li>
+              <li><strong>Camada de IA</strong> — proxy, consentimento, memória, crise</li>
+              <li><strong>Base LGPD</strong> — opt-ins, export, exclusão, retenção</li>
+            </ul>
+            <p class="note">
+              A tecnologia é da <strong>Dashitecnology</strong> (núcleo <strong>ZelluApp</strong>).
+              O <strong>Mundo Mental Care</strong> é a adaptação white-label para a Mundo Mental —
+              nosso <strong>primeiro cliente</strong> neste modelo.
+            </p>
+          </div>
+          <div class="mermaid-wrap">
+            <div class="mermaid" data-diagram="license"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11 -->
+      <section class="slide" data-title="Diferenciais">
+        <p class="eyebrow">Por que esta base</p>
+        <h2>Diferenciais do núcleo ZelluApp</h2>
+        <div class="grid-3">
+          <div class="card tint-cta">
+            <h3>Produto fechado</h3>
+            <p>Jornada completa do colaborador + RH + admin — não é só um chatbot.</p>
+          </div>
+          <div class="card tint-self">
+            <h3>Privacidade de verdade</h3>
+            <p>Opt-ins, RLS, agregação com k-anonimato e diário fora do prompt da IA.</p>
+          </div>
+          <div class="card tint-joy">
+            <h3>Operação B2B</h3>
+            <p>Multi-empresa, licenças, convites e papéis (companion, manager, admin, dev).</p>
+          </div>
+          <div class="card tint-stress">
+            <h3>Tom cuidadoso</h3>
+            <p>Companion de bem-estar — limites claros, sem fingir ser terapia.</p>
+          </div>
+          <div class="card tint-anxiety">
+            <h3>IA responsável</h3>
+            <p>Cloud só com opt-in; fallback local; crise com prioridade no servidor.</p>
+          </div>
+          <div class="card">
+            <h3>White-label comprovado</h3>
+            <p>Já adaptado para a Mundo Mental como Mundo Mental Care — primeiro cliente.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 12 -->
+      <section class="slide" data-title="LGPD">
+        <p class="eyebrow">Confiança</p>
+        <h2>Privacidade como parte do produto</h2>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Controles do titular</h3>
+            <ul class="list">
+              <li>Consentimento essencial + maioridade</li>
+              <li>Opt-in IA / RH / e-mail</li>
+              <li>Exportar dados e excluir conta</li>
+              <li>Revogar consentimento a qualquer momento</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Retenção e minimização</h3>
+            <ul class="list">
+              <li>Chat e diário com prazo de retenção</li>
+              <li>Memórias curadas com limite e limpeza</li>
+              <li>Logs sem dado de saúde desnecessário</li>
+              <li>IA sem treino / retenção zero no provedor (quando opt-in)</li>
+            </ul>
+          </div>
+        </div>
+        <p class="note">Para quem licencia o núcleo ZelluApp: compliance e confiança já embutidos — essencial em saúde mental corporativa.</p>
+      </section>
+
+      <!-- 13 -->
+      <section class="slide" data-title="Fechamento">
+        <div class="hero">
+          <img class="hero-logo" src="assets/logo.png" alt="" />
+          <div>
+            <p class="eyebrow">Dashitecnology · ZelluApp</p>
+            <h1>Núcleo pronto — white-label em andamento</h1>
+            <p class="lede" style="margin-inline:auto">
+              Tecnologia da Dashitecnology, núcleo ZelluApp, adaptada para a Mundo Mental
+              como Mundo Mental Care — primeiro cliente white-label.
+            </p>
+            <span class="tag">Vamos alinhar o modelo de licenciamento juntos</span>
+          </div>
+          <div class="avatars">
+            <img src="assets/avatar/Amora.png" alt="" />
+            <img src="assets/avatar/Chico.png" alt="" />
+            <img src="assets/avatar/Pipoca.png" alt="" />
+            <img src="assets/avatar/Zeca.png" alt="" />
+          </div>
+          <p class="hint">← → ou setas do teclado · F tela cheia · T tema</p>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="footer-nav">
+      <span class="hint">Setas · clique nos botões · T = tema · F = tela cheia</span>
+      <span class="counter" id="counter">1 / 13</span>
+    </footer>
+  </div>
+
+  <script>
+    const DIAGRAMS = {
+      levels: `flowchart TB
+  subgraph partner [Operador do white-label]
+    ADM["Portal Admin<br/>empresas, licenças, uso"]
+  end
+  subgraph company [Empresa cliente final]
+    RH["Painel RH<br/>agregados e equipes"]
+    COL["Companion<br/>colaborador"]
+  end
+  ADM -->|configura acesso| RH
+  ADM -->|emite convites| COL
+  RH -.->|indicadores anônimos| COL`,
+
+      journey: `flowchart LR
+  A["Check-in<br/>sono, água, humor"] --> B["Companion<br/>conversa contextual"]
+  B --> C["Ação leve<br/>respiro, pausa"]
+  C --> D["Hábitos e<br/>plano de cuidado"]
+  D --> E["Dashboard<br/>emocional"]`,
+
+      "ai-flow": `flowchart TB
+  U["Mensagem<br/>do usuário"] --> S{"Opt-in IA<br/>ativo?"}
+  S -->|sim| L["LLM via<br/>OpenRouter"]
+  S -->|nao| F["Fallback<br/>local"]
+  L --> R["Resposta e<br/>memória curada"]
+  F --> R2["Resposta<br/>contextual"]
+  U --> CR{"Risco<br/>imediato?"}
+  CR -->|sim| X["Resposta de<br/>crise CVV"]`,
+
+      "rh-agg": `flowchart LR
+  COL["Colaboradores<br/>com opt-in RH"] --> AGG["Agregação<br/>mínimo 5 pessoas"]
+  AGG --> DASH["Dashboard RH<br/>equipes e tendências"]`,
+
+      license: `flowchart TB
+  DASHI[Dashitecnology] --> ZELLU[Núcleo ZelluApp]
+  ZELLU --> WL[White-label]
+  WL --> MMC[Mundo Mental Care]
+  MMC --> MM[Cliente Mundo Mental]
+  MM --> EMP[Empresas usuárias]
+  EMP --> USER[Colaboradores]`,
+    };
+
+    const root = document.documentElement;
+    const slides = [...document.querySelectorAll(".slide")];
+    const progressBar = document.getElementById("progressBar");
+    const counter = document.getElementById("counter");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const themeBtn = document.getElementById("themeBtn");
+    let index = 0;
+    let renderSeq = 0;
+
+    function mermaidTheme() {
+      const dark = root.getAttribute("data-theme") === "dark";
+      return {
+        startOnLoad: false,
+        securityLevel: "loose",
+        theme: "base",
+        themeVariables: {
+          background: dark ? "#243044" : "#ffffff",
+          primaryColor: dark ? "#3d5a7a" : "#C5D9F1",
+          primaryTextColor: dark ? "#e8eef6" : "#3D4A5C",
+          primaryBorderColor: dark ? "#C5D9F1" : "#4A6A8A",
+          secondaryColor: dark ? "#4a3d5c" : "#D7CBE8",
+          tertiaryColor: dark ? "#355a3a" : "#C8E6C9",
+          lineColor: dark ? "#C5D9F1" : "#4A6A8A",
+          textColor: dark ? "#e8eef6" : "#3D4A5C",
+          fontFamily: "Nunito Sans, system-ui, sans-serif",
+          fontSize: "15px",
+          nodeTextColor: dark ? "#e8eef6" : "#3D4A5C",
+        },
+        flowchart: {
+          htmlLabels: true,
+          curve: "basis",
+          padding: 18,
+          nodeSpacing: 40,
+          rankSpacing: 50,
+        },
+      };
+    }
+
+    async function renderMermaidIn(slide) {
+      const nodes = [...slide.querySelectorAll(".mermaid[data-diagram]")];
+      if (!nodes.length) return;
+
+      const seq = ++renderSeq;
+      mermaid.initialize(mermaidTheme());
+
+      for (const el of nodes) {
+        const key = el.getAttribute("data-diagram");
+        const source = DIAGRAMS[key];
+        if (!source) continue;
+
+        el.removeAttribute("data-processed");
+        el.textContent = "";
+
+        try {
+          const id = `mmd-${key}-${seq}-${Math.random().toString(36).slice(2, 8)}`;
+          const { svg } = await mermaid.render(id, source);
+          if (seq !== renderSeq) return;
+          el.innerHTML = svg;
+        } catch (err) {
+          console.error("Mermaid error:", key, err);
+          el.innerHTML = `<p style="color:#b00020;font-size:0.85rem;padding:0.5rem">Erro no diagrama: ${key}</p>`;
+        }
+      }
+    }
+
+    async function show(i) {
+      index = Math.max(0, Math.min(slides.length - 1, i));
+      slides.forEach((s, n) => s.classList.toggle("active", n === index));
+      progressBar.style.width = ((index + 1) / slides.length) * 100 + "%";
+      counter.textContent = `${index + 1} / ${slides.length}`;
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === slides.length - 1;
+      location.hash = String(index + 1);
+      await renderMermaidIn(slides[index]);
+    }
+
+    function applyTheme(theme) {
+      root.setAttribute("data-theme", theme);
+      themeBtn.textContent = theme === "dark" ? "Claro" : "Escuro";
+      localStorage.setItem("mmc-deck-theme", theme);
+    }
+
+    themeBtn.addEventListener("click", async () => {
+      const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      applyTheme(next);
+      await renderMermaidIn(slides[index]);
+    });
+
+    prevBtn.addEventListener("click", () => show(index - 1));
+    nextBtn.addEventListener("click", () => show(index + 1));
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") {
+        e.preventDefault();
+        show(index + 1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault();
+        show(index - 1);
+      } else if (e.key === "t" || e.key === "T") {
+        themeBtn.click();
+      } else if (e.key === "f" || e.key === "F") {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+        else document.exitFullscreen?.();
+      } else if (e.key === "Home") {
+        show(0);
+      } else if (e.key === "End") {
+        show(slides.length - 1);
+      }
+    });
+
+    const saved = localStorage.getItem("mmc-deck-theme");
+    applyTheme(saved === "dark" ? "dark" : "light");
+
+    const fromHash = parseInt(location.hash.replace("#", ""), 10);
+    const start = Number.isFinite(fromHash) ? fromHash - 1 : 0;
+    show(start);
+  </script>
+</body>
+</html>
