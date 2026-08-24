@@ -17,6 +17,7 @@ describe("manager team roster", () => {
         team_id: null,
         is_active: true,
         job_title: "Analista",
+        avatar_url: "Amora",
       }),
     ).toEqual([]);
 
@@ -41,8 +42,7 @@ describe("manager team roster", () => {
     expect(api).toMatch(/assign_team_member/);
     expect(api).toMatch(/renameManagerTeam/);
 
-    const page = readFileSync(join(root, "src/routes/manager/equipes.tsx"), "utf8");
-    expect(page).toMatch(/Ver detalhes da equipe/);
-    expect(page).toMatch(/equipe\/\$teamId/);
+    const page = readFileSync(join(root, "src/routes/manager/equipe/$teamId.tsx"), "utf8");
+    expect(page).toMatch(/Avatar name=\{m\.avatar_url/);
   });
 });

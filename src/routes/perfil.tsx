@@ -27,9 +27,13 @@ function PerfilPage() {
   const session = useAuth().session;
 
   const [displayName, setDisplayName] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [nameSuccess, setNameSuccess] = useState("");
+  const [editingJobTitle, setEditingJobTitle] = useState(false);
+  const [editJobTitle, setEditJobTitle] = useState("");
+  const [jobTitleSuccess, setJobTitleSuccess] = useState("");
 
   const [avatarName, setAvatarName] = useState("");
   const [editingAvatar, setEditingAvatar] = useState(false);
@@ -56,8 +60,10 @@ function PerfilPage() {
         const p = profile as {
           display_name: string;
           avatar_url?: string;
+          job_title?: string | null;
         };
         setDisplayName(p.display_name);
+        setJobTitle(p.job_title?.trim() ?? "");
         if (p.avatar_url) setAvatarName(p.avatar_url);
       } else {
         setDisplayName(user?.email?.split("@")[0] ?? "Usuário");
@@ -104,6 +110,19 @@ function PerfilPage() {
       setEditing(false);
       setNameSuccess("Nome atualizado");
       setTimeout(() => setNameSuccess(""), 2000);
+    }
+  };
+
+  const handleSaveJobTitle = async () => {
+    setJobTitleSuccess("");
+    if (!session) return;
+    const next = editJobTitle.trim();
+    const { error } = await updateProfile({ data: { jobTitle: next } });
+    if (!error) {
+      setJobTitle(next);
+      setEditingJobTitle(false);
+      setJobTitleSuccess("Cargo atualizado");
+      setTimeout(() => setJobTitleSuccess(""), 2000);
     }
   };
 
@@ -155,10 +174,14 @@ function PerfilPage() {
     user,
     role,
     displayName,
+    jobTitle,
     avatarName,
     editing,
     editName,
     nameSuccess,
+    editingJobTitle,
+    editJobTitle,
+    jobTitleSuccess,
     editingEmail,
     newEmail,
     emailError,
@@ -179,6 +202,16 @@ function PerfilPage() {
     onCancelName: () => {
       setEditing(false);
       setNameSuccess("");
+    },
+    onEditJobTitle: () => {
+      setEditJobTitle(jobTitle);
+      setEditingJobTitle(true);
+    },
+    onSetEditJobTitle: setEditJobTitle,
+    onSaveJobTitle: handleSaveJobTitle,
+    onCancelJobTitle: () => {
+      setEditingJobTitle(false);
+      setJobTitleSuccess("");
     },
     onSetAvatarName: async (name: string) => {
       setAvatarName(name);

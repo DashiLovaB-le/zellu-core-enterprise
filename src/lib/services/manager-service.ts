@@ -7,6 +7,7 @@ import {
   assignManagerTeamMember,
   getRhMemberSummary,
   listRhMemberSignals,
+  setManagerJobTitle,
 } from "@/lib/api/manager.server";
 import type { DashboardData, ManagerTeamRoster } from "@/lib/api/manager.server";
 import type { RhMemberSignalRow, RhMemberSummary } from "@/lib/rh-member-summary";
@@ -77,4 +78,8 @@ export async function loadMemberSignals(teamId?: string | null): Promise<RhMembe
   } catch {
     return [];
   }
+}
+
+export async function saveMemberJobTitle(profileId: string, jobTitle: string) {
+  return setManagerJobTitle({ data: { profileId, jobTitle } });
 }

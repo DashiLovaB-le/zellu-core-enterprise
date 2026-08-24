@@ -99,6 +99,7 @@ export const updateProfile = createServerFn({ method: "POST" })
       displayName: z.string().min(1).max(100).optional(),
       avatarUrl: z.string().max(500).optional(),
       timezone: z.string().min(1).max(80).optional(),
+      jobTitle: z.string().max(100).optional(),
     }),
   )
   .handler(async ({ data }) => {
@@ -109,6 +110,10 @@ export const updateProfile = createServerFn({ method: "POST" })
     if (data.displayName !== undefined) payload.display_name = data.displayName;
     if (data.avatarUrl !== undefined) payload.avatar_url = data.avatarUrl;
     if (data.timezone !== undefined) payload.timezone = data.timezone;
+    if (data.jobTitle !== undefined) {
+      const trimmed = data.jobTitle.trim();
+      payload.job_title = trimmed.length > 0 ? trimmed : null;
+    }
 
     const { error } = await auth.supabase.from("profiles").update(payload).eq("id", auth.userId);
 

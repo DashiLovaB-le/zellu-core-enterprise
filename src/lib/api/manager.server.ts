@@ -89,6 +89,7 @@ export type RhDashboardData = {
   trends: RhTrendPoint[];
   alerts: RhAlert[];
   moodDistribution: Record<string, number>;
+  moodDistribution7d: Record<string, number>;
 };
 
 function trendFromNegativePct(pct: number): string {
@@ -217,6 +218,7 @@ export function buildRhDashboard(input: {
     trends: companyAllowed ? trends : [],
     alerts: companyAllowed ? hideAlertsForSmallTeams(alerts, teams) : [],
     moodDistribution: companyAllowed ? moodDist : {},
+    moodDistribution7d: {},
   };
 }
 
@@ -307,6 +309,7 @@ function dashboardFromRpc(parsed: z.infer<typeof rhRpcSchema>): RhDashboardData 
     trends: companyAllowed ? parsed.trends : [],
     alerts,
     moodDistribution: companyAllowed ? parsed.moodDistribution : {},
+    moodDistribution7d: {},
   };
 }
 
@@ -433,20 +436,35 @@ export const exportCsv = createServerFn({ method: "POST" })
 export const getRhDashboard = createServerFn({ method: "POST" })
 
   .handler(async () => {
-    const scope = await fetchManagerRhDashboard( 30);
-    if ("error" in scope) return scope;
+    const [scope30, scope7] = await Promise.all([
+      fetchManagerRhDashboard(30),
+      fetchManagerRhDashboard(7),
+    ]);
+    if ("error" in scope30) return scope30;
 
-    const dashboard = scope.dashboard;
+    const dashboard: RhDashboardData = {
+      ...scope30.dashboard,
+      moodDistribution7d:
+        "error" in scope7 ? {} : scope7.dashboard.moodDistribution,
+    };
 
     void logEvent(
       "info",
       "manager.getRhDashboard",
       "Dashboard RH lido",
-      { company_id: scope.companyId },
-      scope.userId,
+      { company_id: scope30.companyId },
+      scope30.userId,
     );
 
-    return { data: dashboard as RhDashboardData, error: null };
+    return { data: dashboard, error: null };
+  });
+
+export const getRhMoodDistribution = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ periodDays: z.number().int().min(1).max(365) }))
+  .handler(async ({ data }) => {
+    const scope = await fetchManagerRhDashboard(data.periodDays);
+    if ("error" in scope) return { data: {} as Record<string, number>, error: scope.error };
+    return { data: scope.dashboard.moodDistribution, error: null };
   });
 
 export const listManagerTeams = createServerFn({ method: "POST" })
@@ -467,6 +485,7 @@ export type ManagerDirectoryMember = {
   company_id: string | null;
   job_title: string | null;
   created_at: string | null;
+  avatar_url: string | null;
 };
 
 export type ManagerTeamRecord = {
@@ -499,6 +518,7 @@ function mapDirectoryRow(row: Record<string, unknown>): ManagerDirectoryMember {
     company_id: typeof row.company_id === "string" ? row.company_id : null,
     job_title: typeof row.job_title === "string" ? row.job_title : null,
     created_at: typeof row.created_at === "string" ? row.created_at : null,
+    avatar_url: typeof row.avatar_url === "string" ? row.avatar_url : null,
   };
 }
 
@@ -695,4 +715,32 @@ export const listRhMemberSignals = createServerFn({ method: "POST" })
       wellness: parseWellness(item.wellness),
     }));
     return { data: rows, error: null };
+  });
+
+export const setManagerJobTitle = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      profileId: z.string().uuid(),
+      jobTitle: z.string().max(100),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const auth = await requireManager();
+    if ("error" in auth) return { error: auth.error };
+    if (!auth.companyId) return { error: "Unauthorized — sem empresa" };
+
+    const { error } = await auth.supabase.rpc("set_employee_job_title", {
+      p_profile_id: data.profileId,
+      p_job_title: data.jobTitle,
+    });
+    if (error) return { error: error.message };
+
+    void logEvent(
+      "info",
+      "manager.setManagerJobTitle",
+      "Cargo atualizado pelo RH",
+      { company_id: auth.companyId },
+      auth.userId,
+    );
+    return { error: null };
   });

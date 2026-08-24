@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { ManagerShell } from "@/components/ManagerShell";
 import { Icon } from "@/components/Icon";
+import { Avatar } from "@/components/Avatar";
 import { TeamEditorModal } from "@/components/manager/TeamEditorModal";
 import { WellnessStatusBadge } from "@/components/manager/WellnessStatusBadge";
 import { useAuth } from "@/lib/auth-context";
@@ -174,11 +175,16 @@ function ManagerEquipeDetalhe() {
                 params={{ profileId: m.id }}
                 className="flex items-center justify-between gap-3 rounded-xl bg-white/70 p-3 shadow-sm active:translate-y-px"
               >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-[var(--clay-title)]">
-                    {m.display_name || "Sem nome"}
-                  </p>
-                  <p className="truncate text-[11px] text-[var(--clay-text)]/60">{m.job_title || m.role}</p>
+                <div className="flex min-w-0 items-center gap-3">
+                  <Avatar name={m.avatar_url ?? undefined} size={40} className="shrink-0" />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-[var(--clay-title)]">
+                      {m.display_name || "Sem nome"}
+                    </p>
+                    {m.job_title ? (
+                      <p className="truncate text-[11px] text-[var(--clay-text)]/60">{m.job_title}</p>
+                    ) : null}
+                  </div>
                 </div>
                 <WellnessStatusBadge
                   status={wellness?.status ?? "unknown"}

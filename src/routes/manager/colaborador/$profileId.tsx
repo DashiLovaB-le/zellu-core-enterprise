@@ -5,7 +5,7 @@ import { WellnessStatusBadge } from "@/components/manager/WellnessStatusBadge";
 import { useAuth } from "@/lib/auth-context";
 import { BRANDING } from "@/lib/branding";
 import { useEffect, useState } from "react";
-import { loadMemberSummary } from "@/lib/services/manager-service";
+import { loadMemberSummary, saveMemberJobTitle } from "@/lib/services/manager-service";
 import type { RhMemberSummary } from "@/lib/rh-member-summary";
 import {
   participationLabelPt,
@@ -27,6 +27,10 @@ function ManagerColaboradorPage() {
   const navigate = useNavigate();
   const [summary, setSummary] = useState<RhMemberSummary | null>(null);
   const [ready, setReady] = useState(false);
+  const [editingJob, setEditingJob] = useState(false);
+  const [jobDraft, setJobDraft] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -39,14 +43,32 @@ function ManagerColaboradorPage() {
     }
   }, [user, loading, role, navigate]);
 
+  const refresh = async () => {
+    const data = await loadMemberSummary(profileId);
+    setSummary(data);
+    setReady(true);
+  };
+
   useEffect(() => {
     if (!session) return;
-    (async () => {
-      const data = await loadMemberSummary(profileId);
-      setSummary(data);
-      setReady(true);
-    })();
+    void refresh();
   }, [session, profileId]);
+
+  const handleSaveJob = async () => {
+    if (!summary) return;
+    setBusy(true);
+    setMessage(null);
+    const result = await saveMemberJobTitle(profileId, jobDraft);
+    setBusy(false);
+    if (result.error) {
+      setMessage({ type: "err", text: result.error });
+      return;
+    }
+    setEditingJob(false);
+    setMessage({ type: "ok", text: "Cargo atualizado" });
+    window.setTimeout(() => setMessage(null), 2500);
+    await refresh();
+  };
 
   if (loading || !user || (role !== "manager" && role !== "dev")) {
     return (
@@ -83,6 +105,16 @@ function ManagerColaboradorPage() {
         <p className="text-sm text-[var(--clay-text)]">Não foi possível carregar este colaborador.</p>
       )}
 
+      {message && (
+        <div
+          className={`mb-3 rounded-xl px-3 py-2 text-xs ${
+            message.type === "ok" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
+
       {summary && (
         <>
           <div className="flex items-start justify-between gap-3">
@@ -106,7 +138,55 @@ function ManagerColaboradorPage() {
             </h2>
             <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Field label="E-mail" value={summary.email || "—"} />
-              <Field label="Cargo" value={summary.jobTitle || "—"} />
+              <div>
+                <dt className="text-[10px] uppercase tracking-wide text-[var(--clay-text)]/45">Cargo</dt>
+                {editingJob ? (
+                  <div className="mt-1 space-y-2">
+                    <input
+                      value={jobDraft}
+                      onChange={(e) => setJobDraft(e.target.value)}
+                      maxLength={100}
+                      placeholder="Ex.: Analista de RH"
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#99BEE5]"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void handleSaveJob()}
+                        className="rounded-lg bg-[var(--clay-cta)] px-3 py-1 text-xs font-bold text-white disabled:opacity-40"
+                      >
+                        Salvar
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => setEditingJob(false)}
+                        className="rounded-lg bg-white/70 px-3 py-1 text-xs text-[var(--clay-title)]/60"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <dd className="mt-0.5 flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium text-[var(--clay-title)]">
+                      {summary.jobTitle || "—"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setJobDraft(summary.jobTitle ?? "");
+                        setEditingJob(true);
+                      }}
+                      className="rounded-lg p-1 text-[var(--clay-title)]/50 hover:bg-white/80"
+                      aria-label="Editar cargo"
+                    >
+                      <Icon name="edit" className="text-sm" />
+                    </button>
+                  </dd>
+                )}
+              </div>
               <Field label="Situação" value={summary.isActive ? "Ativo" : "Inativo"} />
               <Field
                 label="Na plataforma desde"

@@ -142,3 +142,16 @@ export function buildWeeklyMoodBars(distribution: Record<string, number>): Weekl
     fill: MAIN_MOOD_COLORS[m] ?? "#C5D9F1",
   }));
 }
+
+export type MoodPieSlice = WeeklyMoodBar & { percent: number };
+
+export function buildMoodPieSlices(distribution: Record<string, number>): MoodPieSlice[] {
+  const bars = buildWeeklyMoodBars(distribution);
+  const total = bars.reduce((sum, row) => sum + row.count, 0);
+  return bars
+    .filter((row) => row.count > 0)
+    .map((row) => ({
+      ...row,
+      percent: total > 0 ? Math.round((row.count / total) * 100) : 0,
+    }));
+}

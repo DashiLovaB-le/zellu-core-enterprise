@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { applyKAnonymity, applyProfileUpdateGuard, assertNoPrivateFields, companyMetricsAllowed, scopeByCompanyId } from "@/lib/tenant";
 import { detectCrisisLanguage, buildCrisisReply } from "@/lib/crisis";
 import { selectTrustedChatHistory, selectTrustedChatContext } from "@/lib/chat-guard";
-import { getMoodScore, isNegativeMood, toMainMood, buildWeeklyMoodBars } from "@/data/moods";
+import { getMoodScore, isNegativeMood, toMainMood, buildWeeklyMoodBars, buildMoodPieSlices } from "@/data/moods";
 import { hasValidPrivacyConsent, sanitizeLogDetails, sanitizeLogMessage } from "@/lib/lgpd";
 import { PRIVACY_CONSENT_VERSION, CLINICAL_DISCLAIMER, PRIVACY_AI_PROCESSING } from "@/lib/privacy";
 
@@ -114,6 +114,13 @@ describe("crise e humor", () => {
     expect(bars.find((b) => b.key === "calmo")?.count).toBe(1);
     expect(bars.find((b) => b.key === "ansioso")?.count).toBe(1);
     expect(bars).toHaveLength(6);
+  });
+
+  it("pizza de humor omite fatias zeradas e calcula percentual", () => {
+    const slices = buildMoodPieSlices({ feliz: 3, calmo: 1, neutro: 0 });
+    expect(slices.map((s) => s.key)).toEqual(["feliz", "calmo"]);
+    expect(slices.find((s) => s.key === "feliz")?.percent).toBe(75);
+    expect(slices.find((s) => s.key === "calmo")?.percent).toBe(25);
   });
 });
 

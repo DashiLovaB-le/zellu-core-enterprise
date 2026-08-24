@@ -9,10 +9,14 @@ interface PerfilPageProps {
   user: { email?: string | null } | null;
   role: string | null;
   displayName: string;
+  jobTitle: string;
   avatarName: string;
   editing: boolean;
   editName: string;
   nameSuccess: string;
+  editingJobTitle: boolean;
+  editJobTitle: string;
+  jobTitleSuccess: string;
   editingEmail: boolean;
   newEmail: string;
   emailError: string;
@@ -29,6 +33,10 @@ interface PerfilPageProps {
   onSetEditName: (val: string) => void;
   onSaveName: () => void;
   onCancelName: () => void;
+  onEditJobTitle: () => void;
+  onSetEditJobTitle: (val: string) => void;
+  onSaveJobTitle: () => void;
+  onCancelJobTitle: () => void;
   onSetAvatarName: (name: string) => void;
   onEditAvatar: () => void;
   onCancelAvatar: () => void;
@@ -52,10 +60,14 @@ export function MobilePerfilPage({
   user,
   role,
   displayName,
+  jobTitle,
   avatarName,
   editing,
   editName,
   nameSuccess,
+  editingJobTitle,
+  editJobTitle,
+  jobTitleSuccess,
   editingEmail,
   newEmail,
   emailError,
@@ -72,6 +84,10 @@ export function MobilePerfilPage({
   onSetEditName,
   onSaveName,
   onCancelName,
+  onEditJobTitle,
+  onSetEditJobTitle,
+  onSaveJobTitle,
+  onCancelJobTitle,
   onSetAvatarName,
   onEditAvatar,
   onCancelAvatar,
@@ -160,6 +176,55 @@ export function MobilePerfilPage({
             <span className="flex items-center gap-2 text-sm text-[var(--clay-text)]">
               <Icon name="badge" className="text-sm" />
               {displayName}
+            </span>
+            <Icon name="edit" className="text-sm text-[var(--clay-title)]/50" />
+          </button>
+        )}
+      </section>
+
+      <section className="mb-5 rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">
+        <h3 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
+          Cargo
+        </h3>
+        {editingJobTitle ? (
+          <div className="space-y-2">
+            <input
+              type="text"
+              value={editJobTitle}
+              onChange={(e) => onSetEditJobTitle(e.target.value)}
+              placeholder="Ex.: Analista de RH"
+              maxLength={100}
+              className="w-full rounded-xl bg-white/70 px-3 py-2 text-sm text-[var(--clay-text)] outline-none shadow-sm placeholder:text-[var(--clay-title)]/40"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") onSaveJobTitle();
+                if (e.key === "Escape") onCancelJobTitle();
+              }}
+            />
+            {jobTitleSuccess && <p className="text-xs text-green-600">{jobTitleSuccess}</p>}
+            <div className="flex gap-2">
+              <button
+                onClick={onSaveJobTitle}
+                className="rounded-lg bg-[var(--clay-cta)] px-3 py-1 text-xs font-bold text-white shadow-sm"
+              >
+                Salvar
+              </button>
+              <button
+                onClick={onCancelJobTitle}
+                className="rounded-lg bg-white/50 px-3 py-1 text-xs text-[var(--clay-title)]/50 shadow-sm"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={onEditJobTitle}
+            className="flex w-full items-center justify-between rounded-xl bg-white/50 p-3 shadow-sm active:translate-y-px"
+          >
+            <span className="flex items-center gap-2 text-sm text-[var(--clay-text)]">
+              <Icon name="work" className="text-sm" />
+              {jobTitle || "Adicionar cargo"}
             </span>
             <Icon name="edit" className="text-sm text-[var(--clay-title)]/50" />
           </button>

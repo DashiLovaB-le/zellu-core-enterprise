@@ -1,4 +1,4 @@
-import { getRhDashboard } from "@/lib/api/manager.server";
+import { getRhDashboard, getRhMoodDistribution } from "@/lib/api/manager.server";
 import type { RhDashboardData } from "@/lib/api/manager.server";
 
 export async function loadRhDashboard(): Promise<RhDashboardData | null> {
@@ -9,4 +9,16 @@ export async function loadRhDashboard(): Promise<RhDashboardData | null> {
     // fallback
   }
   return null;
+}
+
+export async function loadRhMoodDistribution(
+  periodDays: number,
+): Promise<Record<string, number>> {
+  try {
+    const result = await getRhMoodDistribution({ data: { periodDays } });
+    if (result.error || !result.data) return {};
+    return result.data;
+  } catch {
+    return {};
+  }
 }

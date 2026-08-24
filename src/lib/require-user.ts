@@ -9,6 +9,7 @@ export type ProfileRow = {
   team_id: string | null;
   display_name: string | null;
   timezone: string | null;
+  job_title?: string | null;
   privacy_consent_at: string | null;
   privacy_consent_version: string | null;
   onboarding_completed_at: string | null;

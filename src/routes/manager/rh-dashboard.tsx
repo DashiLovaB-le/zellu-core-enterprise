@@ -4,11 +4,9 @@ import { Icon } from "@/components/Icon";
 import { useAuth } from "@/lib/auth-context";
 import { BRANDING } from "@/lib/branding";
 import { useState, useEffect } from "react";
-import { loadRhDashboard } from "@/lib/services/rh-dashboard-service";
+import { loadRhDashboard, loadRhMoodDistribution } from "@/lib/services/rh-dashboard-service";
 import type { RhDashboardData, RhAlert } from "@/lib/api/manager.server";
 import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   Tooltip,
@@ -17,6 +15,7 @@ import {
   Line,
   CartesianGrid,
 } from "recharts";
+import { RhMoodDistributionPies } from "@/components/RhMoodDistributionPies";
 
 export const Route = createFileRoute("/manager/rh-dashboard")({
   head: () => ({
@@ -33,6 +32,9 @@ function RhDashboard() {
   const navigate = useNavigate();
   const [data, setData] = useState<RhDashboardData | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [moodPeriodDays, setMoodPeriodDays] = useState(30);
+  const [moodPeriodDist, setMoodPeriodDist] = useState<Record<string, number>>({});
+  const [moodPeriodLoading, setMoodPeriodLoading] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -49,7 +51,10 @@ function RhDashboard() {
     if (!session || loaded) return;
     (async () => {
       const d = await loadRhDashboard();
-      if (d) setData(d);
+      if (d) {
+        setData(d);
+        setMoodPeriodDist(d.moodDistribution ?? {});
+      }
       setLoaded(true);
     })();
   }, [session, loaded]);
@@ -185,41 +190,20 @@ function RhDashboard() {
         </div>
       </section>
 
-      {data && Object.values(data.moodDistribution).some((v) => v > 0) && (
-        <section className="mt-8">
-          <h2 className="mb-3 font-display text-sm font-semibold text-[var(--clay-title)]">
-            Distribuição de Humor
-          </h2>
-          <div className="rounded-2xl bg-white/60 p-4 shadow-sm">
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart
-                data={Object.entries(data.moodDistribution)
-                  .filter(([, v]) => v > 0)
-                  .map(([mood, count]) => ({ mood, count }))}
-                layout="vertical"
-                margin={{ left: 60 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--clay-text)/10" />
-                <XAxis type="number" tick={{ fontSize: 10, fill: "var(--clay-text)" }} />
-                <YAxis
-                  type="category"
-                  dataKey="mood"
-                  tick={{ fontSize: 11, fill: "var(--clay-text)" }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: "rgba(255,255,255,0.9)",
-                    border: "none",
-                    borderRadius: 12,
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    fontSize: 12,
-                  }}
-                />
-                <Bar dataKey="count" fill="var(--clay-self)" radius={[0, 8, 8, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </section>
+      {data && (
+        <RhMoodDistributionPies
+          distribution7d={data.moodDistribution7d ?? {}}
+          distributionPeriod={moodPeriodDist}
+          periodDays={moodPeriodDays}
+          periodLoading={moodPeriodLoading}
+          onPeriodChange={async (days) => {
+            setMoodPeriodDays(days);
+            setMoodPeriodLoading(true);
+            const dist = await loadRhMoodDistribution(days);
+            setMoodPeriodDist(dist);
+            setMoodPeriodLoading(false);
+          }}
+        />
       )}
     </ManagerShell>
   );
