@@ -120,6 +120,20 @@ const PEOPLE = [
     meals: ["Café da Manhã", "Almoço", "Jantar"],
     diary: "Conversei com a equipe e pedi ajuda num projeto. Aliviou um pouco.",
   },
+  {
+    email: "colaborador.teste@mundomental.care",
+    password: "MmcTeste#2026",
+    displayName: "Colaborador Teste",
+    avatar: "Zeca",
+    goal: "equilibrio-emocional",
+    moods: ["neutro", "calmo", "feliz", "cansado", "motivado", "ansioso", "grato"],
+    sleepBase: 7.0,
+    waterBase: 1700,
+    energy: 65,
+    movement: 28,
+    meals: ["Café da Manhã", "Almoço", "Jantar"],
+    diary: "Rotina de teste mais estável. Check-ins diários ajudam a perceber o ritmo da semana.",
+  },
 ];
 
 const HISTORY_DAYS = 30;
@@ -297,12 +311,6 @@ for (const person of PEOPLE) {
     checkins: checkins.length,
   });
 }
-
-const { error: origTeamError } = await admin
-  .from("profiles")
-  .update({ team_id: team.id, privacy_rh_opt_in: true })
-  .eq("email", "colaborador.teste@mundomental.care");
-if (origTeamError) throw new Error(`orig team: ${origTeamError.message}`);
 
 console.log(
   JSON.stringify(

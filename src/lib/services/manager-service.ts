@@ -2,6 +2,7 @@ import {
   getManagerDashboard,
   getCheckinStats,
   exportCsv,
+  getRhReportPreview,
   getManagerTeamRoster,
   renameManagerTeam,
   assignManagerTeamMember,
@@ -9,8 +10,13 @@ import {
   listRhMemberSignals,
   setManagerJobTitle,
 } from "@/lib/api/manager.server";
-import type { DashboardData, ManagerTeamRoster } from "@/lib/api/manager.server";
+import type { DashboardData, ManagerTeamRoster, RhDashboardData } from "@/lib/api/manager.server";
 import type { RhMemberSignalRow, RhMemberSummary } from "@/lib/rh-member-summary";
+import type {
+  ReportPreviousSnapshot,
+  ReportPreview,
+  ReportType,
+} from "@/lib/rh-reports";
 
 export async function loadDashboard(): Promise<DashboardData | null> {
   try {
@@ -31,13 +37,53 @@ export async function loadCheckinStats(periodDays: number = 30) {
   }
 }
 
+export type RhReportExportParams = {
+  periodDays: number;
+  teamName?: string | null;
+  reportType: ReportType;
+};
+
+export type RhReportPreviewPayload = {
+  periodDays: number;
+  teamName: string | null;
+  reportType: ReportType;
+  preview: ReportPreview;
+  current: RhDashboardData;
+  previous: ReportPreviousSnapshot | null;
+};
+
+export async function loadRhReportPreview(
+  params: RhReportExportParams,
+): Promise<RhReportPreviewPayload | null> {
+  try {
+    const result = await getRhReportPreview({
+      data: {
+        periodDays: params.periodDays,
+        teamName: params.teamName ?? null,
+        reportType: params.reportType,
+      },
+    });
+    if (result.error || !result.data) return null;
+    return result.data;
+  } catch {
+    return null;
+  }
+}
+
 export async function downloadCsv(
   periodDays: number = 30,
+  options?: { teamName?: string | null; reportType?: ReportType },
 ): Promise<string | null> {
   try {
-    const result = await exportCsv({ data: { periodDays } });
+    const result = await exportCsv({
+      data: {
+        periodDays,
+        teamName: options?.teamName ?? null,
+        reportType: options?.reportType ?? "teams",
+      },
+    });
     if (result.error) return null;
-    return (result as { csv: string }).csv ?? null;
+    return result.csv ?? null;
   } catch {
     return null;
   }

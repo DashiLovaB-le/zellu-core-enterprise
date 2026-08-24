@@ -398,39 +398,120 @@ export const getCheckinStats = createServerFn({ method: "POST" })
     return { data: anonymized, error: null };
   });
 
-export const exportCsv = createServerFn({ method: "POST" })
-  .inputValidator(
-    z.object({ periodDays: z.number().min(1).max(365).default(30) }),
-  )
-  .handler(async ({ data }: { data: { periodDays: number } }) => {
-    const scope = await fetchManagerRhDashboard( data.periodDays);
-    if ("error" in scope) return scope;
+const reportExportSchema = z.object({
+  periodDays: z.number().int().min(1).max(365).default(30),
+  teamName: z.string().trim().min(1).max(120).nullable().optional(),
+  reportType: z
+    .enum(["adhesion", "teams", "trends", "alerts", "comparison"])
+    .default("teams"),
+});
 
-    const rh = scope.dashboard;
+async function loadRhReportBundle(input: z.infer<typeof reportExportSchema>) {
+  const {
+    filterDashboardByTeam,
+    buildReportPreview,
+    buildReportCsv,
+    snapshotFromTrendWindows,
+  } = await import("@/lib/rh-reports");
+
+  const periodDays = input.periodDays;
+  const teamName = input.teamName?.trim() || null;
+  const reportType = input.reportType;
+
+  const scope = await fetchManagerRhDashboard(periodDays);
+  if ("error" in scope) return scope;
+
+  let previous = null as import("@/lib/rh-reports").ReportPreviousSnapshot | null;
+  if (reportType === "comparison") {
+    const doubleDays = Math.min(periodDays * 2, 365);
+    const doubleScope = await fetchManagerRhDashboard(doubleDays);
+    if (!("error" in doubleScope)) {
+      const filteredDouble = filterDashboardByTeam(doubleScope.dashboard, teamName);
+      previous = snapshotFromTrendWindows(filteredDouble, periodDays);
+    }
+  }
+
+  const current = filterDashboardByTeam(scope.dashboard, teamName);
+  const preview = buildReportPreview({
+    reportType,
+    periodDays,
+    teamName,
+    current,
+    previous,
+  });
+  const csv = buildReportCsv({
+    reportType,
+    periodDays,
+    teamName,
+    current,
+    previous,
+  });
+
+  return {
+    companyId: scope.companyId,
+    userId: scope.userId,
+    periodDays,
+    teamName,
+    reportType,
+    current,
+    previous,
+    preview,
+    csv,
+  };
+}
+
+export const getRhReportPreview = createServerFn({ method: "POST" })
+  .inputValidator(reportExportSchema)
+  .handler(async ({ data }) => {
+    const bundle = await loadRhReportBundle(data);
+    if ("error" in bundle) return { data: null, error: bundle.error };
+
+    void logEvent(
+      "info",
+      "manager.getRhReportPreview",
+      "Prévia de relatório RH",
+      {
+        company_id: bundle.companyId,
+        periodDays: bundle.periodDays,
+        reportType: bundle.reportType,
+        teamName: bundle.teamName,
+      },
+      bundle.userId,
+    );
+
+    return {
+      data: {
+        periodDays: bundle.periodDays,
+        teamName: bundle.teamName,
+        reportType: bundle.reportType,
+        preview: bundle.preview,
+        current: bundle.current,
+        previous: bundle.previous,
+      },
+      error: null,
+    };
+  });
+
+export const exportCsv = createServerFn({ method: "POST" })
+  .inputValidator(reportExportSchema)
+  .handler(async ({ data }) => {
+    const bundle = await loadRhReportBundle(data);
+    if ("error" in bundle) return { csv: null as string | null, error: bundle.error };
 
     void logEvent(
       "info",
       "manager.exportCsv",
       "Relatório CSV exportado",
-      { company_id: scope.companyId, periodDays: data.periodDays },
-      scope.userId,
+      {
+        company_id: bundle.companyId,
+        periodDays: bundle.periodDays,
+        reportType: bundle.reportType,
+        teamName: bundle.teamName,
+      },
+      bundle.userId,
     );
 
-    const header = "equipe,membros,metricas_ocultas,humor_medio,sono_medio,agua_media,humor_negativo_pct,status";
-    const rows = rh.teams.map((t) =>
-      [
-        `"${t.name}"`,
-        t.memberCount,
-        t.metricsHidden ? "sim" : "nao",
-        t.metricsHidden ? "" : t.avgMood,
-        t.metricsHidden ? "" : t.avgSleep,
-        t.metricsHidden ? "" : t.avgWater,
-        t.metricsHidden ? "" : t.negativeMoodPct,
-        t.status,
-      ].join(","),
-    );
-    const csv = [header, ...rows].join("\n");
-    return { csv, error: null };
+    return { csv: bundle.csv, error: null };
   });
 
 export const getRhDashboard = createServerFn({ method: "POST" })
