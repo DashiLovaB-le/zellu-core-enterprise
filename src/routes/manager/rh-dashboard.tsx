@@ -35,6 +35,9 @@ function RhDashboard() {
   const [moodPeriodDays, setMoodPeriodDays] = useState(30);
   const [moodPeriodDist, setMoodPeriodDist] = useState<Record<string, number>>({});
   const [moodPeriodLoading, setMoodPeriodLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [exportOk, setExportOk] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -59,6 +62,29 @@ function RhDashboard() {
     })();
   }, [session, loaded]);
 
+  const handleExportPdf = async () => {
+    if (!data) return;
+    setExporting(true);
+    setExportError(null);
+    setExportOk(null);
+    try {
+      const { downloadRhDashboardPdf } = await import("@/lib/rh-dashboard-pdf");
+      await downloadRhDashboardPdf({
+        data,
+        moodPeriodDays,
+        moodPeriodDistribution: moodPeriodDist,
+        exportedBy: user?.email ?? null,
+      });
+      setExportOk("Relatório PDF baixado com sucesso.");
+      window.setTimeout(() => setExportOk(null), 3000);
+    } catch (err) {
+      console.error(err);
+      setExportError("Não foi possível gerar o PDF. Tente novamente.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading || !user || (role !== "manager" && role !== "dev")) {
     return (
       <ManagerShell>
@@ -78,14 +104,31 @@ function RhDashboard() {
             Adesão, indicadores agregados e tendências por equipe — nunca humor individual
           </p>
         </div>
-        <Link
-          to="/manager/equipes"
-          className="flex items-center gap-2 rounded-xl bg-white/60 px-4 py-2 text-xs font-semibold text-[var(--clay-title)] shadow-sm hover:bg-white/80"
-        >
-          <Icon name="groups" className="text-base" />
-          Ver Equipes
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            disabled={!data || exporting}
+            onClick={() => void handleExportPdf()}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] px-4 py-2 text-xs font-semibold text-[oklch(0.25_0.04_254)] shadow-sm disabled:opacity-50"
+          >
+            <Icon name={exporting ? "sync" : "picture_as_pdf"} className={`text-base ${exporting ? "animate-spin" : ""}`} />
+            {exporting ? "Gerando PDF…" : "Exportar Relatório"}
+          </button>
+          <Link
+            to="/manager/equipes"
+            className="flex items-center gap-2 rounded-xl bg-white/60 px-4 py-2 text-xs font-semibold text-[var(--clay-title)] shadow-sm hover:bg-white/80"
+          >
+            <Icon name="groups" className="text-base" />
+            Ver Equipes
+          </Link>
+        </div>
       </div>
+      {exportError && (
+        <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-xs text-red-600">{exportError}</p>
+      )}
+      {exportOk && (
+        <p className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-xs text-emerald-700">{exportOk}</p>
+      )}
 
       {data && data.totalUsers > 0 && data.totalUsers < 5 && (
         <p className="mt-4 rounded-xl bg-white/70 px-4 py-3 text-xs text-[var(--clay-text)]/80">
