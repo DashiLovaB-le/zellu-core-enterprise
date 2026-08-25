@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { AdminShell } from "@/components/AdminShell";
 import { Icon } from "@/components/Icon";
+import { ClayLoader } from "@/components/ClayLoader";
 
 /** Gate de autenticação para rotas /admin/* (admin + dev). */
 export function useAdminGate() {
@@ -43,7 +44,7 @@ export function AdminPageFrame({
     return (
       <AdminShell>
         <div className="flex flex-1 items-center justify-center py-20">
-          <Icon name="sync" className="animate-spin text-3xl text-slate-400" />
+          <ClayLoader size="lg" className="text-slate-400" />
         </div>
       </AdminShell>
     );

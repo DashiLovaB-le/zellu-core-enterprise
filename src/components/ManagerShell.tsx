@@ -20,6 +20,13 @@ const NAV: NavItem[] = [
   { to: "/perfil", icon: "person", label: "Perfil" },
 ];
 
+function isNavActive(pathname: string, to: string) {
+  if (to === "/manager" || to === "/manager/") {
+    return pathname === "/manager" || pathname === "/manager/";
+  }
+  return pathname.startsWith(to);
+}
+
 export function ManagerShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user } = useAuth();
@@ -47,30 +54,30 @@ export function ManagerShell({ children }: { children: ReactNode }) {
           <p className="text-[9px] text-[var(--clay-title)]/25">{BRANDING.poweredBy}</p>
         </footer>
 
-        <nav className="fixed bottom-3 left-1/2 z-50 flex h-14 w-[calc(100%-2rem)] max-w-[420px] -translate-x-1/2 items-center justify-around rounded-2xl bg-white/80 px-2 shadow-[0_2px_10px_rgba(74,106,138,0.08)] backdrop-blur-lg md:hidden">
+        <nav
+          aria-label="Navegação RH"
+          className="fixed bottom-3 left-1/2 z-50 flex h-[58px] w-[calc(100%-2rem)] max-w-[420px] -translate-x-1/2 items-center justify-around rounded-full border border-white/50 bg-white/85 px-1.5 py-1 shadow-[0_4px_20px_rgba(74,106,138,0.12)] backdrop-blur-xl md:hidden"
+        >
           {NAV.map((item) => {
-            const active =
-              item.to === "/manager"
-                ? pathname === "/manager"
-                : pathname.startsWith(item.to as string);
+            const active = isNavActive(pathname, item.to as string);
             return (
               <Link
                 key={item.to}
                 to={item.to}
-                className="flex flex-1 flex-col items-center justify-center gap-0.5"
+                className="flex h-full flex-1 flex-col items-center justify-center gap-0.5 px-0.5"
               >
                 <span
-                  className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 ${
                     active
                       ? "bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] text-[oklch(0.25_0.04_254)] shadow-sm"
-                      : "text-[var(--clay-title)]/60"
+                      : "text-[var(--icon-stroke)]/55"
                   }`}
                 >
-                  <Icon name={item.icon} filled={active} className="text-lg" />
+                  <Icon name={item.icon} filled={active} className="text-[18px]" />
                 </span>
                 <span
-                  className={`text-[9px] font-semibold tracking-wide ${
-                    active ? "text-[var(--clay-title)]" : "text-[var(--clay-title)]/50"
+                  className={`max-w-full truncate px-0.5 text-center text-[8px] font-semibold tracking-wide ${
+                    active ? "text-[var(--icon-stroke)]" : "text-[var(--icon-stroke)]/45"
                   }`}
                 >
                   {item.label}
@@ -102,18 +109,15 @@ export function ManagerShell({ children }: { children: ReactNode }) {
           <aside className="sticky top-20 h-fit w-56 shrink-0 rounded-2xl bg-white/70 p-3 shadow-sm backdrop-blur-md">
             <nav className="flex flex-col gap-1">
               {NAV.map((item) => {
-                const active =
-                  item.to === "/manager"
-                    ? pathname === "/manager"
-                    : pathname.startsWith(item.to as string);
+                const active = isNavActive(pathname, item.to as string);
                 return (
                   <Link
                     key={item.to}
                     to={item.to}
                     className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
                       active
-                        ? "bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 text-[var(--clay-title)] shadow-sm"
-                        : "text-[var(--clay-title)]/60 hover:bg-white/40"
+                        ? "bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 text-[var(--icon-stroke)] shadow-sm"
+                        : "text-[var(--icon-stroke)]/60 hover:bg-white/40"
                     }`}
                   >
                     <Icon name={item.icon} filled={active} className="text-lg" />
@@ -125,7 +129,7 @@ export function ManagerShell({ children }: { children: ReactNode }) {
             <div className="mt-4 border-t border-border/20 pt-3">
               <Link
                 to="/"
-                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--clay-title)]/50 transition-all hover:bg-white/40"
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--icon-stroke)]/50 transition-all hover:bg-white/40"
               >
                 <Icon name="arrow_back" className="text-lg" />
                 Modo Colaborador

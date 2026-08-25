@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ManagerShell } from "@/components/ManagerShell";
 import { Icon } from "@/components/Icon";
+import { ClayLoader } from "@/components/ClayLoader";
 import { useAuth } from "@/lib/auth-context";
 import { BRANDING } from "@/lib/branding";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -61,7 +62,7 @@ function ManagerEquipes() {
     return (
       <ManagerShell>
         <div className="flex flex-1 items-center justify-center">
-          <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+          <ClayLoader size="lg" />
         </div>
       </ManagerShell>
     );

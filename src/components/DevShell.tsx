@@ -56,14 +56,14 @@ export function DevShell({ children }: { children: ReactNode }) {
                   className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 ${
                     active
                       ? "bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] text-[oklch(0.25_0.04_254)] shadow-sm"
-                      : "text-[var(--clay-title)]/60"
+                      : "text-[var(--icon-stroke)]/60"
                   }`}
                 >
                   <Icon name={item.icon} filled={active} className="text-lg" />
                 </span>
                 <span
                   className={`text-[9px] font-semibold tracking-wide ${
-                    active ? "text-[var(--clay-title)]" : "text-[var(--clay-title)]/50"
+                    active ? "text-[var(--icon-stroke)]" : "text-[var(--icon-stroke)]/50"
                   }`}
                 >
                   {item.label}
@@ -105,8 +105,8 @@ export function DevShell({ children }: { children: ReactNode }) {
                     to={item.to}
                     className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
                       active
-                        ? "bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 text-[var(--clay-title)] shadow-sm"
-                        : "text-[var(--clay-title)]/60 hover:bg-white/40"
+                        ? "bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 text-[var(--icon-stroke)] shadow-sm"
+                        : "text-[var(--icon-stroke)]/60 hover:bg-white/40"
                     }`}
                   >
                     <Icon name={item.icon} filled={active} className="text-lg" />
@@ -118,7 +118,7 @@ export function DevShell({ children }: { children: ReactNode }) {
             <div className="mt-4 border-t border-border/20 pt-3">
               <Link
                 to="/"
-                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--clay-title)]/50 transition-all hover:bg-white/40"
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--icon-stroke)]/50 transition-all hover:bg-white/40"
               >
                 <Icon name="arrow_back" className="text-lg" />
                 Modo Colaborador

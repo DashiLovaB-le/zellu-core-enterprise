@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { ManagerShell } from "@/components/ManagerShell";
 import { Icon } from "@/components/Icon";
+import { ClayLoader } from "@/components/ClayLoader";
 import { useAuth } from "@/lib/auth-context";
 import { BRANDING } from "@/lib/branding";
 import { useState, useEffect } from "react";
@@ -89,7 +90,7 @@ function RhDashboard() {
     return (
       <ManagerShell>
         <div className="flex flex-1 items-center justify-center">
-          <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+          <ClayLoader size="lg" />
         </div>
       </ManagerShell>
     );
@@ -111,7 +112,11 @@ function RhDashboard() {
             onClick={() => void handleExportPdf()}
             className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] px-4 py-2 text-xs font-semibold text-[oklch(0.25_0.04_254)] shadow-sm disabled:opacity-50"
           >
-            <Icon name={exporting ? "sync" : "picture_as_pdf"} className={`text-base ${exporting ? "animate-spin" : ""}`} />
+            {exporting ? (
+              <ClayLoader size="sm" className="text-[oklch(0.25_0.04_254)]" />
+            ) : (
+              <Icon name="picture_as_pdf" className="text-base" />
+            )}
             {exporting ? "Gerando PDF…" : "Exportar Relatório"}
           </button>
           <Link

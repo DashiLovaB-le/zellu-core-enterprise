@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { DevShell } from "@/components/DevShell";
 import { Icon } from "@/components/Icon";
+import { ClayLoader } from "@/components/ClayLoader";
 import { useAuth } from "@/lib/auth-context";
 import { BRANDING } from "@/lib/branding";
 import { useEffect } from "react";
@@ -52,7 +53,7 @@ function DevIndex() {
     return (
       <DevShell>
         <div className="flex flex-1 items-center justify-center">
-          <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+          <ClayLoader size="lg" />
         </div>
       </DevShell>
     );

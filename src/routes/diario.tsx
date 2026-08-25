@@ -5,7 +5,7 @@ import { DesktopTimelinePage } from "@/components/pages/desktop/TimelinePage";
 import { BRANDING } from "@/lib/branding";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
-import { Icon } from "@/components/Icon";
+import { ClayLoader } from "@/components/ClayLoader";
 import { loadTimeline, type TimelineData } from "@/lib/services/timeline-service";
 import { saveEntry } from "@/lib/services/diario-service";
 import { loadPreventiveAlert, type PreventiveAlert } from "@/lib/services/preventiva-service";
@@ -80,7 +80,7 @@ function DiarioPage() {
   if (authLoading || !isAuthorized || !timelineData) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center">
-        <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+        <ClayLoader size="lg" />
       </div>
     );
   }

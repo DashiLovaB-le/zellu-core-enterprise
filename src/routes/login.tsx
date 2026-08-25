@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import * as React from "react";
 import { useAuth } from "@/lib/auth-context";
-import { Icon } from "@/components/Icon";
+import { ClayLoader } from "@/components/ClayLoader";
 import { BRANDING } from "@/lib/branding";
 import { CLINICAL_DISCLAIMER } from "@/lib/privacy";
 
@@ -34,7 +34,7 @@ function LoginPage() {
   if (loading || user) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center">
-        <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+        <ClayLoader size="lg" />
       </div>
     );
   }

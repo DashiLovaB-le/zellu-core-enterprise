@@ -5,7 +5,7 @@ import { DesktopChatPage } from "@/components/pages/desktop/ChatPage";
 import { ResponsivePages } from "@/components/pages/ResponsivePages";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
-import { Icon } from "@/components/Icon";
+import { ClayLoader } from "@/components/ClayLoader";
 import { CrisisHelpChatModal } from "@/components/CrisisHelp";
 import {
   loadMessages,
@@ -157,7 +157,7 @@ function ChatPage() {
   if (authLoading || (!initialized && accessToken)) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center">
-        <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+        <ClayLoader size="lg" />
       </div>
     );
   }

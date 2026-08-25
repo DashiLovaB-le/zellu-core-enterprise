@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
 import { DevShell } from "@/components/DevShell";
 import { Icon } from "@/components/Icon";
+import { ClayLoader } from "@/components/ClayLoader";
 import { useAuth } from "@/lib/auth-context";
 import { BRANDING } from "@/lib/branding";
 import { useEffect, useState, useCallback } from "react";
@@ -197,7 +198,7 @@ function LlmConfigPanel() {
     return (
       <DevShell>
         <div className="flex flex-1 items-center justify-center">
-          <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+          <ClayLoader size="lg" />
         </div>
       </DevShell>
     );
@@ -333,7 +334,7 @@ function LlmConfigPanel() {
             className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] px-6 py-2.5 text-sm font-semibold text-[oklch(0.25_0.04_254)] shadow-sm active:translate-y-px disabled:opacity-50"
           >
             {saving ? (
-              <Icon name="sync" className="animate-spin text-sm" />
+              <ClayLoader size="sm" />
             ) : (
               <Icon name="save" className="text-sm" />
             )}
@@ -345,7 +346,7 @@ function LlmConfigPanel() {
             className="flex items-center gap-2 rounded-xl bg-white/70 px-4 py-2.5 text-sm shadow-sm active:translate-y-px disabled:opacity-50"
           >
             {testing ? (
-              <Icon name="sync" className="animate-spin text-sm" />
+              <ClayLoader size="sm" />
             ) : (
               <Icon name="wifi" className="text-sm" />
             )}
@@ -443,7 +444,7 @@ function SystemLogsPanel() {
     return (
       <DevShell>
         <div className="flex flex-1 items-center justify-center">
-          <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+          <ClayLoader size="lg" />
         </div>
       </DevShell>
     );
@@ -515,7 +516,7 @@ function SystemLogsPanel() {
 
         {loadingLogs && !logs.length ? (
           <div className="flex items-center justify-center py-16">
-            <Icon name="sync" className="animate-spin text-2xl text-[var(--clay-title)]" />
+            <ClayLoader size="md" />
           </div>
         ) : logs.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-16 text-[var(--clay-text)]/50">
@@ -681,7 +682,7 @@ function LlmFailuresSection({ session }: { session: { user: { id: string } } | n
 
       {loading ? (
         <div className="flex items-center justify-center py-8">
-          <Icon name="sync" className="animate-spin text-xl text-[var(--clay-title)]" />
+          <ClayLoader size="md" />
         </div>
       ) : logs.length === 0 ? (
         <div className="flex items-center justify-center gap-2 py-8 text-[var(--clay-text)]/50">

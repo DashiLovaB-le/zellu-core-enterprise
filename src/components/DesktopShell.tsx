@@ -46,8 +46,8 @@ export function DesktopShell({ children }: { children: ReactNode }) {
                   to={item.to}
                   className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all ${
                     active
-                      ? "bg-white/70 text-[var(--clay-title)] shadow-sm"
-                      : "text-[var(--clay-title)]/60 hover:bg-white/40"
+                      ? "bg-white/70 text-[var(--icon-stroke)] shadow-sm"
+                      : "text-[var(--icon-stroke)]/60 hover:bg-white/40"
                   }`}
                 >
                   <Icon name={item.icon} filled={active} className="text-base leading-none" />

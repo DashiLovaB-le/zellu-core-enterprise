@@ -99,14 +99,14 @@ export function MobileShell({ children }: { children: ReactNode }) {
                   className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 ${
                     active
                       ? "bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] text-[oklch(0.25_0.04_254)] shadow-sm"
-                      : "text-[var(--clay-title)]/55"
+                      : "text-[var(--icon-stroke)]/55"
                   }`}
                 >
                   <Icon name={item.icon} filled={active} className="text-[18px]" />
                 </span>
                 <span
                   className={`max-w-full truncate px-0.5 text-center text-[8px] font-semibold tracking-wide ${
-                    active ? "text-[var(--clay-title)]" : "text-[var(--clay-title)]/45"
+                    active ? "text-[var(--icon-stroke)]" : "text-[var(--icon-stroke)]/45"
                   }`}
                 >
                   {item.label}

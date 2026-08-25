@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { ManagerShell } from "@/components/ManagerShell";
 import { Icon } from "@/components/Icon";
+import { ClayLoader } from "@/components/ClayLoader";
 import { Avatar } from "@/components/Avatar";
 import { TeamEditorModal } from "@/components/manager/TeamEditorModal";
 import { WellnessStatusBadge } from "@/components/manager/WellnessStatusBadge";
@@ -91,7 +92,7 @@ function ManagerEquipeDetalhe() {
     return (
       <ManagerShell>
         <div className="flex flex-1 items-center justify-center">
-          <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+          <ClayLoader size="lg" />
         </div>
       </ManagerShell>
     );

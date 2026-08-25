@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { ManagerShell } from "@/components/ManagerShell";
 import { Icon } from "@/components/Icon";
+import { ClayLoader } from "@/components/ClayLoader";
 import { useAuth } from "@/lib/auth-context";
 import { BRANDING } from "@/lib/branding";
 import {
@@ -149,7 +150,7 @@ function ManagerRelatorios() {
     return (
       <ManagerShell>
         <div className="flex flex-1 items-center justify-center">
-          <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+          <ClayLoader size="lg" />
         </div>
       </ManagerShell>
     );
@@ -173,10 +174,11 @@ function ManagerRelatorios() {
             onClick={() => void handleExportCsv()}
             className="flex items-center gap-2 rounded-xl bg-white/70 px-4 py-2 text-xs font-semibold text-[var(--clay-title)] shadow-sm disabled:opacity-50"
           >
-            <Icon
-              name={exportingCsv ? "sync" : "download"}
-              className={`text-base ${exportingCsv ? "animate-spin" : ""}`}
-            />
+            {exportingCsv ? (
+              <ClayLoader size="sm" />
+            ) : (
+              <Icon name="download" className="text-base" />
+            )}
             {exportingCsv ? "Exportando…" : "Exportar CSV"}
           </button>
           <button
@@ -185,10 +187,11 @@ function ManagerRelatorios() {
             onClick={() => void handleExportPdf()}
             className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] px-4 py-2 text-xs font-semibold text-[oklch(0.25_0.04_254)] shadow-sm disabled:opacity-50"
           >
-            <Icon
-              name={exportingPdf ? "sync" : "picture_as_pdf"}
-              className={`text-base ${exportingPdf ? "animate-spin" : ""}`}
-            />
+            {exportingPdf ? (
+              <ClayLoader size="sm" className="text-[oklch(0.25_0.04_254)]" />
+            ) : (
+              <Icon name="picture_as_pdf" className="text-base" />
+            )}
             {exportingPdf ? "Gerando PDF…" : "Exportar PDF"}
           </button>
         </div>
@@ -276,7 +279,7 @@ function ManagerRelatorios() {
             Prévia {preview ? `— ${preview.title}` : ""}
           </h2>
           {loadingPreview && (
-            <Icon name="sync" className="animate-spin text-lg text-[var(--clay-title)]" />
+            <ClayLoader size="md" />
           )}
         </div>
 

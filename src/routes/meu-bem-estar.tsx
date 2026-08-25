@@ -5,7 +5,7 @@ import { DesktopBemEstarPage } from "@/components/pages/desktop/BemEstarPage";
 import { BRANDING } from "@/lib/branding";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
-import { Icon } from "@/components/Icon";
+import { ClayLoader } from "@/components/ClayLoader";
 import { loadBemEstar, saveBemEstar } from "@/lib/services/habitos-service";
 
 export const Route = createFileRoute("/meu-bem-estar")({
@@ -81,7 +81,7 @@ function BemEstarPage() {
   if (authLoading || !isAuthorized) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center">
-        <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+        <ClayLoader size="lg" />
       </div>
     );
   }

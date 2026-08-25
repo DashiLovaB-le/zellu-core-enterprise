@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Icon } from "@/components/Icon";
+import { ClayLoader } from "@/components/ClayLoader";
 import { BRANDING } from "@/lib/branding";
 
 export const Route = createFileRoute("/habitos")({
@@ -22,7 +22,7 @@ function RedirectPage() {
 
   return (
     <div className="flex min-h-[100dvh] items-center justify-center">
-      <Icon name="sync" className="animate-spin text-3xl text-[var(--clay-title)]" />
+      <ClayLoader size="lg" />
     </div>
   );
 }
