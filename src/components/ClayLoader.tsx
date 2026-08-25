@@ -1,3 +1,5 @@
+import { Mascot } from "@/components/Mascot";
+
 type ClayLoaderSize = "sm" | "md" | "lg";
 
 const SIZE_PX: Record<ClayLoaderSize, number> = {
@@ -30,7 +32,6 @@ export function ClayLoader({
       role="status"
       aria-label="Carregando"
     >
-      {/* Trilha suave */}
       <circle
         cx="12"
         cy="12"
@@ -39,7 +40,6 @@ export function ClayLoader({
         strokeWidth="2.25"
         strokeOpacity="0.18"
       />
-      {/* Arco com pontas arredondadas */}
       <circle
         cx="12"
         cy="12"
@@ -54,12 +54,24 @@ export function ClayLoader({
   );
 }
 
-/** Estado de página inteira — centraliza o anel clay. */
-export function PageLoader({ className = "" }: { className?: string }) {
+/** Estado de página inteira — mascote pensando + anel clay. */
+export function PageLoader({
+  className = "",
+  withMascot = true,
+}: {
+  className?: string;
+  withMascot?: boolean;
+}) {
   return (
     <div
-      className={`flex min-h-[100dvh] items-center justify-center ${className}`}
+      className={`flex min-h-[100dvh] flex-col items-center justify-center gap-4 ${className}`}
+      role="status"
+      aria-live="polite"
+      aria-label="Carregando"
     >
+      {withMascot ? (
+        <Mascot pose="think" size="sm" className="opacity-90" />
+      ) : null}
       <ClayLoader size="lg" />
     </div>
   );

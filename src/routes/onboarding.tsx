@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { completeOnboarding } from "@/lib/api/invites.server";
 import { savePrivacyConsent } from "@/lib/api/privacy.server";
 import { PrivacyConsentCard, type PrivacyConsentValues } from "@/components/PrivacyConsentCard";
+import { Mascot } from "@/components/Mascot";
 import { BRANDING } from "@/lib/branding";
 import { DEFAULT_TIMEZONE } from "@/lib/timezone";
 
@@ -72,12 +73,18 @@ function OnboardingPage() {
   return (
     <div className="flex min-h-[100dvh] items-center justify-center px-6 py-8">
       {step === "consent" ? (
-        <div className="w-full">
+        <div className="w-full max-w-md">
+          <div className="mb-4 flex justify-center">
+            <Mascot pose="wave" size="md" />
+          </div>
           <PrivacyConsentCard onAccept={acceptPrivacy} loading={saving} />
           {error && <p className="mt-3 text-center text-xs text-red-500">{error}</p>}
         </div>
       ) : (
         <form onSubmit={finish} className="w-full max-w-sm space-y-3 rounded-2xl bg-white/80 p-5 shadow-sm">
+          <div className="mb-2 flex justify-center">
+            <Mascot pose="encourage" size="md" />
+          </div>
           <h1 className="font-display text-lg text-[var(--clay-title)]">Como podemos te chamar?</h1>
           <input
             value={name}

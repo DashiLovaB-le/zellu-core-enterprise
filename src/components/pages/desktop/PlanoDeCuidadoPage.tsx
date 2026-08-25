@@ -5,6 +5,7 @@ import { Icon } from "@/components/Icon";
 import { useAuth } from "@/lib/auth-context";
 import type { WellnessPlan, WellnessChecklist, PlanProgress } from "@/lib/services/wellness-plan-service";
 import { CHECKLIST_ITEMS } from "@/lib/api/wellness-plan.server";
+import { Mascot } from "@/components/Mascot";
 
 const goalOptions = [
   { value: "reduzir-ansiedade", label: "Reduzir ansiedade", icon: "spa", desc: "Técnicas de respiração e pausas conscientes" },
@@ -62,6 +63,9 @@ function GoalPicker({
   return (
     <section className="mx-auto max-w-xl">
       <div className="rounded-2xl bg-white/70 p-6 shadow-sm backdrop-blur-md">
+        <div className="mb-4 flex justify-center">
+          <Mascot pose="encourage" size="md" />
+        </div>
         <h2 className="mb-1 text-lg font-bold text-[var(--clay-title)]">Qual seu objetivo?</h2>
         <p className="mb-4 text-sm text-[var(--clay-title)]/60">
           Escolha em um toque e já comece o checklist de hoje.

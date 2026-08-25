@@ -4,7 +4,7 @@ import { MobileRespiroPage } from "@/components/pages/mobile/RespiroPage";
 import { DesktopRespiroPage } from "@/components/pages/desktop/RespiroPage";
 import { BRANDING } from "@/lib/branding";
 import { useRequireAuth } from "@/lib/use-require-auth";
-import { ClayLoader } from "@/components/ClayLoader";
+import { PageLoader } from "@/components/ClayLoader";
 
 export const Route = createFileRoute("/respiro")({
   head: () => ({
@@ -22,9 +22,7 @@ function RespiroPage() {
 
   if (loading || !isAuthorized) {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center">
-        <ClayLoader size="lg" />
-      </div>
+      <PageLoader />
     );
   }
 

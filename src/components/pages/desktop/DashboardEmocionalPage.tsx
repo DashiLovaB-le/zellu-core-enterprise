@@ -20,6 +20,7 @@ import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 import { MoodDistributionChart } from "@/components/MoodDistributionChart";
 import { MOOD_MAP } from "@/data/moods";
+import { Mascot } from "@/components/Mascot";
 
 interface Props {
   data: DashboardData;
@@ -93,6 +94,7 @@ export function DesktopDashboardEmocionalPage({ data, aiAnxietyInsight, preventi
     <DesktopShell>
       <div className="mx-auto max-w-6xl">
         <header className="mb-6 flex items-center gap-3">
+          <Mascot pose="idle-calm" size="sm" />
           <Avatar name={user?.avatar_url ?? undefined} size={40} />
           <div>
             <h1 className="font-display text-2xl text-[var(--clay-title)]">Dashboard Emocional</h1>

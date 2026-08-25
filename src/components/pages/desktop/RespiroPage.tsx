@@ -4,6 +4,7 @@ import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 import { useAuth } from "@/lib/auth-context";
 import { SOUNDS, BREATH_PHASES } from "@/data";
+import { Mascot } from "@/components/Mascot";
 
 interface RespiroPageProps {
   activeSound: string | null;
@@ -43,6 +44,7 @@ export function DesktopRespiroPage({ activeSound, onSoundToggle }: RespiroPagePr
           </header>
 
           <div className="flex flex-col items-center py-6">
+            <Mascot pose="breathe" size="lg" className="mb-4 opacity-95" />
             <div className="relative flex h-72 w-72 items-center justify-center">
               <div
                 className="absolute inset-0 rounded-full animate-breathe"

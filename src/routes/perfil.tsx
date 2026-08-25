@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useTheme } from "@/lib/theme";
 import { useRequireAuth } from "@/lib/use-require-auth";
-import { ClayLoader } from "@/components/ClayLoader";
+import { PageLoader } from "@/components/ClayLoader";
 import { MobilePerfilPage } from "@/components/pages/mobile/PerfilPage";
 import { DesktopPerfilPage } from "@/components/pages/desktop/PerfilPage";
 import { ResponsivePages } from "@/components/pages/ResponsivePages";
@@ -74,9 +74,7 @@ function PerfilPage() {
 
   if (loading || !isAuthorized) {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center">
-        <ClayLoader size="lg" />
-      </div>
+      <PageLoader />
     );
   }
 

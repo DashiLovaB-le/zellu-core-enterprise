@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, type RefObject } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { getSleepLabel, MAIN_MEALS, EXTRA_MEALS, MAIN_MOODS, EXTRA_MOODS } from "@/data";
+import { Mascot } from "@/components/Mascot";
 
 interface BemEstarPageProps {
   water: number;
@@ -27,13 +28,16 @@ interface BemEstarPageProps {
 export function MobileBemEstarPage(props: BemEstarPageProps) {
   return (
     <MobileShell>
-      <header className="mb-4">
-        <h1 className="font-display text-xl text-[var(--clay-title)]">Meu Bem-estar</h1>
-        <p className="text-xs text-[var(--clay-text)]/70">
-          {props.hasCheckin
-            ? "Água, sono e humor vieram do check-in de hoje"
-            : "Preencha seu resumo do dia"}
-        </p>
+      <header className="mb-4 flex items-center gap-3">
+        <Mascot pose="idle-calm" size="sm" />
+        <div>
+          <h1 className="font-display text-xl text-[var(--clay-title)]">Meu Bem-estar</h1>
+          <p className="text-xs text-[var(--clay-text)]/70">
+            {props.hasCheckin
+              ? "Água, sono e humor vieram do check-in de hoje"
+              : "Preencha seu resumo do dia"}
+          </p>
+        </div>
       </header>
 
       <div className="flex flex-col gap-3 pb-4">

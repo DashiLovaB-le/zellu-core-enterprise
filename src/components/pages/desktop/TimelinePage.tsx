@@ -4,6 +4,7 @@ import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 import { useAuth } from "@/lib/auth-context";
 import type { TimelineData } from "@/lib/services/timeline-service";
+import { MascotEmpty } from "@/components/Mascot";
 import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 
@@ -143,9 +144,11 @@ export function DesktopTimelinePage({ data, onSaveEntry, preventiveAlert, onSugg
 
               <div className="flex flex-col gap-3">
                 {data.days.length === 0 && !showNewEntry && (
-                  <p className="py-8 text-center text-sm text-[var(--clay-title)]/50">
-                    Nenhum registro ainda. Clique em "Nova Entrada" para começar sua timeline.
-                  </p>
+                  <MascotEmpty
+                    pose="empty"
+                    size="sm"
+                    description='Nenhum registro ainda. Clique em "Nova Entrada" para começar sua timeline.'
+                  />
                 )}
                 {data.days.map((day) => (
                   <div key={day.date} className="rounded-xl bg-white/60 p-4 shadow-sm">

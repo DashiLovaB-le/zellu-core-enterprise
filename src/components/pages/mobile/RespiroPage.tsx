@@ -5,6 +5,7 @@ import { Icon } from "@/components/Icon";
 import { useAuth } from "@/lib/auth-context";
 import { SOUNDS, BREATH_PHASES } from "@/data";
 import { BRANDING } from "@/lib/branding";
+import { Mascot } from "@/components/Mascot";
 
 interface RespiroPageProps {
   activeSound: string | null;
@@ -45,7 +46,8 @@ export function MobileRespiroPage({ activeSound, onSoundToggle }: RespiroPagePro
         Uma pausa breve para retomar o foco e o equilíbrio.
       </p>
 
-      <div className="my-8 flex flex-col items-center">
+      <div className="my-6 flex flex-col items-center">
+        <Mascot pose="breathe" size="lg" className="mb-4 opacity-95" />
         <div className="relative flex h-56 w-56 items-center justify-center">
           <div
             className="absolute inset-0 rounded-full animate-breathe"

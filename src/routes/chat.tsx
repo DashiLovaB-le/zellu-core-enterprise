@@ -5,7 +5,7 @@ import { DesktopChatPage } from "@/components/pages/desktop/ChatPage";
 import { ResponsivePages } from "@/components/pages/ResponsivePages";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
-import { ClayLoader } from "@/components/ClayLoader";
+import { PageLoader } from "@/components/ClayLoader";
 import { CrisisHelpChatModal } from "@/components/CrisisHelp";
 import {
   loadMessages,
@@ -156,9 +156,7 @@ function ChatPage() {
 
   if (authLoading || (!initialized && accessToken)) {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center">
-        <ClayLoader size="lg" />
-      </div>
+      <PageLoader />
     );
   }
 

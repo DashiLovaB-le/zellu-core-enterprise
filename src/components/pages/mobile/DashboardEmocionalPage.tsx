@@ -20,6 +20,7 @@ import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 import { MoodDistributionChart } from "@/components/MoodDistributionChart";
 import { MOOD_MAP } from "@/data/moods";
+import { Mascot } from "@/components/Mascot";
 
 interface Props {
   data: DashboardData;
@@ -98,6 +99,7 @@ export function MobileDashboardEmocionalPage({ data, aiAnxietyInsight, preventiv
   return (
     <MobileShell>
       <header className="mb-4 flex items-center gap-3">
+        <Mascot pose="idle-calm" size="sm" />
         <Avatar name={user?.avatar_url ?? undefined} size={36} />
         <div>
           <h1 className="font-display text-xl text-[var(--clay-title)]">Dashboard Emocional</h1>

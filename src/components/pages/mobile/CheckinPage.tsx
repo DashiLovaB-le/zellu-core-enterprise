@@ -3,6 +3,7 @@ import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth-context";
 import { getSleepLabel, MAIN_MOODS, EXTRA_MOODS, MOOD_MAP } from "@/data";
+import { Mascot } from "@/components/Mascot";
 
 interface CheckinData {
   id: string;
@@ -61,9 +62,7 @@ export function MobileCheckinPage({ onSave, saved, saving, todaysCheckin }: Chec
     return (
       <MobileShell>
         <div className="flex flex-1 flex-col items-center gap-5 px-4 pt-6 text-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#C8E6C9]/60 to-[#D7CBE8]/50">
-            <span className="text-4xl">✓</span>
-          </div>
+          <Mascot pose="cheer" size="md" />
           <div>
             <h2 className="font-display text-xl text-[var(--clay-title)]">Check-in completo!</h2>
             <p className="mt-1 text-sm text-[var(--clay-text)]/70">
@@ -118,6 +117,7 @@ export function MobileCheckinPage({ onSave, saved, saving, todaysCheckin }: Chec
   return (
     <MobileShell>
       <header className="mb-4 flex items-center gap-3">
+        <Mascot pose="encourage" size="md" />
         <Avatar name={user?.avatar_url ?? undefined} size={36} />
         <div>
           <h1 className="font-display text-xl text-[var(--clay-title)]">Check-in Matinal</h1>

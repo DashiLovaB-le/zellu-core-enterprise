@@ -3,6 +3,7 @@ import { DesktopShell } from "@/components/DesktopShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 import { MEALS, WATER_GOAL, getSleepLabel } from "@/data";
+import { Mascot } from "@/components/Mascot";
 
 interface HabitosPageProps {
   water: number;
@@ -63,6 +64,7 @@ export function DesktopHabitosPage({
   return (
     <DesktopShell>
       <header className="mb-6 flex items-center gap-3">
+        <Mascot pose="idle-calm" size="sm" />
         <Avatar size={40} />
         <div>
           <h1 className="font-display text-2xl text-[var(--clay-title)]">Meus Hábitos</h1>

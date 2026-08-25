@@ -2,7 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import * as React from "react";
 import { useAuth } from "@/lib/auth-context";
-import { ClayLoader } from "@/components/ClayLoader";
+import { PageLoader } from "@/components/ClayLoader";
+import { Mascot } from "@/components/Mascot";
 import { BRANDING } from "@/lib/branding";
 import { CLINICAL_DISCLAIMER } from "@/lib/privacy";
 
@@ -32,11 +33,7 @@ function LoginPage() {
   }, [user, role, navigate]);
 
   if (loading || user) {
-    return (
-      <div className="flex min-h-[100dvh] items-center justify-center">
-        <ClayLoader size="lg" />
-      </div>
-    );
+    return <PageLoader />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,6 +46,7 @@ function LoginPage() {
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-center px-6">
       <div className="mb-8 flex flex-col items-center gap-3">
+        <Mascot pose="wave" size="lg" className="mb-1" />
         <img src="/logo.png" alt={BRANDING.appName} width={56} height={56} className="rounded-2xl" />
         <h1 className="font-display text-xl text-[var(--clay-title)]">{BRANDING.shortName}</h1>
         <p className="text-center text-sm text-[var(--clay-text)]/70">{BRANDING.tagline}</p>

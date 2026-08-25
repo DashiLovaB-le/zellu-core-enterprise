@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, type RefObject } from "react";
 import { DesktopShell } from "@/components/DesktopShell";
 import { getSleepLabel, MAIN_MEALS, EXTRA_MEALS, MAIN_MOODS, EXTRA_MOODS } from "@/data";
+import { Mascot } from "@/components/Mascot";
 
 interface BemEstarPageProps {
   water: number;
@@ -29,13 +30,16 @@ export function DesktopBemEstarPage(props: BemEstarPageProps) {
     <DesktopShell>
       <div className="mx-auto max-w-4xl">
         <header className="mb-6 flex items-start justify-between">
-          <div>
-            <h1 className="font-display text-2xl text-[var(--clay-title)]">Meu Bem-estar</h1>
-            <p className="text-sm text-[var(--clay-text)]/70">
-              {props.hasCheckin
-                ? "Água, sono e humor vieram do check-in de hoje"
-                : "Preencha seu resumo do dia"}
-            </p>
+          <div className="flex items-center gap-3">
+            <Mascot pose="idle-calm" size="sm" />
+            <div>
+              <h1 className="font-display text-2xl text-[var(--clay-title)]">Meu Bem-estar</h1>
+              <p className="text-sm text-[var(--clay-text)]/70">
+                {props.hasCheckin
+                  ? "Água, sono e humor vieram do check-in de hoje"
+                  : "Preencha seu resumo do dia"}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             {props.lastSaved && (

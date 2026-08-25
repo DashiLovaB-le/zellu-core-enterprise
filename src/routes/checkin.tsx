@@ -5,7 +5,7 @@ import { DesktopCheckinPage } from "@/components/pages/desktop/CheckinPage";
 import { BRANDING } from "@/lib/branding";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
-import { ClayLoader } from "@/components/ClayLoader";
+import { PageLoader } from "@/components/ClayLoader";
 import { saveCheckin, getTodaysCheckin } from "@/lib/api/checkin.server";
 import type { CheckinData } from "@/lib/api/checkin.server";
 
@@ -41,17 +41,13 @@ function CheckinPage() {
 
   if (loading || !isAuthorized) {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center">
-        <ClayLoader size="lg" />
-      </div>
+      <PageLoader />
     );
   }
 
   if (loadingCheckin) {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center">
-        <ClayLoader size="lg" />
-      </div>
+      <PageLoader />
     );
   }
 

@@ -6,7 +6,7 @@ import { ResponsivePages } from "@/components/pages/ResponsivePages";
 import { CheckinReminderBanner } from "@/components/CheckinReminderBanner";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
-import { ClayLoader } from "@/components/ClayLoader";
+import { PageLoader } from "@/components/ClayLoader";
 import { loadDashboard, type DashboardData } from "@/lib/services/dashboard-service";
 import { generateInsight } from "@/lib/api/insights-ai.server";
 import { loadPreventiveAlert, type PreventiveAlert } from "@/lib/services/preventiva-service";
@@ -120,9 +120,7 @@ function IndexPage() {
 
   if (authLoading || !isAuthorized || !data) {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center">
-        <ClayLoader size="lg" />
-      </div>
+      <PageLoader />
     );
   }
 

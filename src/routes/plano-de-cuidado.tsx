@@ -5,7 +5,7 @@ import { DesktopPlanoDeCuidadoPage } from "@/components/pages/desktop/PlanoDeCui
 import { BRANDING } from "@/lib/branding";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useAuth } from "@/lib/auth-context";
-import { ClayLoader } from "@/components/ClayLoader";
+import { PageLoader } from "@/components/ClayLoader";
 import {
   loadWellnessPlan,
   createWellnessPlan,
@@ -267,9 +267,7 @@ function PlanoDeCuidadoPage() {
 
   if (authLoading || !isAuthorized || (!loaded && accessToken)) {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center">
-        <ClayLoader size="lg" />
-      </div>
+      <PageLoader />
     );
   }
 

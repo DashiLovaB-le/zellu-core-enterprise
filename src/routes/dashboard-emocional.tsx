@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { ClayLoader } from "@/components/ClayLoader";
+import { PageLoader } from "@/components/ClayLoader";
 
 export const Route = createFileRoute("/dashboard-emocional")({
   head: () => ({
@@ -17,8 +17,6 @@ function RedirectPage() {
   }, [navigate]);
 
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center">
-      <ClayLoader size="lg" />
-    </div>
+    <PageLoader />
   );
 }

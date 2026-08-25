@@ -4,6 +4,7 @@ import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 import { useAuth } from "@/lib/auth-context";
 import type { TimelineData } from "@/lib/services/timeline-service";
+import { MascotEmpty } from "@/components/Mascot";
 import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 
@@ -172,9 +173,11 @@ export function MobileTimelinePage({ data, onSaveEntry, preventiveAlert, onSugge
 
         <div className="flex flex-col gap-3">
           {data.days.length === 0 && !showNewEntry && (
-            <p className="py-6 text-center text-xs text-[var(--clay-title)]/50">
-              Nenhum registro ainda. Clique em "Nova" para começar sua timeline.
-            </p>
+            <MascotEmpty
+              pose="empty"
+              size="sm"
+              description='Nenhum registro ainda. Clique em "Nova" para começar sua timeline.'
+            />
           )}
           {data.days.map((day) => (
             <div key={day.date} className="rounded-xl bg-white/60 p-3 shadow-sm">

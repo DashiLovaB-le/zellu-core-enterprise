@@ -3,6 +3,7 @@ import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 import { MEALS, WATER_GOAL, getSleepLabel } from "@/data";
+import { Mascot } from "@/components/Mascot";
 
 interface HabitosPageProps {
   water: number;
@@ -63,6 +64,7 @@ export function MobileHabitosPage({
   return (
     <MobileShell>
       <header className="mb-4 flex items-center gap-3">
+        <Mascot pose="idle-calm" size="sm" />
         <Avatar size={36} />
         <div>
           <h1 className="font-display text-xl text-[var(--clay-title)]">Meus Hábitos</h1>

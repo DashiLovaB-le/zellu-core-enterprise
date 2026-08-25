@@ -3,6 +3,7 @@ import { DesktopShell } from "@/components/DesktopShell";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth-context";
 import { getSleepLabel, MAIN_MOODS, EXTRA_MOODS, MOOD_MAP } from "@/data";
+import { Mascot } from "@/components/Mascot";
 
 interface CheckinData {
   id: string;
@@ -73,9 +74,7 @@ export function DesktopCheckinPage({ onSave, saved, saving, todaysCheckin }: Che
 
           <div className="rounded-2xl bg-white/70 p-6 shadow-sm backdrop-blur-md">
             <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#C8E6C9]/60 to-[#D7CBE8]/50">
-                <span className="text-3xl">✓</span>
-              </div>
+              <Mascot pose="cheer" size="md" />
               <div>
                 <h2 className="font-display text-lg text-[var(--clay-title)]">
                   Check-in completo!
@@ -135,6 +134,7 @@ export function DesktopCheckinPage({ onSave, saved, saving, todaysCheckin }: Che
     <DesktopShell>
       <div className="mx-auto max-w-2xl">
         <header className="mb-6 flex items-center gap-3">
+          <Mascot pose="encourage" size="md" />
           <Avatar name={user?.avatar_url ?? undefined} size={40} />
           <div>
             <h1 className="font-display text-2xl text-[var(--clay-title)]">Check-in Matinal</h1>

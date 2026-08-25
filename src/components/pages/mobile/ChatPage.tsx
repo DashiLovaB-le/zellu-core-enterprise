@@ -6,6 +6,7 @@ import { ChatMarkdown } from "@/components/ChatMarkdown";
 import type { Msg } from "@/data";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 import { MAIN_MOODS, EXTRA_MOODS } from "@/data/moods";
+import { Mascot } from "@/components/Mascot";
 
 interface ChatPageProps {
   messages: Msg[];
@@ -44,6 +45,7 @@ export function MobileChatPage({
   return (
     <MobileShell>
       <header className="mb-4 flex items-center gap-3 rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">
+        <Mascot pose="listen" size="sm" />
         <Avatar size={44} />
         <div className="min-w-0 flex-1">
           <h1 className="truncate font-display text-base leading-tight text-[var(--clay-title)]">
