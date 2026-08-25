@@ -424,8 +424,6 @@ export interface RootRouteChildren {
   AdminSentimentosRoute: typeof AdminSentimentosRoute
   DashitecnologyPainelDevRoute: typeof DashitecnologyPainelDevRoute
   ManagerConvitesRoute: typeof ManagerConvitesRoute
-  ManagerEquipeTeamIdRoute: typeof ManagerEquipeTeamIdRoute
-  ManagerColaboradorProfileIdRoute: typeof ManagerColaboradorProfileIdRoute
   ManagerEquipesRoute: typeof ManagerEquipesRoute
   ManagerRelatoriosRoute: typeof ManagerRelatoriosRoute
   ManagerRhDashboardRoute: typeof ManagerRhDashboardRoute
@@ -585,20 +583,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerConvitesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/manager/equipe/$teamId': {
-      id: '/manager/equipe/$teamId'
-      path: '/manager/equipe/$teamId'
-      fullPath: '/manager/equipe/$teamId'
-      preLoaderRoute: typeof ManagerEquipeTeamIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager/colaborador/$profileId': {
-      id: '/manager/colaborador/$profileId'
-      path: '/manager/colaborador/$profileId'
-      fullPath: '/manager/colaborador/$profileId'
-      preLoaderRoute: typeof ManagerColaboradorProfileIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashitecnology/$painelDev': {
       id: '/dashitecnology/$painelDev'
       path: '/dashitecnology/$painelDev'
@@ -696,8 +680,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminSentimentosRoute: AdminSentimentosRoute,
   DashitecnologyPainelDevRoute: DashitecnologyPainelDevRoute,
   ManagerConvitesRoute: ManagerConvitesRoute,
-  ManagerEquipeTeamIdRoute: ManagerEquipeTeamIdRoute,
-  ManagerColaboradorProfileIdRoute: ManagerColaboradorProfileIdRoute,
   ManagerEquipesRoute: ManagerEquipesRoute,
   ManagerRelatoriosRoute: ManagerRelatoriosRoute,
   ManagerRhDashboardRoute: ManagerRhDashboardRoute,

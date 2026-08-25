@@ -5,7 +5,6 @@ import { Avatar } from "./Avatar";
 import { BRANDING } from "@/lib/branding";
 import { useAuth } from "@/lib/auth-context";
 import logo from "@/assets/logo.png";
-import { PageTransition } from "./PageTransition";
 
 interface NavItem {
   to: LinkProps["to"];
@@ -69,7 +68,7 @@ export function MobileShell({ children }: { children: ReactNode }) {
         </Link>
       </header>
 
-      <PageTransition>{children}</PageTransition>
+      {children}
 
       <footer className="pointer-events-none fixed bottom-[76px] left-1/2 z-40 -translate-x-1/2 text-center">
         <p className="text-[9px] text-[var(--clay-title)]/25">{BRANDING.poweredBy}</p>

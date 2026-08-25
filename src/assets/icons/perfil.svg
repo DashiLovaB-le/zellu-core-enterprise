@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="perfil-fill" x1="18" y1="10" x2="48" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#C5D9F1"/>
+      <stop offset="45%" stop-color="#99BEE5"/>
+      <stop offset="100%" stop-color="#7FA8D4"/>
+    </linearGradient>
+    <linearGradient id="perfil-highlight" x1="20" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E8DFF5" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#E8DFF5" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="perfil-soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-color="#4A6A8A" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- Cabeça arredondada e macia -->
+  <circle cx="32" cy="22" r="11" fill="url(#perfil-fill)" filter="url(#perfil-soft)"/>
+  <circle cx="28" cy="19" r="5.5" fill="url(#perfil-highlight)"/>
+
+  <!-- Ombros/torso em gotinha fofa -->
+  <path
+    d="M32 34c-9.2 0-16.5 5.2-16.5 12.2 0 3.4 2.6 5.3 6.2 5.3h20.6c3.6 0 6.2-1.9 6.2-5.3C48.5 39.2 41.2 34 32 34Z"
+    fill="url(#perfil-fill)"
+    filter="url(#perfil-soft)"
+  />
+  <ellipse cx="26" cy="42" rx="6" ry="5" fill="url(#perfil-highlight)"/>
+</svg>

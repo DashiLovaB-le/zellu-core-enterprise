@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/lib/auth-context";
 import { ThemeProvider, useTheme } from "@/lib/theme";
 import { BRANDING } from "@/lib/branding";
+import { PageTransition } from "@/components/PageTransition";
 
 function NotFoundComponent() {
   return (
@@ -135,7 +136,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <Outlet />
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
