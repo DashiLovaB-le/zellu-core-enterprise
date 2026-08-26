@@ -2,6 +2,7 @@ import { Link, useRouterState, type LinkProps } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Icon } from "./Icon";
 import { Avatar } from "./Avatar";
+import { ManagerProductTour } from "./ManagerProductTour";
 import { BRANDING } from "@/lib/branding";
 import { useAuth } from "@/lib/auth-context";
 import logo from "@/assets/logo.png";
@@ -33,6 +34,8 @@ export function ManagerShell({ children }: { children: ReactNode }) {
 
   return (
     <>
+      <ManagerProductTour />
+
       {/* Mobile layout */}
       <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-[440px] flex-col px-5 pb-28 pt-6 md:hidden">
         <header className="mb-5 flex items-center justify-between">
