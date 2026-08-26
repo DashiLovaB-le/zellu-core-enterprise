@@ -3,6 +3,8 @@ import { MobileShell } from "@/components/MobileShell";
 import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
 import { ChatCompanionHeader, ChatCompanionThinking } from "@/components/chat/ChatCompanionHeader";
+import { ChatAiSuggestionButton } from "@/components/chat/ChatAiSuggestionButton";
+import { ChatStarterReplies } from "@/components/chat/ChatStarterReplies";
 import type { Msg } from "@/data";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 import { MAIN_MOODS, EXTRA_MOODS } from "@/data/moods";
@@ -103,6 +105,12 @@ export function MobileChatPage({
             >
               {showAllMoods ? "▲ Mostrar menos" : `▼ Ver +${EXTRA_MOODS.length} humores`}
             </button>
+            <ChatStarterReplies
+              companionId={companionId}
+              isAiThinking={isAiThinking}
+              onQuickReply={onQuickReply}
+              className="pt-1"
+            />
           </div>
         )}
 
@@ -110,48 +118,13 @@ export function MobileChatPage({
           messages.length > 0 &&
           messages[messages.length - 1]?.from === "ai" &&
           aiSuggestion && (
-            <button
-              onClick={() => {
-                if (aiSuggestion === "checkin") {
-                  onSuggestionClick?.("fazer check-in");
-                  return;
-                }
-                if (aiSuggestion === "plano") {
-                  onSuggestionClick?.("abrir plano de cuidado");
-                  return;
-                }
-                onQuickReply(
-                  aiSuggestion === "respirar"
-                    ? "Vamos respirar"
-                    : aiSuggestion === "agua"
-                      ? "Beber água"
-                      : aiSuggestion === "pausa"
-                        ? "Fazer uma pausa"
-                        : aiSuggestion === "movimento"
-                          ? "Fazer um alongamento"
-                          : "Como está meu humor",
-                );
-              }}
-              className="w-full rounded-lg bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 px-4 py-2 text-xs font-semibold text-[var(--clay-title)] shadow-sm active:translate-y-px"
-            >
-              {aiSuggestion === "respirar"
-                ? "Respirar"
-                : aiSuggestion === "agua"
-                  ? "Beber água"
-                  : aiSuggestion === "pausa"
-                    ? "Fazer pausa"
-                    : aiSuggestion === "movimento"
-                      ? "Alongar"
-                      : aiSuggestion === "humor"
-                        ? "Ver humor"
-                        : aiSuggestion === "sono"
-                          ? "Ver sono"
-                          : aiSuggestion === "checkin"
-                            ? "Fazer check-in"
-                            : aiSuggestion === "plano"
-                              ? "Abrir plano"
-                              : "Sugestão"}
-            </button>
+            <ChatAiSuggestionButton
+              companionId={companionId}
+              aiSuggestion={aiSuggestion}
+              isAiThinking={isAiThinking}
+              onQuickReply={onQuickReply}
+              onSuggestionClick={onSuggestionClick}
+            />
           )}
 
         <div ref={bottomRef} className="h-px w-full shrink-0 scroll-mb-28" />

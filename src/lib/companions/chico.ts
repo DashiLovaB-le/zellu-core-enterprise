@@ -7,9 +7,9 @@ import think from "@/assets/companions/chico/poses/transparent/think-sm.png";
 import encourage from "@/assets/companions/chico/poses/transparent/encourage-md.png";
 import breathe from "@/assets/companions/chico/poses/transparent/breathe-lg.png";
 import cheer from "@/assets/companions/chico/poses/transparent/cheer-md.png";
+import concern from "@/assets/companions/chico/poses/transparent/concern-md.png";
 import empty from "@/assets/companions/chico/poses/transparent/empty-sm.png";
 
-/** concern: usar encourage até o asset concern-md.png existir */
 const CHICO_POSES: Record<CompanionPose, string> = {
   wave,
   "idle-calm": idleCalm,
@@ -19,7 +19,7 @@ const CHICO_POSES: Record<CompanionPose, string> = {
   breathe,
   cheer,
   empty,
-  concern: encourage,
+  concern,
 };
 
 export const CHICO_COMPANION: CompanionDefinition = {

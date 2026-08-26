@@ -3,6 +3,8 @@ import { DesktopShell } from "@/components/DesktopShell";
 import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
 import { ChatCompanionHeader, ChatCompanionThinking } from "@/components/chat/ChatCompanionHeader";
+import { ChatAiSuggestionButton } from "@/components/chat/ChatAiSuggestionButton";
+import { ChatStarterReplies } from "@/components/chat/ChatStarterReplies";
 import { CompanionMascot } from "@/components/CompanionMascot";
 import type { Msg } from "@/data";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
@@ -102,6 +104,12 @@ export function DesktopChatPage({
                   >
                     {showAllMoods ? "▲ Mostrar menos" : `▼ Ver +${EXTRA_MOODS.length} humores`}
                   </button>
+                  <ChatStarterReplies
+                    companionId={companionId}
+                    isAiThinking={isAiThinking}
+                    onQuickReply={onQuickReply}
+                    className="mt-3"
+                  />
                 </>
               )}
               {aiSuggestion && (
@@ -109,41 +117,14 @@ export function DesktopChatPage({
                   <h3 className="mb-3 mt-4 text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
                     Sugestão
                   </h3>
-                  <button
-                    onClick={() => {
-                      if (aiSuggestion === "checkin") {
-                        onSuggestionClick?.("fazer check-in");
-                        return;
-                      }
-                      if (aiSuggestion === "plano") {
-                        onSuggestionClick?.("abrir plano de cuidado");
-                        return;
-                      }
-                      onQuickReply(
-                        aiSuggestion === "respirar"
-                          ? "Vamos respirar"
-                          : aiSuggestion === "agua"
-                            ? "Beber água"
-                            : aiSuggestion === "pausa"
-                              ? "Fazer uma pausa"
-                              : "Fazer um alongamento",
-                      );
-                    }}
-                    disabled={isAiThinking}
+                  <ChatAiSuggestionButton
+                    companionId={companionId}
+                    aiSuggestion={aiSuggestion}
+                    isAiThinking={isAiThinking}
+                    onQuickReply={onQuickReply}
+                    onSuggestionClick={onSuggestionClick}
                     className="w-full rounded-xl bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 p-3 text-center text-sm font-semibold text-[var(--clay-title)] shadow-sm active:translate-y-px disabled:opacity-50"
-                  >
-                    {aiSuggestion === "respirar"
-                      ? "Respirar"
-                      : aiSuggestion === "agua"
-                        ? "Beber água"
-                        : aiSuggestion === "pausa"
-                          ? "Fazer pausa"
-                          : aiSuggestion === "checkin"
-                            ? "Fazer check-in"
-                            : aiSuggestion === "plano"
-                              ? "Abrir plano"
-                              : "Alongar"}
-                  </button>
+                  />
                 </>
               )}
             </div>

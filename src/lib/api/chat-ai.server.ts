@@ -14,7 +14,7 @@ import {
   isCompanionParseFailureMessage,
   parseCompanionAiPayload,
 } from "@/lib/companion-agent";
-import { buildLocalFallbackReply } from "@/lib/companion-local-fallback";
+import { buildLocalFallbackReplyForAvatar } from "@/lib/companion-local-fallback";
 import { planGoalLabel } from "@/lib/companion-portrait";
 import {
   companionContextBlock,
@@ -221,9 +221,10 @@ ${COMPANION_JSON_PROTOCOL}`;
         },
         userId,
       );
-      const reply = buildLocalFallbackReply(
+      const reply = buildLocalFallbackReplyForAvatar(
         data.text,
         preferredName,
+        profile?.avatar_url,
         fallbackContext,
         history,
       );
@@ -258,9 +259,10 @@ ${COMPANION_JSON_PROTOCOL}`;
 
     if ("error" in result) {
       logLlmFallback(String(result.error), { userId });
-      const reply = buildLocalFallbackReply(
+      const reply = buildLocalFallbackReplyForAvatar(
         data.text,
         preferredName,
+        profile?.avatar_url,
         fallbackContext,
         history,
       );
@@ -288,9 +290,10 @@ ${COMPANION_JSON_PROTOCOL}`;
         model: result.model,
         preview: result.content.slice(0, 120),
       });
-      const reply = buildLocalFallbackReply(
+      const reply = buildLocalFallbackReplyForAvatar(
         data.text,
         preferredName,
+        profile?.avatar_url,
         fallbackContext,
         history,
       );

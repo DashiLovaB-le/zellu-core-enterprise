@@ -1,4 +1,10 @@
 import { ALL_MOODS } from "@/data/moods";
+import {
+  companionFallbackPhrase,
+  type FallbackVoiceKey,
+} from "@/lib/companions/fallback-voice";
+import { resolveCompanionId } from "@/lib/companions/registry";
+import type { CompanionId } from "@/lib/companions/types";
 
 export type LocalFallbackContext = {
   sleepHours?: number;
@@ -8,6 +14,7 @@ export type LocalFallbackContext = {
   greeting?: string;
   preferredName?: string;
   planGoal?: string;
+  companionId?: CompanionId;
 };
 
 export type LocalFallbackTurn = { role: "user" | "assistant"; content: string };
@@ -26,6 +33,18 @@ const MOOD_STILL = /\b(ainda|continuo|continua|mesmo|mesma)\b/i;
 
 const MOOD_LABELS = new Set(ALL_MOODS.map((m) => m.label.toLowerCase()));
 const MOOD_VALUES = new Set(ALL_MOODS.map((m) => m.value.toLowerCase()));
+
+function resolveCompanion(context: LocalFallbackContext): CompanionId {
+  return context.companionId ?? "Chico";
+}
+
+function say(
+  context: LocalFallbackContext,
+  key: FallbackVoiceKey,
+  params: Parameters<typeof companionFallbackPhrase>[2],
+): string {
+  return companionFallbackPhrase(resolveCompanion(context), key, params);
+}
 
 function address(name: string, context: LocalFallbackContext): string {
   const who = context.preferredName?.trim() || name;
@@ -82,83 +101,93 @@ export function buildLocalFallbackReply(
   const moodLabel = normalizeMoodLabel(text);
   const askedMoodBefore = assistantAlreadyAskedMoodCheck(history);
   const sharedMoodBefore = userAlreadySharedCurrentMood(history);
+  const voiceParams = { who, salutation: context.greeting };
 
   if (REPEAT_FRUSTRATION.test(lower)) {
     const lastReply = lastAssistantReply(history);
     if (lastReply && /pausa|alongamento|grato|gratidão/i.test(lastReply)) {
-      return `Faz sentido — você já tinha compartilhado isso comigo.\n\nVamos seguir de onde paramos: se quiser, faça aquela **pausa curta** agora (2–3 minutos sem tela) ou me conte o que mais está ocupando sua mente hoje.`;
+      return say(context, "repeatWithLast", voiceParams);
     }
-    return `Você tem razão, desculpe pela repetição.\n\nMe conta: o que seria mais útil agora — **conversar**, **respirar** um pouco ou **registrar** como está se sentindo?`;
+    return say(context, "repeatGeneric", voiceParams);
   }
 
   if (GREETING.test(lower) && lower.length < 40) {
-    const salutation = context.greeting ?? "Olá";
-    return `${salutation}! Estou por aqui para apoiar seu bem-estar no dia a dia.\n\nO que você gostaria de conversar ou cuidar agora?`;
+    return say(context, "greeting", voiceParams);
   }
 
   if (moodLabel) {
     const planHint = context.planGoal ? ` Seu plano agora é ${context.planGoal.toLowerCase()}.` : "";
-    return `Entendo — agora você se sente **${moodLabel.toLowerCase()}**.${planHint}\n\nObrigado por compartilhar. Quer me contar o que mais está presente para você neste momento?`;
+    return say(context, "moodLabel", { ...voiceParams, moodLabel: moodLabel.toLowerCase(), planHint });
   }
 
   if (BREATHE.test(lower)) {
-    return `${who}vamos respirar juntos por um instante.\n\n- Inspire contando até **4**\n- Segure por **2**\n- Solte contando até **6**\n\nRepita mais duas vezes, no seu ritmo.`;
+    return say(context, "breathe", voiceParams);
   }
 
   if (PAUSE.test(lower)) {
-    return `Boa escolha. Uma **pausa curta** já ajuda:\n\n- Afaste-se da tela por 2–3 minutos\n- Beba um gole de água ou alongue ombros e pescoço\n- Volte quando se sentir um pouco mais presente`;
+    return say(context, "pause", voiceParams);
   }
 
   if (HYDRATION.test(lower)) {
-    return `Boa ideia cuidar da **hidratação**.\n\nUm copo de água agora já conta — pequenos hábitos sustentam o bem-estar ao longo do dia.`;
+    return say(context, "hydration", voiceParams);
   }
 
   if (lower.includes("ansios") || lower.includes("preocup") || lower.includes("nervos")) {
-    return `${who}entendo que a **ansiedade** pode pesar.\n\nQue tal uma respiração curta?\n- Inspire contando até **4**\n- Segure por **2**\n- Solte contando até **6**`;
+    return say(context, "anxiety", voiceParams);
   }
 
   if (lower.includes("triste") || lower.includes("mal") || lower.includes("desanim") || lower.includes("baixo")) {
-    return `${who}obrigado por compartilhar como está se sentindo.\n\nMomentos difíceis fazem parte — um passo pequeno, como *beber água* ou *uma caminhada curta*, pode ajudar.`;
+    return say(context, "sad", voiceParams);
   }
 
   if (GRATITUDE.test(lower) || POSITIVE_MOOD.test(lower)) {
     if (MOOD_STILL.test(lower) && (context.mood || sharedMoodBefore)) {
       const moodWord = context.mood ?? "bem";
-      return `${who}que bom saber que você **continua se sentindo ${moodWord}**.\n\nEsse tipo de momento vale ser notado. Se fizer sentido, aproveite para uma pausa curta ou um alongamento leve e mantenha esse cuidado ao longo do dia.`;
+      return say(context, "positiveStill", { ...voiceParams, moodWord });
     }
     if (context.mood && POSITIVE_MOOD.test(context.mood)) {
-      return `${who}que bom saber que você está se sentindo **${context.mood}** hoje.\n\nEsse tipo de momento vale ser notado. Se fizer sentido, aproveite para uma pausa curta ou um alongamento leve e mantenha esse cuidado ao longo do dia.`;
+      return say(context, "positiveContextMood", { ...voiceParams, moodWord: context.mood });
     }
-    return `${who}fico feliz em saber que o dia está indo bem.\n\nSe quiser, vale registrar isso no check-in ou fazer uma pausa breve para prolongar essa sensação.`;
+    return say(context, "positiveGeneric", voiceParams);
   }
 
   if (MOVEMENT.test(lower)) {
-    return `Ótima ideia. Um **alongamento curto** (pescoço, ombros e costas por 2–3 minutos) pode ajudar corpo e mente.\n\nRespire devagar enquanto alonga e volte ao que estava fazendo com mais presença.`;
+    return say(context, "movement", voiceParams);
   }
 
   if (lower.includes("sono") || lower.includes("dorm") || lower.includes("cansad")) {
-    return context.sleepLabel
-      ? `Vi que seu sono recente foi **${context.sleepLabel.toLowerCase()}**.\n\nSe puder hoje: reduzir telas antes de dormir e manter um horário mais regular.`
-      : `${who}o **cansaço** pede cuidado.\n\nPriorize uma pausa sem telas e, se possível, um horário de sono mais estável esta noite.`;
+    if (context.sleepLabel) {
+      return say(context, "sleepWithLabel", { ...voiceParams, sleepLabel: context.sleepLabel.toLowerCase() });
+    }
+    return say(context, "sleepTired", voiceParams);
   }
 
   if (WORK_STRESS.test(lower)) {
-    return `${who}parece que o **trabalho** está pesando.\n\nTalvez ajude separar uma tarefa de cada vez e fazer uma pausa curta antes de retomar. Quer me contar o que está mais intenso agora?`;
+    return say(context, "workStress", voiceParams);
   }
 
-  if (
-    context.mood &&
-    lower.length < 24 &&
-    !askedMoodBefore &&
-    !sharedMoodBefore
-  ) {
-    return `${who}obrigado por escrever.\n\nPelo seu check-in recente, seu humor estava **"${context.mood}"** — como você se sente *agora*, comparado a isso?`;
+  if (context.mood && lower.length < 24 && !askedMoodBefore && !sharedMoodBefore) {
+    return say(context, "moodCheckShort", { ...voiceParams, moodWord: context.mood });
   }
 
   if (context.mood) {
     const snippet = text.length > 80 ? `${text.slice(0, 77)}…` : text;
-    return `${who}obrigado por compartilhar.\n\nPelo que você escreveu — *"${snippet}"* — o que você gostaria de fazer a seguir para cuidar de si?`;
+    return say(context, "moodGenericSnippet", { ...voiceParams, snippet });
   }
 
-  return `${who}obrigado por escrever. Estou disponível para conversar.\n\nPode me contar um pouco mais sobre como está se *sentindo* agora?`;
+  return say(context, "default", voiceParams);
+}
+
+/** Resolve companion a partir do avatar_url do perfil */
+export function buildLocalFallbackReplyForAvatar(
+  text: string,
+  name: string,
+  avatarUrl: string | null | undefined,
+  context: Omit<LocalFallbackContext, "companionId">,
+  history: LocalFallbackTurn[] = [],
+): string {
+  return buildLocalFallbackReply(text, name, {
+    ...context,
+    companionId: resolveCompanionId(avatarUrl),
+  }, history);
 }

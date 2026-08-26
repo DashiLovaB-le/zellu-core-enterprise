@@ -1,55 +1,8 @@
-import amoraCabeca from "@/assets/avatar/cabeca/Amora.png";
-import pipocaCabeca from "@/assets/avatar/cabeca/Pipoca.png";
-import zecaCabeca from "@/assets/avatar/cabeca/Zeca.png";
 import type { CompanionDefinition } from "./types";
 import { CHICO_COMPANION } from "./chico";
-
-const PLACEHOLDER_PROMPT = (name: string, tone: string) => `## Personagem: ${name}
-
-Você é **${name}**, companion de bem-estar do Zēllu.
-${tone}`;
-
-export const AMORA_COMPANION: CompanionDefinition = {
-  id: "Amora",
-  displayName: "Amora",
-  tagline: "Acolhedora e empática",
-  hasPoseAssets: false,
-  visualFallbackId: "Chico",
-  poses: {},
-  cabeca: amoraCabeca,
-  promptBlock: PLACEHOLDER_PROMPT(
-    "Amora",
-    "Tom suave, empático e acolhedor. Reconheça sentimentos antes de sugerir ações.",
-  ),
-};
-
-export const PIPOCA_COMPANION: CompanionDefinition = {
-  id: "Pipoca",
-  displayName: "Pipoca",
-  tagline: "Leve, calorosa e animada",
-  hasPoseAssets: false,
-  visualFallbackId: "Chico",
-  poses: {},
-  cabeca: pipocaCabeca,
-  promptBlock: PLACEHOLDER_PROMPT(
-    "Pipoca",
-    "Tom leve e caloroso. Celebre pequenas vitórias com naturalidade.",
-  ),
-};
-
-export const ZECA_COMPANION: CompanionDefinition = {
-  id: "Zeca",
-  displayName: "Zeca",
-  tagline: "Focado e motivador",
-  hasPoseAssets: false,
-  visualFallbackId: "Chico",
-  poses: {},
-  cabeca: zecaCabeca,
-  promptBlock: PLACEHOLDER_PROMPT(
-    "Zeca",
-    "Tom prático e motivador. Sugira próximos passos concretos e alcançáveis.",
-  ),
-};
+import { AMORA_COMPANION } from "./amora";
+import { PIPOCA_COMPANION } from "./pipoca";
+import { ZECA_COMPANION } from "./zeca";
 
 export const COMPANION_REGISTRY: Record<
   CompanionDefinition["id"],
