@@ -113,7 +113,8 @@ function buildHeaders(source: string, apiKey: string): Record<string, string> {
   };
   if (source.startsWith("chat-ai")) {
     headers["HTTP-Referer"] = "https://zellu.app";
-    headers["X-Title"] = "Zēllu Companion";
+    // HTTP headers must be ASCII (ByteString) — "Zēllu" breaks fetch in Node
+    headers["X-Title"] = "Zellu Companion";
   }
   return headers;
 }
