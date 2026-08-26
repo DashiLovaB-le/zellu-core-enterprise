@@ -1,8 +1,8 @@
 # FRD — Functional Requirement Document
 
 > **Projeto:** Mundo Mental Care  
-> **Versão:** 1.1  
-> **Data:** 2026-08-18
+> **Versão:** 1.2  
+> **Data:** 2026-08-26
 
 ---
 
@@ -18,19 +18,32 @@ Este documento traduz os requisitos do PRD em comportamentos exatos que o códig
 
 **Não há self-signup com escolha de role.** O colaborador ou gestor entra por `/aceitar-convite?token=`.
 
-**Entrada (aceite):**
+#### Criação (RH — `/manager/convites`)
+
+1. Manager/admin informa e-mail + role (`companion` | `manager`)
+2. `createInvite` valida seats (`company_has_available_seat`: ativos + pendentes < seats)
+3. Gera token (64 hex), validade **7 dias**, grava em `invites`
+4. Se `RESEND_API_KEY` existir → e-mail com botão para `/aceitar-convite?token=...`
+5. Sem Resend → convite criado; UI exibe o link para copiar
+6. `cancelInvite` remove convite **não aceito** (libera seat na contagem); aceitos não cancelam
+
+#### Aceite
+
+**Entrada:**
 ```typescript
 {
   token: string
   password: string  // mínimo 8 caracteres
+  displayName?: string
 }
 ```
 
 **Comportamento:**
-1. `getInviteByToken` valida token, prazo e se já foi usado
+1. `getInviteByToken` valida token, prazo e se já foi usado (RPC `get_invite_public`)
 2. `acceptInvite` cria o usuário no Auth, vincula `profiles.company_id` / `team_id` / `role` do convite
 3. Trigger `handle_new_user()` cria o profile com role default `companion`; o aceite sobrescreve role/empresa do convite no servidor
-4. `user_metadata.role` **não autoriza nada**; a fonte é `profiles.role`
+4. Marca `accepted_at` e incrementa `licenses.seats_used`
+5. Login automático; `user_metadata.role` **não autoriza nada**; a fonte é `profiles.role`
 
 **Saída:**
 - Companion → `/onboarding` (consentimento LGPD + nome/fuso)
@@ -39,9 +52,12 @@ Este documento traduz os requisitos do PRD em comportamentos exatos que o códig
 **Regras de Negócio:**
 - Signup sem convite válido falha
 - Roles no convite: `companion` | `manager` (admin/dev não se auto-atribuem)
-- Licenças: novo convite bloqueado se `seats_used >= seats`
+- Licenças: novo convite bloqueado se não houver seat disponível
+- Link cancelado ou expirado não aceita conta
 
 ### 2.2 Login
+
+**UI:** `/login` — card clay centralizado (mascote + marca + formulário); sem cadastro aberto; link “Recebi um convite” → `/aceitar-convite`.
 
 **Entrada:**
 ```typescript
@@ -64,7 +80,7 @@ Este documento traduz os requisitos do PRD em comportamentos exatos que o códig
 
 **Saída:**
 - Sucesso: redirect + sessão persistente
-- Erro: toast "Email ou senha incorretos"
+- Erro: alerta inline no formulário
 
 ### 2.3 Proteção de Rotas
 

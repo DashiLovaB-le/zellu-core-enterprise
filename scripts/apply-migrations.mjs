@@ -32,6 +32,7 @@ const migrations = [
   ["014_rh_member_summary", "supabase/migrations/014_rh_member_summary.sql"],
   ["015_directory_avatar", "supabase/migrations/015_directory_avatar.sql"],
   ["016_set_employee_job_title", "supabase/migrations/016_set_employee_job_title.sql"],
+  ["017_product_tour", "supabase/migrations/017_product_tour.sql"],
 ];
 
 async function listMigrations() {

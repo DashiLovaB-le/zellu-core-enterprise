@@ -13,6 +13,7 @@ export type ProfileRow = {
   privacy_consent_at: string | null;
   privacy_consent_version: string | null;
   onboarding_completed_at: string | null;
+  product_tour_completed_at?: string | null;
   is_active: boolean | null;
   support_channel?: string | null;
   privacy_ai_opt_in?: boolean | null;

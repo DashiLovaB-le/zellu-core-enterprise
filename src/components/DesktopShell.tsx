@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Icon } from "./Icon";
 import { Avatar } from "./Avatar";
+import { CompanionProductTour } from "./CompanionProductTour";
 import { BRANDING } from "@/lib/branding";
 import { useAuth } from "@/lib/auth-context";
 import logo from "@/assets/logo.png";
@@ -70,6 +71,8 @@ export function DesktopShell({ children }: { children: ReactNode }) {
       <footer className="border-t border-border/20 py-3 text-center">
         <p className="text-[10px] text-[var(--clay-title)]/30">{BRANDING.poweredBy}</p>
       </footer>
+
+      <CompanionProductTour />
     </div>
   );
 }

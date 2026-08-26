@@ -1,8 +1,8 @@
 # Playbook de Deploy — Mundo Mental Care (Vercel)
 
 > **Projeto:** Mundo Mental Care  
-> **Versão:** 1.1  
-> **Data:** 2026-08-18
+> **Versão:** 1.2  
+> **Data:** 2026-08-26
 
 O app é TanStack Start + Nitro. A Vercel detecta o framework `tanstack-start` via `vercel.json` e o preset Nitro `vercel` em `vite.config.ts`.
 
@@ -43,14 +43,32 @@ VITE_APP_URL=https://seu-dominio.vercel.app
 | `SUPABASE_SERVICE_ROLE_KEY` | Idem | **Somente servidor** |
 | `OPENROUTER_API_KEY` | OpenRouter → Keys | **Somente servidor** |
 | `CRON_SECRET` | Gerar localmente | A Vercel envia `Authorization: Bearer $CRON_SECRET` nos crons |
-| `APP_BASE_URL` / `VITE_APP_URL` | URL canônica | Links de convite |
+| `APP_BASE_URL` / `VITE_APP_URL` | URL canônica | Links de convite no e-mail e na UI |
 
-### 2.2 Opcionais
+### 2.2 E-mail (Resend) — convites e lembretes
+
+Opcional: sem `RESEND_API_KEY`, o app **cria** o convite e mostra o link na tela do RH para copiar.
 
 ```env
-RESEND_API_KEY=
-REMINDER_FROM_EMAIL=Mundo Mental Care <noreply@mundomental.care>
+RESEND_API_KEY=re_...
+REMINDER_FROM_EMAIL=Mundo Mental Care <noreply@seudominio.com>
+# INVITE_FROM_EMAIL=  # opcional; senão usa REMINDER_FROM_EMAIL
 ```
+
+| Variável | Uso |
+|---|---|
+| `RESEND_API_KEY` | API Resend (servidor apenas; **nunca** `VITE_`) |
+| `REMINDER_FROM_EMAIL` | Remetente de lembretes de check-in e, por padrão, de convites |
+| `INVITE_FROM_EMAIL` | Remetente só de convites (opcional) |
+
+**Passos:**
+1. Conta em [resend.com](https://resend.com) → API Key
+2. **Domains** → verificar DNS (SPF/DKIM) do domínio do `FROM`
+3. Sandbox `onboarding@resend.dev` só envia para o e-mail da conta Resend (teste)
+4. Em produção, cadastrar as vars na Vercel e redeploy
+5. Testar em `/manager/convites`: sucesso = “Convite enviado para …”; sem key = link para copiar
+
+Código: `src/lib/email.server.ts` (`sendInviteEmail`) chamado por `createInvite`.
 
 Não use `SUPABASE_URL` / `SUPABASE_ANON_KEY` sem o prefixo `VITE_` — o cliente lê `import.meta.env.VITE_*`.
 
@@ -79,6 +97,8 @@ vercel env add OPENROUTER_API_KEY
 vercel env add CRON_SECRET
 vercel env add APP_BASE_URL
 vercel env add VITE_APP_URL
+vercel env add RESEND_API_KEY
+vercel env add REMINDER_FROM_EMAIL
 vercel --prod
 ```
 

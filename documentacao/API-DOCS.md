@@ -1,8 +1,8 @@
 # API — Documentação de Server Functions
 
 > **Projeto:** Mundo Mental Care  
-> **Versão:** 1.1  
-> **Data:** 2026-08-18  
+> **Versão:** 1.2  
+> **Data:** 2026-08-26  
 > **Tipo:** Server Functions (TanStack Start)
 
 ---
@@ -44,13 +44,33 @@ Cadastro: `invites.server.ts` → `acceptInvite`.
 
 | Função | Quem chama | Efeito |
 |---|---|---|
-| `createInvite` | manager/admin | Token, e-mail, role companion\|manager, respeita seats |
-| `listInvites` | manager/admin | Lista da empresa |
-| `getInviteByToken` | público | Preview do convite |
-| `acceptInvite` | público autenticável | Cria user + vincula empresa/role |
+| `createInvite` | manager/admin | Token (7 dias), e-mail, role companion\|manager; respeita seats; dispara e-mail via Resend quando configurado |
+| `listInvites` | manager/admin | Lista da empresa (pendente / aceito / expirado) |
+| `cancelInvite` | manager/admin | Remove convite **não aceito**; libera vaga na contagem de seats; link deixa de funcionar |
+| `getInviteByToken` | público | Preview do convite (RPC `get_invite_public`) |
+| `acceptInvite` | público | Cria user Auth + profile; marca `accepted_at`; incrementa `seats_used` |
 | `listCompanyMembers` | manager | RPC `list_company_directory` (sem flags de saúde) |
 | `setEmployeeActive` | manager/admin | `is_active` |
 | `completeOnboarding` | companion | nome + timezone |
+
+### 3.1 `createInvite` — retorno e e-mail
+
+```typescript
+{
+  error: string | null
+  inviteUrl: string | null          // /aceitar-convite?token=...
+  invite?: { id, email, role, expires_at, token }
+  emailSent: boolean                // true se Resend enviou
+  emailSkipped: boolean             // true se RESEND_API_KEY ausente
+  emailError?: string | null        // falha Resend (convite ainda criado)
+}
+```
+
+Envio: `src/lib/email.server.ts` → `sendInviteEmail` (HTML + texto, botão “Criar conta e entrar”).  
+Remetente: `INVITE_FROM_EMAIL` → `REMINDER_FROM_EMAIL` → default `Mundo Mental Care <noreply@mundomental.care>`.  
+Base do link: `getAppBaseUrl()` (`APP_BASE_URL` / `VITE_APP_URL`).
+
+UI RH: `/manager/convites` — gera convite, feedback de e-mail, lista com **Cancelar** (pendentes/expirados).
 
 ---
 

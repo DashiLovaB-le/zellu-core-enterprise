@@ -4,6 +4,7 @@ import { ManagerShell } from "@/components/ManagerShell";
 import { useAuth } from "@/lib/auth-context";
 import { BRANDING } from "@/lib/branding";
 import {
+  cancelInvite,
   createInvite,
   listCompanyMembers,
   listInvites,
@@ -23,8 +24,18 @@ function ManagerConvitesPage() {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"companion" | "manager">("companion");
   const [inviteUrl, setInviteUrl] = useState<string | null>(null);
+  const [inviteFeedback, setInviteFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [invites, setInvites] = useState<Array<{ id: string; email: string; role: string; accepted_at: string | null }>>([]);
+  const [invites, setInvites] = useState<
+    Array<{
+      id: string;
+      email: string;
+      role: string;
+      accepted_at: string | null;
+      expires_at: string;
+    }>
+  >([]);
+  const [cancelingId, setCancelingId] = useState<string | null>(null);
   const [members, setMembers] = useState<
     Array<{ id: string; email: string | null; display_name: string | null; role: string; is_active: boolean }>
   >([]);
@@ -48,23 +59,63 @@ function ManagerConvitesPage() {
     e.preventDefault();
     setError(null);
     setInviteUrl(null);
+    setInviteFeedback(null);
+    const trimmedEmail = email.trim();
     const result = await createInvite({
-      data: { email, role },
+      data: { email: trimmedEmail, role },
     });
     if (result.error) {
       setError(result.error);
       return;
     }
-    setInviteUrl(result.inviteUrl);
+    if (result.emailSent) {
+      setInviteFeedback(`Convite enviado para ${trimmedEmail}. A pessoa receberá um link para criar a conta.`);
+      setInviteUrl(null);
+    } else if (result.emailSkipped) {
+      setInviteFeedback("Convite criado. Envio por e-mail não configurado — copie o link abaixo.");
+      setInviteUrl(result.inviteUrl);
+    } else {
+      setInviteFeedback(
+        result.emailError
+          ? `Convite criado, mas o e-mail não foi enviado. Copie o link abaixo.`
+          : null,
+      );
+      setInviteUrl(result.inviteUrl);
+      if (result.emailError) {
+        setError(`E-mail: ${result.emailError}`);
+      }
+    }
     setEmail("");
     await reload();
+  };
+
+  const handleCancelInvite = async (inv: (typeof invites)[number]) => {
+    if (inv.accepted_at) return;
+    if (!window.confirm(`Cancelar o convite para ${inv.email}? O link deixará de funcionar.`)) return;
+
+    setCancelingId(inv.id);
+    setError(null);
+    const result = await cancelInvite({ data: { inviteId: inv.id } });
+    setCancelingId(null);
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+    await reload();
+  };
+
+  const inviteStatus = (inv: (typeof invites)[number]) => {
+    if (inv.accepted_at) return "aceito";
+    if (new Date(inv.expires_at) < new Date()) return "expirado";
+    return "pendente";
   };
 
   return (
     <ManagerShell>
       <h1 className="font-display text-2xl text-[var(--clay-title)]">Pessoas e convites</h1>
       <p className="mt-1 text-xs text-[var(--clay-text)]/70">
-        Convites substituem o cadastro aberto. Novos acessos respeitam as licenças da empresa.
+        Convites substituem o cadastro aberto. Ao gerar, enviamos o link por e-mail (se configurado) ou
+        exibimos aqui para copiar.
       </p>
 
       <form onSubmit={sendInvite} className="mt-5 flex flex-col gap-2 sm:flex-row">
@@ -91,6 +142,9 @@ function ManagerConvitesPage() {
           Gerar convite
         </button>
       </form>
+      {inviteFeedback && (
+        <p className="mt-2 text-xs text-[var(--clay-text)]">{inviteFeedback}</p>
+      )}
       {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
       {inviteUrl && (
         <p className="mt-2 break-all text-xs text-[var(--clay-text)]">
@@ -100,11 +154,35 @@ function ManagerConvitesPage() {
 
       <h2 className="mt-8 text-sm font-bold text-[var(--clay-title)]">Convites</h2>
       <ul className="mt-2 space-y-2">
-        {invites.map((inv) => (
-          <li key={inv.id} className="rounded-xl bg-white/70 p-3 text-xs shadow-sm">
-            {inv.email} · {inv.role} · {inv.accepted_at ? "aceito" : "pendente"}
+        {invites.map((inv) => {
+          const status = inviteStatus(inv);
+          const canCancel = !inv.accepted_at;
+          return (
+            <li
+              key={inv.id}
+              className="flex items-center justify-between gap-3 rounded-xl bg-white/70 p-3 text-xs shadow-sm"
+            >
+              <span className="min-w-0 truncate text-[var(--clay-text)]">
+                {inv.email} · {inv.role === "manager" ? "RH" : "Colaborador"} · {status}
+              </span>
+              {canCancel ? (
+                <button
+                  type="button"
+                  disabled={cancelingId === inv.id}
+                  onClick={() => void handleCancelInvite(inv)}
+                  className="shrink-0 font-semibold text-red-500/80 hover:text-red-600 disabled:opacity-50"
+                >
+                  {cancelingId === inv.id ? "Cancelando…" : "Cancelar"}
+                </button>
+              ) : null}
+            </li>
+          );
+        })}
+        {invites.length === 0 && (
+          <li className="rounded-xl bg-white/50 p-3 text-xs text-[var(--clay-title)]/50">
+            Nenhum convite ainda.
           </li>
-        ))}
+        )}
       </ul>
 
       <h2 className="mt-8 text-sm font-bold text-[var(--clay-title)]">Equipe</h2>

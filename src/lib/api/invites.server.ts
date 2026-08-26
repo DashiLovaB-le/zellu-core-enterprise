@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin.server";
 import { getAppBaseUrl } from "@/lib/config.server";
+import { sendInviteEmail } from "@/lib/email.server";
 import { requireAdmin, requireManager, requireUser } from "@/lib/require-user";
 import { logEvent } from "@/lib/api/logs.server";
 
@@ -62,7 +63,13 @@ export const createInvite = createServerFn({ method: "POST" })
     if (!companyId) return { error: "Empresa não encontrada.", inviteUrl: null };
 
     const seatError = await assertSeatsAvailable(supabase, companyId);
-    if (seatError) return { error: seatError, inviteUrl: null };
+    if (seatError) return { error: seatError, inviteUrl: null, emailSent: false, emailSkipped: false };
+
+    const { data: company } = await supabase
+      .from("companies")
+      .select("name")
+      .eq("id", companyId)
+      .maybeSingle();
 
     const token = randomToken();
     const expires = new Date(Date.now() + 7 * 86400000).toISOString();
@@ -81,9 +88,36 @@ export const createInvite = createServerFn({ method: "POST" })
       .select("id, email, role, expires_at, token")
       .single();
 
-    if (error) return { error: error.message, inviteUrl: null };
+    if (error) return { error: error.message, inviteUrl: null, emailSent: false, emailSkipped: false };
 
     const inviteUrl = `${appBaseUrl()}/aceitar-convite?token=${token}`;
+
+    const emailResult = await sendInviteEmail({
+      to: row.email,
+      inviteUrl,
+      companyName: company?.name ?? "sua empresa",
+      role: data.role,
+      expiresAt: row.expires_at,
+    });
+
+    if (emailResult.sent) {
+      void logEvent(
+        "info",
+        "invites.sendInviteEmail",
+        "E-mail de convite enviado",
+        { company_id: companyId, role: data.role },
+        userId,
+      );
+    } else if (emailResult.error) {
+      void logEvent(
+        "warn",
+        "invites.sendInviteEmail",
+        "Falha ao enviar e-mail de convite",
+        { company_id: companyId, error: emailResult.error },
+        userId,
+      );
+    }
+
     void logEvent(
       "info",
       "invites.createInvite",
@@ -92,7 +126,14 @@ export const createInvite = createServerFn({ method: "POST" })
       userId,
     );
 
-    return { error: null, inviteUrl, invite: row };
+    return {
+      error: null,
+      inviteUrl,
+      invite: row,
+      emailSent: emailResult.sent,
+      emailSkipped: emailResult.skipped ?? false,
+      emailError: emailResult.error,
+    };
   });
 
 export const listInvites = createServerFn({ method: "POST" })
@@ -123,6 +164,50 @@ export const listInvites = createServerFn({ method: "POST" })
     if (manager.companyId) query = query.eq("company_id", manager.companyId);
     const { data: rows, error } = await query;
     return { data: rows ?? [], error: error?.message ?? null };
+  });
+
+export const cancelInvite = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ inviteId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const manager = await requireManager();
+    const adminAuth = await requireAdmin();
+    const isAdmin = !("error" in adminAuth);
+
+    let userId: string;
+    let supabase: SupabaseClient;
+
+    if (isAdmin) {
+      userId = adminAuth.userId;
+      supabase = adminAuth.supabase;
+    } else if (!("error" in manager)) {
+      userId = manager.userId;
+      supabase = manager.supabase;
+    } else {
+      return { error: "Unauthorized" };
+    }
+
+    const { data: invite, error: fetchError } = await supabase
+      .from("invites")
+      .select("id, email, company_id, accepted_at")
+      .eq("id", data.inviteId)
+      .maybeSingle();
+
+    if (fetchError) return { error: fetchError.message };
+    if (!invite) return { error: "Convite não encontrado." };
+    if (invite.accepted_at) return { error: "Convites já aceitos não podem ser cancelados." };
+
+    const { error: deleteError } = await supabase.from("invites").delete().eq("id", data.inviteId);
+    if (deleteError) return { error: deleteError.message };
+
+    void logEvent(
+      "info",
+      "invites.cancelInvite",
+      "Convite cancelado",
+      { company_id: invite.company_id, email: invite.email },
+      userId,
+    );
+
+    return { error: null };
   });
 
 export const getInviteByToken = createServerFn({ method: "POST" })

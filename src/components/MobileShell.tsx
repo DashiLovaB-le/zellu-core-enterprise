@@ -2,6 +2,7 @@ import { Link, useRouterState, type LinkProps } from "@tanstack/react-router";
 import { useEffect, useRef, type ReactNode } from "react";
 import { Icon } from "./Icon";
 import { Avatar } from "./Avatar";
+import { CompanionProductTour } from "./CompanionProductTour";
 import { BRANDING } from "@/lib/branding";
 import { useAuth } from "@/lib/auth-context";
 import logo from "@/assets/logo.png";
@@ -116,6 +117,8 @@ export function MobileShell({ children }: { children: ReactNode }) {
           })}
         </div>
       </nav>
+
+      <CompanionProductTour />
     </div>
   );
 }

@@ -93,8 +93,8 @@ Um companion white-label, pronto para uso diário, que:
 |---|---|
 | **Dashboard RH** | KPIs agregados da própria empresa; k-anonimato (mín. 5 opt-ins); nunca diário/chat/humor individual |
 | **Gestão de Equipes** | Times reais do cadastro; status Estável/Monitorar/Atenção; métricas ocultas se o time for pequeno |
-| **Pessoas e convites** | Convites companion/manager; desativação (`is_active`); teto de licenças |
-| **Relatórios** | CSV só com indicadores agregados |
+| **Pessoas e convites** | Convites companion/manager por e-mail (Resend) ou link copiável; cancelar pendentes; desativação (`is_active`); teto de licenças |
+| **Relatórios** | Centro de exportação: CSV/PDF com filtros (período, equipe, tipo) |
 
 ### 6.3 Admin (Portal Administrativo)
 | Funcionalidade | Descrição |
