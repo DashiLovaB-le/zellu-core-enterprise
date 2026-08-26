@@ -9,96 +9,41 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RespiroRouteImport } from './routes/respiro'
-import { Route as PrivacidadeRouteImport } from './routes/privacidade'
-import { Route as PlanoDeCuidadoRouteImport } from './routes/plano-de-cuidado'
-import { Route as PerfilRouteImport } from './routes/perfil'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as MeuBemEstarRouteImport } from './routes/meu-bem-estar'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as HabitosRouteImport } from './routes/habitos'
-import { Route as DiarioRouteImport } from './routes/diario'
-import { Route as DashboardEmocionalRouteImport } from './routes/dashboard-emocional'
-import { Route as CheckinRouteImport } from './routes/checkin'
-import { Route as ChatRouteImport } from './routes/chat'
-import { Route as AceitarConviteRouteImport } from './routes/aceitar-convite'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ManagerIndexRouteImport } from './routes/manager/index'
-import { Route as DashitecnologyIndexRouteImport } from './routes/dashitecnology/index'
+import { Route as AceitarConviteRouteImport } from './routes/aceitar-convite'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as CheckinRouteImport } from './routes/checkin'
+import { Route as DashboardEmocionalRouteImport } from './routes/dashboard-emocional'
+import { Route as DiarioRouteImport } from './routes/diario'
+import { Route as HabitosRouteImport } from './routes/habitos'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MeuBemEstarRouteImport } from './routes/meu-bem-estar'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as PlanoDeCuidadoRouteImport } from './routes/plano-de-cuidado'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as RespiroRouteImport } from './routes/respiro'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as ManagerRhDashboardRouteImport } from './routes/manager/rh-dashboard'
-import { Route as ManagerRelatoriosRouteImport } from './routes/manager/relatorios'
-import { Route as ManagerEquipesRouteImport } from './routes/manager/equipes'
-import { Route as ManagerConvitesRouteImport } from './routes/manager/convites'
-import { Route as DashitecnologyPainelDevRouteImport } from './routes/dashitecnology/$painelDev'
-import { Route as AdminSentimentosRouteImport } from './routes/admin/sentimentos'
-import { Route as AdminRelatoriosRouteImport } from './routes/admin/relatorios'
-import { Route as AdminMetricasRouteImport } from './routes/admin/metricas'
-import { Route as AdminLicencasRouteImport } from './routes/admin/licencas'
-import { Route as AdminFuncionariosRouteImport } from './routes/admin/funcionarios'
-import { Route as AdminEmpresasRouteImport } from './routes/admin/empresas'
 import { Route as AdminAlertasRouteImport } from './routes/admin/alertas'
-import { Route as ManagerEquipeTeamIdRouteImport } from './routes/manager/equipe/$teamId'
+import { Route as AdminEmpresasRouteImport } from './routes/admin/empresas'
+import { Route as AdminFuncionariosRouteImport } from './routes/admin/funcionarios'
+import { Route as AdminLicencasRouteImport } from './routes/admin/licencas'
+import { Route as AdminMetricasRouteImport } from './routes/admin/metricas'
+import { Route as AdminRelatoriosRouteImport } from './routes/admin/relatorios'
+import { Route as AdminSentimentosRouteImport } from './routes/admin/sentimentos'
+import { Route as DashitecnologyIndexRouteImport } from './routes/dashitecnology/index'
+import { Route as DashitecnologyPainelDevRouteImport } from './routes/dashitecnology/$painelDev'
+import { Route as ManagerIndexRouteImport } from './routes/manager/index'
+import { Route as ManagerConvitesRouteImport } from './routes/manager/convites'
+import { Route as ManagerEquipesRouteImport } from './routes/manager/equipes'
+import { Route as ManagerRelatoriosRouteImport } from './routes/manager/relatorios'
+import { Route as ManagerRhDashboardRouteImport } from './routes/manager/rh-dashboard'
 import { Route as ManagerColaboradorProfileIdRouteImport } from './routes/manager/colaborador/$profileId'
+import { Route as ManagerEquipeTeamIdRouteImport } from './routes/manager/equipe/$teamId'
 
-const RespiroRoute = RespiroRouteImport.update({
-  id: '/respiro',
-  path: '/respiro',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacidadeRoute = PrivacidadeRouteImport.update({
-  id: '/privacidade',
-  path: '/privacidade',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlanoDeCuidadoRoute = PlanoDeCuidadoRouteImport.update({
-  id: '/plano-de-cuidado',
-  path: '/plano-de-cuidado',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PerfilRoute = PerfilRouteImport.update({
-  id: '/perfil',
-  path: '/perfil',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MeuBemEstarRoute = MeuBemEstarRouteImport.update({
-  id: '/meu-bem-estar',
-  path: '/meu-bem-estar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HabitosRoute = HabitosRouteImport.update({
-  id: '/habitos',
-  path: '/habitos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DiarioRoute = DiarioRouteImport.update({
-  id: '/diario',
-  path: '/diario',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardEmocionalRoute = DashboardEmocionalRouteImport.update({
-  id: '/dashboard-emocional',
-  path: '/dashboard-emocional',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckinRoute = CheckinRouteImport.update({
-  id: '/checkin',
-  path: '/checkin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatRoute = ChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AceitarConviteRoute = AceitarConviteRouteImport.update({
@@ -106,19 +51,64 @@ const AceitarConviteRoute = AceitarConviteRouteImport.update({
   path: '/aceitar-convite',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ManagerIndexRoute = ManagerIndexRouteImport.update({
-  id: '/manager/',
-  path: '/manager/',
+const CheckinRoute = CheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashitecnologyIndexRoute = DashitecnologyIndexRouteImport.update({
-  id: '/dashitecnology/',
-  path: '/dashitecnology/',
+const DashboardEmocionalRoute = DashboardEmocionalRouteImport.update({
+  id: '/dashboard-emocional',
+  path: '/dashboard-emocional',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiarioRoute = DiarioRouteImport.update({
+  id: '/diario',
+  path: '/diario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HabitosRoute = HabitosRouteImport.update({
+  id: '/habitos',
+  path: '/habitos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeuBemEstarRoute = MeuBemEstarRouteImport.update({
+  id: '/meu-bem-estar',
+  path: '/meu-bem-estar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanoDeCuidadoRoute = PlanoDeCuidadoRouteImport.update({
+  id: '/plano-de-cuidado',
+  path: '/plano-de-cuidado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RespiroRoute = RespiroRouteImport.update({
+  id: '/respiro',
+  path: '/respiro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -126,54 +116,9 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ManagerRhDashboardRoute = ManagerRhDashboardRouteImport.update({
-  id: '/manager/rh-dashboard',
-  path: '/manager/rh-dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ManagerRelatoriosRoute = ManagerRelatoriosRouteImport.update({
-  id: '/manager/relatorios',
-  path: '/manager/relatorios',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ManagerEquipesRoute = ManagerEquipesRouteImport.update({
-  id: '/manager/equipes',
-  path: '/manager/equipes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ManagerConvitesRoute = ManagerConvitesRouteImport.update({
-  id: '/manager/convites',
-  path: '/manager/convites',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashitecnologyPainelDevRoute = DashitecnologyPainelDevRouteImport.update({
-  id: '/dashitecnology/$painelDev',
-  path: '/dashitecnology/$painelDev',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminSentimentosRoute = AdminSentimentosRouteImport.update({
-  id: '/admin/sentimentos',
-  path: '/admin/sentimentos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRelatoriosRoute = AdminRelatoriosRouteImport.update({
-  id: '/admin/relatorios',
-  path: '/admin/relatorios',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminMetricasRoute = AdminMetricasRouteImport.update({
-  id: '/admin/metricas',
-  path: '/admin/metricas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminLicencasRoute = AdminLicencasRouteImport.update({
-  id: '/admin/licencas',
-  path: '/admin/licencas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminFuncionariosRoute = AdminFuncionariosRouteImport.update({
-  id: '/admin/funcionarios',
-  path: '/admin/funcionarios',
+const AdminAlertasRoute = AdminAlertasRouteImport.update({
+  id: '/admin/alertas',
+  path: '/admin/alertas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminEmpresasRoute = AdminEmpresasRouteImport.update({
@@ -181,14 +126,64 @@ const AdminEmpresasRoute = AdminEmpresasRouteImport.update({
   path: '/admin/empresas',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminAlertasRoute = AdminAlertasRouteImport.update({
-  id: '/admin/alertas',
-  path: '/admin/alertas',
+const AdminFuncionariosRoute = AdminFuncionariosRouteImport.update({
+  id: '/admin/funcionarios',
+  path: '/admin/funcionarios',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ManagerEquipeTeamIdRoute = ManagerEquipeTeamIdRouteImport.update({
-  id: '/manager/equipe/$teamId',
-  path: '/manager/equipe/$teamId',
+const AdminLicencasRoute = AdminLicencasRouteImport.update({
+  id: '/admin/licencas',
+  path: '/admin/licencas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMetricasRoute = AdminMetricasRouteImport.update({
+  id: '/admin/metricas',
+  path: '/admin/metricas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRelatoriosRoute = AdminRelatoriosRouteImport.update({
+  id: '/admin/relatorios',
+  path: '/admin/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSentimentosRoute = AdminSentimentosRouteImport.update({
+  id: '/admin/sentimentos',
+  path: '/admin/sentimentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashitecnologyIndexRoute = DashitecnologyIndexRouteImport.update({
+  id: '/dashitecnology/',
+  path: '/dashitecnology/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashitecnologyPainelDevRoute = DashitecnologyPainelDevRouteImport.update({
+  id: '/dashitecnology/$painelDev',
+  path: '/dashitecnology/$painelDev',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerIndexRoute = ManagerIndexRouteImport.update({
+  id: '/manager/',
+  path: '/manager/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerConvitesRoute = ManagerConvitesRouteImport.update({
+  id: '/manager/convites',
+  path: '/manager/convites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerEquipesRoute = ManagerEquipesRouteImport.update({
+  id: '/manager/equipes',
+  path: '/manager/equipes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerRelatoriosRoute = ManagerRelatoriosRouteImport.update({
+  id: '/manager/relatorios',
+  path: '/manager/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerRhDashboardRoute = ManagerRhDashboardRouteImport.update({
+  id: '/manager/rh-dashboard',
+  path: '/manager/rh-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ManagerColaboradorProfileIdRoute =
@@ -197,6 +192,11 @@ const ManagerColaboradorProfileIdRoute =
     path: '/manager/colaborador/$profileId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ManagerEquipeTeamIdRoute = ManagerEquipeTeamIdRouteImport.update({
+  id: '/manager/equipe/$teamId',
+  path: '/manager/equipe/$teamId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -436,88 +436,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/respiro': {
-      id: '/respiro'
-      path: '/respiro'
-      fullPath: '/respiro'
-      preLoaderRoute: typeof RespiroRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacidade': {
-      id: '/privacidade'
-      path: '/privacidade'
-      fullPath: '/privacidade'
-      preLoaderRoute: typeof PrivacidadeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/plano-de-cuidado': {
-      id: '/plano-de-cuidado'
-      path: '/plano-de-cuidado'
-      fullPath: '/plano-de-cuidado'
-      preLoaderRoute: typeof PlanoDeCuidadoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/perfil': {
-      id: '/perfil'
-      path: '/perfil'
-      fullPath: '/perfil'
-      preLoaderRoute: typeof PerfilRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/meu-bem-estar': {
-      id: '/meu-bem-estar'
-      path: '/meu-bem-estar'
-      fullPath: '/meu-bem-estar'
-      preLoaderRoute: typeof MeuBemEstarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/habitos': {
-      id: '/habitos'
-      path: '/habitos'
-      fullPath: '/habitos'
-      preLoaderRoute: typeof HabitosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/diario': {
-      id: '/diario'
-      path: '/diario'
-      fullPath: '/diario'
-      preLoaderRoute: typeof DiarioRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard-emocional': {
-      id: '/dashboard-emocional'
-      path: '/dashboard-emocional'
-      fullPath: '/dashboard-emocional'
-      preLoaderRoute: typeof DashboardEmocionalRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/checkin': {
-      id: '/checkin'
-      path: '/checkin'
-      fullPath: '/checkin'
-      preLoaderRoute: typeof CheckinRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chat': {
-      id: '/chat'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof ChatRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/aceitar-convite': {
@@ -527,25 +450,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AceitarConviteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/manager/': {
-      id: '/manager/'
-      path: '/manager'
-      fullPath: '/manager/'
-      preLoaderRoute: typeof ManagerIndexRouteImport
+    '/checkin': {
+      id: '/checkin'
+      path: '/checkin'
+      fullPath: '/checkin'
+      preLoaderRoute: typeof CheckinRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashitecnology/': {
-      id: '/dashitecnology/'
-      path: '/dashitecnology'
-      fullPath: '/dashitecnology/'
-      preLoaderRoute: typeof DashitecnologyIndexRouteImport
+    '/dashboard-emocional': {
+      id: '/dashboard-emocional'
+      path: '/dashboard-emocional'
+      fullPath: '/dashboard-emocional'
+      preLoaderRoute: typeof DashboardEmocionalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diario': {
+      id: '/diario'
+      path: '/diario'
+      fullPath: '/diario'
+      preLoaderRoute: typeof DiarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/habitos': {
+      id: '/habitos'
+      path: '/habitos'
+      fullPath: '/habitos'
+      preLoaderRoute: typeof HabitosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meu-bem-estar': {
+      id: '/meu-bem-estar'
+      path: '/meu-bem-estar'
+      fullPath: '/meu-bem-estar'
+      preLoaderRoute: typeof MeuBemEstarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plano-de-cuidado': {
+      id: '/plano-de-cuidado'
+      path: '/plano-de-cuidado'
+      fullPath: '/plano-de-cuidado'
+      preLoaderRoute: typeof PlanoDeCuidadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/respiro': {
+      id: '/respiro'
+      path: '/respiro'
+      fullPath: '/respiro'
+      preLoaderRoute: typeof RespiroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -555,74 +541,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/manager/rh-dashboard': {
-      id: '/manager/rh-dashboard'
-      path: '/manager/rh-dashboard'
-      fullPath: '/manager/rh-dashboard'
-      preLoaderRoute: typeof ManagerRhDashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager/relatorios': {
-      id: '/manager/relatorios'
-      path: '/manager/relatorios'
-      fullPath: '/manager/relatorios'
-      preLoaderRoute: typeof ManagerRelatoriosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager/equipes': {
-      id: '/manager/equipes'
-      path: '/manager/equipes'
-      fullPath: '/manager/equipes'
-      preLoaderRoute: typeof ManagerEquipesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager/convites': {
-      id: '/manager/convites'
-      path: '/manager/convites'
-      fullPath: '/manager/convites'
-      preLoaderRoute: typeof ManagerConvitesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashitecnology/$painelDev': {
-      id: '/dashitecnology/$painelDev'
-      path: '/dashitecnology/$painelDev'
-      fullPath: '/dashitecnology/$painelDev'
-      preLoaderRoute: typeof DashitecnologyPainelDevRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/sentimentos': {
-      id: '/admin/sentimentos'
-      path: '/admin/sentimentos'
-      fullPath: '/admin/sentimentos'
-      preLoaderRoute: typeof AdminSentimentosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/relatorios': {
-      id: '/admin/relatorios'
-      path: '/admin/relatorios'
-      fullPath: '/admin/relatorios'
-      preLoaderRoute: typeof AdminRelatoriosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/metricas': {
-      id: '/admin/metricas'
-      path: '/admin/metricas'
-      fullPath: '/admin/metricas'
-      preLoaderRoute: typeof AdminMetricasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/licencas': {
-      id: '/admin/licencas'
-      path: '/admin/licencas'
-      fullPath: '/admin/licencas'
-      preLoaderRoute: typeof AdminLicencasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/funcionarios': {
-      id: '/admin/funcionarios'
-      path: '/admin/funcionarios'
-      fullPath: '/admin/funcionarios'
-      preLoaderRoute: typeof AdminFuncionariosRouteImport
+    '/admin/alertas': {
+      id: '/admin/alertas'
+      path: '/admin/alertas'
+      fullPath: '/admin/alertas'
+      preLoaderRoute: typeof AdminAlertasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/empresas': {
@@ -632,18 +555,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEmpresasRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/alertas': {
-      id: '/admin/alertas'
-      path: '/admin/alertas'
-      fullPath: '/admin/alertas'
-      preLoaderRoute: typeof AdminAlertasRouteImport
+    '/admin/funcionarios': {
+      id: '/admin/funcionarios'
+      path: '/admin/funcionarios'
+      fullPath: '/admin/funcionarios'
+      preLoaderRoute: typeof AdminFuncionariosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/manager/equipe/$teamId': {
-      id: '/manager/equipe/$teamId'
-      path: '/manager/equipe/$teamId'
-      fullPath: '/manager/equipe/$teamId'
-      preLoaderRoute: typeof ManagerEquipeTeamIdRouteImport
+    '/admin/licencas': {
+      id: '/admin/licencas'
+      path: '/admin/licencas'
+      fullPath: '/admin/licencas'
+      preLoaderRoute: typeof AdminLicencasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/metricas': {
+      id: '/admin/metricas'
+      path: '/admin/metricas'
+      fullPath: '/admin/metricas'
+      preLoaderRoute: typeof AdminMetricasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/relatorios': {
+      id: '/admin/relatorios'
+      path: '/admin/relatorios'
+      fullPath: '/admin/relatorios'
+      preLoaderRoute: typeof AdminRelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/sentimentos': {
+      id: '/admin/sentimentos'
+      path: '/admin/sentimentos'
+      fullPath: '/admin/sentimentos'
+      preLoaderRoute: typeof AdminSentimentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashitecnology/': {
+      id: '/dashitecnology/'
+      path: '/dashitecnology'
+      fullPath: '/dashitecnology/'
+      preLoaderRoute: typeof DashitecnologyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashitecnology/$painelDev': {
+      id: '/dashitecnology/$painelDev'
+      path: '/dashitecnology/$painelDev'
+      fullPath: '/dashitecnology/$painelDev'
+      preLoaderRoute: typeof DashitecnologyPainelDevRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/': {
+      id: '/manager/'
+      path: '/manager'
+      fullPath: '/manager/'
+      preLoaderRoute: typeof ManagerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/convites': {
+      id: '/manager/convites'
+      path: '/manager/convites'
+      fullPath: '/manager/convites'
+      preLoaderRoute: typeof ManagerConvitesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/equipes': {
+      id: '/manager/equipes'
+      path: '/manager/equipes'
+      fullPath: '/manager/equipes'
+      preLoaderRoute: typeof ManagerEquipesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/relatorios': {
+      id: '/manager/relatorios'
+      path: '/manager/relatorios'
+      fullPath: '/manager/relatorios'
+      preLoaderRoute: typeof ManagerRelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/rh-dashboard': {
+      id: '/manager/rh-dashboard'
+      path: '/manager/rh-dashboard'
+      fullPath: '/manager/rh-dashboard'
+      preLoaderRoute: typeof ManagerRhDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manager/colaborador/$profileId': {
@@ -651,6 +644,13 @@ declare module '@tanstack/react-router' {
       path: '/manager/colaborador/$profileId'
       fullPath: '/manager/colaborador/$profileId'
       preLoaderRoute: typeof ManagerColaboradorProfileIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager/equipe/$teamId': {
+      id: '/manager/equipe/$teamId'
+      path: '/manager/equipe/$teamId'
+      fullPath: '/manager/equipe/$teamId'
+      preLoaderRoute: typeof ManagerEquipeTeamIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

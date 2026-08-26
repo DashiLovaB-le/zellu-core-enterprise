@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireCompanionConsent } from "@/lib/require-user";
+import { getCompanionDisplayName } from "@/lib/companions/registry";
 
 export interface TimelineEvent {
   type: "sleep" | "water" | "mood" | "movement" | "energy" | "meals" | "chat" | "diary";
@@ -206,6 +207,7 @@ export const getTimelineData = createServerFn({ method: "GET" })
       if (msg.from === "user") entry.userMsgs++;
       else entry.aiMsgs++;
     }
+    const companionName = getCompanionDisplayName(auth.profile?.avatar_url);
     for (const [key, counts] of chatByDay) {
       if (counts.aiMsgs > 0 || counts.userMsgs > 0) {
         const total = counts.userMsgs + counts.aiMsgs;
@@ -214,7 +216,7 @@ export const getTimelineData = createServerFn({ method: "GET" })
           day.events.push({
             type: "chat",
             emoji: "💬",
-            description: `Conversou com Amora (${total} ${total === 1 ? "mensagem" : "mensagens"})`,
+            description: `Conversou com ${companionName} (${total} ${total === 1 ? "mensagem" : "mensagens"})`,
           });
         }
       }

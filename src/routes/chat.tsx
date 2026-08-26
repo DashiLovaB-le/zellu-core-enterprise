@@ -17,6 +17,8 @@ import { getLatestCheckin } from "@/lib/api/checkin.server";
 import { getProfile } from "@/lib/api/auth.server";
 import { loadPreventiveAlert, type PreventiveAlert } from "@/lib/services/preventiva-service";
 import type { Msg } from "@/data";
+import type { CompanionMessageKind } from "@/lib/companions";
+import { getCompanionForAvatar, inferMessageKind } from "@/lib/companions";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -45,7 +47,10 @@ function ChatPage() {
   const [todayContext, setTodayContext] = useState<ChatContext>({
     userName: user?.email?.split("@")[0] ?? "Ana",
   });
+  const [companionAvatar, setCompanionAvatar] = useState<string | null>(user?.avatar_url ?? null);
+  const [lastMessageKind, setLastMessageKind] = useState<CompanionMessageKind | undefined>();
 
+  const companion = getCompanionForAvatar(companionAvatar ?? user?.avatar_url);
   const accessToken = session ?? null;
 
   useEffect(() => {
@@ -82,6 +87,7 @@ function ChatPage() {
       };
       setTodayContext(context);
       setMessages(msgs);
+      setCompanionAvatar(profile?.avatar_url ?? user?.avatar_url ?? null);
 
       const g = await loadGreeting(context);
       setGreeting(g);
@@ -109,15 +115,24 @@ function ChatPage() {
         if (!result.reply?.trim()) {
           throw new Error("Resposta vazia da IA");
         }
-        const aiMsg: Msg = { from: "ai", text: result.reply };
+        const kind = inferMessageKind({
+          suggestion: result.suggestion,
+          text: result.reply,
+          mood: todayContext.mood,
+        });
+        const aiMsg: Msg = { from: "ai", text: result.reply, kind };
         setMessages((prev) => [...prev, aiMsg]);
+        setLastMessageKind(kind);
         if (result.suggestion) setAiSuggestion(result.suggestion);
       } catch {
+        const kind: CompanionMessageKind = "support";
         const fallback: Msg = {
           from: "ai",
           text: "Desculpe, não consegui processar agora. Pode tentar de novo?",
+          kind,
         };
         setMessages((prev) => [...prev, fallback]);
+        setLastMessageKind(kind);
       } finally {
         setIsAiThinking(false);
       }
@@ -176,6 +191,12 @@ function ChatPage() {
             onQuickReply={handleQuickReply}
             preventiveAlert={preventiveAlert}
             onSuggestionClick={handlePreventiveSuggestion}
+            companionId={companion.id}
+            companionName={companion.displayName}
+            companionTagline={companion.tagline}
+            mood={todayContext.mood}
+            initialized={initialized}
+            lastMessageKind={lastMessageKind}
           />
         }
         desktop={
@@ -190,6 +211,12 @@ function ChatPage() {
             onQuickReply={handleQuickReply}
             preventiveAlert={preventiveAlert}
             onSuggestionClick={handlePreventiveSuggestion}
+            companionId={companion.id}
+            companionName={companion.displayName}
+            companionTagline={companion.tagline}
+            mood={todayContext.mood}
+            initialized={initialized}
+            lastMessageKind={lastMessageKind}
           />
         }
       />

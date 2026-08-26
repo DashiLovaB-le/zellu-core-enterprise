@@ -1,12 +1,12 @@
 import { useRef, useEffect, useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
-import { Avatar } from "@/components/Avatar";
 import { PreventiveAlertBanner } from "@/components/PreventiveAlertBanner";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
+import { ChatCompanionHeader, ChatCompanionThinking } from "@/components/chat/ChatCompanionHeader";
 import type { Msg } from "@/data";
 import type { PreventiveAlert } from "@/lib/services/preventiva-service";
 import { MAIN_MOODS, EXTRA_MOODS } from "@/data/moods";
-import { Mascot } from "@/components/Mascot";
+import type { CompanionId, CompanionMessageKind } from "@/lib/companions";
 
 interface ChatPageProps {
   messages: Msg[];
@@ -19,6 +19,12 @@ interface ChatPageProps {
   onQuickReply: (label: string) => void;
   preventiveAlert?: PreventiveAlert;
   onSuggestionClick?: (suggestion: string) => void;
+  companionId: CompanionId;
+  companionName: string;
+  companionTagline: string;
+  mood?: string;
+  initialized: boolean;
+  lastMessageKind?: CompanionMessageKind;
 }
 
 export function MobileChatPage({
@@ -32,6 +38,12 @@ export function MobileChatPage({
   onQuickReply,
   preventiveAlert,
   onSuggestionClick,
+  companionId,
+  companionName,
+  companionTagline,
+  mood,
+  initialized,
+  lastMessageKind,
 }: ChatPageProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [showAllMoods, setShowAllMoods] = useState(false);
@@ -44,15 +56,19 @@ export function MobileChatPage({
 
   return (
     <MobileShell>
-      <header className="mb-4 flex items-center gap-3 rounded-2xl bg-white/70 p-4 shadow-sm backdrop-blur-md">
-        <Mascot pose="listen" size="sm" />
-        <Avatar size={44} />
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate font-display text-base leading-tight text-[var(--clay-title)]">
-            {greeting || "Bom dia!"}
-          </h1>
-        </div>
-      </header>
+      <ChatCompanionHeader
+        companionId={companionId}
+        companionName={companionName}
+        companionTagline={companionTagline}
+        greeting={greeting}
+        draft={draft}
+        isAiThinking={isAiThinking}
+        messagesLength={messages.length}
+        initialized={initialized}
+        mood={mood}
+        aiSuggestion={aiSuggestion}
+        lastMessageKind={lastMessageKind}
+      />
 
       {preventiveAlert && (
         <div className="mb-4">
@@ -62,20 +78,10 @@ export function MobileChatPage({
 
       <main className="flex flex-col gap-3">
         {messages.map((m, i) => (
-          <Bubble key={i} msg={m} />
+          <Bubble key={i} msg={m} companionName={companionName} />
         ))}
 
-        {isAiThinking && (
-          <div className="max-w-[82%] self-start">
-            <div className="rounded-2xl rounded-bl-md bg-white/70 p-4 shadow-sm">
-              <div className="flex gap-1.5">
-                <span className="bounce-d1 block h-2 w-2 rounded-full bg-[var(--clay-title)]/40" />
-                <span className="bounce-d2 block h-2 w-2 rounded-full bg-[var(--clay-title)]/40" />
-                <span className="bounce-d3 block h-2 w-2 rounded-full bg-[var(--clay-title)]/40" />
-              </div>
-            </div>
-          </div>
-        )}
+        {isAiThinking && <ChatCompanionThinking companionId={companionId} />}
 
         {messages.length === 0 && !isAiThinking && (
           <div className="space-y-1.5">
@@ -151,7 +157,6 @@ export function MobileChatPage({
         <div ref={bottomRef} className="h-px w-full shrink-0 scroll-mb-28" />
       </main>
 
-      {/* sticky acima da bottom nav — permanece no fluxo e não cobre mensagens */}
       <div className="sticky bottom-[4.75rem] z-30 -mx-5 mt-3 border-t border-border/20 bg-background/95 px-5 py-2.5 backdrop-blur-md">
         <form
           onSubmit={(e) => {
@@ -164,7 +169,9 @@ export function MobileChatPage({
             value={draft}
             onChange={(e) => onDraftChange(e.target.value)}
             placeholder={
-              isAiThinking ? "Aguardando resposta..." : "Como você está se sentindo agora?"
+              isAiThinking
+                ? `${companionName} está pensando…`
+                : `Converse com ${companionName}…`
             }
             disabled={isAiThinking}
             className="h-9 flex-1 bg-transparent px-2 text-sm text-[var(--clay-text)] outline-none placeholder:text-[var(--clay-title)]/60 disabled:opacity-50"
@@ -195,10 +202,13 @@ export function MobileChatPage({
   );
 }
 
-function Bubble({ msg }: { msg: Msg }) {
+function Bubble({ msg, companionName }: { msg: Msg; companionName: string }) {
   const isAi = msg.from === "ai";
   return (
     <div className={`max-w-[82%] ${isAi ? "self-start" : "self-end"}`}>
+      {isAi ? (
+        <p className="mb-1 text-[10px] font-semibold text-[var(--clay-title)]/50">{companionName}</p>
+      ) : null}
       <div
         className={`p-3 text-sm leading-relaxed ${
           isAi

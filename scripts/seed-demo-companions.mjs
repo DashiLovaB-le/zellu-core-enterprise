@@ -124,7 +124,7 @@ const PEOPLE = [
     email: "colaborador.teste@zellu.app",
     password: "MmcTeste#2026",
     displayName: "Colaborador Teste",
-    avatar: "Zeca",
+    avatar: "Chico",
     goal: "equilibrio-emocional",
     moods: ["neutro", "calmo", "feliz", "cansado", "motivado", "ansioso", "grato"],
     sleepBase: 7.0,

@@ -4,11 +4,11 @@ import pipoca from "@/assets/avatar/cabeca/Pipoca.png";
 import zeca from "@/assets/avatar/cabeca/Zeca.png";
 
 export const AVATAR_LIST = [
-  { name: "Amora", src: amora },
   { name: "Chico", src: chico },
+  { name: "Amora", src: amora },
   { name: "Pipoca", src: pipoca },
   { name: "Zeca", src: zeca },
-];
+] as const;
 
 interface AvatarProps {
   name?: string;

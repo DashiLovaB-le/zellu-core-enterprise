@@ -30,7 +30,7 @@ const HISTORY_DAYS = 30;
 const person = {
   email: EMAIL,
   displayName: "Colaborador Teste",
-  avatar: "Zeca",
+  avatar: "Chico",
   goal: "equilibrio-emocional",
   moods: ["neutro", "calmo", "feliz", "cansado", "motivado", "ansioso", "grato"],
   sleepBase: 7.0,

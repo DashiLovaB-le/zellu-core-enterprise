@@ -23,6 +23,7 @@ import {
   snapshotStreakDays,
   syncAutoCompanionMemories,
 } from "@/lib/api/companion-memory.server";
+import { getCompanionPromptBlock } from "@/lib/companions/registry";
 
 export interface PreventiveContext {
   hasAlert: boolean;
@@ -188,8 +189,11 @@ export const sendChatMessage = createServerFn({ method: "POST" })
 
     const config = await getActiveLlmConfig();
     const greeting = getGreeting(tz);
+    const companionPrompt = getCompanionPromptBlock(profile?.avatar_url);
 
     const personaPrompt = `${config.system_prompt}
+
+${companionPrompt}
 
 ${PERSONALIZATION_RULES}
 
