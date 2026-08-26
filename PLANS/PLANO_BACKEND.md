@@ -1,4 +1,4 @@
-# 🏗️ Plano de Construção do Backend — LVB-ZelluApp (Mundo Mental)
+# 🏗️ Plano de Construção do Backend — LVB-ZelluApp (Zēllu)
 
 > **Base:** TanStack Start (SSR) + Supabase + OpenRouter  
 > **Status atual:** Frontend ~85% completo. Backend parcial (server functions criadas, mas bancos de dados incompletos).  

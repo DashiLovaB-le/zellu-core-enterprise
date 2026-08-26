@@ -113,7 +113,7 @@ function buildHeaders(source: string, apiKey: string): Record<string, string> {
   };
   if (source.startsWith("chat-ai")) {
     headers["HTTP-Referer"] = "https://zellu.app";
-    headers["X-Title"] = "Mundo Mental Companion";
+    headers["X-Title"] = "Zēllu Companion";
   }
   return headers;
 }

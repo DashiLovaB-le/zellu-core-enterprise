@@ -1084,7 +1084,7 @@ export const exportAdminPdf = createServerFn({ method: "POST" })
         : 0;
 
     const lines = [
-      "Mundo Mental — Relatorio Administrativo",
+      "Zēllu — Relatorio Administrativo",
       `Gerado em: ${now.toLocaleString("pt-BR")}`,
       `Periodo: ultimos ${data.periodDays} dias`,
       "",
@@ -1102,7 +1102,7 @@ export const exportAdminPdf = createServerFn({ method: "POST" })
       ...companies.slice(0, 40).map((c) => `- ${c.name} [${c.status}]`),
       companies.length > 40 ? `... e mais ${companies.length - 40}` : "",
       "",
-      "Documento confidencial — uso interno Mundo Mental",
+      "Documento confidencial — uso interno Zēllu",
     ].filter((l) => l !== undefined);
 
     const pdfBase64 = buildSimplePdf(lines);

@@ -24,7 +24,7 @@ const admin = createClient(url, serviceKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
-const EMAIL = "colaborador.teste@mundomental.care";
+const EMAIL = "colaborador.teste@zellu.app";
 const HISTORY_DAYS = 30;
 
 const person = {

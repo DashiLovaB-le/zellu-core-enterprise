@@ -1,6 +1,6 @@
-# Playbook de Deploy — Mundo Mental Care (Vercel)
+# Playbook de Deploy — Zēllu (Vercel)
 
-> **Projeto:** Mundo Mental Care  
+> **Projeto:** Zēllu  
 > **Versão:** 1.2  
 > **Data:** 2026-08-26
 
@@ -51,7 +51,7 @@ Opcional: sem `RESEND_API_KEY`, o app **cria** o convite e mostra o link na tela
 
 ```env
 RESEND_API_KEY=re_...
-REMINDER_FROM_EMAIL=Mundo Mental Care <noreply@seudominio.com>
+REMINDER_FROM_EMAIL=Zēllu <noreply@seudominio.com>
 # INVITE_FROM_EMAIL=  # opcional; senão usa REMINDER_FROM_EMAIL
 ```
 

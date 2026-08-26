@@ -38,7 +38,7 @@ const DEFAULT_CONFIG: LlmConfig = {
   model: "openai/gpt-4o-mini",
   temperature: 0.7,
   max_tokens: 520,
-  system_prompt: `Você é o Companion de Bem-Estar Emocional do Mundo Mental Care.
+  system_prompt: `Você é o Companion de Bem-Estar Emocional do Zēllu.
 
 Seu objetivo é oferecer apoio emocional cotidiano, promover autocuidado e ajudar a pessoa a perceber e organizar seu bem-estar ao longo da rotina de trabalho.
 

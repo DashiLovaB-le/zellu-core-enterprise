@@ -1,20 +1,20 @@
-# Posicionamento — Mundo Mental Care
+# Posicionamento — Zēllu
 
 ## O que é
 
-**Mundo Mental Care** é o companion digital de bem-estar emocional da oferta Mundo Mental. Ele acompanha o colaborador no dia a dia — check-in, conversa assistida, hábitos, diário e plano de cuidado — e entrega visibilidade agregada para RH e gestão.
+**Zēllu** é o companion digital de bem-estar emocional corporativo da Dashitecnology. Ele acompanha o colaborador no dia a dia — check-in, conversa assistida, hábitos, diário e plano de cuidado — e entrega visibilidade agregada para RH e gestão.
 
 ## O que não é
 
 - **Não substitui psicólogos, psiquiatras ou terapia.** É um apoio contínuo de engajamento e autocuidado, não um serviço clínico.
-- **Não substitui a plataforma / jornada clínica da Mundo Mental.** Complementa o ecossistema: aumenta frequência de uso, gera sinais precoces e conecta o colaborador a recursos de cuidado quando fizer sentido.
-- **Não é um app genérico de wellness.** É white-label / branded para a Mundo Mental, alinhado ao tom corporativo-acolhedor das organizações clientes.
+- **Não substitui atendimento clínico especializado.** Complementa o ecossistema de cuidado: aumenta frequência de uso, gera sinais precoces e conecta o colaborador a recursos quando fizer sentido.
+- **Não é um app genérico de wellness.** É um produto B2B com marca própria (Zēllu), alinhado ao tom corporativo-acolhedor das organizações clientes — e preparado para white-label.
 
 ## Proposta de valor
 
-| Para o colaborador | Para RH / gestores | Para a Mundo Mental |
+| Para o colaborador | Para RH / gestores | Para a Dashitecnology / operação |
 |---|---|---|
-| Rotina simples de cuidado emocional | Visão agregada e alertas (sem expor conteúdo privado indevido) | Ativo estratégico que amplia o valor da oferta |
+| Rotina simples de cuidado emocional | Visão agregada e alertas (sem expor conteúdo privado indevido) | Ativo estratégico licenciável e vendável |
 | Conversas e insights no ritmo do trabalho | Adoção e engajamento mensuráveis | Diferenciação comercial e retenção de contas |
 | Plano e hábitos conectados ao app | Relatórios e painéis B2B | Ponte entre engajamento diário e cuidado especializado |
 
@@ -26,4 +26,4 @@
 
 ## Mensagem-guia
 
-> O app não substitui psicólogos nem a plataforma Mundo Mental — ele **aumenta o engajamento** e sustenta o cuidado emocional entre as interações especializadas.
+> O app **não substitui** psicólogos nem terapia — ele **aumenta o engajamento** e sustenta o cuidado emocional entre as interações especializadas.

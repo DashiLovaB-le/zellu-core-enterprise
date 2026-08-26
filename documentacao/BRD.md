@@ -1,15 +1,15 @@
 # BRD — Business Requirement Document
 
-> **Projeto:** Mundo Mental Care  
+> **Projeto:** Zēllu  
 > **Versão:** 1.1  
 > **Data:** 2026-08-18  
-> **Autor:** Equipe de Produto Mundo Mental
+> **Autor:** Equipe de Produto Zēllu
 
 ---
 
 ## 1. Sumário Executivo
 
-O Mundo Mental Care é um companion digital de bem-estar emocional corporativo que complementa a oferta clínica da Mundo Mental. O produto visa aumentar o engajamento de colaboradores em empresas clientes, gerar visibilidade para o RH e ampliar o valor percebido da plataforma Mundo Mental.
+O Zēllu é um companion digital de bem-estar emocional corporativo da Dashitecnology. O produto visa aumentar o engajamento de colaboradores em empresas clientes, gerar visibilidade para o RH e ampliar o valor percebido da oferta de bem-estar.
 
 ---
 
@@ -29,11 +29,11 @@ O Mundo Mental Care é um companion digital de bem-estar emocional corporativo q
 | Ausência de dados para tomada de decisão | Investimentos sem métricas claras |
 
 ### 2.3 Solução de Negócio
-O Mundo Mental Care resolve esses problemas ao:
+O Zēllu resolve esses problemas ao:
 1. **Engajar diariamente** com check-in, chat e hábitos leves
 2. **Gerar dados agregados** para RH sem expor conteúdo privado
 3. **Detectar riscos precocemente** via IA preventiva
-4. **Ampliar o valor da oferta** Mundo Mental com diferencial competitivo
+4. **Ampliar o valor da oferta** Zēllu com diferencial competitivo
 
 ---
 
@@ -42,7 +42,7 @@ O Mundo Mental Care resolve esses problemas ao:
 ### 3.1 Objetivos Estratégicos
 | Objetivo | Prazo | Métrica de Sucesso |
 |---|---|---|
-| Posicionar Mundo Mental Care como diferencial comercial | Q3 2026 | Usado em 100% das apresentações para novos clientes |
+| Posicionar Zēllu como diferencial comercial | Q3 2026 | Usado em 100% das apresentações para novos clientes |
 | Expandir base de clientes B2B | Q4 2026 | 10 empresas clientes ativas |
 | Atingir massa crítica de usuários | Q4 2026 | 100 usuários ativos mensais |
 | Reduzir churn de clientes | Q1 2027 | Churn anual < 10% |
@@ -107,7 +107,7 @@ O Mundo Mental Care resolve esses problemas ao:
 ### 5.3 Stakeholders
 | Stakeholder | Papel | Interesse |
 |---|---|---|
-| Mundo Mental (negócio) | Proprietário do produto | Diferenciação, retenção, receita |
+| Zēllu (negócio) | Proprietário do produto | Diferenciação, retenção, receita |
 | Empresas clientes | Compradoras | ROI, adoção, engajamento |
 | Colaboradores | Usuários finais | Facilidade, consistência, valor |
 | Gestores de RH | Gestores de adoção | Visibilidade, dados, ação |
@@ -156,7 +156,7 @@ Empresa assina contrato
 |---|---|
 | Demanda | Alta (mercado de wellness corporativo em crescimento) |
 | Concorrência | Moderada (apps genéricos vs. solução white-label integrada) |
-| Diferencial | Integração com jornada clínica (ecossistema Mundo Mental) |
+| Diferencial | Integração com jornada clínica (ecossistema Zēllu) |
 
 ---
 

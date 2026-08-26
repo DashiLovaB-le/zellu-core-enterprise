@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mapa de Rotas — Mundo Mental Care</title>
+  <title>Mapa de Rotas — Zēllu</title>
   <style>
     :root {
       --bg: #f6f3ec;
@@ -191,12 +191,13 @@
     <header>
       <h1>Mapa de páginas e rotas</h1>
       <p>
-        Inventário das rotas atuais do <strong>Mundo Mental Care</strong> (TanStack Router),
+        Inventário das rotas atuais do <strong>Zēllu</strong> (TanStack Router),
         agrupadas por público: colaborador (Companion), RH (Manager), super-admin e ferramentas internas.
+        Entrada B2B é por <strong>convite</strong> — não há cadastro aberto com escolha de papel.
       </p>
       <div class="meta">
-        <span class="chip">25 rotas mapeadas</span>
-        <span class="chip">Atualizado em 25/07/2026</span>
+        <span class="chip">31 rotas mapeadas</span>
+        <span class="chip">Atualizado em 26/08/2026</span>
         <span class="chip">Fonte: <code>src/routes/</code></span>
       </div>
     </header>
@@ -212,20 +213,47 @@
 
     <section id="publico">
       <h2>Público</h2>
-      <p class="section-desc">Acesso sem sessão ou ponto de entrada da autenticação.</p>
+      <p class="section-desc">Acesso sem sessão ou ponto de entrada da autenticação / LGPD.</p>
       <div class="routes">
         <article class="route">
           <div class="route-top">
             <span class="path">/login</span>
             <span class="badge public">Público</span>
-            <h3>Login / Cadastro</h3>
+            <h3>Login</h3>
           </div>
           <p>
-            Tela de autenticação com e-mail e senha. Permite criar conta escolhendo o tipo de acesso
-            (Colaborador ou RH) e redireciona automaticamente para o modo correspondente após o login
-            (Companion, Manager ou Admin).
+            Autenticação por e-mail e senha. Sem cadastro aberto. Exibe disclaimer clínico e
+            links para convite e política de privacidade. Após login, redireciona por role:
+            Admin → <code>/admin</code>, Manager → <code>/manager/rh-dashboard</code>, Companion → <code>/</code>.
           </p>
           <div class="file">src/routes/login.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/aceitar-convite?token=…</span>
+            <span class="badge public">Público</span>
+            <h3>Aceitar convite</h3>
+          </div>
+          <p>
+            Ativa a conta com o token do convite da empresa: cria usuário Auth, vincula
+            <code>company_id</code> / <code>team_id</code> / <code>role</code> e define senha.
+            Manager vai para o painel RH; companion segue para o onboarding.
+          </p>
+          <div class="file">src/routes/aceitar-convite.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/privacidade</span>
+            <span class="badge public">Público</span>
+            <h3>Política de privacidade (LGPD)</h3>
+          </div>
+          <p>
+            Termo LGPD v3.0: tratamento de dados, IA (ZDR), retenção, opt-ins de RH/e-mail,
+            direitos do titular e canais de contato (DPO / incidentes).
+          </p>
+          <div class="file">src/routes/privacidade.tsx</div>
         </article>
       </div>
     </section>
@@ -233,10 +261,25 @@
     <section id="companion">
       <h2>Companion (colaborador)</h2>
       <p class="section-desc">
-        Experiência diária de bem-estar emocional do colaborador. Rotas protegidas por role
-        <code>companion</code>.
+        Experiência diária de bem-estar emocional. Rotas protegidas por sessão
+        (cookie httpOnly) e role <code>companion</code>. Consentimento desatualizado
+        devolve o usuário ao onboarding.
       </p>
       <div class="routes">
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/onboarding</span>
+            <span class="badge companion">Companion</span>
+            <h3>Onboarding / consentimento</h3>
+          </div>
+          <p>
+            Fluxo pós-convite: termo LGPD + maioridade + opt-ins (IA, RH agregado, e-mail),
+            depois nome e fuso horário. Conclui com <code>completeOnboarding</code> e segue
+            para o check-in.
+          </p>
+          <div class="file">src/routes/onboarding.tsx</div>
+        </article>
+
         <article class="route">
           <div class="route-top">
             <span class="path">/</span>
@@ -244,8 +287,8 @@
             <h3>Dashboard Emocional (Home)</h3>
           </div>
           <p>
-            Página inicial do colaborador. Mostra evolução emocional em números, insights,
-            alertas preventivos e marcos de sequência (streak). É o ponto central de acompanhamento.
+            Página inicial do colaborador. Mostra evolução emocional, insights, alertas
+            preventivos e marcos de sequência (streak). Ponto central de acompanhamento.
           </p>
           <div class="file">src/routes/index.tsx</div>
         </article>
@@ -257,9 +300,9 @@
             <h3>Chat com IA</h3>
           </div>
           <p>
-            Conversa com o acompanhante de bem-estar. Usa histórico real, saudação contextual
-            (Bom dia / Boa tarde / Boa noite) e contexto de check-in/humor para respostas mais
-            relevantes.
+            Companion digital com histórico confiável do servidor, memória curada,
+            detecção de crise (CVV 188, sem LLM) e contexto de check-in/plano.
+            Cloud LLM só com opt-in de IA (ZDR no OpenRouter).
           </p>
           <div class="file">src/routes/chat.tsx</div>
         </article>
@@ -271,8 +314,8 @@
             <h3>Check-in matinal</h3>
           </div>
           <p>
-            Registro rápido de como a pessoa está no dia (sono, hidratação e humor).
-            Os dados alimentam o chat, o dashboard e os insights preventivos.
+            Registro do dia em 3 etapas (sono → água → humor). Um check-in por dia.
+            Alimenta chat, dashboard e IA preventiva.
           </p>
           <div class="file">src/routes/checkin.tsx</div>
         </article>
@@ -284,8 +327,8 @@
             <h3>Meu Diário / Timeline</h3>
           </div>
           <p>
-            Timeline de registros emocionais: novas entradas, humor, insight da jornada e
-            visão recente do histórico. Espaço para olhar a evolução ao longo do tempo.
+            Timeline de registros emocionais: entradas, humor, insight da jornada e
+            histórico recente. Conteúdo privado — fora do alcance do RH.
           </p>
           <div class="file">src/routes/diario.tsx</div>
         </article>
@@ -297,8 +340,8 @@
             <h3>Meu Bem-estar</h3>
           </div>
           <p>
-            Visão consolidada do dia: água, sono, humor, movimento, respiração, energia e alimentação.
-            Unifica o antigo módulo de hábitos em uma única tela integrada.
+            Visão consolidada do dia: água, sono, humor, movimento, respiração, energia
+            e alimentação. Unifica o antigo módulo de hábitos.
           </p>
           <div class="file">src/routes/meu-bem-estar.tsx</div>
         </article>
@@ -310,8 +353,8 @@
             <h3>Espaço do Respiro</h3>
           </div>
           <p>
-            Exercício de respiração guiada para pausas curtas no trabalho. Pode ser acessado
-            diretamente ou via atalhos do plano de cuidado e alertas preventivos.
+            Exercício de respiração guiada para pausas curtas. Acessível direto ou via
+            atalhos do plano de cuidado, chat e alertas preventivos.
           </p>
           <div class="file">src/routes/respiro.tsx</div>
         </article>
@@ -323,9 +366,8 @@
             <h3>Plano de Cuidado</h3>
           </div>
           <p>
-            O usuário define um objetivo (ex.: reduzir ansiedade, melhorar sono) e acompanha um
-            checklist diário com progresso, insight e sugestões. Inclui confirmação antes de criar
-            um novo plano.
+            Objetivo pessoal + checklist diário (água, caminhada, respirar, conversar),
+            progresso e streak. Autorizado via JWT + RLS (sem service role).
           </p>
           <div class="file">src/routes/plano-de-cuidado.tsx</div>
         </article>
@@ -337,8 +379,8 @@
             <h3>Perfil</h3>
           </div>
           <p>
-            Dados da conta, preferências e configurações pessoais (incluindo avatar).
-            Também é acessível a partir dos shells de Manager e Admin.
+            Conta, avatar, tema, opt-ins de privacidade, exportar dados, excluir conta e
+            ajuda em crise. Também acessível a partir dos shells de Manager e Admin.
           </p>
           <div class="file">src/routes/perfil.tsx</div>
         </article>
@@ -348,32 +390,20 @@
     <section id="manager">
       <h2>Manager / RH</h2>
       <p class="section-desc">
-        Painel B2B para gestores e RH. Rotas protegidas por role <code>manager</code>.
-        Exibe indicadores agregados, sem expor conteúdo privado individual indevido.
+        Painel B2B para gestores. Role <code>manager</code>. KPIs agregados com opt-in RH
+        e k-anonimato; diário/chat/humor individual não são expostos. Nav: Dashboard RH ·
+        Equipes · Relatórios · Pessoas · Perfil.
       </p>
       <div class="routes">
         <article class="route">
           <div class="route-top">
-            <span class="path">/manager/</span>
+            <span class="path">/manager/rh-dashboard</span>
             <span class="badge manager">Manager</span>
             <h3>Dashboard RH</h3>
           </div>
           <p>
-            Home do modo Manager com indicadores de bem-estar da organização:
-            resumo de engajamento, tendências e visão geral para tomada de decisão.
-          </p>
-          <div class="file">src/routes/manager/index.tsx</div>
-        </article>
-
-        <article class="route">
-          <div class="route-top">
-            <span class="path">/manager/rh-dashboard</span>
-            <span class="badge manager">Manager</span>
-            <h3>Dashboard RH completo</h3>
-          </div>
-          <p>
-            Painel ampliado de indicadores de bem-estar, com visão mais detalhada para
-            acompanhamento contínuo das equipes.
+            Home operacional do RH: KPIs agregados da própria empresa via RPC
+            <code>get_rh_dashboard</code> (sem service role no painel).
           </p>
           <div class="file">src/routes/manager/rh-dashboard.tsx</div>
         </article>
@@ -385,10 +415,36 @@
             <h3>Equipes</h3>
           </div>
           <p>
-            Gestão e visualização das equipes vinculadas à empresa, com layout responsivo
-            para desktop e mobile.
+            Lista de times da empresa com status agregado (Estável / Monitorar / Atenção)
+            e k-anonimato. Entrada para o detalhe de cada equipe.
           </p>
           <div class="file">src/routes/manager/equipes.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/manager/equipe/$teamId</span>
+            <span class="badge manager">Manager</span>
+            <h3>Detalhe da equipe</h3>
+          </div>
+          <p>
+            Roster do time, edição de nome, inclusão/remoção de membros e sinais de
+            bem-estar agregados/sinais operacionais por colaborador (sem conteúdo clínico).
+          </p>
+          <div class="file">src/routes/manager/equipe/$teamId.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/manager/colaborador/$profileId</span>
+            <span class="badge manager">Manager</span>
+            <h3>Resumo do colaborador</h3>
+          </div>
+          <p>
+            Ficha operacional: participação, tendência, sono e status de bem-estar
+            resumidos + edição de cargo. Não exibe diário, chat nem humor bruto.
+          </p>
+          <div class="file">src/routes/manager/colaborador/$profileId.tsx</div>
         </article>
 
         <article class="route">
@@ -398,10 +454,23 @@
             <h3>Relatórios</h3>
           </div>
           <p>
-            Área de relatórios do RH para acompanhar uso, adoção e indicadores agregados
-            da organização.
+            Exportação CSV de indicadores agregados da organização para acompanhamento
+            de uso e adoção.
           </p>
           <div class="file">src/routes/manager/relatorios.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/manager/convites</span>
+            <span class="badge manager">Manager</span>
+            <h3>Pessoas e convites</h3>
+          </div>
+          <p>
+            Diretório da empresa, criação/cancelamento de convites (companion ou manager),
+            teto de licenças e ativação/desativação de colaboradores (<code>is_active</code>).
+          </p>
+          <div class="file">src/routes/manager/convites.tsx</div>
         </article>
       </div>
     </section>
@@ -409,8 +478,8 @@
     <section id="admin">
       <h2>Portal Administrativo</h2>
       <p class="section-desc">
-        Painel super-admin da Mundo Mental para operar o ecossistema multiempresa.
-        Rotas protegidas por role <code>admin</code>.
+        Painel super-admin multiempresa. Rotas protegidas por role <code>admin</code>
+        (ou <code>dev</code>).
       </p>
       <div class="routes">
         <article class="route">
@@ -420,8 +489,8 @@
             <h3>KPIs globais</h3>
           </div>
           <p>
-            Home do portal admin com indicadores globais do ecossistema Mundo Mental Care
-            (visão executiva de uso e saúde da plataforma).
+            Home do portal com indicadores globais do ecossistema (adoção, alertas ativos
+            e resumo operacional).
           </p>
           <div class="file">src/routes/admin/index.tsx</div>
         </article>
@@ -433,8 +502,7 @@
             <h3>Empresas / clientes</h3>
           </div>
           <p>
-            Cadastro e gerenciamento de empresas cliente: criação, edição e organização
-            da base B2B.
+            CRUD de empresas cliente e organização da base B2B.
           </p>
           <div class="file">src/routes/admin/empresas.tsx</div>
         </article>
@@ -446,8 +514,7 @@
             <h3>Funcionários</h3>
           </div>
           <p>
-            Gerenciamento de funcionários e vínculos com empresas/equipes, incluindo
-            dados de cargo e status.
+            Gerenciamento de funcionários e vínculos com empresas/equipes (cargo e status).
           </p>
           <div class="file">src/routes/admin/funcionarios.tsx</div>
         </article>
@@ -459,8 +526,7 @@
             <h3>Licenças e contratos</h3>
           </div>
           <p>
-            Controle de licenças e contratos dos clientes: vigência, títulos e status
-            comercial/operacional.
+            Controle de planos, vigência, valores e status comercial/operacional.
           </p>
           <div class="file">src/routes/admin/licencas.tsx</div>
         </article>
@@ -472,8 +538,7 @@
             <h3>Métricas de uso</h3>
           </div>
           <p>
-            Métricas de adoção e uso da plataforma, para acompanhar engajamento agregado
-            por ecossistema/clientes.
+            DAU, WAU, MAU e taxa de adesão por empresa / ecossistema.
           </p>
           <div class="file">src/routes/admin/metricas.tsx</div>
         </article>
@@ -485,8 +550,7 @@
             <h3>Sentimentos agregados</h3>
           </div>
           <p>
-            Visão agregada de sentimentos/humores no ecossistema, útil para leitura
-            qualitativa de clima emocional sem expor indivíduos.
+            Leitura qualitativa agregada de clima emocional, sem expor indivíduos.
           </p>
           <div class="file">src/routes/admin/sentimentos.tsx</div>
         </article>
@@ -498,8 +562,7 @@
             <h3>Alertas configuráveis</h3>
           </div>
           <p>
-            Configuração de alertas por empresa (regras e notificações preventivas
-            no nível administrativo).
+            Thresholds e regras de alerta preventivo por empresa.
           </p>
           <div class="file">src/routes/admin/alertas.tsx</div>
         </article>
@@ -511,8 +574,7 @@
             <h3>Relatórios exportáveis</h3>
           </div>
           <p>
-            Exportação de relatórios em PDF/CSV para acompanhamento executivo e
-            prestação de contas.
+            Exportação PDF/CSV para acompanhamento executivo.
           </p>
           <div class="file">src/routes/admin/relatorios.tsx</div>
         </article>
@@ -522,8 +584,8 @@
     <section id="dev">
       <h2>Dev Tools (interno)</h2>
       <p class="section-desc">
-        Ferramentas internas restritas à role <code>dev</code>. Não fazem parte da experiência
-        do colaborador ou do RH.
+        Ferramentas internas restritas à role <code>dev</code>. Fora da experiência
+        de colaborador e RH.
       </p>
       <div class="routes">
         <article class="route">
@@ -533,8 +595,7 @@
             <h3>Índice de ferramentas</h3>
           </div>
           <p>
-            Hub das ferramentas de desenvolvimento, com atalhos para configuração de LLM
-            e visualização de logs do sistema.
+            Hub com atalhos para configuração de LLM e system logs.
           </p>
           <div class="file">src/routes/dashitecnology/index.tsx</div>
         </article>
@@ -546,8 +607,8 @@
             <h3>Painel dinâmico de desenvolvimento</h3>
           </div>
           <p>
-            Rota parametrizada que abre um painel específico. Exemplos atuais:
-            <code>llm-config</code> (modelo, temperatura, prompt e chave OpenRouter) e
+            Rota parametrizada. Exemplos: <code>llm-config</code> (modelo, temperatura,
+            prompt — chave só em <code>OPENROUTER_API_KEY</code>) e
             <code>system-logs</code> (erros, warnings e eventos).
           </p>
           <div class="file">src/routes/dashitecnology/$painelDev.tsx</div>
@@ -563,13 +624,24 @@
       <div class="routes">
         <article class="route">
           <div class="route-top">
+            <span class="path">/manager/</span>
+            <span class="badge redirect">Redirect</span>
+            <h3>Manager home → Dashboard RH</h3>
+          </div>
+          <p>
+            Redireciona automaticamente para <code>/manager/rh-dashboard</code>.
+          </p>
+          <div class="file">src/routes/manager/index.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
             <span class="path">/habitos</span>
             <span class="badge redirect">Redirect</span>
             <h3>Legado → Meu Bem-estar</h3>
           </div>
           <p>
-            Redireciona automaticamente para <code>/meu-bem-estar</code> (renomeação do módulo
-            de hábitos).
+            Redireciona automaticamente para <code>/meu-bem-estar</code>.
           </p>
           <div class="file">src/routes/habitos.tsx</div>
         </article>
@@ -581,7 +653,7 @@
             <h3>Legado → Home</h3>
           </div>
           <p>
-            Redireciona automaticamente para <code>/</code>, a home do Dashboard Emocional.
+            Redireciona automaticamente para <code>/</code>.
           </p>
           <div class="file">src/routes/dashboard-emocional.tsx</div>
         </article>
@@ -589,9 +661,9 @@
     </section>
 
     <footer>
-      Documento gerado para referência do produto Mundo Mental Care.
-      Layout raiz: <code>src/routes/__root.tsx</code> (providers, meta e shells).
-      Árvore gerada: <code>src/routeTree.gen.ts</code>.
+      Documento de referência do Zēllu · atualizado em 26/08/2026.<br />
+      Layout raiz: <code>src/routes/__root.tsx</code> · árvore gerada: <code>src/routeTree.gen.ts</code>.<br />
+      Sessão: cookies httpOnly <code>mmc-at</code> / <code>mmc-rt</code> (JWT não vai no body das server functions).
     </footer>
   </div>
 </body>

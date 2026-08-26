@@ -1,6 +1,6 @@
 # TODO — Motor de Inteligência Emocional (ML + IA Generativa)
 
-> Roadmap para evoluir o Mundo Mental Care de **chat inteligente reativo** para **companion emocional proativo**.
+> Roadmap para evoluir o Zēllu de **chat inteligente reativo** para **companion emocional proativo**.
 >
 > Base atual (já entregue nas Fases 4–14): chat LLM, check-ins, hábitos, timeline, dashboard emocional, insights por LLM, preventiva por regras heurísticas, plano de cuidado, dashboard RH agregado.
 >
@@ -206,7 +206,7 @@ Dados brutos → Feature Store → Modelos ML → Sinais preditivos
 
 ## Fase 24 — Produto, compliance e vantagem competitiva
 
-> Objetivo: empacotar o motor como diferencial comercial da Mundo Mental.
+> Objetivo: empacotar o motor como diferencial comercial da Zēllu.
 
 - [ ] **24.1** Copy de produto: “Motor de Inteligência Emocional” (landing interna / proposta comercial)
 - [ ] **24.2** Atualizar `docs/POSICIONAMENTO.md` e `docs/PROPOSTA-COMERCIAL.md` com capacidade preditiva
@@ -240,7 +240,7 @@ flowchart LR
 | **P0** | 17, 18 | Sem dados/features não há ML real |
 | **P1** | 19, 21 | Diferencial no companion (cuidado preventivo) |
 | **P2** | 20 | Personalização que aumenta retenção |
-| **P3** | 22 | Valor B2B para RH / Mundo Mental |
+| **P3** | 22 | Valor B2B para RH / Zēllu |
 | **P4** | 23, 24 | Escala, confiança e moat comercial |
 
 ---
@@ -323,11 +323,11 @@ Use esta lista para puxar issues/PRs:
 
 ## Relação com o TODO existente
 
-Este arquivo **continua** o ciclo após `TODO-MundoMental.md` (Fases 0–16).
+Este arquivo **continua** o ciclo após `TODO-Zellu.md` (Fases 0–16).
 
 | Arquivo | Escopo |
 |---|---|
-| `TODO-MundoMental.md` | Produto companion + manager + admin (entregue em grande parte) |
+| `TODO-Zellu.md` | Produto companion + manager + admin (entregue em grande parte) |
 | `todo/ROADMAP-MOTOR-INTELIGENCIA-EMOCIONAL.md` | Evolução ML + GenAI → Motor de Inteligência Emocional |
 
 Quando uma fase deste roadmap iniciar, marcar o status no topo deste arquivo e abrir subtarefas no board/PR.

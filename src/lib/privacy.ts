@@ -73,9 +73,9 @@ export const PRIVACY_RIGHTS = [
 ] as const;
 
 export const PRIVACY_CONTACTS = {
-  operatorName: "Mundo Mental Care (operadora da plataforma)",
+  operatorName: "Zēllu (operadora da plataforma)",
   controllerNote:
-    "A empresa que contratou o acesso é a controladora dos dados dos colaboradores. A Mundo Mental opera a plataforma por instrução da controladora.",
-  dpoEmail: "privacidade@mundomental.care",
-  incidentEmail: "privacidade@mundomental.care",
+    "A empresa que contratou o acesso é a controladora dos dados dos colaboradores. A Zēllu opera a plataforma por instrução da controladora.",
+  dpoEmail: "privacidade@zellu.app",
+  incidentEmail: "privacidade@zellu.app",
 } as const;

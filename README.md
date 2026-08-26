@@ -1,4 +1,4 @@
-<h1 align="center">Mundo Mental Care</h1>
+<h1 align="center">Zēllu</h1>
 
 <p align="center">
   <strong>Cuidado emocional no ritmo do trabalho</strong>
@@ -22,7 +22,7 @@
 
 ## 📌 Sobre
 
-**Mundo Mental Care** é o companion digital de bem-estar emocional da oferta DashiTecnology. Ele acompanha o colaborador no dia a dia — check-in, conversa assistida, hábitos, diário e plano de cuidado — e entrega visibilidade agregada para RH e gestão.
+**Zēllu** é o companion digital de bem-estar emocional da oferta DashiTecnology. Ele acompanha o colaborador no dia a dia — check-in, conversa assistida, hábitos, diário e plano de cuidado — e entrega visibilidade agregada para RH e gestão.
 
 > O app **não substitui** psicólogos nem a plataforma clínica da DashiTecnology — ele **aumenta o engajamento** e sustenta o cuidado emocional entre as interações especializadas.
 
@@ -90,8 +90,8 @@
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/mundo-mental-care.git
-cd mundo-mental-care
+git clone https://github.com/seu-usuario/zellu.git
+cd zellu
 
 # Instale as dependências (use um dos)
 bun install
@@ -127,7 +127,7 @@ Acesse http://localhost:8080
 ## 📁 Estrutura do Projeto
 
 ```
-mundo-mental-care/
+zellu/
 ├── public/                  # Assets estáticos (favicon, logo)
 ├── src/
 │   ├── assets/              # Avatares e imagens

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" role="img" aria-label="Zellu lockup mono">
+  <g fill="currentColor" stroke="currentColor">
+    <g transform="translate(4,26) scale(1.05)">
+      <path d="M7.5,7.5h54l-30.4,26.75" fill="none" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M10.79,50.14h53.29c4.91,0,8.88,3.13,8.88,7h0c0,3.87-3.98,7-8.88,7H10.79c-4.91,0-8.88-3.13-8.88-7h0c0-3.87,3.98-7,8.88-7Z" stroke="none"/>
+      <circle cx="61.5" cy="37" r="7.5" stroke="none"/>
+    </g>
+    <text x="100" y="78" fill="currentColor" stroke="none" font-family="Quicksand, Nunito Sans, Arial, sans-serif" font-size="64" font-weight="700" letter-spacing="-0.02em">Z&#275;llu</text>
+  </g>
+</svg>

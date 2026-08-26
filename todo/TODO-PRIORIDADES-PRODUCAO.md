@@ -1,7 +1,7 @@
 # TODO — Prioridades para produção
 
-> Plano para tornar o Mundo Mental Care seguro e vendável a empresas reais.
-> Complementa `TODO-MundoMental.md` (Fases 0–16). **Bloqueia** `todo/ROADMAP-MOTOR-INTELIGENCIA-EMOCIONAL.md` até o Bloco 2 estar fechado.
+> Plano para tornar o Zēllu seguro e vendável a empresas reais.
+> Complementa `TODO-Zellu.md` (Fases 0–16). **Bloqueia** `todo/ROADMAP-MOTOR-INTELIGENCIA-EMOCIONAL.md` até o Bloco 2 estar fechado.
 >
 > Status: **Implementado**
 > Origem: análise de código (auth, manager, RLS, chat, RH)
@@ -127,7 +127,7 @@ Sem hábito o RH não vê valor — mesmo com isolamento correto.
   - [x] 5.3.1 Job diário no horário local
   - [x] 5.3.2 Não notificar quem já fez check-in no dia
 - [x] **5.4** Retomada: banner “você não fez o check-in hoje” no dashboard companion
-- [x] **5.5** Favicon / OG da Mundo Mental (`public/favicon.ico` ainda é placeholder da Fase 1.4)
+- [x] **5.5** Favicon / OG da Zēllu (`public/favicon.ico` ainda é placeholder da Fase 1.4)
 
 **Critério de saída:** colaborador novo chega no check-in sem se perder; lembrete e fuso corretos.
 

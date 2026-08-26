@@ -117,7 +117,7 @@ export async function sendMessage(
       meta.source === "fallback-cloud-disabled"
         ? "IA na nuvem indisponível (opt-in ou API key)"
         : "erro na chamada da LLM";
-    console.warn(`[Mundo Mental] LLM falhou na resposta — ${reason}`, meta);
+    console.warn(`[Zēllu] LLM falhou na resposta — ${reason}`, meta);
   }
 
   return {

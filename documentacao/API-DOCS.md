@@ -1,6 +1,6 @@
 # API — Documentação de Server Functions
 
-> **Projeto:** Mundo Mental Care  
+> **Projeto:** Zēllu  
 > **Versão:** 1.2  
 > **Data:** 2026-08-26  
 > **Tipo:** Server Functions (TanStack Start)
@@ -67,7 +67,7 @@ Cadastro: `invites.server.ts` → `acceptInvite`.
 ```
 
 Envio: `src/lib/email.server.ts` → `sendInviteEmail` (HTML + texto, botão “Criar conta e entrar”).  
-Remetente: `INVITE_FROM_EMAIL` → `REMINDER_FROM_EMAIL` → default `Mundo Mental Care <noreply@mundomental.care>`.  
+Remetente: `INVITE_FROM_EMAIL` → `REMINDER_FROM_EMAIL` → default `Zēllu <noreply@zellu.app>`.  
 Base do link: `getAppBaseUrl()` (`APP_BASE_URL` / `VITE_APP_URL`).
 
 UI RH: `/manager/convites` — gera convite, feedback de e-mail, lista com **Cancelar** (pendentes/expirados).

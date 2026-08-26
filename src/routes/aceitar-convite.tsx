@@ -120,7 +120,7 @@ function AcceptInvitePage() {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <img
-                  src="/logo.png"
+                  src={BRANDING.logoMark}
                   alt=""
                   width={32}
                   height={32}

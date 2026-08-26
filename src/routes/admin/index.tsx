@@ -10,7 +10,7 @@ export const Route = createFileRoute("/admin/")({
   head: () => ({
     meta: [
       { title: `Portal Admin — ${BRANDING.shortName}` },
-      { name: "description", content: "KPIs globais do ecossistema Mundo Mental." },
+      { name: "description", content: "KPIs globais do ecossistema Zēllu." },
     ],
   }),
   component: AdminDashboard,
@@ -42,7 +42,7 @@ function AdminDashboard() {
   return (
     <AdminPageFrame>
       <div>
-        <h1 className="font-display text-2xl text-slate-800">Operação Mundo Mental</h1>
+        <h1 className="font-display text-2xl text-slate-800">Operação Zēllu</h1>
         <p className="mt-1 text-xs text-slate-500">
           Empresas, contratos, licenças, colaboradores, uso e alertas — visão global da operadora
         </p>

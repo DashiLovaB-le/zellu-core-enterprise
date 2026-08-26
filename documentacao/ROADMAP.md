@@ -1,4 +1,4 @@
-# Roadmap do Produto — Mundo Mental Care
+# Roadmap do Produto — Zēllu
 
 > **Versão:** 1.1  
 > **Data:** 2026-08-18  
@@ -8,7 +8,7 @@
 
 ## 1. Visão Geral do Roadmap
 
-O desenvolvimento do Mundo Mental Care segue um modelo de fases Incrementais, construindo da fundação técnica até o produto completo para operação B2B.
+O desenvolvimento do Zēllu segue um modelo de fases Incrementais, construindo da fundação técnica até o produto completo para operação B2B.
 
 ---
 
@@ -30,7 +30,7 @@ O desenvolvimento do Mundo Mental Care segue um modelo de fases Incrementais, co
 
 ### Fase 1 — White Label & Rebranding ✅
 **Status:** Concluída  
-**Objetivo:** Personalizar o app para a marca Mundo Mental Care.
+**Objetivo:** Personalizar o app para a marca Zēllu.
 
 | Entrega | Status |
 |---|---|

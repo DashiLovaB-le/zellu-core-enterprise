@@ -1,6 +1,6 @@
 # SDD — System Architecture / Design Document
 
-> **Projeto:** Mundo Mental Care  
+> **Projeto:** Zēllu  
 > **Versão:** 1.1  
 > **Data:** 2026-08-18
 

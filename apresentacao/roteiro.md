@@ -3,9 +3,9 @@
   .nota { color: #64748b; font-style: italic; }
 </style>
 
-# Roteiro de fala — Mundo Mental Care (ZelluApp)
+# Roteiro de fala — Zēllu (ZelluApp)
 
-<span class="fala">Apresentação do **núcleo ZelluApp** (Dashitecnology), na adaptação white-label **Mundo Mental Care** — primeiro cliente: **Mundo Mental**.<br>
+<span class="fala">Apresentação do produto **Zēllu** (núcleo **ZelluApp** / Dashitecnology).<br>
 Duração alvo: **10–15 minutos**.</span>
 
 <span class="fala"><strong>Como usar:</strong> cada bloco abaixo corresponde a um slide. Leia o texto em voz alta; o que está em <em>itálico</em> são lembretes para você (não ler).</span>
@@ -15,17 +15,17 @@ Duração alvo: **10–15 minutos**.</span>
 ---
 
 ## Slide 1 — Capa
-<span class="nota">*Título na tela: Mundo Mental Care · eyebrow ZelluApp / Dashitecnology / primeiro cliente white-label*</span>
+<span class="nota">*Título na tela: Zēllu · eyebrow Dashitecnology · núcleo ZelluApp*</span>
 
 <span class="fala">Bom dia / boa tarde.</span>
 
-<span class="fala">Obrigado pelo tempo. Vou apresentar o **Mundo Mental Care**.</span>
+<span class="fala">Obrigado pelo tempo. Vou apresentar o **Zēllu**.</span>
 
-<span class="fala">Antes de entrar no produto: esta aplicação foi criada pela **Dashitecnology**, faz parte do núcleo **ZelluApp**, e está **adaptada para a Mundo Mental** no formato Mundo Mental Care. Ou seja: já estamos aplicando um modelo **white-label** — e a Mundo Mental é o **primeiro cliente** neste formato.</span>
+<span class="fala">Antes de entrar no produto: esta aplicação foi criada pela **Dashitecnology**, sobre o núcleo **ZelluApp**, com a marca **Zēllu**. Por baixo, a plataforma já está preparada para **white-label**.</span>
 
-<span class="fala">O que vocês veem na tela é a marca e a experiência do cliente; por baixo, é a plataforma ZelluApp.</span>
+<span class="fala">O que vocês veem na tela é a marca e a experiência do produto; por baixo, é a plataforma ZelluApp.</span>
 
-<span class="fala">Tagline desta adaptação: <em>cuidado emocional no ritmo do trabalho</em>.</span>
+<span class="fala">Tagline: <em>cuidado emocional no ritmo do trabalho</em>.</span>
 
 ---
 
@@ -40,9 +40,9 @@ Duração alvo: **10–15 minutos**.</span>
 
 <span class="fala">Terceiro, a **tecnologia**: o núcleo ZelluApp, IA com consentimento e privacidade.</span>
 
-<span class="fala">Por fim, o **white-label**: como a Dashitecnology adapta esse núcleo para clientes — começando pela Mundo Mental.</span>
+<span class="fala">Por fim, o **white-label**: como a Dashitecnology licencia o núcleo ZelluApp com marca própria — neste caso, Zēllu.</span>
 
-<span class="fala">Sem métricas de tração nesta versão: o foco é o produto e o fato de o white-label **já estar em aplicação**.</span>
+<span class="fala">Sem métricas de tração nesta versão: o foco é o produto e o modelo white-label disponível.</span>
 
 ---
 
@@ -59,7 +59,7 @@ Duração alvo: **10–15 minutos**.</span>
 
 <span class="fala"><strong>Gap entre clínica e rotina:</strong> o cuidado não acompanha a pressão do trabalho no dia a dia.</span>
 
-<span class="fala">Importante: este produto **não substitui** psicólogo, psiquiatra ou terapia. É companion de bem-estar e autocuidado — e isso vale tanto no núcleo ZelluApp quanto nesta adaptação Mundo Mental Care.</span>
+<span class="fala">Importante: este produto **não substitui** psicólogo, psiquiatra ou terapia. É companion de bem-estar e autocuidado — no núcleo ZelluApp e na marca Zēllu.</span>
 
 ---
 
@@ -68,7 +68,7 @@ Duração alvo: **10–15 minutos**.</span>
 
 <span class="fala">A resposta é uma **plataforma SaaS B2B** completa, no núcleo **ZelluApp**, da **Dashitecnology**.</span>
 
-<span class="fala">Nesta versão, marca e experiência estão adaptadas para a **Mundo Mental** como **Mundo Mental Care** — nosso primeiro cliente white-label.</span>
+<span class="fala">Nesta versão, marca e experiência são a **Zēllu** — o produto pronto para empresas, com white-label disponível.</span>
 
 <span class="fala">Para o colaborador: uso diário — check-ins, conversa com companion, hábitos, plano de cuidado.</span>
 
@@ -78,14 +78,14 @@ Duração alvo: **10–15 minutos**.</span>
 
 <span class="fala">IA na nuvem só com **consentimento explícito**.</span>
 
-<span class="fala">Em uma frase: o núcleo é ZelluApp; o que vocês veem aqui é a pele white-label da Mundo Mental.</span>
+<span class="fala">Em uma frase: o núcleo é ZelluApp; o que vocês veem aqui é o produto **Zēllu**.</span>
 
 ---
 
 ## Slide 5 — Três níveis
 <span class="nota">*Título na tela: Três níveis, um só núcleo · diagrama Mermaid*</span>
 
-<span class="fala">Este diagrama é a arquitetura do **núcleo ZelluApp** — e é a mesma estrutura que o white-label Mundo Mental Care opera.</span>
+<span class="fala">Este diagrama é a arquitetura do **núcleo ZelluApp** — a mesma estrutura que a marca Zēllu opera.</span>
 
 <span class="fala">No topo, o **operador do white-label** usa o Portal Admin: empresas, licenças e uso.</span>
 
@@ -100,7 +100,7 @@ Duração alvo: **10–15 minutos**.</span>
 ## Slide 6 — Jornada
 <span class="nota">*Título na tela: Do check-in ao cuidado — em minutos · diagrama Mermaid*</span>
 
-<span class="fala">Jornada do colaborador, nesta adaptação Mundo Mental Care.</span>
+<span class="fala">Jornada do colaborador, nesta adaptação Zēllu.</span>
 
 <span class="fala">Começa com o **check-in**: sono, água, humor.</span>
 
@@ -125,7 +125,7 @@ Duração alvo: **10–15 minutos**.</span>
 
 <span class="fala"><strong>Prevenção:</strong> alertas de tendência para a própria pessoa; em crise, prioridade para ajuda humana — por exemplo, CVV 188.</span>
 
-<span class="fala">Por baixo: check-in, chat, diário, hábitos, plano, respiro, dashboard e insights — tudo do núcleo ZelluApp, com a identidade Mundo Mental Care.</span>
+<span class="fala">Por baixo: check-in, chat, diário, hábitos, plano, respiro, dashboard e insights — tudo do núcleo ZelluApp, com a identidade Zēllu.</span>
 
 ---
 
@@ -157,7 +157,7 @@ Duração alvo: **10–15 minutos**.</span>
 
 <span class="fala">Colaboradores com opt-in entram numa **agregação com mínimo de cinco pessoas**. Abaixo disso, métricas sensíveis ficam ocultas.</span>
 
-<span class="fala">Isso é regra do núcleo ZelluApp — e vale na operação Mundo Mental Care.</span>
+<span class="fala">Isso é regra do núcleo ZelluApp — e vale na operação Zēllu.</span>
 
 ---
 
@@ -166,15 +166,15 @@ Duração alvo: **10–15 minutos**.</span>
 
 <span class="fala">Aqui está o posicionamento correto.</span>
 
-<span class="fala">A tecnologia é da **Dashitecnology**. O produto de plataforma é o núcleo **ZelluApp**. O **white-label** adapta marca e experiência para cada cliente.</span>
+<span class="fala">A tecnologia é da **Dashitecnology**. O produto de plataforma é o núcleo **ZelluApp**. O **white-label** adapta marca e experiência para cada operador.</span>
 
-<span class="fala">O **Mundo Mental Care** é essa adaptação para a **Mundo Mental** — nosso **primeiro cliente** neste modelo.</span>
+<span class="fala">**Zēllu** é a marca do produto companion nesta implantação.</span>
 
 <span class="fala">O pacote do núcleo inclui: companion; painel RH; portal admin; camada de IA; base LGPD.</span>
 
-<span class="fala">No diagrama: Dashitecnology → ZelluApp → white-label → Mundo Mental Care → Mundo Mental → empresas usuárias → colaboradores.</span>
+<span class="fala">No diagrama: Dashitecnology → ZelluApp → produto Zēllu (e white-label) → empresas clientes → colaboradores.</span>
 
-<span class="fala">Não é só “pronto para white-label”. **Já está em aplicação**, com a Mundo Mental como primeiro caso.</span>
+<span class="fala">Não é só “pronto para white-label”: o núcleo **já roda** com a marca Zēllu.</span>
 
 ---
 
@@ -193,7 +193,7 @@ Duração alvo: **10–15 minutos**.</span>
 
 <span class="fala"><strong>IA responsável:</strong> opt-in, fallback local, crise no servidor.</span>
 
-<span class="fala"><strong>White-label comprovado:</strong> já adaptado para a Mundo Mental como Mundo Mental Care.</span>
+<span class="fala"><strong>White-label disponível:</strong> marca Zēllu em produção — mesmo núcleo para outros operadores.</span>
 
 ---
 
@@ -215,7 +215,7 @@ Duração alvo: **10–15 minutos**.</span>
 
 <span class="fala">Para fechar.</span>
 
-<span class="fala">Tecnologia da **Dashitecnology**, núcleo **ZelluApp**, adaptada para a **Mundo Mental** como **Mundo Mental Care** — primeiro cliente white-label.</span>
+<span class="fala">Tecnologia da **Dashitecnology**, núcleo **ZelluApp**, produto **Zēllu** — companion B2B com white-label disponível.</span>
 
 <span class="fala">O próximo passo natural é alinharmos o **modelo de licenciamento** do núcleo e, se fizer sentido, uma demonstração guiada nesta adaptação.</span>
 

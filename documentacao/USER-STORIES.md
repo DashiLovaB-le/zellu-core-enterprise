@@ -1,4 +1,4 @@
-# User Stories — Mundo Mental Care
+# User Stories — Zēllu
 
 > **Versão:** 1.1  
 > **Data:** 2026-08-18

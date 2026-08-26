@@ -131,7 +131,7 @@ export const createInvite = createServerFn({ method: "POST" })
       inviteUrl,
       invite: row,
       emailSent: emailResult.sent,
-      emailSkipped: emailResult.skipped ?? false,
+      emailSkipped: emailResult.sent ? false : emailResult.skipped,
       emailError: emailResult.error,
     };
   });

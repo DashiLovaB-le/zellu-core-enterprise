@@ -13,7 +13,7 @@ function fromAddress(): string {
   return (
     process.env.INVITE_FROM_EMAIL ??
     process.env.REMINDER_FROM_EMAIL ??
-    "Mundo Mental Care <noreply@mundomental.care>"
+    "Zēllu <noreply@zellu.app>"
   );
 }
 
@@ -70,9 +70,9 @@ export async function sendInviteEmail(input: {
     year: "numeric",
   });
 
-  const subject = `Convite para o Mundo Mental Care — ${input.companyName}`;
+  const subject = `Convite para o Zēllu — ${input.companyName}`;
   const text = [
-    `Você foi convidado(a) para acessar o Mundo Mental Care como ${roleLabel} em ${input.companyName}.`,
+    `Você foi convidado(a) para acessar o Zēllu como ${roleLabel} em ${input.companyName}.`,
     "",
     "Para criar sua conta e entrar, abra o link abaixo:",
     input.inviteUrl,
@@ -91,7 +91,7 @@ export async function sendInviteEmail(input: {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:480px;background:#ffffff;border-radius:20px;padding:32px 28px;box-shadow:0 8px 24px rgba(74,106,138,0.1);">
           <tr>
             <td style="font-family:Quicksand,Segoe UI,sans-serif;font-size:22px;font-weight:600;color:#4A6A8A;padding-bottom:8px;">
-              Mundo Mental Care
+              Zēllu
             </td>
           </tr>
           <tr>

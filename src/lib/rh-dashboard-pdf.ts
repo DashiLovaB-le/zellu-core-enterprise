@@ -1,7 +1,7 @@
 import type { Content, TDocumentDefinitions } from "pdfmake/interfaces";
 import type { RhDashboardData } from "@/lib/api/manager.server";
 import { BRANDING } from "@/lib/branding";
-import logoUrl from "@/assets/logo.png";
+import logoUrl from "@/assets/logo-zellu/icone-app.svg";
 
 export type RhDashboardPdfInput = {
   data: RhDashboardData;
@@ -60,6 +60,8 @@ async function loadLogoDataUrl(): Promise<string | null> {
     const res = await fetch(logoUrl);
     if (!res.ok) return null;
     const blob = await res.blob();
+    // pdfmake só renderiza raster (PNG/JPEG); SVG do brand kit fica de fora.
+    if (blob.type.includes("svg")) return null;
     return await new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(String(reader.result));
@@ -384,7 +386,7 @@ export function buildRhDashboardPdfDefinition(
       title: `Relatório RH — ${BRANDING.shortName}`,
       author: BRANDING.appName,
       subject: "Painel RH — indicadores agregados de bem-estar",
-      keywords: "RH, bem-estar, Mundo Mental Care",
+      keywords: "RH, bem-estar, Zellu",
       creator: BRANDING.appName,
     },
     pageSize: "A4",

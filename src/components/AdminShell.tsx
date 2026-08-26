@@ -4,7 +4,7 @@ import { Icon } from "./Icon";
 import { Avatar } from "./Avatar";
 import { BRANDING } from "@/lib/branding";
 import { useAuth } from "@/lib/auth-context";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-zellu/icone-app.svg";
 
 interface NavItem {
   to: LinkProps["to"];

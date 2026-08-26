@@ -114,7 +114,7 @@ export function PrivacyPreferencesSection({
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = "mundo-mental-meus-dados.json";
+          a.download = "zellu-meus-dados.json";
           a.click();
           URL.revokeObjectURL(url);
         }}

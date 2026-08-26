@@ -1,6 +1,6 @@
 # FRD — Functional Requirement Document
 
-> **Projeto:** Mundo Mental Care  
+> **Projeto:** Zēllu  
 > **Versão:** 1.2  
 > **Data:** 2026-08-26
 
@@ -184,7 +184,7 @@ export async function saveCheckin(data: CheckinSchema) {
 ### 4.3 System Prompt Padrão
 
 ```
-Você é o assistente de bem-estar emocional do Mundo Mental Care.
+Você é o assistente de bem-estar emocional do Zēllu.
 Seu tom é corporativo-acolhedor: claro, respeitoso, sem infantilizar.
 Você NÃO substitui psicólogos ou terapeutas.
 Quando detectar sinais de crise, sugira buscar ajuda profissional.

@@ -56,10 +56,10 @@ export const sendCheckinReminders = createServerFn({ method: "POST" })
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: process.env.REMINDER_FROM_EMAIL ?? "Mundo Mental Care <noreply@mundomental.care>",
+              from: process.env.REMINDER_FROM_EMAIL ?? "Zēllu <noreply@zellu.app>",
               to: profile.email,
               subject: "Seu check-in de hoje",
-              text: `Olá${profile.display_name ? `, ${profile.display_name}` : ""}. Ainda dá tempo de registrar como você está hoje no Mundo Mental Care.`,
+              text: `Olá${profile.display_name ? `, ${profile.display_name}` : ""}. Ainda dá tempo de registrar como você está hoje no Zēllu.`,
             }),
           });
         } catch (err) {

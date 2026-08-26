@@ -1,7 +1,7 @@
 import type { Content, TDocumentDefinitions } from "pdfmake/interfaces";
 import type { RhDashboardData } from "@/lib/api/manager.server";
 import { BRANDING } from "@/lib/branding";
-import logoUrl from "@/assets/logo.png";
+import logoUrl from "@/assets/logo-zellu/icone-app.svg";
 import {
   buildReportPreview,
   reportTypeLabel,
@@ -33,6 +33,7 @@ async function loadLogoDataUrl(): Promise<string | null> {
     const res = await fetch(logoUrl);
     if (!res.ok) return null;
     const blob = await res.blob();
+    if (blob.type.includes("svg")) return null;
     return await new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(String(reader.result));

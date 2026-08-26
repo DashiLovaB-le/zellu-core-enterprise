@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zellu — Brand System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700&amp;family=Quicksand:wght@500;600;700&amp;display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --terra: #E5987D;
+      --terra-light: #F0B49A;
+      --terra-dark: #D48468;
+      --sage: #92A085;
+      --sage-light: #A8B69C;
+      --sage-dark: #7E8E72;
+      --ink: #4D332D;
+      --ink-soft: #5B5248;
+      --cream: #FDF8F4;
+      --cream-deep: #F3EEE1;
+      --paper: #FAF7F1;
+      --line: rgba(44, 36, 25, 0.1);
+      --card: rgba(255, 255, 255, 0.85);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Nunito Sans", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(229, 152, 125, 0.22), transparent 42%),
+        radial-gradient(circle at 100% 0%, rgba(146, 160, 133, 0.2), transparent 38%),
+        var(--paper);
+      line-height: 1.55;
+    }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 20px 80px; }
+    header { margin-bottom: 40px; }
+    header h1 {
+      margin: 0 0 8px;
+      font-family: "Quicksand", system-ui, sans-serif;
+      font-size: clamp(2rem, 4vw, 2.6rem);
+      letter-spacing: -0.03em;
+    }
+    header p { margin: 0; max-width: 58ch; color: var(--ink-soft); }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .chip {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
+    nav.toc {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin: 28px 0 44px;
+    }
+    nav.toc a {
+      text-decoration: none;
+      color: var(--ink);
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 0.9rem;
+    }
+    section { margin-bottom: 48px; }
+    section > h2 {
+      margin: 0 0 6px;
+      font-family: "Quicksand", system-ui, sans-serif;
+      font-size: 1.35rem;
+    }
+    section > .desc { margin: 0 0 18px; color: var(--ink-soft); font-size: 0.95rem; }
+    .hero {
+      display: grid;
+      place-items: center;
+      min-height: 220px;
+      padding: 40px 24px;
+      border-radius: 24px;
+      background: var(--cream);
+      border: 1px solid var(--line);
+    }
+    .hero svg, .hero img { width: min(100%, 520px); height: auto; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+    .card h3 {
+      margin: 0 0 4px;
+      font-size: 0.98rem;
+      font-family: "Quicksand", system-ui, sans-serif;
+    }
+    .card .file {
+      margin: 0 0 14px;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 0.72rem;
+      color: #7a6f63;
+      word-break: break-all;
+    }
+    .preview {
+      display: grid;
+      place-items: center;
+      min-height: 140px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px dashed var(--line);
+      padding: 18px;
+    }
+    .preview.cream { background: var(--cream); }
+    .preview.terra { background: var(--terra); }
+    .preview.sage { background: var(--sage); }
+    .preview.checker {
+      background:
+        linear-gradient(45deg, #eee 25%, transparent 25%),
+        linear-gradient(-45deg, #eee 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #eee 75%),
+        linear-gradient(-45deg, transparent 75%, #eee 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+      background-color: #fafafa;
+    }
+    .preview svg.mark,
+    .preview img.mark { width: 96px; height: auto; display: block; }
+    .preview svg.wide,
+    .preview img.wide { width: min(100%, 320px); height: auto; display: block; }
+    .preview svg.icon,
+    .preview img.icon { width: 88px; height: 88px; display: block; }
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .swatch {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+    .swatch .chip-color { height: 84px; }
+    .swatch .meta-swatch { padding: 10px 12px 12px; }
+    .swatch strong { display: block; font-size: 0.9rem; }
+    .swatch code { font-size: 0.75rem; color: var(--ink-soft); }
+    .rules { display: grid; gap: 10px; }
+    .rule {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--card);
+    }
+    .rule .badge {
+      width: 22px; height: 22px; border-radius: 999px;
+      display: grid; place-items: center;
+      font-size: 0.7rem; font-weight: 700; color: #fff;
+    }
+    .rule .badge.do { background: var(--sage-dark); }
+    .rule .badge.dont { background: #a35d4a; }
+    footer {
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--ink-soft);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Z&#275;llu — Brand System</h1>
+      <p>
+        Kit sincronizado com <code>simbolo.svg</code> (fonte oficial):
+        path <code>M7.5,7.5h54l-30.4,26.75</code>, barra sage e ponto.
+      </p>
+      <div class="meta">
+        <span class="chip">fonte: simbolo.svg</span>
+        <span class="chip">viewBox 0 0 72.97 64.14</span>
+        <span class="chip">src/assets/logo-zellu/</span>
+      </div>
+    </header>
+
+    <nav class="toc" aria-label="Indice">
+      <a href="#assinatura">Assinatura</a>
+      <a href="#simbolos">Simbolos</a>
+      <a href="#tipografia">Tipografia</a>
+      <a href="#icones">Icones de app</a>
+      <a href="#cores">Cores</a>
+      <a href="#uso">Uso</a>
+    </nav>
+
+    <section id="assinatura">
+      <h2>Assinatura principal</h2>
+      <p class="desc">Arquivo: <code>lockup-tagline.svg</code></p>
+      <div class="hero">
+        <img class="wide" src="./lockup-tagline.svg" alt="Zellu lockup com tagline" />
+      </div>
+    </section>
+
+    <section id="simbolos">
+      <h2>Simbolos</h2>
+      <p class="desc">Geometria oficial de <code>simbolo.svg</code>.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Simbolo colorido</h3>
+          <p class="file">simbolo.svg</p>
+          <div class="preview cream">
+            <img class="mark" src="./simbolo.svg" alt="Simbolo Zellu colorido" />
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Simbolo monocromatico</h3>
+          <p class="file">simbolo-mono.svg</p>
+          <div class="preview checker">
+            <svg class="mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72.97 64.14">
+              <path d="M7.5,7.5h54l-30.4,26.75" fill="none" stroke="#4D332D" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10.79,50.14h53.29c4.91,0,8.88,3.13,8.88,7h0c0,3.87-3.98,7-8.88,7H10.79c-4.91,0-8.88-3.13-8.88-7h0c0-3.87,3.98-7,8.88-7Z" fill="#4D332D"/>
+              <circle cx="61.5" cy="37" r="7.5" fill="#4D332D"/>
+            </svg>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Simbolo claro</h3>
+          <p class="file">simbolo-mono-claro.svg</p>
+          <div class="preview terra">
+            <img class="mark" src="./simbolo-mono-claro.svg" alt="Simbolo claro" />
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Simbolo claro (branco)</h3>
+          <p class="file">marca-reduzida-e.svg · simbolo-mono-claro.svg</p>
+          <div class="preview sage">
+            <img class="mark" src="./marca-reduzida-e.svg" alt="Simbolo branco" />
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="tipografia">
+      <h2>Tipografia / lockups</h2>
+      <p class="desc">Wordmark com &#275; + simbolo oficial.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Wordmark</h3>
+          <p class="file">wordmark.svg</p>
+          <div class="preview cream">
+            <img class="wide" src="./wordmark.svg" alt="Wordmark Zellu" style="max-height:56px" />
+          </div>
+        </article>
+        <article class="card">
+          <h3>Lockup</h3>
+          <p class="file">lockup.svg</p>
+          <div class="preview cream">
+            <img class="wide" src="./lockup.svg" alt="Lockup Zellu" />
+          </div>
+        </article>
+        <article class="card">
+          <h3>Lockup + tagline</h3>
+          <p class="file">lockup-tagline.svg</p>
+          <div class="preview cream">
+            <img class="wide" src="./lockup-tagline.svg" alt="Lockup com tagline" />
+          </div>
+        </article>
+        <article class="card">
+          <h3>Lockup mono</h3>
+          <p class="file">lockup-mono.svg</p>
+          <div class="preview checker">
+            <svg class="wide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120">
+              <g fill="#4D332D" stroke="#4D332D">
+                <g transform="translate(4,26) scale(1.05)">
+                  <path d="M7.5,7.5h54l-30.4,26.75" fill="none" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10.79,50.14h53.29c4.91,0,8.88,3.13,8.88,7h0c0,3.87-3.98,7-8.88,7H10.79c-4.91,0-8.88-3.13-8.88-7h0c0-3.87,3.98-7,8.88-7Z" stroke="none"/>
+                  <circle cx="61.5" cy="37" r="7.5" stroke="none"/>
+                </g>
+                <text x="100" y="78" fill="#4D332D" stroke="none" font-family="Quicksand, Nunito Sans, Arial, sans-serif" font-size="64" font-weight="700" letter-spacing="-0.02em">Z&#275;llu</text>
+              </g>
+            </svg>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="icones">
+      <h2>Icones de aplicativo</h2>
+      <p class="desc">Em 16px, preferir <code>icone-app-e</code> (sage) ou <code>icone-app-mono</code> (terracotta).</p>
+      <div class="grid">
+        <article class="card">
+          <h3>App icon</h3>
+          <p class="file">icone-app.svg</p>
+          <div class="preview checker">
+            <img class="icon" src="./icone-app.svg" alt="App icon" />
+          </div>
+        </article>
+        <article class="card">
+          <h3>App icon mono</h3>
+          <p class="file">icone-app-mono.svg</p>
+          <div class="preview checker">
+            <img class="icon" src="./icone-app-mono.svg" alt="App icon mono" />
+          </div>
+        </article>
+        <article class="card">
+          <h3>App icon sage</h3>
+          <p class="file">icone-app-e.svg</p>
+          <div class="preview checker">
+            <img class="icon" src="./icone-app-e.svg" alt="App icon sage" />
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="cores">
+      <h2>Paleta</h2>
+      <p class="desc">Extraida do <code>simbolo.svg</code> oficial.</p>
+      <div class="swatches">
+        <div class="swatch"><div class="chip-color" style="background:var(--terra)"></div><div class="meta-swatch"><strong>Terracotta</strong><code>#E5987D</code></div></div>
+        <div class="swatch"><div class="chip-color" style="background:var(--terra-light)"></div><div class="meta-swatch"><strong>Terracotta light</strong><code>#F0B49A</code></div></div>
+        <div class="swatch"><div class="chip-color" style="background:var(--terra-dark)"></div><div class="meta-swatch"><strong>Terracotta dark</strong><code>#D48468</code></div></div>
+        <div class="swatch"><div class="chip-color" style="background:var(--sage)"></div><div class="meta-swatch"><strong>Sage</strong><code>#92A085</code></div></div>
+        <div class="swatch"><div class="chip-color" style="background:var(--sage-light)"></div><div class="meta-swatch"><strong>Sage light</strong><code>#A8B69C</code></div></div>
+        <div class="swatch"><div class="chip-color" style="background:var(--sage-dark)"></div><div class="meta-swatch"><strong>Sage dark</strong><code>#7E8E72</code></div></div>
+        <div class="swatch"><div class="chip-color" style="background:var(--ink)"></div><div class="meta-swatch"><strong>Ink</strong><code>#4D332D</code></div></div>
+        <div class="swatch"><div class="chip-color" style="background:var(--ink-soft)"></div><div class="meta-swatch"><strong>Ink soft</strong><code>#5B5248</code></div></div>
+        <div class="swatch"><div class="chip-color" style="background:var(--cream); border-bottom:1px solid var(--line)"></div><div class="meta-swatch"><strong>Cream</strong><code>#FDF8F4</code></div></div>
+        <div class="swatch"><div class="chip-color" style="background:var(--cream-deep); border-bottom:1px solid var(--line)"></div><div class="meta-swatch"><strong>Cream deep</strong><code>#F3EEE1</code></div></div>
+      </div>
+    </section>
+
+    <section id="uso">
+      <h2>Regras de uso</h2>
+      <div class="rules">
+        <div class="rule"><span class="badge do">OK</span><div><code>simbolo.svg</code> e a fonte da verdade — demais variacoes devem copiar essa geometria.</div></div>
+        <div class="rule"><span class="badge do">OK</span><div>Usar <strong>icone-app-e</strong> / <strong>icone-app-mono</strong> em favicon 16px.</div></div>
+        <div class="rule"><span class="badge do">OK</span><div>Usar <strong>lockup-mono</strong> em PDF e contratos.</div></div>
+        <div class="rule"><span class="badge dont">NO</span><div>Nao alterar paths do Z, da barra ou do ponto sem atualizar o kit inteiro.</div></div>
+      </div>
+    </section>
+
+    <footer>
+      Zellu Brand System · sincronizado com <code>simbolo.svg</code> · recarregue com Ctrl+F5 apos editar o simbolo.
+    </footer>
+  </div>
+</body>
+</html>

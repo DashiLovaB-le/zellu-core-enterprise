@@ -1,5 +1,5 @@
 -- ============================================================
--- FASE 15 — Portal Administrativo (Mundo Mental)
+-- FASE 15 — Portal Administrativo (Zēllu)
 -- Role admin, empresas, equipes, licenças, contratos, alertas
 -- ============================================================
 
@@ -12,7 +12,7 @@ ALTER TABLE profiles
   CHECK (role IN ('companion', 'manager', 'dev', 'admin'));
 
 -- -----------------------------------------------------------
--- 2. companies (clientes B2B da Mundo Mental)
+-- 2. companies (clientes B2B da Zēllu)
 -- -----------------------------------------------------------
 CREATE TABLE IF NOT EXISTS companies (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),

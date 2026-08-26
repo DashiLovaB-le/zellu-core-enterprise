@@ -29,27 +29,51 @@ const now = new Date().toISOString();
 
 const USERS = [
   {
-    email: "colaborador.teste@mundomental.care",
+    email: "colaborador.teste@zellu.app",
     password: PASSWORD,
     displayName: "Colaborador Teste",
     role: "companion",
   },
   {
-    email: "rh.teste@mundomental.care",
+    email: "rh.teste@zellu.app",
     password: PASSWORD,
     displayName: "RH Teste",
     role: "manager",
   },
 ];
 
+const COMPANY_NAME = "Empresa Demo Zēllu";
+
+function legacyEmail(email) {
+  return email.replace(/@zellu\.app$/i, "@mundomental.care");
+}
+
+async function listAllUsers() {
+  const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
+  if (error) throw new Error(`listUsers: ${error.message}`);
+  return data?.users ?? [];
+}
+
 async function ensureCompany() {
   const { data: existing, error } = await admin.from("companies").select("id, name").limit(1);
   if (error) throw new Error(`companies select: ${error.message}`);
-  if (existing?.[0]) return existing[0];
+  if (existing?.[0]) {
+    if (existing[0].name !== COMPANY_NAME) {
+      const { data: renamed, error: renameError } = await admin
+        .from("companies")
+        .update({ name: COMPANY_NAME })
+        .eq("id", existing[0].id)
+        .select("id, name")
+        .single();
+      if (renameError) throw new Error(`companies rename: ${renameError.message}`);
+      return renamed;
+    }
+    return existing[0];
+  }
 
   const { data, error: insertError } = await admin
     .from("companies")
-    .insert({ name: "Empresa Demo Mundo Mental" })
+    .insert({ name: COMPANY_NAME })
     .select("id, name")
     .single();
   if (insertError) throw new Error(`companies insert: ${insertError.message}`);
@@ -57,38 +81,53 @@ async function ensureCompany() {
 }
 
 async function ensureUser({ email, password, displayName }) {
+  const users = await listAllUsers();
+  const legacy = legacyEmail(email);
+  const found =
+    users.find((u) => u.email?.toLowerCase() === email.toLowerCase()) ??
+    users.find((u) => u.email?.toLowerCase() === legacy.toLowerCase());
+
+  if (found) {
+    const { error } = await admin.auth.admin.updateUserById(found.id, {
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { display_name: displayName },
+    });
+    if (error) throw new Error(`updateUser ${email}: ${error.message}`);
+    return found.id;
+  }
+
   const { data: created, error } = await admin.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
     user_metadata: { display_name: displayName },
   });
-
-  if (!error && created?.user) {
-    await admin.auth.admin.updateUserById(created.user.id, { password, email_confirm: true });
-    return created.user.id;
-  }
-
-  const msg = error?.message ?? "";
-  if (!/already|registered|exists/i.test(msg) && error) {
-    const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
-    const found = list?.users?.find((u) => u.email?.toLowerCase() === email.toLowerCase());
-    if (found) {
-      await admin.auth.admin.updateUserById(found.id, { password, email_confirm: true });
-      return found.id;
-    }
-    throw new Error(`createUser ${email}: ${msg}`);
-  }
-
-  const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
-  const found = list?.users?.find((u) => u.email?.toLowerCase() === email.toLowerCase());
-  if (!found) throw new Error(`usuário ${email} não encontrado após conflito`);
-  await admin.auth.admin.updateUserById(found.id, { password, email_confirm: true });
-  return found.id;
+  if (error || !created?.user) throw new Error(`createUser ${email}: ${error?.message ?? "falhou"}`);
+  return created.user.id;
 }
 
 const company = await ensureCompany();
 const results = [];
+
+const { data: teamRow } = await admin
+  .from("teams")
+  .select("id")
+  .eq("company_id", company.id)
+  .eq("name", "Equipe Demo")
+  .maybeSingle();
+
+let teamId = teamRow?.id ?? null;
+if (!teamId) {
+  const { data: createdTeam, error: teamError } = await admin
+    .from("teams")
+    .insert({ company_id: company.id, name: "Equipe Demo", description: "Equipe de demonstração" })
+    .select("id")
+    .single();
+  if (teamError) throw new Error(`teams: ${teamError.message}`);
+  teamId = createdTeam.id;
+}
 
 for (const user of USERS) {
   const id = await ensureUser(user);
@@ -98,6 +137,7 @@ for (const user of USERS) {
     display_name: user.displayName,
     role: user.role,
     company_id: company.id,
+    team_id: teamId,
     is_active: true,
     timezone: "America/Sao_Paulo",
     onboarding_completed_at: now,

@@ -81,15 +81,15 @@ function LoginPage() {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <img
-                  src="/logo.png"
+                  src={BRANDING.logoMark}
                   alt=""
                   width={32}
                   height={32}
                   className="size-8 shrink-0 rounded-lg sm:size-9"
                 />
-                <p className="truncate font-display text-sm leading-tight text-[var(--clay-title)] sm:text-base">
+                <h1 className="truncate font-display text-sm leading-tight text-[var(--clay-title)] sm:text-base">
                   {BRANDING.shortName}
-                </p>
+                </h1>
               </div>
               <p className="mt-0.5 line-clamp-1 text-[10px] leading-snug text-[var(--clay-text)]/60 sm:text-xs">
                 {BRANDING.tagline}

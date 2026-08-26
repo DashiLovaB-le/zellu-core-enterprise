@@ -5,6 +5,8 @@ export interface BrandingConfig {
   description: string;
   themeColor: string;
   socialImage: string;
+  logoMark: string;
+  logoIcon: string;
   fonts: {
     display: string;
     body: string;
@@ -13,16 +15,18 @@ export interface BrandingConfig {
 }
 
 export const BRANDING: BrandingConfig = {
-  appName: "Mundo Mental Care",
+  appName: "Zēllu",
   tagline: "Cuidado emocional no ritmo do trabalho",
-  shortName: "Mundo Mental Care",
+  shortName: "Zēllu",
   description:
-    "Companion de bem-estar emocional que amplia o cuidado da Mundo Mental no dia a dia das equipes.",
-  themeColor: "#F3EEE1",
-  socialImage: "/logo.png",
+    "Companion digital de bem-estar emocional corporativo — acompanha colaboradores no dia a dia e entrega sinais agregados para RH, com privacidade e isolamento por empresa.",
+  themeColor: "#FDF8F4",
+  socialImage: "/logo.svg",
+  logoMark: "/logo.svg",
+  logoIcon: "/favicon.svg",
   fonts: {
     display: "Quicksand",
     body: "Nunito Sans",
   },
-  poweredBy: "Powered by Zellu",
+  poweredBy: "Powered by Dashitecnology",
 };

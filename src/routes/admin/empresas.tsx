@@ -121,7 +121,7 @@ function AdminEmpresasPage() {
         <div>
           <h1 className="font-display text-2xl text-slate-800">Empresas / Clientes</h1>
           <p className="mt-1 text-xs text-slate-500">
-            Contas B2B da Mundo Mental · {companies.length} registradas
+            Contas B2B da Zēllu · {companies.length} registradas
           </p>
         </div>
         <button

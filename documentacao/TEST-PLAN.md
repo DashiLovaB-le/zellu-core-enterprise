@@ -1,6 +1,6 @@
-# Plano de Testes — Mundo Mental Care
+# Plano de Testes — Zēllu
 
-> **Projeto:** Mundo Mental Care  
+> **Projeto:** Zēllu  
 > **Versão:** 1.1  
 > **Data:** 2026-08-18  
 > **Ferramentas:** Vitest (unitários P0 em CI). Playwright E2E — planejado, ainda não está no `package.json`.

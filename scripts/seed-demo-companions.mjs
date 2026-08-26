@@ -51,7 +51,7 @@ function isoDate(daysAgo) {
 
 const PEOPLE = [
   {
-    email: "ana.silva.demo@mundomental.care",
+    email: "ana.silva.demo@zellu.app",
     password: "Ana#Care2026",
     displayName: "Ana Silva",
     avatar: "Amora",
@@ -65,7 +65,7 @@ const PEOPLE = [
     diary: "Semana mais leve no comercial. Consegui pausar na hora do almoço.",
   },
   {
-    email: "bruno.costa.demo@mundomental.care",
+    email: "bruno.costa.demo@zellu.app",
     password: "Bruno#Care2026",
     displayName: "Bruno Costa",
     avatar: "Chico",
@@ -79,7 +79,7 @@ const PEOPLE = [
     diary: "Muitos prazos. Dormi mal e acordei já tenso com as reuniões.",
   },
   {
-    email: "camila.rocha.demo@mundomental.care",
+    email: "camila.rocha.demo@zellu.app",
     password: "Camila#Care2026",
     displayName: "Camila Rocha",
     avatar: "Pipoca",
@@ -93,7 +93,7 @@ const PEOPLE = [
     diary: "Tentei reduzir tela à noite. Ainda acordo cansada, mas um pouco melhor.",
   },
   {
-    email: "diego.nunes.demo@mundomental.care",
+    email: "diego.nunes.demo@zellu.app",
     password: "Diego#Care2026",
     displayName: "Diego Nunes",
     avatar: "Zeca",
@@ -107,7 +107,7 @@ const PEOPLE = [
     diary: "Voltei a caminhar cedo. Energia bem diferente no meio da tarde.",
   },
   {
-    email: "elisa.martins.demo@mundomental.care",
+    email: "elisa.martins.demo@zellu.app",
     password: "Elisa#Care2026",
     displayName: "Elisa Martins",
     avatar: "Amora",
@@ -121,7 +121,7 @@ const PEOPLE = [
     diary: "Conversei com a equipe e pedi ajuda num projeto. Aliviou um pouco.",
   },
   {
-    email: "colaborador.teste@mundomental.care",
+    email: "colaborador.teste@zellu.app",
     password: "MmcTeste#2026",
     displayName: "Colaborador Teste",
     avatar: "Zeca",
@@ -138,11 +138,31 @@ const PEOPLE = [
 
 const HISTORY_DAYS = 30;
 
+const COMPANY_NAME = "Empresa Demo Zēllu";
+
+function legacyEmail(email) {
+  return email.replace(/@zellu\.app$/i, "@mundomental.care");
+}
+
+async function listAllUsers() {
+  const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
+  if (error) throw new Error(`listUsers: ${error.message}`);
+  return data?.users ?? [];
+}
+
 async function ensureCompany() {
   const { data, error } = await admin.from("companies").select("id, name").limit(1);
   if (error) throw new Error(`companies: ${error.message}`);
   if (!data?.[0]) throw new Error("Empresa demo não encontrada. Crie os usuários base primeiro.");
-  return data[0];
+  if (data[0].name === COMPANY_NAME) return data[0];
+  const { data: renamed, error: renameError } = await admin
+    .from("companies")
+    .update({ name: COMPANY_NAME })
+    .eq("id", data[0].id)
+    .select("id, name")
+    .single();
+  if (renameError) throw new Error(`companies rename: ${renameError.message}`);
+  return renamed;
 }
 
 async function ensureTeam(companyId) {
@@ -164,22 +184,31 @@ async function ensureTeam(companyId) {
 }
 
 async function ensureUser({ email, password, displayName }) {
+  const users = await listAllUsers();
+  const legacy = legacyEmail(email);
+  const found =
+    users.find((u) => u.email?.toLowerCase() === email.toLowerCase()) ??
+    users.find((u) => u.email?.toLowerCase() === legacy.toLowerCase());
+
+  if (found) {
+    const { error } = await admin.auth.admin.updateUserById(found.id, {
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { display_name: displayName },
+    });
+    if (error) throw new Error(`updateUser ${email}: ${error.message}`);
+    return found.id;
+  }
+
   const { data: created, error } = await admin.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
     user_metadata: { display_name: displayName },
   });
-  if (!error && created?.user) {
-    await admin.auth.admin.updateUserById(created.user.id, { password, email_confirm: true });
-    return created.user.id;
-  }
-
-  const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
-  const found = list?.users?.find((u) => u.email?.toLowerCase() === email.toLowerCase());
-  if (!found) throw new Error(`createUser ${email}: ${error?.message ?? "falhou"}`);
-  await admin.auth.admin.updateUserById(found.id, { password, email_confirm: true });
-  return found.id;
+  if (error || !created?.user) throw new Error(`createUser ${email}: ${error?.message ?? "falhou"}`);
+  return created.user.id;
 }
 
 async function habitColumns() {

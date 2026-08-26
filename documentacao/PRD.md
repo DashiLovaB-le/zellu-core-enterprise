@@ -1,15 +1,15 @@
-# PRD — Mundo Mental Care
+# PRD — Zēllu
 
 > **Versão:** 1.1  
 > **Data:** 2026-08-18  
-> **Produto:** Mundo Mental Care  
+> **Produto:** Zēllu  
 > **Tagline:** Cuidado emocional no ritmo do trabalho
 
 ---
 
 ## 1. Sumário Executivo
 
-**Mundo Mental Care** é o companion digital de bem-estar emocional corporativo da oferta Mundo Mental. O produto oferece chat terapêutico com IA, check-in diário, diário/timeline, hábitos, plano de cuidado, dashboard emocional, insights, alertas preventivos, painel de RH e Portal Administrativo.
+**Zēllu** é o companion digital de bem-estar emocional corporativo da Dashitecnology. O produto oferece chat terapêutico com IA, check-in diário, diário/timeline, hábitos, plano de cuidado, dashboard emocional, insights, alertas preventivos, painel de RH e Portal Administrativo.
 
 O app **não substitui** psicólogos, psiquiatras, terapia nem diagnóstico. É companion de bem-estar; o disclaimer aparece no login, no termo de privacidade (versão 3.0), no onboarding, no Chat e no Perfil.
 
@@ -33,7 +33,7 @@ Um companion white-label, pronto para uso diário, que:
 
 1. **Mantém o colaborador** em contato leve e frequente com o cuidado emocional
 2. **Gera sinais agregados** para RH (adoção, tendências, alertas)
-3. **Amplia o valor percebido** da jornada Mundo Mental sem competir com a clínica
+3. **Amplia o valor percebido** da jornada Zēllu sem competir com a clínica
 
 ---
 
@@ -44,11 +44,11 @@ Um companion white-label, pronto para uso diário, que:
 |---|---|
 | **Colaborador (Companion)** | Funcionários de empresas clientes que buscam autocuidado emocional no dia a dia do trabalho |
 | **RH/Gestor (Manager)** | Profissionais de RH e gestores de equipe que precisam de visão agregada do bem-estar |
-| **Administrador (Admin)** | Equipe comercial/operacional da Mundo Mental que gerencia empresas, licenças e contratos |
+| **Administrador (Admin)** | Equipe comercial/operacional da Zēllu que gerencia empresas, licenças e contratos |
 | **Desenvolvedor (Dev)** | Equipe técnica com acesso total para configuração e monitoramento |
 
 ### 4.2 Stakeholders
-- **Mundo Mental:** negócio clínico que oferta o produto
+- **Zēllu:** negócio clínico que oferta o produto
 - **Empresas clientes:** organizações que contratam a solução para seus colaboradores
 - **Gestores de RH:** responsáveis pela adoção e engajamento
 
@@ -140,7 +140,7 @@ Um companion white-label, pronto para uso diário, que:
 ## 8. Restrições
 
 - **Não substitui** atendimento clínico (posição regulatória)
-- **White-label** para Mundo Mental (não é produto genérico)
+- **White-label** para Zēllu (não é produto genérico)
 - **Dependência externa:** OpenRouter (LLM), Supabase (backend)
 - **LGPD:** consentimento versionado; opt-in separado para IA, RH e e-mail; retenção (chat/diário 180d, check-ins 365d, logs 90d)
 - **IA:** sem opt-in não sai dado do servidor; com opt-in, OpenRouter com `data_collection=deny` e ZDR
@@ -164,4 +164,4 @@ Um companion white-label, pronto para uso diário, que:
 |---|---|---|
 | Product Owner | — | — |
 | Tech Lead | — | — |
-| Stakeholder (Mundo Mental) | — | — |
+| Stakeholder (Zēllu) | — | — |

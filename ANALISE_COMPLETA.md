@@ -1,4 +1,4 @@
-# Análise Completa — Mundo Mental Care
+# Análise Completa — Zēllu
 
 > **Última atualização:** 2026-08-26  
 > **Fonte:** código em `src/`, migrations `007`–`016` no repositório, `documentacao/` v1.1, deck em `apresentacao/`, UI clay (ícones soft, mascote, loader, login/convite).
@@ -9,10 +9,10 @@
 
 | Campo | Valor |
 |---|---|
-| **Nome do pacote** | `mundo-mental-care` |
-| **Nome de exibição** | Mundo Mental Care (`src/lib/branding.ts`) |
+| **Nome do pacote** | `zellu` |
+| **Nome de exibição** | Zēllu (`src/lib/branding.ts`) |
 | **Tagline** | Cuidado emocional no ritmo do trabalho |
-| **Tipo** | Companion digital B2B de bem-estar emocional (white-label Mundo Mental; núcleo Zellu / Dashitecnology) |
+| **Tipo** | Companion digital B2B de bem-estar emocional (marca Zēllu; núcleo ZelluApp / Dashitecnology) |
 | **O que não é** | Não substitui psicólogo, psiquiatra, terapia nem diagnóstico. Disclaimer no login, aceite de convite, termo v3.0, onboarding, Chat e Perfil. |
 
 O produto cobre o dia a dia do colaborador (check-in, chat, diário, hábitos, plano, respiro) e entrega **sinais agregados** para RH, com isolamento por empresa. Cadastro aberto com escolha de role **foi removido**: entrada é exclusivamente por convite.
@@ -24,7 +24,7 @@ O produto cobre o dia a dia do colaborador (check-in, chat, diário, hábitos, p
 ## 2. Estrutura de Diretórios (relevante)
 
 ```
-mundo-mental-care/
+zellu/
 ├── .github/workflows/
 │   ├── ci.yml                    # tsc + lint + vitest + playwright
 │   └── retention.yml             # POST /api/jobs/retention (secrets APP_URL + CRON_SECRET)
@@ -53,7 +53,7 @@ mundo-mental-care/
 │   └── 016_set_employee_job_title.sql  # RH atualiza cargo (job_title)
 ├── src/
 │   ├── assets/
-│   │   ├── avatar/  mascote/transparent/  icons/  logo.png
+│   │   ├── avatar/  mascote/transparent/  icons/  logo-zellu/
 │   ├── components/
 │   │   ├── ClayLoader.tsx / PageLoader   # anel outline macio (loading)
 │   │   ├── Mascot.tsx                    # urso em poses PNG transparentes
@@ -432,7 +432,7 @@ Scripts: `dev`, `build`, `build:dev`, `preview`, `lint`, `format`, `test`, `test
 
 ## 14. Conclusão
 
-Mundo Mental Care é um **produto B2B isolado por empresa**, com núcleo de confiança e identidade visual clay em evolução:
+Zēllu é um **produto B2B isolado por empresa**, com núcleo de confiança e identidade visual clay em evolução:
 
 - Entrada por convite (UI de aceite alinhada ao login); papel imutável no cliente.
 - RH vê agregado + resumo operacional por pessoa, com opt-in e k-anonimato; diário/chat fora do alcance.
