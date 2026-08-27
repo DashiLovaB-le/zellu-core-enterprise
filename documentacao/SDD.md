@@ -1,8 +1,8 @@
 # SDD — System Architecture / Design Document
 
 > **Projeto:** Zēllu  
-> **Versão:** 1.1  
-> **Data:** 2026-08-18
+> **Versão:** 1.2  
+> **Data:** 2026-08-26
 
 ---
 
@@ -29,9 +29,9 @@
 │         │                    │                    │           │
 │         ▼                    ▼                    ▼           │
 │  ┌─────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
-│  │  Supabase   │  │  OpenRouter     │  │  Supabase       │  │
-│  │  Auth       │  │  (GPT-4o-mini)  │  │  Storage        │  │
-│  │  (JWT+RLS)  │  │                 │  │  (avatars)      │  │
+│  │  Supabase   │  │  OpenRouter     │  │  Resend         │  │
+│  │  Auth       │  │  (GPT-4o-mini)  │  │  (convites /    │  │
+│  │  (JWT+RLS)  │  │                 │  │   lembretes)    │  │
 │  └─────────────┘  └─────────────────┘  └─────────────────┘  │
 │         │                                                   │
 │         ▼                                                   │
@@ -126,7 +126,7 @@
 ```
 auth.users (Supabase Auth)
     │
-    ├── profiles (id, email, display_name, role, avatar_url, company_id, team_id, ...)
+    ├── profiles (id, email, display_name, role, avatar_url, company_id, team_id, product_tour_completed_at, ...)
     │       │
     │       ├── checkins (user_id, sleep_hours, water_ml, mood, created_at)
     │       ├── chat_messages (user_id, from, text, created_at)
@@ -195,6 +195,7 @@ Role de autorização: `private.current_user_role()` lê `profiles.role`. **JWT 
 | `007_prioridades_producao.sql` | Convites, isolamento por empresa, role no perfil, k-anonimato na API |
 | `008_lgpd_controles.sql` | Opt-ins IA/RH/e-mail, maioridade, sem check-in nominal ao RH, retenção |
 | `009_confianca_rls_retencao.sql` | RPC `get_rh_dashboard` / `list_company_directory`; cron diário de purge |
+| `017_product_tour.sql` | `profiles.product_tour_completed_at` (guia companion/RH) |
 
 ---
 
@@ -331,42 +332,32 @@ Sem `privacy_ai_opt_in`, o companion responde só no servidor (fallback local).
 
 ```
 src/
-├── assets/              # Imagens, avatares
-├── components/          # Componentes React
-│   ├── admin/           # Componentes do admin
-│   ├── ui/              # shadcn/ui (46 componentes)
-│   └── *.tsx            # Componentes compartilhados
-├── data/                # Dados estáticos (moods, etc.)
-├── hooks/               # Custom hooks
-├── lib/                 # Lógica de negócio
+├── assets/
+│   ├── companions/      # Poses por companion (Chico completo; outros .gitkeep)
+│   └── logo-zellu/      # Marca Zēllu
+├── components/
+│   ├── admin/
+│   ├── chat/            # ChatStarterReplies, ChatAiSuggestionButton, ChatCompanionHeader
+│   ├── icons/           # soft-nav-icons (clay SVG)
+│   ├── pages/           # mobile/ + desktop/
+│   ├── Mascot.tsx       # Mascote urso (telas companion)
+│   ├── CompanionMascot.tsx
+│   ├── ProductTourModal.tsx
+│   ├── CompanionProductTour.tsx
+│   ├── ManagerProductTour.tsx
+│   └── ui/              # shadcn/ui
+├── lib/
 │   ├── api/             # Server Functions (*.server.ts)
-│   ├── services/        # Serviços de transformação
-│   ├── supabase/        # Client e config
-│   ├── auth-context.tsx # Context de autenticação
-│   ├── auth-token.ts    # Helpers JWT
-│   └── utils.ts         # Utilitários gerais
-├── routes/              # TanStack Router (file-based)
-│   ├── index.tsx        # Dashboard Emocional
-│   ├── login.tsx        # Login (sem cadastro aberto)
+│   ├── companions/      # Registry Amora/Chico/Pipoca/Zeca, quick-replies, fallback-voice
+│   ├── email.server.ts  # Resend (convites)
+│   ├── branding.ts      # Marca global do deploy (white-label único)
+│   └── ...
+├── routes/
+│   ├── login.tsx        # Login card clay + mascote
 │   ├── aceitar-convite.tsx
 │   ├── onboarding.tsx
-│   ├── privacidade.tsx
-│   ├── chat.tsx         # Chat IA
-│   ├── checkin.tsx      # Check-in
-│   ├── diario.tsx       # Timeline
-│   ├── meu-bem-estar.tsx
-│   ├── plano-de-cuidado.tsx
-│   ├── respiro.tsx      # Respiração
-│   ├── perfil.tsx       # Perfil
-│   ├── manager/         # Rotas RH
-│   ├── admin/           # Rotas Admin
-│   └── dashitecnology/  # Rotas Dev
-├── components/pages/    # Páginas (mobile/desktop)
-│   ├── mobile/
-│   └── desktop/
-├── router.tsx           # Config do router
-├── routeTree.gen.ts     # Árvore gerada automaticamente
-├── server.ts            # Config do servidor
+│   ├── manager/convites.tsx
+│   └── ...
 ├── start.ts             # CSRF middleware
 └── styles.css           # Estilos globais
 ```

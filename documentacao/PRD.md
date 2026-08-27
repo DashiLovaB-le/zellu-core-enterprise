@@ -1,7 +1,7 @@
 # PRD — Zēllu
 
-> **Versão:** 1.1  
-> **Data:** 2026-08-18  
+> **Versão:** 1.2  
+> **Data:** 2026-08-26  
 > **Produto:** Zēllu  
 > **Tagline:** Cuidado emocional no ritmo do trabalho
 
@@ -29,7 +29,7 @@ Empresas contratam serviços de saúde mental, mas o engajamento dos colaborador
 
 ## 3. Solução
 
-Um companion white-label, pronto para uso diário, que:
+Um companion **multi-tenant** (isolamento por empresa), com **marca única por deploy** (Zēllu via `branding.ts`). White-label **por cliente** (logo/cores/nome distintos) ainda não está no produto — ver `todo/TODO-PRIORIDADES-PRODUCAO.md`.
 
 1. **Mantém o colaborador** em contato leve e frequente com o cuidado emocional
 2. **Gera sinais agregados** para RH (adoção, tendências, alertas)
@@ -78,22 +78,26 @@ Um companion white-label, pronto para uso diário, que:
 ### 6.1 Companion (Colaborador)
 | Funcionalidade | Descrição |
 |---|---|
-| **Onboarding e privacidade** | Aceite de convite → consentimento LGPD (IA / RH / e-mail) → nome/fuso → primeiro check-in |
-| **Chat com IA** | Conversa contextual via OpenRouter (só com opt-in); histórico do banco; detector de crise (CVV 188); fallback local |
+| **Onboarding e privacidade** | Aceite de convite → consentimento LGPD (IA / RH / e-mail) → nome/fuso → guia de produto → primeiro check-in |
+| **Login** | Card clay compacto; mascote Zēllu; link para aceitar convite |
+| **Chat com IA** | Quatro companions (Amora, Chico, Pipoca, Zeca) com voz, quick replies e poses (Chico com assets); OpenRouter com opt-in; fallback local por avatar; detector de crise (CVV 188) |
+| **Mascote de produto** | Urso Zēllu em telas companion (login, onboarding, check-in, chat, respiro, etc.) e `PageLoader` |
 | **Check-in Matinal** | Fluxo em 3 etapas: sono → água → humor (6 principais + 19 extras); um check-in por dia |
 | **Dashboard Emocional** | Gráficos de humor, tendência 30d, métricas de sono/água/movimento |
 | **Timeline/Diário** | Visualização cronológica de entradas, check-ins e interações |
 | **Meu Bem-estar** | Indicadores consolidados: água, sono, humor, energia, movimento |
 | **Plano de Cuidado** | Checklist diário personalizado + streak de consistência |
 | **Espaço do Respiro** | Exercícios guiados de respiração com sons ambiente |
-| **Perfil** | Avatar (Amora, Chico, Pipoca, Zeca), nome, tema, preferências LGPD, exportar/excluir dados, ajuda em crise |
+| **Perfil** | Avatar companion (Amora, Chico, Pipoca, Zeca); nome, tema, preferências LGPD, exportar/excluir dados, ajuda em crise |
+| **Guia de produto** | Modal educativo no 1º uso (companion após onboarding; RH no 1º acesso ao painel) |
 
 ### 6.2 Manager (RH/Gestor)
 | Funcionalidade | Descrição |
 |---|---|
 | **Dashboard RH** | KPIs agregados da própria empresa; k-anonimato (mín. 5 opt-ins); nunca diário/chat/humor individual |
 | **Gestão de Equipes** | Times reais do cadastro; status Estável/Monitorar/Atenção; métricas ocultas se o time for pequeno |
-| **Pessoas e convites** | Convites companion/manager por e-mail (Resend) ou link copiável; cancelar pendentes; desativação (`is_active`); teto de licenças |
+| **Pessoas e convites** | Convites companion/manager por e-mail (Resend) ou link copiável; cancelar pendentes/expirados; desativação (`is_active`); teto de licenças |
+| **Guia de produto RH** | Tour do painel (dashboard, equipes, pessoas, relatórios) no 1º acesso manager |
 | **Relatórios** | Centro de exportação: CSV/PDF com filtros (período, equipe, tipo) |
 
 ### 6.3 Admin (Portal Administrativo)
@@ -140,7 +144,7 @@ Um companion white-label, pronto para uso diário, que:
 ## 8. Restrições
 
 - **Não substitui** atendimento clínico (posição regulatória)
-- **White-label** para Zēllu (não é produto genérico)
+- **White-label:** marca única por deploy (Zēllu); isolamento B2B por empresa; multi-marca por cliente ainda não implementada
 - **Dependência externa:** OpenRouter (LLM), Supabase (backend)
 - **LGPD:** consentimento versionado; opt-in separado para IA, RH e e-mail; retenção (chat/diário 180d, check-ins 365d, logs 90d)
 - **IA:** sem opt-in não sai dado do servidor; com opt-in, OpenRouter com `data_collection=deny` e ZDR

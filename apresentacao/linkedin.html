@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zēllu — Post LinkedIn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #FDF8F4;
+      --cream-deep: #F3EEE1;
+      --ink: #2C2419;
+      --ink-soft: #5B5248;
+      --terra: #E5987D;
+      --terra-light: #F0B49A;
+      --sage: #92A085;
+      --sage-dark: #7E8E72;
+      --surface: #fff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Nunito Sans", system-ui, sans-serif;
+      color: var(--ink);
+      background: #ebe4da;
+    }
+
+    /* —— Seção 1: imagem do post (1200 × 627) —— */
+    .cover-wrap {
+      padding: 2.5rem 1.25rem 1.5rem;
+      display: grid;
+      justify-items: center;
+      gap: 0.85rem;
+    }
+
+    .cover-hint {
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      letter-spacing: 0.04em;
+    }
+
+    .cover {
+      width: min(100%, 1200px);
+      aspect-ratio: 1200 / 627;
+      background:
+        radial-gradient(ellipse 55% 70% at 12% 88%, rgba(229, 152, 125, 0.18), transparent 60%),
+        radial-gradient(ellipse 50% 60% at 92% 18%, rgba(146, 160, 133, 0.16), transparent 55%),
+        var(--cream);
+      border-radius: 4px;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      box-shadow: 0 18px 50px rgba(77, 51, 45, 0.12);
+    }
+
+    .cover-body {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      align-items: center;
+      min-height: 0;
+      padding: 0 4% 0 2%;
+    }
+
+    .cover-mascot {
+      height: 118%;
+      width: auto;
+      max-width: 100%;
+      justify-self: center;
+      align-self: end;
+      object-fit: contain;
+      object-position: bottom center;
+      transform: translateY(6%);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .cover-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      padding-bottom: 0.4rem;
+    }
+
+    .cover-symbol {
+      width: 52px;
+      height: 46px;
+    }
+
+    .cover-copy h1 {
+      font-family: "Quicksand", system-ui, sans-serif;
+      font-weight: 700;
+      font-size: clamp(2.6rem, 6.4vw, 5.1rem);
+      letter-spacing: -0.03em;
+      line-height: 0.95;
+      color: var(--ink);
+    }
+
+    .cover-copy p {
+      font-size: clamp(0.95rem, 1.7vw, 1.35rem);
+      font-weight: 600;
+      color: var(--ink-soft);
+      max-width: 22ch;
+      line-height: 1.35;
+    }
+
+    .cover-bar {
+      background: var(--sage);
+      color: #fff;
+      font-family: "Quicksand", system-ui, sans-serif;
+      font-weight: 700;
+      font-size: clamp(0.82rem, 1.45vw, 1.12rem);
+      letter-spacing: 0.02em;
+      text-transform: none;
+      text-align: center;
+      padding: 0.7rem 1rem;
+    }
+
+    @media (max-width: 720px) {
+      .cover {
+        aspect-ratio: auto;
+        min-height: 520px;
+      }
+      .cover-body {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        padding: 1.5rem 1.25rem 0;
+        text-align: center;
+      }
+      .cover-copy {
+        align-items: center;
+        order: -1;
+      }
+      .cover-copy p { max-width: 28ch; }
+      .cover-mascot {
+        height: 280px;
+        transform: none;
+      }
+    }
+
+    /* —— Seção 2: texto do post —— */
+    .post-wrap {
+      padding: 1rem 1.25rem 4rem;
+      display: grid;
+      justify-items: center;
+    }
+
+    .post {
+      width: min(100%, 640px);
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 1.75rem 1.6rem 1.5rem;
+      box-shadow: 0 10px 36px rgba(77, 51, 45, 0.08);
+    }
+
+    .post-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .post-head h2 {
+      font-family: "Quicksand", system-ui, sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .post-head span {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+      font-weight: 400;
+      margin-top: 0.15rem;
+    }
+
+    button {
+      border: none;
+      background: var(--ink);
+      color: var(--cream);
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.5rem 0.95rem;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    button.copied { background: var(--sage-dark); }
+
+    .post-body {
+      white-space: pre-wrap;
+      font-size: 1.02rem;
+      line-height: 1.65;
+      color: #1f1a14;
+    }
+  </style>
+</head>
+<body>
+  <section class="cover-wrap" aria-label="Imagem do post">
+    <p class="cover-hint">Primeira seção · recorte 1200 × 627 para o LinkedIn</p>
+    <article class="cover" id="cover">
+      <div class="cover-body">
+        <img class="cover-mascot" src="../src/assets/mascote/transparent/wave-lg.png" alt="Mascote Zēllu acenando" />
+        <div class="cover-copy">
+          <img class="cover-symbol" src="../src/assets/logo-zellu/simbolo.svg" alt="" />
+          <h1>Zēllu</h1>
+          <p>Cuidado emocional no ritmo do trabalho</p>
+        </div>
+      </div>
+      <div class="cover-bar">Se você é de RH, topa validar isso com a gente?</div>
+    </article>
+  </section>
+
+  <section class="post-wrap">
+    <article class="post">
+      <div class="post-head">
+        <div>
+          <h2>Texto da postagem</h2>
+          <span>Cole direto no LinkedIn · as quebras de linha entram junto</span>
+        </div>
+        <button type="button" id="copyBtn">Copiar texto</button>
+      </div>
+      <div class="post-body" id="postText">Tem uma coisa que eu via de perto e que não saía da cabeça.
+
+A maior parte das empresas ainda não investe em ferramenta nenhuma para acompanhar o que o colaborador está sentindo no dia a dia. Tem vale, tem ginástica, tem o ramal do RH. Saúde mental, quando aparece, aparece tarde: atestado, pedido de ajuda, alguém que já não está bem. Até lá, a pessoa carrega sozinha. E o RH só fica sabendo quando o problema já chegou na mesa.
+
+Eu sou desenvolvedor. Não sou de RH e não sou terapeuta. Foi exatamente essa ausência que me fez construir o Zēllu: um companion no ritmo do trabalho. Algo leve, que a pessoa usa entre uma reunião e outra — um check-in, uma conversa, um respiro — sem fingir que isso substitui terapia. Do outro lado, um lugar para o RH enxergar tendência de equipe, não o diário de ninguém.
+
+Passei mais tempo pensando em privacidade do que em feature. Se a pessoa não confia, ela não usa. Se o RH vê demais, o produto deixa de fazer sentido.
+
+Agora estamos em validação. E validar isso sem quem vive o RH no dia a dia não faz sentido. Queria convidar profissionais de RH para testar a ferramenta com calma: olhar o painel, ver se cabe na rotina de vocês, e me dizer o que não está certo. Sem pitch, sem compromisso. É teste, é conversa.
+
+Se você é de RH e topa experimentar, comenta QUERO TESTAR que eu te chamo.
+
+#SaudeMentalCorporativa #RH #BemEstarNoTrabalho #PeopleAnalytics</div>
+    </article>
+  </section>
+
+  <script>
+    const btn = document.getElementById("copyBtn");
+    const text = document.getElementById("postText").innerText;
+    btn.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(text);
+      btn.textContent = "Copiado";
+      btn.classList.add("copied");
+      setTimeout(() => {
+        btn.textContent = "Copiar texto";
+        btn.classList.remove("copied");
+      }, 1800);
+    });
+  </script>
+</body>
+</html>

@@ -106,6 +106,16 @@ Este documento traduz os requisitos do PRD em comportamentos exatos que o códig
 3. Remove cookies de sessão
 4. Redirect para `/login`
 
+### 2.5 Guia de produto (tour)
+
+**API:** `tour.server.ts` — `getProductTourStatus`, `completeProductTour`  
+**Coluna:** `profiles.product_tour_completed_at` (migration `017`)
+
+| Audience | Quando abre | Onde |
+|---|---|---|
+| `companion` | Após `onboarding_completed_at` e tour ainda nulo | `CompanionProductTour` → `ProductTourModal` (MobileShell) |
+| `manager` | 1º acesso ao painel RH (não depende de onboarding LGPD) | `ManagerProductTour` (ManagerShell) |
+
 ---
 
 ## 3. Check-in Matinal
@@ -170,7 +180,18 @@ export async function saveCheckin(data: CheckinSchema) {
 
 **Saída:** `{ reply, suggestion, crisis, error? }`
 
-### 4.2 Regras de Negócio
+### 4.2 Companions e UI do chat
+
+| Regra | Descrição |
+|---|---|
+| **Registry** | `src/lib/companions/` — Amora, Chico, Pipoca, Zeca (`CompanionDefinition`) |
+| **Poses** | Chico: PNGs em `assets/companions/chico/poses/transparent/`; demais usam fallback visual Chico até ter assets |
+| **Prompt IA** | `promptBlock` por companion injetado no system prompt quando opt-in ativo |
+| **Fallback local** | `buildLocalFallbackReplyForAvatar` usa voz do companion (`fallback-voice.ts`) |
+| **Quick replies** | `quick-replies.ts` — atalhos e labels por companion; `ChatStarterReplies`, `ChatAiSuggestionButton` |
+| **Header** | `ChatCompanionHeader` — cabeça do avatar + pose dinâmica (Chico) |
+
+### 4.3 Regras de Negócio (IA)
 
 | Regra | Descrição |
 |---|---|
@@ -181,7 +202,7 @@ export async function saveCheckin(data: CheckinSchema) {
 | **Crise** | Prioridade sobre o LLM; CVV 188 + SAMU 192 |
 | **Markdown** | Respostas via `ChatMarkdown` (react-markdown) |
 
-### 4.3 System Prompt Padrão
+### 4.4 System Prompt Padrão
 
 ```
 Você é o assistente de bem-estar emocional do Zēllu.

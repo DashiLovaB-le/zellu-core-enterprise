@@ -1,8 +1,8 @@
 # Plano de Testes — Zēllu
 
 > **Projeto:** Zēllu  
-> **Versão:** 1.1  
-> **Data:** 2026-08-18  
+> **Versão:** 1.2  
+> **Data:** 2026-08-26  
 > **Ferramentas:** Vitest (unitários P0 em CI). Playwright E2E — planejado, ainda não está no `package.json`.
 
 ---
@@ -144,6 +144,7 @@ describe('calculateStreak', () => {
 | `chat-guard.ts` | History/context do cliente ignorados |
 | `crisis.ts` | Detector + CVV |
 | `lgpd.ts` / `privacy.ts` | Consentimento v3.0, sanitização de logs |
+| `companions-chat.test.ts` | Quick replies por companion; fallback local com voz distinta; starter replies |
 
 ---
 
@@ -194,6 +195,10 @@ describe('saveCheckin', () => {
 | Cenário | Teste |
 |---|---|
 | Cadastro com convite válido | Cria conta + profile com role e empresa do convite |
+| Convite enviado por e-mail | `createInvite` + `RESEND_API_KEY` → `emailSent: true` |
+| Convite sem Resend | `emailSkipped: true`; link exibido na UI |
+| Cancelar convite pendente | `cancelInvite` remove row; token inválido |
+| Cancelar convite aceito | Erro "já foi usado" |
 | Cadastro sem convite | Falha |
 | Login com credenciais válidas | Retorna sessão; role de `profiles` |
 | Login com senha incorreta | Erro do Auth |

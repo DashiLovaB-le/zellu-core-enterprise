@@ -120,9 +120,22 @@ Regras: 20 msgs/hora; crise → CVV sem LLM; IA cloud só com opt-in; ZDR + `dat
 
 UI: `getMessages` (até 80), `sendMessage` (persistência local da thread), `getContextualGreeting`.
 
+**Companions:** registry em `src/lib/companions/`; prompt por avatar; fallback local por voz; quick replies por companion. Componentes: `ChatCompanionHeader`, `ChatStarterReplies`, `ChatAiSuggestionButton`.
+
 ---
 
-## 7. Diário e Timeline
+## 7. Guia de produto (`tour.server.ts`)
+
+| Função | Quem | Efeito |
+|---|---|---|
+| `getProductTourStatus` | autenticado | `{ needsTour, audience: companion \| manager \| null }` |
+| `completeProductTour` | companion ou manager | Grava `product_tour_completed_at` |
+
+UI: `ProductTourModal` + `CompanionProductTour` / `ManagerProductTour`.
+
+---
+
+## 8. Diário e Timeline
 
 | Arquivo | Funções |
 |---|---|
@@ -133,19 +146,19 @@ Não existe `getTimeline(userId)`.
 
 ---
 
-## 8. Dashboard companion (`dashboard.server.ts`)
+## 9. Dashboard companion (`dashboard.server.ts`)
 
 `getDashboardData({ accessToken })` — métricas pessoais 30d, não o painel RH.
 
 ---
 
-## 9. Bem-estar (`habitos.server.ts`)
+## 10. Bem-estar (`habitos.server.ts`)
 
 `getHabits` / `updateHabits` — não `saveWellness` / `getTodayWellness`.
 
 ---
 
-## 10. Plano de Cuidado (`wellness-plan.server.ts`)
+## 11. Plano de Cuidado (`wellness-plan.server.ts`)
 
 `getWellnessPlan`, `saveWellnessPlan`, `getTodaysChecklist`, `updateChecklist`, `getPlanProgress`, `generatePlanSuggestion`.
 
@@ -153,14 +166,14 @@ Streak: `getWellnessStreak` em `streak-system.server.ts` (não `calculateStreak`
 
 ---
 
-## 11. Insights e preventiva
+## 12. Insights e preventiva
 
 - `generateInsight` — opt-in de IA; senão fallback local.
 - `detectPatterns`, `getNotificationHistory`, `dismissNotification`, `getUnreadNotificationCount`.
 
 ---
 
-## 12. Manager (`manager.server.ts`)
+## 13. Manager (`manager.server.ts`)
 
 Todas exigem `requireManager` + `company_id`. **Não usam service role.** Chamam RPC `get_rh_dashboard`.
 
@@ -178,7 +191,7 @@ Payload **não** inclui conteúdo de diário nem chat.
 
 ---
 
-## 13. Admin (`admin.server.ts`)
+## 14. Admin (`admin.server.ts`)
 
 Funções reais (todas com `accessToken` + role admin/dev):
 
@@ -186,13 +199,24 @@ Funções reais (todas com `accessToken` + role admin/dev):
 
 ---
 
-## 14. Lembretes (`reminders.server.ts`)
+## 15. E-mail transacional (`email.server.ts`)
+
+| Função | Uso |
+|---|---|
+| `sendTransactionalEmail` | Resend genérico; skipped se `RESEND_API_KEY` ausente |
+| `sendInviteEmail` | HTML + texto do convite; chamado por `createInvite` |
+
+Remetente: `INVITE_FROM_EMAIL` → `REMINDER_FROM_EMAIL` → default.
+
+---
+
+## 16. Lembretes (`reminders.server.ts`)
 
 `sendCheckinReminders` (admin; também dispara retenção) e `hasCheckinToday`.
 
 ---
 
-## 15. Dev Tools
+## 17. Dev Tools
 
 `getSystemLogs` (role **dev**), `logClientEvent`.
 
@@ -200,13 +224,13 @@ LLM: `getLlmConfig`, `setLlmConfig`, `resetLlmConfig`, `testLlmConnection`. Chav
 
 ---
 
-## 16. Erros
+## 18. Erros
 
 Não há catálogo único `AUTH_REQUIRED` / `FORBIDDEN`. O padrão mais comum é `{ error: "Unauthorized" }` ou mensagem em português (consentimento, convite, licença).
 
 ---
 
-## 17. Rate limiting
+## 19. Rate limiting
 
 | Recurso | Limite | Onde |
 |---|---|---|

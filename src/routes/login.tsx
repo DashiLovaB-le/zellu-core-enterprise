@@ -197,6 +197,13 @@ function LoginPage() {
               >
                 Privacidade
               </Link>
+              {" · "}
+              <Link
+                to="/sobre"
+                className="font-semibold text-[var(--clay-cta)] underline-offset-2 hover:underline"
+              >
+                Como funciona
+              </Link>
             </p>
           </div>
         </div>

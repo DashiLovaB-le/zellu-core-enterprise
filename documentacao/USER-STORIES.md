@@ -1,7 +1,7 @@
 # User Stories — Zēllu
 
-> **Versão:** 1.1  
-> **Data:** 2026-08-18
+> **Versão:** 1.2  
+> **Data:** 2026-08-26
 
 ---
 
@@ -13,7 +13,9 @@
 |---|---|---|
 | US-C01 | **Como** colaborador, **eu quero** entrar com o convite da minha empresa, **para** acessar o app sem escolher meu próprio papel. | Token válido cria conta; `profiles.role` e `company_id` vêm do convite; sem convite o cadastro falha. |
 | US-C02 | **Como** colaborador, **eu quero** fazer login com email e senha, **para** acessar meu conteúdo pessoal. | Credenciais válidas autenticam; sessão persiste; role lida de `profiles`. |
-| US-C03 | **Como** colaborador, **eu quero** escolher um avatar (Amora, Chico, Pipoca ou Zeca) no perfil, **para** personalizar minha experiência. | Avatar é salvo no perfil; exibido no chat e telas. |
+| US-C03 | **Como** colaborador, **eu quero** escolher um avatar (Amora, Chico, Pipoca ou Zeca) no perfil, **para** personalizar minha experiência. | Avatar é salvo no perfil; define companion no chat (voz, quick replies, fallback local); Chico exibe poses dinâmicas. |
+| US-C03b | **Como** colaborador, **eu quero** atalhos de conversa no chat, **para** iniciar temas comuns com um toque. | `ChatStarterReplies` e sugestões da IA respeitam o companion escolhido. |
+| US-C03c | **Como** colaborador novo, **eu quero** um guia rápido das telas principais, **para** entender o app sem manual. | `ProductTourModal` após onboarding LGPD; marca `product_tour_completed_at`. |
 
 ### 1.2 Check-in Matinal
 
@@ -107,8 +109,10 @@
 | ID | História | Critério de Aceite |
 |---|---|---|
 | US-M07 | **Como** gestor, **eu quero** exportar dados em CSV, **para** analisar em ferramentas externas. | CSV com indicadores agregados; sem indivíduo; k-anonimato. |
-| US-M08 | **Como** gestor, **eu quero** convidar colaboradores e gestores da minha empresa, **para** não depender de cadastro aberto. | Link `/aceitar-convite`; role no convite; bloqueio se licenças esgotarem. |
+| US-M08 | **Como** gestor, **eu quero** convidar colaboradores e gestores da minha empresa, **para** não depender de cadastro aberto. | E-mail via Resend (se configurado) ou link copiável; `/aceitar-convite`; role no convite; bloqueio se licenças esgotarem. |
+| US-M08b | **Como** gestor, **eu quero** cancelar convites pendentes, **para** liberar vagas e invalidar links enviados por engano. | `cancelInvite` remove convite não aceito; link deixa de funcionar. |
 | US-M09 | **Como** gestor, **eu quero** desativar um colaborador, **para** cortar o acesso sem apagar o histórico da empresa. | `is_active=false`; usuário deixa de autenticar nas server functions. |
+| US-M10 | **Como** gestor novo, **eu quero** um tour do painel RH, **para** saber onde ficam dashboard, equipes, pessoas e relatórios. | `ManagerProductTour` no 1º acesso manager; `product_tour_completed_at`. |
 
 ---
 

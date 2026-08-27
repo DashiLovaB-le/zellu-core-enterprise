@@ -1,8 +1,8 @@
 # Roadmap do Produto — Zēllu
 
-> **Versão:** 1.1  
-> **Data:** 2026-08-18  
-> **Última atualização de fase:** 2026-08-18
+> **Versão:** 1.2  
+> **Data:** 2026-08-26  
+> **Última atualização de fase:** 2026-08-26
 
 ---
 
@@ -29,8 +29,9 @@ O desenvolvimento do Zēllu segue um modelo de fases Incrementais, construindo d
 ---
 
 ### Fase 1 — White Label & Rebranding ✅
-**Status:** Concluída  
-**Objetivo:** Personalizar o app para a marca Zēllu.
+**Status:** Concluída (marca única por deploy via `branding.ts` + assets Zēllu)  
+**Objetivo:** Personalizar o app para a marca Zēllu.  
+**Nota:** Multi-marca por empresa (logo/cores por `company_id`) permanece deferida.
 
 | Entrega | Status |
 |---|---|
@@ -290,7 +291,22 @@ O desenvolvimento do Zēllu segue um modelo de fases Incrementais, construindo d
 | Protocolo de crise + disclaimer clínico | ✅ |
 | Cookie httpOnly no lugar do token no body | ⏳ débito 2.6 |
 
-### Fase 20 — Expansão
+### Fase 20 — Experiência e operação B2B ✅ (parcial)
+**Status:** Entregas recentes (ago/2026)
+
+| Entrega | Status |
+|---|---|
+| Mascote Zēllu nas telas companion + PageLoader | ✅ |
+| Login card clay compacto | ✅ |
+| Convites por e-mail (Resend) + cancelamento | ✅ |
+| Guia de produto companion + RH | ✅ |
+| Companions Amora/Pipoca/Zeca (voz, quick replies, fallback) | ✅ |
+| Chico com poses dinâmicas no chat | ✅ |
+| Centro de exportação RH (CSV/PDF filtrável) | ✅ |
+| White-label multi-marca por empresa | ⏳ deferido |
+| UI Admin para 1º convite manager | ⏳ gap operacional |
+
+### Fase 21 — Expansão
 **Status:** Futura
 
 | Entrega | Prioridade |
@@ -325,7 +341,8 @@ Fase 16 🟡 Limpeza & Refinamento
 Fase 17 🟡 Testes & QA (Vitest/CI ok; E2E pendente)
 Fase 18 🟡 Deploy (CI ok; hospedagem a fechar)
 Fase 19 ✅ LGPD, convites, RLS, crise
-Fase 20 🔮 Expansão
+Fase 20 ✅ UX companion/RH, e-mail convites, companions
+Fase 21 🔮 Expansão
 ```
 
 ---

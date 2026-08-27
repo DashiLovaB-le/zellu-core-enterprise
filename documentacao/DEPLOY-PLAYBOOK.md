@@ -138,8 +138,9 @@ npx supabase db push
 | 8 | `008_lgpd_controles.sql` | Controles LGPD |
 | 9 | `009_confianca_rls_retencao.sql` | RLS avançado |
 | 10 | `010_hardening_sessao_rls.sql` | FORCE RLS, quota, cache |
+| 17 | `017_product_tour.sql` | Guia de produto (companion/RH) |
 
-Não pule migration. O histórico remoto `000`–`007` pode estar desalinhado de propósito; não “repare” hashes sem um plano.
+Não pule migration.
 
 ---
 
@@ -195,8 +196,9 @@ Migration não tem rollback automático — crie uma migration de correção e f
 |---|---|---|
 | 1 | `npm test` e `npm run lint` passando | ⬜ |
 | 2 | Env cadastradas (incl. `VITE_*` no Build) | ⬜ |
-| 3 | Migrations até 010 no projeto remoto | ⬜ |
+| 3 | Migrations até **017** no projeto remoto (`product_tour`) | ⬜ |
 | 4 | Site URL / Redirect URLs no Supabase Auth | ⬜ |
 | 5 | `CRON_SECRET` definido | ⬜ |
-| 6 | Preview testado (login, chat, convite) | ⬜ |
+| 6 | Preview testado (login, chat, convite + e-mail ou link) | ⬜ |
 | 7 | Domínio canônico em `APP_BASE_URL` | ⬜ |
+| 8 | Resend: domínio verificado + `RESEND_API_KEY` (se e-mail automático) | ⬜ |

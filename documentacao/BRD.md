@@ -1,8 +1,8 @@
 # BRD — Business Requirement Document
 
 > **Projeto:** Zēllu  
-> **Versão:** 1.1  
-> **Data:** 2026-08-18  
+> **Versão:** 1.2  
+> **Data:** 2026-08-26  
 > **Autor:** Equipe de Produto Zēllu
 
 ---
@@ -71,7 +71,7 @@ O Zēllu resolve esses problemas ao:
 | Área | Entregas |
 |---|---|
 | **Produto Digital** | App web responsivo (mobile-first) com funcionalidades de cuidado emocional |
-| **Autenticação** | Login; cadastro **somente por convite** da empresa (role definida no servidor) |
+| **Autenticação** | Login; cadastro **somente por convite** (e-mail Resend ou link); role definida no servidor |
 | **Companion** | Chat IA, check-in, diário, bem-estar, plano de cuidado, respiro |
 | **Manager** | Dashboard RH, gestão de equipes, relatórios |
 | **Admin** | Portal B2B: empresas, funcionários, licenças, contratos, métricas |

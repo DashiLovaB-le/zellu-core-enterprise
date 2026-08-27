@@ -23,6 +23,7 @@ import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PlanoDeCuidadoRouteImport } from './routes/plano-de-cuidado'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RespiroRouteImport } from './routes/respiro'
+import { Route as SobreRouteRouteImport } from './routes/sobre/route'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAlertasRouteImport } from './routes/admin/alertas'
 import { Route as AdminEmpresasRouteImport } from './routes/admin/empresas'
@@ -38,6 +39,8 @@ import { Route as ManagerConvitesRouteImport } from './routes/manager/convites'
 import { Route as ManagerEquipesRouteImport } from './routes/manager/equipes'
 import { Route as ManagerRelatoriosRouteImport } from './routes/manager/relatorios'
 import { Route as ManagerRhDashboardRouteImport } from './routes/manager/rh-dashboard'
+import { Route as SobreIndexRouteImport } from './routes/sobre/index'
+import { Route as SobreSlugRouteImport } from './routes/sobre/$slug'
 import { Route as ManagerColaboradorProfileIdRouteImport } from './routes/manager/colaborador/$profileId'
 import { Route as ManagerEquipeTeamIdRouteImport } from './routes/manager/equipe/$teamId'
 
@@ -109,6 +112,11 @@ const PrivacidadeRoute = PrivacidadeRouteImport.update({
 const RespiroRoute = RespiroRouteImport.update({
   id: '/respiro',
   path: '/respiro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SobreRouteRoute = SobreRouteRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -186,6 +194,16 @@ const ManagerRhDashboardRoute = ManagerRhDashboardRouteImport.update({
   path: '/manager/rh-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SobreIndexRoute = SobreIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SobreRouteRoute,
+} as any)
+const SobreSlugRoute = SobreSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => SobreRouteRoute,
+} as any)
 const ManagerColaboradorProfileIdRoute =
   ManagerColaboradorProfileIdRouteImport.update({
     id: '/manager/colaborador/$profileId',
@@ -200,6 +218,7 @@ const ManagerEquipeTeamIdRoute = ManagerEquipeTeamIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/sobre': typeof SobreRouteRouteWithChildren
   '/aceitar-convite': typeof AceitarConviteRoute
   '/chat': typeof ChatRoute
   '/checkin': typeof CheckinRoute
@@ -225,9 +244,11 @@ export interface FileRoutesByFullPath {
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
+  '/sobre/$slug': typeof SobreSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/dashitecnology/': typeof DashitecnologyIndexRoute
   '/manager/': typeof ManagerIndexRoute
+  '/sobre/': typeof SobreIndexRoute
   '/manager/colaborador/$profileId': typeof ManagerColaboradorProfileIdRoute
   '/manager/equipe/$teamId': typeof ManagerEquipeTeamIdRoute
 }
@@ -258,15 +279,18 @@ export interface FileRoutesByTo {
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
+  '/sobre/$slug': typeof SobreSlugRoute
   '/admin': typeof AdminIndexRoute
   '/dashitecnology': typeof DashitecnologyIndexRoute
   '/manager': typeof ManagerIndexRoute
+  '/sobre': typeof SobreIndexRoute
   '/manager/colaborador/$profileId': typeof ManagerColaboradorProfileIdRoute
   '/manager/equipe/$teamId': typeof ManagerEquipeTeamIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/sobre': typeof SobreRouteRouteWithChildren
   '/aceitar-convite': typeof AceitarConviteRoute
   '/chat': typeof ChatRoute
   '/checkin': typeof CheckinRoute
@@ -292,9 +316,11 @@ export interface FileRoutesById {
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
+  '/sobre/$slug': typeof SobreSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/dashitecnology/': typeof DashitecnologyIndexRoute
   '/manager/': typeof ManagerIndexRoute
+  '/sobre/': typeof SobreIndexRoute
   '/manager/colaborador/$profileId': typeof ManagerColaboradorProfileIdRoute
   '/manager/equipe/$teamId': typeof ManagerEquipeTeamIdRoute
 }
@@ -302,6 +328,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/sobre'
     | '/aceitar-convite'
     | '/chat'
     | '/checkin'
@@ -327,9 +354,11 @@ export interface FileRouteTypes {
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
+    | '/sobre/$slug'
     | '/admin/'
     | '/dashitecnology/'
     | '/manager/'
+    | '/sobre/'
     | '/manager/colaborador/$profileId'
     | '/manager/equipe/$teamId'
   fileRoutesByTo: FileRoutesByTo
@@ -360,14 +389,17 @@ export interface FileRouteTypes {
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
+    | '/sobre/$slug'
     | '/admin'
     | '/dashitecnology'
     | '/manager'
+    | '/sobre'
     | '/manager/colaborador/$profileId'
     | '/manager/equipe/$teamId'
   id:
     | '__root__'
     | '/'
+    | '/sobre'
     | '/aceitar-convite'
     | '/chat'
     | '/checkin'
@@ -393,15 +425,18 @@ export interface FileRouteTypes {
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
+    | '/sobre/$slug'
     | '/admin/'
     | '/dashitecnology/'
     | '/manager/'
+    | '/sobre/'
     | '/manager/colaborador/$profileId'
     | '/manager/equipe/$teamId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SobreRouteRoute: typeof SobreRouteRouteWithChildren
   AceitarConviteRoute: typeof AceitarConviteRoute
   ChatRoute: typeof ChatRoute
   CheckinRoute: typeof CheckinRoute
@@ -534,6 +569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RespiroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/admin'
@@ -639,6 +681,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerRhDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sobre/': {
+      id: '/sobre/'
+      path: '/'
+      fullPath: '/sobre/'
+      preLoaderRoute: typeof SobreIndexRouteImport
+      parentRoute: typeof SobreRouteRoute
+    }
+    '/sobre/$slug': {
+      id: '/sobre/$slug'
+      path: '/$slug'
+      fullPath: '/sobre/$slug'
+      preLoaderRoute: typeof SobreSlugRouteImport
+      parentRoute: typeof SobreRouteRoute
+    }
     '/manager/colaborador/$profileId': {
       id: '/manager/colaborador/$profileId'
       path: '/manager/colaborador/$profileId'
@@ -656,8 +712,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface SobreRouteRouteChildren {
+  SobreSlugRoute: typeof SobreSlugRoute
+  SobreIndexRoute: typeof SobreIndexRoute
+}
+
+const SobreRouteRouteChildren: SobreRouteRouteChildren = {
+  SobreSlugRoute: SobreSlugRoute,
+  SobreIndexRoute: SobreIndexRoute,
+}
+
+const SobreRouteRouteWithChildren = SobreRouteRoute._addFileChildren(
+  SobreRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SobreRouteRoute: SobreRouteRouteWithChildren,
   AceitarConviteRoute: AceitarConviteRoute,
   ChatRoute: ChatRoute,
   CheckinRoute: CheckinRoute,

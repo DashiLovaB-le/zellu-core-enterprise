@@ -1,7 +1,7 @@
 # Análise Completa — Zēllu
 
 > **Última atualização:** 2026-08-26  
-> **Fonte:** código em `src/`, migrations `007`–`016` no repositório, `documentacao/` v1.1, deck em `apresentacao/`, UI clay (ícones soft, mascote, loader, login/convite).
+> **Fonte:** código em `src/`, migrations `007`–`017` no repositório, `documentacao/` v1.2, deck em `apresentacao/`, UI clay (ícones soft, mascote, loader, login/convite), companions (Amora/Chico/Pipoca/Zeca), tour de produto, Resend.
 
 ---
 
@@ -16,6 +16,8 @@
 | **O que não é** | Não substitui psicólogo, psiquiatra, terapia nem diagnóstico. Disclaimer no login, aceite de convite, termo v3.0, onboarding, Chat e Perfil. |
 
 O produto cobre o dia a dia do colaborador (check-in, chat, diário, hábitos, plano, respiro) e entrega **sinais agregados** para RH, com isolamento por empresa. Cadastro aberto com escolha de role **foi removido**: entrada é exclusivamente por convite.
+
+**White-label hoje:** uma marca por deploy (`branding.ts` + assets Zēllu). Multi-marca por empresa (logo/cores/nome distintos por `company_id`) **não** está implementada — ver `todo/TODO-PRIORIDADES-PRODUCAO.md`.
 
 **Stack resumida:** React 19 + TanStack Start (SSR) + Vite 7 + Tailwind 4 · Supabase (Auth + PostgreSQL + RLS) · OpenRouter (LLM) · Nitro (Vercel) · pdfmake (relatórios RH) · Resend (e-mail opcional) · Vitest + Playwright no CI.
 
@@ -50,31 +52,39 @@ zellu/
 │   ├── 013_manager_team_edit.sql       # renomear equipe + assign_team_member
 │   ├── 014_rh_member_summary.sql       # sinais de bem-estar por colaborador (sem humor diário)
 │   ├── 015_directory_avatar.sql        # avatar_url no diretório RH
-│   └── 016_set_employee_job_title.sql  # RH atualiza cargo (job_title)
+│   ├── 016_set_employee_job_title.sql  # RH atualiza cargo (job_title)
+│   └── 017_product_tour.sql            # product_tour_completed_at (guia companion/RH)
 ├── src/
 │   ├── assets/
-│   │   ├── avatar/  mascote/transparent/  icons/  logo-zellu/
+│   │   ├── avatar/           # cabeças Amora/Chico/Pipoca/Zeca
+│   │   ├── companions/chico/ # poses PNG transparentes (demais: .gitkeep)
+│   │   ├── mascote/transparent/  # urso Zēllu (telas companion)
+│   │   ├── icons/  logo-zellu/
 │   ├── components/
-│   │   ├── ClayLoader.tsx / PageLoader   # anel outline macio (loading)
-│   │   ├── Mascot.tsx                    # urso em poses PNG transparentes
-│   │   ├── Icon.tsx + icons/soft-nav-icons.tsx  # SVGs soft na nav; resto Material Symbols
-│   │   ├── RhMoodDistributionPies.tsx    # pizzas 7d + período no RH
-│   │   ├── PrivacyPreferencesSection.tsx # switches LGPD no Perfil
+│   │   ├── chat/             # ChatStarterReplies, ChatAiSuggestionButton, ChatCompanionHeader
+│   │   ├── ClayLoader.tsx / PageLoader
+│   │   ├── Mascot.tsx / CompanionMascot.tsx
+│   │   ├── ProductTourModal.tsx / CompanionProductTour.tsx / ManagerProductTour.tsx
+│   │   ├── Icon.tsx + icons/soft-nav-icons.tsx
+│   │   ├── RhMoodDistributionPies.tsx
+│   │   ├── PrivacyPreferencesSection.tsx
 │   │   ├── CrisisHelp.tsx, PrivacyConsentCard.tsx, CheckinReminderBanner.tsx
 │   │   ├── pages/mobile/  e  pages/desktop/
 │   │   └── ui/            # shadcn
 │   ├── lib/
 │   │   ├── api/*.server.ts
+│   │   ├── companions/     # registry Amora/Chico/Pipoca/Zeca, quick-replies, fallback-voice, resolve-pose
 │   │   ├── email.server.ts               # Resend: convite (e lembretes)
 │   │   ├── rh-dashboard-pdf.ts / rh-report-pdf.ts / rh-reports.ts
 │   │   ├── rh-member-summary.ts
 │   │   ├── companion-agent.ts / companion-local-fallback.ts / companion-portrait.ts
+│   │   ├── branding.ts                   # marca global do deploy
 │   │   ├── supabase/session.ts           # cookies httpOnly mmc-at / mmc-rt
 │   │   ├── config.server.ts              # getAppBaseUrl (VERCEL_URL / …)
 │   │   ├── security-headers.ts / retention.ts / privacy.ts / require-user.ts
-│   │   └── __tests__/
+│   │   └── __tests__/                    # incl. companions-chat.test.ts
 │   ├── routes/
-│   │   ├── login.tsx, aceitar-convite.tsx  # card clay + mascote
+│   │   ├── login.tsx, aceitar-convite.tsx  # card clay compacto + mascote
 │   │   ├── onboarding.tsx, privacidade.tsx
 │   │   ├── companion: /, /chat, /checkin, /diario, /meu-bem-estar, …
 │   │   ├── manager/: rh-dashboard, equipes, equipe/$teamId, colaborador/$profileId,
@@ -129,8 +139,8 @@ Login/auth no cliente (`auth-context.tsx`); APIs no servidor (`createServerFn`).
 
 | URL | Função |
 |---|---|
-| `/login` | Login clay (mascote, campos soft). Sem cadastro aberto. Disclaimer + links convite/privacidade. |
-| `/aceitar-convite?token=` | Aceite de token: valida convite, cria conta, entra. Visual alinhado ao login. |
+| `/login` | Login clay compacto (mascote + marca + formulário pill). Sem cadastro aberto. Link “Recebi um convite”. |
+| `/aceitar-convite?token=` | Aceite: valida convite, cria conta, login automático. Visual alinhado ao login. |
 | `/privacidade` | Política LGPD v3.0 (IA, retenção, RH, direitos). |
 
 ### 4.2 Companion (após consentimento)
@@ -138,8 +148,8 @@ Login/auth no cliente (`auth-context.tsx`); APIs no servidor (`createServerFn`).
 | URL | Função |
 |---|---|
 | `/onboarding` | Termo + maioridade + opt-ins IA/RH/e-mail → nome/fuso |
-| `/` | Dashboard emocional |
-| `/chat` | Companion IA + `CrisisHelp` + mascote |
+| `/` | Dashboard emocional (+ mascote header) |
+| `/chat` | Companion IA por avatar (Amora/Chico/Pipoca/Zeca): poses (Chico), quick replies, fallback com voz; `CrisisHelp` |
 | `/checkin` | Sono → água → humor (1×/dia) |
 | `/diario` | Timeline |
 | `/meu-bem-estar` | Indicadores do dia |
@@ -158,7 +168,7 @@ Termo desatualizado → `useRequireAuth` manda de volta ao onboarding.
 | `/manager/equipe/$teamId` | Detalhe, renomear, mover membros |
 | `/manager/colaborador/$profileId` | Ficha operacional + resumo de bem-estar (sem humor diário/chat/diário); editar cargo |
 | `/manager/relatorios` | CSV / PDF agregados |
-| `/manager/convites` | Pessoas, convites (e-mail Resend se configurado), `is_active` |
+| `/manager/convites` | Pessoas; convites (e-mail Resend ou link); **cancelar** pendentes/expirados; `is_active` |
 
 ### 4.4 Admin e Dev
 
@@ -176,11 +186,15 @@ Role **somente** em `profiles.role`. JWT `user_metadata.role` não autoriza.
 
 ### 5.1 Acesso B2B
 
-- Convites (`invites`): e-mail, role `companion` | `manager`, token, validade, teto de licenças.
+- Convites (`invites`): e-mail, role `companion` | `manager`, token, validade 7 dias, teto de licenças.
 - Aceite cria Auth user + profile com `company_id` / `team_id` / `role`.
+- **`cancelInvite`:** remove convite não aceito; libera seat na contagem; invalida link.
 - Trigger `handle_new_user` sempre começa como `companion`; o aceite ajusta no servidor.
 - Companion/manager **não** alteram `role`, `company_id`, `team_id`, `is_active` (trigger + guard).
-- E-mail de convite opcional via Resend (`sendInviteEmail` em `email.server.ts`); sem `RESEND_API_KEY` o envio é `skipped` e o link continua disponível no painel.
+- E-mail via Resend (`sendInviteEmail` → `email.server.ts`); retorno `{ emailSent, emailSkipped, emailError }`; sem key = link copiável na UI.
+- **Gap operacional:** não há UI Admin para convidar o **1º manager** de uma empresa nova (API `createInvite` com `companyId` existe; UI só em `/manager/convites`).
+
+**Setup de cliente novo (resumo):** Admin cria empresa → licença → equipes → bootstrap 1º RH (script/API) → RH convida colaboradores.
 
 ### 5.2 LGPD e confiança
 
@@ -201,13 +215,20 @@ Três etapas; 6 humores + 19 extras (`moods.ts`). Segundo check-in no mesmo dia 
 - `sendChatMessage` ignora `history`/`context` do cliente (`chat-guard.ts`).
 - 20 msgs/hora; timeout 15s / 10s nos fallbacks.
 - Crise (regex no servidor) → CVV 188, sem LLM.
-- Cloud só com `privacy_ai_opt_in`; senão fallback local (`companion-local-fallback.ts`).
+- Cloud só com `privacy_ai_opt_in`; senão fallback local por avatar (`buildLocalFallbackReplyForAvatar` + `fallback-voice.ts`).
+- **Companions:** registry em `src/lib/companions/` — prompt por avatar, quick replies (`quick-replies.ts`), Chico com poses PNG dinâmicas; Amora/Pipoca/Zeca usam fallback visual Chico até ter assets próprios.
+- UI chat: `ChatCompanionHeader`, `ChatStarterReplies`, `ChatAiSuggestionButton`.
 - OpenRouter: cliente dedicado; ZDR / deny collection no pipeline. Prompt **sem** nome/e-mail. userId anonimizado com SHA-256 via `crypto.subtle`.
 - **Memória curada** (`companion_memories`): até 20 registros, máx 180 chars, importância 1–5. Só o titular via RLS. Retenção 180 dias.
 
 ### 5.5 Companion (resto)
 
 Dashboard, timeline, bem-estar, respiro, plano + streak (3–90 dias), insights com fallback, preventiva (`burnout-risk`, `sleep-crisis`, etc.), banner de check-in pendente, fuso em `profiles.timezone`, cargo (`job_title`) editável no Perfil.
+
+**Guia de produto (`tour.server.ts`, migration `017`):**
+- Companion: modal após onboarding LGPD (`CompanionProductTour` → `ProductTourModal`).
+- Manager: modal no 1º acesso ao painel RH (`ManagerProductTour`).
+- Coluna `profiles.product_tour_completed_at`.
 
 ### 5.6 RH
 
@@ -243,11 +264,11 @@ Cache da LLM (`llm_config`): sem cache in-process; lido do banco por request.
 - Variáveis de ícone: `--icon-stroke` / `--icon-fill` / `--icon-accent` (claro e `.dark`).
 - Nav: SVGs soft outline; ativo com fill clay suave (`filled`).
 - Loading: anel outline (`ClayLoader`) em vez do `sync` Material.
-- Mascote urso (poses PNG transparentes) em login, convite, loading e telas do companion.
-- Login e `/aceitar-convite`: card único, campos pill, CTA clay, disclaimer + links.
+- Mascote urso Zēllu (`assets/mascote/transparent/`) em login, onboarding, loading (`PageLoader`), check-in, chat header, respiro, etc.
+- Login e `/aceitar-convite`: card único compacto, campos pill com ícones, CTA clay, toggle senha.
+- Avatares companion: Amora, Chico, Pipoca, Zeca — cabeça no perfil; Chico com poses no chat; demais com fallback visual.
 - Admin: visual slate, tabelas densas.
 - Tema claro/escuro persistente (`theme.tsx`).
-- Avatares: Amora, Chico, Pipoca, Zeca (+ variantes cabeça).
 - Páginas companion ainda têm pares mobile/desktop; `ResponsivePages.tsx` unifica onde já migrado.
 - Deck comercial: `apresentacao/` (HTML + Mermaid + roteiro + credenciais de teste).
 
@@ -263,7 +284,7 @@ Projeto remoto: `cxogfjczajhxgyffxcbk`. Histórico CLI não espelha 000–006 (s
 
 `private`: `compute_cache`, `client_log_quota`, funções de agregação RH / diretório / sinais.
 
-`profiles` inclui timezone, consentimento, opt-ins, `adult_confirmed_at`, `onboarding_completed_at`, `is_active`, `job_title`, `avatar_url`.
+`profiles` inclui timezone, consentimento, opt-ins, `adult_confirmed_at`, `onboarding_completed_at`, **`product_tour_completed_at`**, `is_active`, `job_title`, `avatar_url`.
 
 ### 8.2 RLS (pós-011)
 
@@ -334,14 +355,16 @@ Em ambientes Vercel, `VERCEL_URL` e `VERCEL_PROJECT_PRODUCTION_URL` são usadas 
 | `.gitignore` | `.env`, `.env.*` (exceto `.env.example`), `.vercel` |
 | `package.json` | `engines.node >=20.18.0` |
 
-Build local passa em `npm run build` (saída em `.vercel/output/`). Suite Vitest: **60** testes (ver 11.3 sobre 2 falhas conhecidas).
+Build local passa em `npm run build` (saída em `.vercel/output/`). Suite Vitest: **~65+** testes (ver 11.3 sobre 2 falhas conhecidas).
 
 **Passos pós-merge para subir:**
 1. Importar repo em vercel.com/new → confirmar preset **TanStack Start**.
 2. Cadastrar variáveis (seção 9) em Production + Preview + Build.
 3. Atualizar Site URL e Redirect URLs no Supabase Auth.
-4. Aplicar migrations `011`–`016` no projeto remoto se ainda não aplicadas.
+4. Aplicar migrations `011`–**`017`** no projeto remoto se ainda não aplicadas.
 5. Primeiro deploy — cron fica ativo automaticamente.
+
+**Resend (convites):** domínio verificado no remetente (`REMINDER_FROM_EMAIL` / `INVITE_FROM_EMAIL`); `APP_BASE_URL` e `VITE_APP_URL` apontando para a URL canônica do deploy (sem path extra). Sem `RESEND_API_KEY`, convites continuam com link copiável na UI.
 
 ---
 
@@ -352,13 +375,13 @@ Build local passa em `npm run build` (saída em `.vercel/output/`). Suite Vitest
 | Fase | Tema | Status |
 |---|---|---|
 | 0–15 | Fundação até Portal Admin | ✅ |
-| 16 | Limpeza / tom enterprise | 🟡 UI clay avançou (login, convite, ícones, mascote, loader); 16.4 percepção e 16.6 proposta ainda pendentes |
-| 17 | Testes | 🟡 Vitest 58/60 + Playwright smoke; 2 asserts desatualizados (ver 11.3) |
-| 18 | Deploy | ✅ Build Vercel ok; pendente: primeiro deploy em produção |
+| 16 | Limpeza / tom enterprise | 🟡 UI clay avançou (login compacto, convite, ícones, mascote, loader); 16.4 percepção e 16.6 proposta ainda pendentes |
+| 17 | Testes | 🟡 Vitest expandido (+ `companions-chat.test.ts`); 2 asserts desatualizados (ver 11.3) |
+| 18 | Deploy | ✅ Build Vercel ok; pendente: env Resend + migrations 017 no remoto |
 | 19 | LGPD, convites, RLS, crise | ✅ código + banco |
-| 20 | Expansão (push, nativo, …) | 🔮 |
+| 20 | UX companion/RH, e-mail convites, companions | 🟡 ✅ parcial — tour, quick replies, fallback por avatar, cancelar convite, Resend; white-label por empresa 🔮 |
 | 21 | RH operacional | ✅ equipes editáveis, ficha colaborador, pizzas de humor, PDF, cargo/avatar |
-| 22 | Identidade visual companion | 🟡 nav soft + mascote + loader; ícones de ação ainda Material |
+| 22 | Identidade visual companion | 🟡 nav soft + mascote + loader + Chico poses; Amora/Pipoca/Zeca aguardam assets; ícones de ação ainda Material |
 
 ### 11.2 Hardenings e entregas recentes
 
@@ -378,11 +401,15 @@ Build local passa em `npm run build` (saída em `.vercel/output/`). Suite Vitest
 | 12 | PDF dashboard/relatórios | `pdfmake`, `rh-*-pdf.ts` |
 | 13 | Ícones soft + ClayLoader + mascote | `soft-nav-icons`, `ClayLoader`, `Mascot` |
 | 14 | Login / aceitar-convite restyle | `login.tsx`, `aceitar-convite.tsx` |
-| 15 | E-mail de convite (Resend) | `email.server.ts` |
+| 15 | E-mail de convite (Resend) | `email.server.ts`, `invites.server.ts` |
+| 16 | Cancelar convite + feedback e-mail | `cancelInvite`, UI `/manager/convites` |
+| 17 | Companions Amora/Chico/Pipoca/Zeca | `src/lib/companions/*`, chat UI, `companions-chat.test.ts` |
+| 18 | Tour de produto companion + RH | `017_product_tour.sql`, `ProductTourModal`, `tour.server.ts` |
+| 19 | Mascote urso integrado | `Mascot.tsx`, `assets/mascote/transparent/` |
 
 ### 11.3 Testes e CI
 
-- **Vitest (~60):** isolamento tenant, k-anonimato, chat-guard, crise, consentimento v3, logs, sessão httpOnly, Vercel preset, cron, memória, RH member summary, etc.
+- **Vitest (~65+):** isolamento tenant, k-anonimato, chat-guard, crise, consentimento v3, logs, sessão httpOnly, Vercel preset, cron, memória, RH member summary, **quick replies e fallback por companion**, etc.
 - **Falhas conhecidas (2):**  
   1. Assert ZDR ainda aponta para trecho antigo em `llm-config.server.ts` (cliente OpenRouter foi extraído).  
   2. Teste ainda procura `010_hardening_sessao_rls.sql` — arquivo renomeado para **`011_hardening_sessao_rls.sql`**.
@@ -394,10 +421,13 @@ Build local passa em `npm run build` (saída em `.vercel/output/`). Suite Vitest
 1. Histórico `supabase_migrations` local vs remoto ainda desalinhado para 000–007 (risco de repair vs benefício baixo).
 2. Corrigir os 2 testes Vitest desatualizados (path 011 + ZDR no cliente OpenRouter).
 3. Secrets do GitHub (`APP_URL`, `CRON_SECRET`) para o retention workflow.
-4. Primeiro deploy em produção na Vercel — repo pronto; falta env + migrations 011–016 no remoto se faltarem.
-5. 16.4 (percepção enterprise) e 16.6 (proposta comercial) ainda em aberto.
-6. Ícones de ação (`edit`, `check`, `close`, …) ainda Material — próxima leva de SVGs soft.
-7. `RESEND_API_KEY` opcional: sem ela, convites só exibem o link no painel.
+4. Primeiro deploy em produção na Vercel — repo pronto; falta env (incl. Resend) + migrations **011–017** no remoto se faltarem.
+5. **Bootstrap 1º manager:** sem UI Admin; operação manual via API/script até implementar.
+6. **White-label por empresa:** adiado — hoje uma marca por deploy (`branding.ts`).
+7. 16.4 (percepção enterprise) e 16.6 (proposta comercial) ainda em aberto.
+8. Ícones de ação (`edit`, `check`, `close`, …) ainda Material — próxima leva de SVGs soft.
+9. Poses PNG de Amora/Pipoca/Zeca — pastas com `.gitkeep`; chat usa fallback visual do Chico.
+10. `RESEND_API_KEY` opcional: sem ela, convites só exibem o link no painel.
 
 ---
 
@@ -418,11 +448,11 @@ Build local passa em `npm run build` (saída em `.vercel/output/`). Suite Vitest
 
 | Onde | O quê |
 |---|---|
-| `documentacao/DEPLOY-PLAYBOOK.md` | Playbook Vercel v1.1 |
-| `documentacao/` demais | BRD, PRD, FRD, SDD, API-DOCS, ROADMAP, USER-STORIES, TEST-PLAN |
+| `documentacao/` | BRD, PRD, FRD, SDD, API-DOCS, ROADMAP, USER-STORIES, TEST-PLAN, DEPLOY-PLAYBOOK — **v1.2** (2026-08-26) |
 | `README.md` | Início rápido, stack, env, deploy |
 | `.env.example` | Template de variáveis sem valores |
 | `apresentacao/` | Deck, roteiro e usuários de teste |
+| `todo/TODO-PRIORIDADES-PRODUCAO.md` | Prioridades produção (white-label, bootstrap RH, etc.) |
 | `docs/SESSAO-DEBITO.md` | Histórico do débito de sessão (fechado) |
 | `charlie-metodo/` | Método de reprodução do companion (referência) |
 
@@ -434,13 +464,16 @@ Scripts: `dev`, `build`, `build:dev`, `preview`, `lint`, `format`, `test`, `test
 
 Zēllu é um **produto B2B isolado por empresa**, com núcleo de confiança e identidade visual clay em evolução:
 
-- Entrada por convite (UI de aceite alinhada ao login); papel imutável no cliente.
-- RH vê agregado + resumo operacional por pessoa, com opt-in e k-anonimato; diário/chat fora do alcance.
+- Entrada por convite (e-mail Resend ou link); aceite alinhado ao login compacto; **cancelamento** de convites pendentes; papel imutável no cliente.
+- RH vê agregado + resumo operacional por pessoa, com opt-in e k-anonimato; diário/chat fora do alcance; **tour** no 1º acesso ao painel.
+- Companion com **quatro avatares** (prompt, quick replies e fallback com voz distinta); Chico com poses; tour pós-onboarding.
 - Termo 3.0, retenção automática, ZDR na IA, disclaimer clínico visível.
 - Sessão httpOnly; FORCE RLS; self-test via RPC.
-- Nav soft, mascote, ClayLoader; pizzas de humor e PDF no painel RH.
-- Suite Vitest expandida (~60); 2 asserts pedem ajuste pós-refatoração.
+- Nav soft, mascote urso, ClayLoader; pizzas de humor e PDF no painel RH.
+- Suite Vitest expandida; 2 asserts pedem ajuste pós-refatoração.
 
-**Próximo passo operacional:** cadastrar env na Vercel, garantir migrations `011`–`016` no remoto e primeiro deploy.  
-**Próximo passo técnico:** corrigir os 2 testes quebrados e seguir a troca dos ícones de ação para SVG soft.  
-**Próximo passo de produto:** 16.4 (percepção enterprise) e 16.6 (proposta comercial).
+**White-label:** uma marca Zēllu por deploy; multi-marca por `company_id` permanece roadmap.
+
+**Próximo passo operacional:** cadastrar env na Vercel (incl. Resend + URLs canônicas), garantir migrations `011`–**`017`** no remoto e primeiro deploy.  
+**Próximo passo técnico:** corrigir os 2 testes quebrados; assets PNG de Amora/Pipoca/Zeca; ícones de ação soft.  
+**Próximo passo de produto:** UI Admin para 1º manager; 16.4 (percepção enterprise) e 16.6 (proposta comercial).
