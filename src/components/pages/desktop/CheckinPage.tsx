@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { DesktopShell } from "@/components/DesktopShell";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth-context";
@@ -118,12 +119,12 @@ export function DesktopCheckinPage({ onSave, saved, saving, todaysCheckin }: Che
           </div>
 
           <div className="mt-6 text-center">
-            <a
-              href="/"
+            <Link
+              to="/chat"
               className="inline-block rounded-xl bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] px-6 py-2.5 text-sm font-bold text-[oklch(0.25_0.04_254)] shadow-sm"
             >
               Ir para o Chat
-            </a>
+            </Link>
           </div>
         </div>
       </DesktopShell>

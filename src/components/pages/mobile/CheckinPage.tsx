@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { MobileShell } from "@/components/MobileShell";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth-context";
@@ -103,12 +104,12 @@ export function MobileCheckinPage({ onSave, saved, saving, todaysCheckin }: Chec
             </div>
           </div>
 
-          <a
-            href="/"
-            className="w-full rounded-xl bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] py-3 text-sm font-bold text-[oklch(0.25_0.04_254)] shadow-sm"
+          <Link
+            to="/chat"
+            className="w-full rounded-xl bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] py-3 text-center text-sm font-bold text-[oklch(0.25_0.04_254)] shadow-sm"
           >
             Ir para o Chat
-          </a>
+          </Link>
         </div>
       </MobileShell>
     );

@@ -3,12 +3,12 @@ import { DesktopShell } from "@/components/DesktopShell";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 import { useAuth } from "@/lib/auth-context";
-import { SOUNDS, BREATH_PHASES } from "@/data";
+import { SOUNDS, BREATH_PHASES, type RespiroSoundId } from "@/data";
 import { Mascot } from "@/components/Mascot";
 
 interface RespiroPageProps {
-  activeSound: string | null;
-  onSoundToggle: (name: string | null) => void;
+  activeSound: RespiroSoundId | null;
+  onSoundToggle: (id: RespiroSoundId | null) => void;
 }
 
 export function DesktopRespiroPage({ activeSound, onSoundToggle }: RespiroPageProps) {
@@ -74,15 +74,20 @@ export function DesktopRespiroPage({ activeSound, onSoundToggle }: RespiroPagePr
             <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-[var(--clay-title)]/60">
               Sons
             </h3>
+            {activeSound ? (
+              <p className="mb-2 text-[11px] text-[var(--clay-title)]/50">Toque de novo para silenciar</p>
+            ) : null}
             <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
               {SOUNDS.map((s) => {
-                const isActive = activeSound === s.name;
+                const isActive = activeSound === s.id;
                 return (
                   <button
-                    key={s.name}
-                    onClick={() => onSoundToggle(isActive ? null : s.name)}
+                    key={s.id}
+                    type="button"
+                    aria-pressed={isActive}
+                    onClick={() => onSoundToggle(isActive ? null : s.id)}
                     className={`flex items-center gap-3 rounded-xl p-3 transition-all ${
-                      isActive ? "bg-white/80 shadow-sm" : "bg-white/50 shadow-sm"
+                      isActive ? "bg-white/80 shadow-sm ring-1 ring-[#99BEE5]/40" : "bg-white/50 shadow-sm"
                     }`}
                   >
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/70 shadow-sm">

@@ -5,6 +5,8 @@ import { DesktopRespiroPage } from "@/components/pages/desktop/RespiroPage";
 import { BRANDING } from "@/lib/branding";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { PageLoader } from "@/components/ClayLoader";
+import { useRespiroAmbientSound } from "@/hooks/useRespiroAmbientSound";
+import type { RespiroSoundId } from "@/data/respiro";
 
 export const Route = createFileRoute("/respiro")({
   head: () => ({
@@ -18,21 +20,25 @@ export const Route = createFileRoute("/respiro")({
 
 function RespiroPage() {
   const { isAuthorized, loading } = useRequireAuth("companion");
-  const [activeSound, setActiveSound] = useState<string | null>(null);
+  const [activeSound, setActiveSound] = useState<RespiroSoundId | null>(null);
+
+  useRespiroAmbientSound(activeSound);
+
+  const handleSoundToggle = (id: RespiroSoundId | null) => {
+    setActiveSound(id);
+  };
 
   if (loading || !isAuthorized) {
-    return (
-      <PageLoader />
-    );
+    return <PageLoader />;
   }
 
   return (
     <>
       <div className="block md:hidden">
-        <MobileRespiroPage activeSound={activeSound} onSoundToggle={setActiveSound} />
+        <MobileRespiroPage activeSound={activeSound} onSoundToggle={handleSoundToggle} />
       </div>
       <div className="hidden md:block">
-        <DesktopRespiroPage activeSound={activeSound} onSoundToggle={setActiveSound} />
+        <DesktopRespiroPage activeSound={activeSound} onSoundToggle={handleSoundToggle} />
       </div>
     </>
   );
