@@ -21,7 +21,7 @@ import {
   Line,
 } from "recharts";
 
-export const Route = createFileRoute("/admin/sentimentos")({
+export const Route = createFileRoute("/dashiadmin/sentimentos")({
   head: () => ({
     meta: [
       { title: `Sentimentos — Admin ${BRANDING.shortName}` },

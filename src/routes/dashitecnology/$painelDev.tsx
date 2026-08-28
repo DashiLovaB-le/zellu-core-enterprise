@@ -105,7 +105,7 @@ function LlmConfigPanel() {
     
     // Apenas dev tem acesso a dashitecnology
     if (!loading && user && role && role !== "dev") {
-      const target = role === "manager" ? "/manager/rh-dashboard" : role === "admin" ? "/admin" : "/";
+      const target = role === "manager" ? "/manager/rh-dashboard" : role === "admin" ? "/dashiadmin" : "/";
       navigate({ to: target, replace: true });
       return;
     }
@@ -421,7 +421,7 @@ function SystemLogsPanel() {
       return;
     }
     if (!loading && user && role && role !== "dev") {
-      const target = role === "manager" ? "/manager/rh-dashboard" : role === "admin" ? "/admin" : "/";
+      const target = role === "manager" ? "/manager/rh-dashboard" : role === "admin" ? "/dashiadmin" : "/";
       navigate({ to: target, replace: true });
       return;
     }

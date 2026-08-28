@@ -32,7 +32,7 @@ function ManagerEquipes() {
     if (role === "dev") return;
 
     if (!loading && user && role && role !== "manager") {
-      navigate({ to: role === "admin" ? "/admin" : "/", replace: true });
+      navigate({ to: role === "admin" ? "/dashiadmin" : "/", replace: true });
     }
   }, [user, loading, role, navigate]);
 

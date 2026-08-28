@@ -5,7 +5,7 @@ import { AdminPageFrame, AdminSection, useAdminGate } from "@/components/admin/A
 import { Icon } from "@/components/Icon";
 import { downloadAdminCsv, downloadAdminPdf } from "@/lib/services/admin-service";
 
-export const Route = createFileRoute("/admin/relatorios")({
+export const Route = createFileRoute("/dashiadmin/relatorios")({
   head: () => ({
     meta: [
       { title: `Relatórios — Admin ${BRANDING.shortName}` },

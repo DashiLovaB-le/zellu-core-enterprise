@@ -42,7 +42,14 @@ export async function sendTransactionalEmail(input: SendEmailInput): Promise<Sen
 
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      return { sent: false, error: body || `Resend HTTP ${res.status}`, skipped: false };
+      let message = body || `Resend HTTP ${res.status}`;
+      try {
+        const parsed = JSON.parse(body) as { message?: string };
+        if (parsed.message) message = parsed.message;
+      } catch {
+        // mantém body bruto
+      }
+      return { sent: false, error: message, skipped: false };
     }
 
     return { sent: true, error: null };

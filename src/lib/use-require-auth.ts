@@ -4,8 +4,8 @@ import { useAuth, type UserRole } from "@/lib/auth-context";
 import { getProfile } from "@/lib/api/auth.server";
 import { companionNeedsOnboarding } from "@/lib/lgpd";
 
-function homeForRole(role: UserRole): "/" | "/admin" | "/manager/rh-dashboard" {
-  if (role === "admin") return "/admin";
+function homeForRole(role: UserRole): "/" | "/dashiadmin" | "/manager/rh-dashboard" {
+  if (role === "admin") return "/dashiadmin";
   if (role === "manager") return "/manager/rh-dashboard";
   return "/";
 }

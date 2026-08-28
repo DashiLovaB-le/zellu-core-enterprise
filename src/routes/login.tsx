@@ -32,7 +32,7 @@ function LoginPage() {
   useEffect(() => {
     if (user && role) {
       const target =
-        role === "admin" ? "/admin" : role === "manager" ? "/manager/rh-dashboard" : "/";
+        role === "admin" ? "/dashiadmin" : role === "manager" ? "/manager/rh-dashboard" : "/";
       navigate({ to: target, replace: true });
     }
   }, [user, role, navigate]);

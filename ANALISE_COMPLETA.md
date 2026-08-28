@@ -1,7 +1,7 @@
 # Análise Completa — Zēllu
 
-> **Última atualização:** 2026-08-26  
-> **Fonte:** código em `src/`, migrations `007`–`017` no repositório, `documentacao/` v1.2, deck em `apresentacao/`, UI clay (ícones soft, mascote, loader, login/convite), companions (Amora/Chico/Pipoca/Zeca), tour de produto, Resend.
+> **Última atualização:** 2026-08-28  
+> **Fonte:** código em `src/`, migrations `007`–`017` no repositório, `documentacao/` v1.2, `PRODUCT.md` (Impeccable), deck em `apresentacao/`, landing pública `/`, UI clay, companions, tour de produto, Resend (convites + leads da landing).
 
 ---
 
@@ -13,9 +13,11 @@
 | **Nome de exibição** | Zēllu (`src/lib/branding.ts`) |
 | **Tagline** | Cuidado emocional no ritmo do trabalho |
 | **Tipo** | Companion digital B2B de bem-estar emocional (marca Zēllu; núcleo ZelluApp / Dashitecnology) |
-| **O que não é** | Não substitui psicólogo, psiquiatra, terapia nem diagnóstico. Disclaimer no login, aceite de convite, termo v3.0, onboarding, Chat e Perfil. |
+| **O que não é** | Não substitui psicólogo, psiquiatra, terapia nem diagnóstico. Disclaimer no login, aceite de convite, termo v3.0, onboarding, Chat, Perfil e rodapé da landing. |
 
 O produto cobre o dia a dia do colaborador (check-in, chat, diário, hábitos, plano, respiro) e entrega **sinais agregados** para RH, com isolamento por empresa. Cadastro aberto com escolha de role **foi removido**: entrada é exclusivamente por convite.
+
+Visitante **não autenticado** em `/` vê a **landing de validação** (carta ao RH + formulário de interesse). Colaborador autenticado em `/` continua no dashboard emocional.
 
 **White-label hoje:** uma marca por deploy (`branding.ts` + assets Zēllu). Multi-marca por empresa (logo/cores/nome distintos por `company_id`) **não** está implementada — ver `todo/TODO-PRIORIDADES-PRODUCAO.md`.
 
@@ -33,7 +35,7 @@ zellu/
 ├── .env.example                  # variáveis documentadas sem valores
 ├── .vercelignore
 ├── vercel.json                   # framework: tanstack-start, cron: /api/jobs/retention
-├── apresentacao/                 # deck HTML + roteiro + usuários de teste
+├── apresentacao/                 # deck HTML + roteiro + usuários de teste + linkedin.html
 ├── documentacao/                 # BRD, PRD, FRD, SDD, API-DOCS, ROADMAP, USER-STORIES, TEST-PLAN, DEPLOY-PLAYBOOK
 ├── e2e/
 │   └── smoke.spec.ts             # Playwright: login, cookie httpOnly, headers, disclaimer
@@ -61,6 +63,7 @@ zellu/
 │   │   ├── mascote/transparent/  # urso Zēllu (telas companion)
 │   │   ├── icons/  logo-zellu/
 │   ├── components/
+│   │   ├── landing/          # LandingPage + landing.css (carta ao RH)
 │   │   ├── chat/             # ChatStarterReplies, ChatAiSuggestionButton, ChatCompanionHeader
 │   │   ├── ClayLoader.tsx / PageLoader
 │   │   ├── Mascot.tsx / CompanionMascot.tsx
@@ -72,9 +75,9 @@ zellu/
 │   │   ├── pages/mobile/  e  pages/desktop/
 │   │   └── ui/            # shadcn
 │   ├── lib/
-│   │   ├── api/*.server.ts
+│   │   ├── api/*.server.ts   # incl. leads.server.ts (pedido de teste RH)
 │   │   ├── companions/     # registry Amora/Chico/Pipoca/Zeca, quick-replies, fallback-voice, resolve-pose
-│   │   ├── email.server.ts               # Resend: convite (e lembretes)
+│   │   ├── email.server.ts               # Resend: convite, lembretes, leads da landing
 │   │   ├── rh-dashboard-pdf.ts / rh-report-pdf.ts / rh-reports.ts
 │   │   ├── rh-member-summary.ts
 │   │   ├── companion-agent.ts / companion-local-fallback.ts / companion-portrait.ts
@@ -84,9 +87,10 @@ zellu/
 │   │   ├── security-headers.ts / retention.ts / privacy.ts / require-user.ts
 │   │   └── __tests__/                    # incl. companions-chat.test.ts
 │   ├── routes/
+│   │   ├── index.tsx         # guest → landing; companion autenticado → dashboard
 │   │   ├── login.tsx, aceitar-convite.tsx  # card clay compacto + mascote
-│   │   ├── onboarding.tsx, privacidade.tsx
-│   │   ├── companion: /, /chat, /checkin, /diario, /meu-bem-estar, …
+│   │   ├── onboarding.tsx, privacidade.tsx, sobre/
+│   │   ├── companion: / (auth), /chat, /checkin, /diario, /meu-bem-estar, …
 │   │   ├── manager/: rh-dashboard, equipes, equipe/$teamId, colaborador/$profileId,
 │   │   │            relatorios, convites
 │   │   ├── admin/  e  dashitecnology/
@@ -94,6 +98,8 @@ zellu/
 │   └── start.ts                  # CSRF
 ├── vite.config.ts                # nitro.preset: "vercel"
 ├── playwright.config.ts
+├── PRODUCT.md                    # contexto de produto (Impeccable)
+├── .impeccable/                  # config + briefs de superfície (landing)
 └── ANALISE_COMPLETA.md           # este arquivo
 ```
 
@@ -139,16 +145,18 @@ Login/auth no cliente (`auth-context.tsx`); APIs no servidor (`createServerFn`).
 
 | URL | Função |
 |---|---|
+| `/` | **Landing pública** se visitante (carta + formulário). Dashboard emocional se companion autenticado. |
 | `/login` | Login clay compacto (mascote + marca + formulário pill). Sem cadastro aberto. Link “Recebi um convite”. |
 | `/aceitar-convite?token=` | Aceite: valida convite, cria conta, login automático. Visual alinhado ao login. |
 | `/privacidade` | Política LGPD v3.0 (IA, retenção, RH, direitos). |
+| `/sobre` e `/sobre/$slug` | Páginas institucionais (layout próprio). |
 
 ### 4.2 Companion (após consentimento)
 
 | URL | Função |
 |---|---|
 | `/onboarding` | Termo + maioridade + opt-ins IA/RH/e-mail → nome/fuso |
-| `/` | Dashboard emocional (+ mascote header) |
+| `/` | Dashboard emocional (+ mascote header). Só com sessão companion; visitante vê a landing (4.1). |
 | `/chat` | Companion IA por avatar (Amora/Chico/Pipoca/Zeca): poses (Chico), quick replies, fallback com voz; `CrisisHelp` |
 | `/checkin` | Sono → água → humor (1×/dia) |
 | `/diario` | Timeline |
@@ -184,7 +192,16 @@ Role **somente** em `profiles.role`. JWT `user_metadata.role` não autoriza.
 
 ## 5. Funcionalidades
 
-### 5.1 Acesso B2B
+### 5.1 Landing pública (validação RH)
+
+- Superfície **Persuade** em `/` para visitante (`LandingPage`, `landing.css`). Composição “Carta ao RH” (Impeccable, seed em `PRODUCT.md` / brief `.impeccable/`).
+- Primeiro ecrã: palavra **Ausência**; carta em 1ª pessoa (dev); vistas A (check-in sintético) e B (células RH / k-anonimato); cartão de resposta.
+- Formulário: nome, e-mail corporativo, empresa → `submitLandingLead` (`leads.server.ts`). Sem autenticação. Honeypot `website`.
+- E-mail via Resend para `LEADS_TO_EMAIL` (fallback `privacidade@zellu.app`). O lead **não** recebe a mensagem; a equipe lê e chama. Sem `RESEND_API_KEY`: a UI admite que o envio está desligado.
+- Loader da rota: `getAuthSnapshot` no `loader` — visitante vê a landing no SSR, sem spinner de auth. `PageTransition` não faz fade em `/`.
+- Link “Já tenho acesso” → `/login`. Companion autenticado em `/` segue no dashboard.
+
+### 5.2 Acesso B2B
 
 - Convites (`invites`): e-mail, role `companion` | `manager`, token, validade 7 dias, teto de licenças.
 - Aceite cria Auth user + profile com `company_id` / `team_id` / `role`.
@@ -196,7 +213,7 @@ Role **somente** em `profiles.role`. JWT `user_metadata.role` não autoriza.
 
 **Setup de cliente novo (resumo):** Admin cria empresa → licença → equipes → bootstrap 1º RH (script/API) → RH convida colaboradores.
 
-### 5.2 LGPD e confiança
+### 5.3 LGPD e confiança
 
 - Consentimento versionado **3.0** + declaração de maioridade.
 - Opt-ins separados: IA, RH (agregados), e-mail de lembrete — UI com switches no Perfil.
@@ -204,13 +221,13 @@ Role **somente** em `profiles.role`. JWT `user_metadata.role` não autoriza.
 - Retenção: chat/diário/preventiva/memórias 180 dias, check-ins 365 dias, logs 90 dias.
 - Purge: `private.purge_expired_personal_data`, cron `15 9 * * *` (Vercel + GitHub Action), endpoint `GET|POST /api/jobs/retention`.
 - Logs sanitizados (sem e-mail, humor, texto de saúde).
-- Disclaimer clínico único (`CLINICAL_DISCLAIMER`) no login e no aceite de convite.
+- Disclaimer clínico único (`CLINICAL_DISCLAIMER`) no login, no aceite de convite e no rodapé da landing.
 
-### 5.3 Check-in
+### 5.4 Check-in
 
 Três etapas; 6 humores + 19 extras (`moods.ts`). Segundo check-in no mesmo dia **falha** (não atualiza). Alimenta chat, dashboard e preventiva.
 
-### 5.4 Chat IA e Memória do Companion
+### 5.5 Chat IA e Memória do Companion
 
 - `sendChatMessage` ignora `history`/`context` do cliente (`chat-guard.ts`).
 - 20 msgs/hora; timeout 15s / 10s nos fallbacks.
@@ -221,7 +238,7 @@ Três etapas; 6 humores + 19 extras (`moods.ts`). Segundo check-in no mesmo dia 
 - OpenRouter: cliente dedicado; ZDR / deny collection no pipeline. Prompt **sem** nome/e-mail. userId anonimizado com SHA-256 via `crypto.subtle`.
 - **Memória curada** (`companion_memories`): até 20 registros, máx 180 chars, importância 1–5. Só o titular via RLS. Retenção 180 dias.
 
-### 5.5 Companion (resto)
+### 5.6 Companion (resto)
 
 Dashboard, timeline, bem-estar, respiro, plano + streak (3–90 dias), insights com fallback, preventiva (`burnout-risk`, `sleep-crisis`, etc.), banner de check-in pendente, fuso em `profiles.timezone`, cargo (`job_title`) editável no Perfil.
 
@@ -230,7 +247,7 @@ Dashboard, timeline, bem-estar, respiro, plano + streak (3–90 dias), insights 
 - Manager: modal no 1º acesso ao painel RH (`ManagerProductTour`).
 - Coluna `profiles.product_tour_completed_at`.
 
-### 5.6 RH
+### 5.7 RH
 
 - `get_rh_dashboard` (SECURITY DEFINER no schema `private`, wrapper em `public`).
 - Só companions com `privacy_rh_opt_in`.
@@ -242,7 +259,7 @@ Dashboard, timeline, bem-estar, respiro, plano + streak (3–90 dias), insights 
 - Edição de equipes (`013`) e resumo por colaborador (`014` — status/tendência/participação/sono agregado, sem humor diário).
 - RH pode definir `job_title` (`016`).
 
-### 5.7 Admin / Dev
+### 5.8 Admin / Dev
 
 Portal B2B completo. LLM: chave em `OPENROUTER_API_KEY`. Logs só para `dev`.
 
@@ -261,16 +278,18 @@ Cache da LLM (`llm_config`): sem cache in-process; lido do banco por request.
 ## 7. Design
 
 - Companion: paleta clay/OKLCH, Quicksand + Nunito Sans, glassmorphism contido.
+- **Landing (`/` visitante):** identidade Zēllu (cream `#FDF8F4`, terracota, sage, ink); Quicksand no display; papel e cartão de resposta — não o herói SaaS nem os cards clay do app. Mascote nas margens. Tokens em `landing.css` (`.lp-*`).
 - Variáveis de ícone: `--icon-stroke` / `--icon-fill` / `--icon-accent` (claro e `.dark`).
 - Nav: SVGs soft outline; ativo com fill clay suave (`filled`).
 - Loading: anel outline (`ClayLoader`) em vez do `sync` Material.
-- Mascote urso Zēllu (`assets/mascote/transparent/`) em login, onboarding, loading (`PageLoader`), check-in, chat header, respiro, etc.
+- Mascote urso Zēllu (`assets/mascote/transparent/` e poses Chico na landing) em login, onboarding, loading (`PageLoader`), check-in, chat header, respiro, landing.
 - Login e `/aceitar-convite`: card único compacto, campos pill com ícones, CTA clay, toggle senha.
 - Avatares companion: Amora, Chico, Pipoca, Zeca — cabeça no perfil; Chico com poses no chat; demais com fallback visual.
 - Admin: visual slate, tabelas densas.
-- Tema claro/escuro persistente (`theme.tsx`).
+- Tema claro/escuro persistente (`theme.tsx`). Landing pública permanece no cream da marca (cena diurna).
 - Páginas companion ainda têm pares mobile/desktop; `ResponsivePages.tsx` unifica onde já migrado.
-- Deck comercial: `apresentacao/` (HTML + Mermaid + roteiro + credenciais de teste).
+- Deck comercial: `apresentacao/` (HTML + Mermaid + roteiro + credenciais de teste + `linkedin.html`).
+- Design context: `PRODUCT.md` + Impeccable (`.cursor/skills/impeccable`, `.impeccable/config.json` `buildPath: code`).
 
 ---
 
@@ -336,8 +355,9 @@ JWT **não vai no body** das server functions. Fluxo:
 | `OPENROUTER_API_KEY` | somente servidor |
 | `CRON_SECRET` | somente servidor |
 | `APP_BASE_URL` / `VITE_APP_URL` | URL canônica (convites) |
-| `RESEND_API_KEY` | opcional — e-mails |
-| `REMINDER_FROM_EMAIL` / `INVITE_FROM_EMAIL` | opcional — remetente |
+| `RESEND_API_KEY` | opcional — e-mails (convites, lembretes, **leads da landing**) |
+| `REMINDER_FROM_EMAIL` / `INVITE_FROM_EMAIL` | opcional — remetente (domínio verificado no Resend) |
+| `LEADS_TO_EMAIL` | opcional — caixa que **recebe** o pedido de teste da landing (não é o e-mail do RH que preencheu) |
 
 Em ambientes Vercel, `VERCEL_URL` e `VERCEL_PROJECT_PRODUCTION_URL` são usadas como fallback de URL canônica quando as explícitas não estão definidas.
 
@@ -359,12 +379,12 @@ Build local passa em `npm run build` (saída em `.vercel/output/`). Suite Vitest
 
 **Passos pós-merge para subir:**
 1. Importar repo em vercel.com/new → confirmar preset **TanStack Start**.
-2. Cadastrar variáveis (seção 9) em Production + Preview + Build.
+2. Cadastrar variáveis (seção 9) em Production + Preview + Build — incl. Resend, `LEADS_TO_EMAIL`, URLs canônicas.
 3. Atualizar Site URL e Redirect URLs no Supabase Auth.
 4. Aplicar migrations `011`–**`017`** no projeto remoto se ainda não aplicadas.
 5. Primeiro deploy — cron fica ativo automaticamente.
 
-**Resend (convites):** domínio verificado no remetente (`REMINDER_FROM_EMAIL` / `INVITE_FROM_EMAIL`); `APP_BASE_URL` e `VITE_APP_URL` apontando para a URL canônica do deploy (sem path extra). Sem `RESEND_API_KEY`, convites continuam com link copiável na UI.
+**Resend (convites e landing):** domínio verificado no remetente (`REMINDER_FROM_EMAIL` / `INVITE_FROM_EMAIL`); `APP_BASE_URL` e `VITE_APP_URL` apontando para a URL canônica do deploy (sem path extra). Sem `RESEND_API_KEY`, convites continuam com link copiável na UI; o formulário da landing avisa que o envio está desligado. `LEADS_TO_EMAIL` define quem lê o pedido de teste.
 
 ---
 
@@ -375,7 +395,7 @@ Build local passa em `npm run build` (saída em `.vercel/output/`). Suite Vitest
 | Fase | Tema | Status |
 |---|---|---|
 | 0–15 | Fundação até Portal Admin | ✅ |
-| 16 | Limpeza / tom enterprise | 🟡 UI clay avançou (login compacto, convite, ícones, mascote, loader); 16.4 percepção e 16.6 proposta ainda pendentes |
+| 16 | Limpeza / tom enterprise | 🟡 UI clay avançou; **16.6 proposta:** landing pública `/` (carta + form). 16.4 percepção ainda pendente |
 | 17 | Testes | 🟡 Vitest expandido (+ `companions-chat.test.ts`); 2 asserts desatualizados (ver 11.3) |
 | 18 | Deploy | ✅ Build Vercel ok; pendente: env Resend + migrations 017 no remoto |
 | 19 | LGPD, convites, RLS, crise | ✅ código + banco |
@@ -406,6 +426,8 @@ Build local passa em `npm run build` (saída em `.vercel/output/`). Suite Vitest
 | 17 | Companions Amora/Chico/Pipoca/Zeca | `src/lib/companions/*`, chat UI, `companions-chat.test.ts` |
 | 18 | Tour de produto companion + RH | `017_product_tour.sql`, `ProductTourModal`, `tour.server.ts` |
 | 19 | Mascote urso integrado | `Mascot.tsx`, `assets/mascote/transparent/` |
+| 20 | Landing pública + leads RH | `LandingPage`, `leads.server.ts`, `index.tsx` loader guest, `LEADS_TO_EMAIL` |
+| 21 | Impeccable / PRODUCT.md | `.cursor/skills/impeccable`, `PRODUCT.md`, `.impeccable/` |
 
 ### 11.3 Testes e CI
 
@@ -424,10 +446,11 @@ Build local passa em `npm run build` (saída em `.vercel/output/`). Suite Vitest
 4. Primeiro deploy em produção na Vercel — repo pronto; falta env (incl. Resend) + migrations **011–017** no remoto se faltarem.
 5. **Bootstrap 1º manager:** sem UI Admin; operação manual via API/script até implementar.
 6. **White-label por empresa:** adiado — hoje uma marca por deploy (`branding.ts`).
-7. 16.4 (percepção enterprise) e 16.6 (proposta comercial) ainda em aberto.
+7. 16.4 (percepção enterprise) ainda em aberto; 16.6 (proposta) avançou com a landing — falta persistir leads se o e-mail não bastar.
 8. Ícones de ação (`edit`, `check`, `close`, …) ainda Material — próxima leva de SVGs soft.
 9. Poses PNG de Amora/Pipoca/Zeca — pastas com `.gitkeep`; chat usa fallback visual do Chico.
-10. `RESEND_API_KEY` opcional: sem ela, convites só exibem o link no painel.
+10. `RESEND_API_KEY` opcional: sem ela, convites só exibem o link no painel; a landing não envia o pedido de teste.
+11. Landing ainda sem persistência de leads no banco — só e-mail transacional. Sem confirmação automática para quem preencheu.
 
 ---
 
@@ -440,7 +463,7 @@ Build local passa em `npm run build` (saída em `.vercel/output/`). Suite Vitest
 - URL canônica: `APP_BASE_URL` > `VERCEL_PROJECT_PRODUCTION_URL` > `VERCEL_URL` > localhost.
 - Cache de estado do servidor no **banco** (preventiva, LLM) — serverless-safe.
 - Padrões: `*.server.ts`, Zod, `logEvent`, `require-user.ts` como único gate de identidade.
-- UI: tokens CSS clay + ícones soft com `currentColor` / vars de tema.
+- UI: tokens CSS clay + ícones soft com `currentColor` / vars de tema; landing com tokens `.lp-*` (papel, não clay-card).
 
 ---
 
@@ -449,9 +472,10 @@ Build local passa em `npm run build` (saída em `.vercel/output/`). Suite Vitest
 | Onde | O quê |
 |---|---|
 | `documentacao/` | BRD, PRD, FRD, SDD, API-DOCS, ROADMAP, USER-STORIES, TEST-PLAN, DEPLOY-PLAYBOOK — **v1.2** (2026-08-26) |
+| `PRODUCT.md` | Contexto de produto para design (Impeccable) |
 | `README.md` | Início rápido, stack, env, deploy |
-| `.env.example` | Template de variáveis sem valores |
-| `apresentacao/` | Deck, roteiro e usuários de teste |
+| `.env.example` | Template de variáveis sem valores (incl. `LEADS_TO_EMAIL`) |
+| `apresentacao/` | Deck, roteiro, usuários de teste, `linkedin.html` |
 | `todo/TODO-PRIORIDADES-PRODUCAO.md` | Prioridades produção (white-label, bootstrap RH, etc.) |
 | `docs/SESSAO-DEBITO.md` | Histórico do débito de sessão (fechado) |
 | `charlie-metodo/` | Método de reprodução do companion (referência) |
@@ -470,10 +494,11 @@ Zēllu é um **produto B2B isolado por empresa**, com núcleo de confiança e id
 - Termo 3.0, retenção automática, ZDR na IA, disclaimer clínico visível.
 - Sessão httpOnly; FORCE RLS; self-test via RPC.
 - Nav soft, mascote urso, ClayLoader; pizzas de humor e PDF no painel RH.
+- **Landing pública** em `/` (visitante): carta de validação + formulário; Resend → `LEADS_TO_EMAIL`.
 - Suite Vitest expandida; 2 asserts pedem ajuste pós-refatoração.
 
 **White-label:** uma marca Zēllu por deploy; multi-marca por `company_id` permanece roadmap.
 
-**Próximo passo operacional:** cadastrar env na Vercel (incl. Resend + URLs canônicas), garantir migrations `011`–**`017`** no remoto e primeiro deploy.  
+**Próximo passo operacional:** cadastrar env na Vercel (incl. Resend, `LEADS_TO_EMAIL`, URLs canônicas), garantir migrations `011`–**`017`** no remoto e primeiro deploy.  
 **Próximo passo técnico:** corrigir os 2 testes quebrados; assets PNG de Amora/Pipoca/Zeca; ícones de ação soft.  
-**Próximo passo de produto:** UI Admin para 1º manager; 16.4 (percepção enterprise) e 16.6 (proposta comercial).
+**Próximo passo de produto:** UI Admin para 1º manager; 16.4 (percepção enterprise); persistir leads se o e-mail deixar de bastar.

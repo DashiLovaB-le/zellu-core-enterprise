@@ -6,7 +6,7 @@ import { loadAdminKpis, loadEvaluatedAlerts } from "@/lib/services/admin-service
 import type { AdminKpiData, AdminEvaluatedAlert } from "@/lib/api/admin.server";
 import { Icon } from "@/components/Icon";
 
-export const Route = createFileRoute("/admin/")({
+export const Route = createFileRoute("/dashiadmin/")({
   head: () => ({
     meta: [
       { title: `Portal Admin — ${BRANDING.shortName}` },

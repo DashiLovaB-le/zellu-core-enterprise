@@ -44,7 +44,7 @@ function DevIndex() {
     }
     
     if (!loading && user && role && role !== "dev") {
-      const target = role === "manager" ? "/manager/rh-dashboard" : role === "admin" ? "/admin" : "/";
+      const target = role === "manager" ? "/manager/rh-dashboard" : role === "admin" ? "/dashiadmin" : "/";
       navigate({ to: target, replace: true });
     }
   }, [user, loading, role, navigate]);

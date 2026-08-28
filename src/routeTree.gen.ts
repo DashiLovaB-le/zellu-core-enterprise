@@ -24,15 +24,16 @@ import { Route as PlanoDeCuidadoRouteImport } from './routes/plano-de-cuidado'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RespiroRouteImport } from './routes/respiro'
 import { Route as SobreRouteRouteImport } from './routes/sobre/route'
-import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as AdminAlertasRouteImport } from './routes/admin/alertas'
-import { Route as AdminEmpresasRouteImport } from './routes/admin/empresas'
-import { Route as AdminFuncionariosRouteImport } from './routes/admin/funcionarios'
-import { Route as AdminLeadsRouteImport } from './routes/admin/leads'
-import { Route as AdminLicencasRouteImport } from './routes/admin/licencas'
-import { Route as AdminMetricasRouteImport } from './routes/admin/metricas'
-import { Route as AdminRelatoriosRouteImport } from './routes/admin/relatorios'
-import { Route as AdminSentimentosRouteImport } from './routes/admin/sentimentos'
+import { Route as DashiadminIndexRouteImport } from './routes/dashiadmin/index'
+import { Route as DashiadminAlertasRouteImport } from './routes/dashiadmin/alertas'
+import { Route as DashiadminConvitesRouteImport } from './routes/dashiadmin/convites'
+import { Route as DashiadminEmpresasRouteImport } from './routes/dashiadmin/empresas'
+import { Route as DashiadminFuncionariosRouteImport } from './routes/dashiadmin/funcionarios'
+import { Route as DashiadminLeadsRouteImport } from './routes/dashiadmin/leads'
+import { Route as DashiadminLicencasRouteImport } from './routes/dashiadmin/licencas'
+import { Route as DashiadminMetricasRouteImport } from './routes/dashiadmin/metricas'
+import { Route as DashiadminRelatoriosRouteImport } from './routes/dashiadmin/relatorios'
+import { Route as DashiadminSentimentosRouteImport } from './routes/dashiadmin/sentimentos'
 import { Route as DashitecnologyIndexRouteImport } from './routes/dashitecnology/index'
 import { Route as DashitecnologyPainelDevRouteImport } from './routes/dashitecnology/$painelDev'
 import { Route as ManagerIndexRouteImport } from './routes/manager/index'
@@ -120,49 +121,54 @@ const SobreRouteRoute = SobreRouteRouteImport.update({
   path: '/sobre',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
+const DashiadminIndexRoute = DashiadminIndexRouteImport.update({
+  id: '/dashiadmin/',
+  path: '/dashiadmin/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminAlertasRoute = AdminAlertasRouteImport.update({
-  id: '/admin/alertas',
-  path: '/admin/alertas',
+const DashiadminAlertasRoute = DashiadminAlertasRouteImport.update({
+  id: '/dashiadmin/alertas',
+  path: '/dashiadmin/alertas',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminEmpresasRoute = AdminEmpresasRouteImport.update({
-  id: '/admin/empresas',
-  path: '/admin/empresas',
+const DashiadminConvitesRoute = DashiadminConvitesRouteImport.update({
+  id: '/dashiadmin/convites',
+  path: '/dashiadmin/convites',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminFuncionariosRoute = AdminFuncionariosRouteImport.update({
-  id: '/admin/funcionarios',
-  path: '/admin/funcionarios',
+const DashiadminEmpresasRoute = DashiadminEmpresasRouteImport.update({
+  id: '/dashiadmin/empresas',
+  path: '/dashiadmin/empresas',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminLeadsRoute = AdminLeadsRouteImport.update({
-  id: '/admin/leads',
-  path: '/admin/leads',
+const DashiadminFuncionariosRoute = DashiadminFuncionariosRouteImport.update({
+  id: '/dashiadmin/funcionarios',
+  path: '/dashiadmin/funcionarios',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminLicencasRoute = AdminLicencasRouteImport.update({
-  id: '/admin/licencas',
-  path: '/admin/licencas',
+const DashiadminLeadsRoute = DashiadminLeadsRouteImport.update({
+  id: '/dashiadmin/leads',
+  path: '/dashiadmin/leads',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminMetricasRoute = AdminMetricasRouteImport.update({
-  id: '/admin/metricas',
-  path: '/admin/metricas',
+const DashiadminLicencasRoute = DashiadminLicencasRouteImport.update({
+  id: '/dashiadmin/licencas',
+  path: '/dashiadmin/licencas',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRelatoriosRoute = AdminRelatoriosRouteImport.update({
-  id: '/admin/relatorios',
-  path: '/admin/relatorios',
+const DashiadminMetricasRoute = DashiadminMetricasRouteImport.update({
+  id: '/dashiadmin/metricas',
+  path: '/dashiadmin/metricas',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminSentimentosRoute = AdminSentimentosRouteImport.update({
-  id: '/admin/sentimentos',
-  path: '/admin/sentimentos',
+const DashiadminRelatoriosRoute = DashiadminRelatoriosRouteImport.update({
+  id: '/dashiadmin/relatorios',
+  path: '/dashiadmin/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashiadminSentimentosRoute = DashiadminSentimentosRouteImport.update({
+  id: '/dashiadmin/sentimentos',
+  path: '/dashiadmin/sentimentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashitecnologyIndexRoute = DashitecnologyIndexRouteImport.update({
@@ -238,21 +244,22 @@ export interface FileRoutesByFullPath {
   '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/respiro': typeof RespiroRoute
-  '/admin/alertas': typeof AdminAlertasRoute
-  '/admin/empresas': typeof AdminEmpresasRoute
-  '/admin/funcionarios': typeof AdminFuncionariosRoute
-  '/admin/leads': typeof AdminLeadsRoute
-  '/admin/licencas': typeof AdminLicencasRoute
-  '/admin/metricas': typeof AdminMetricasRoute
-  '/admin/relatorios': typeof AdminRelatoriosRoute
-  '/admin/sentimentos': typeof AdminSentimentosRoute
+  '/dashiadmin/alertas': typeof DashiadminAlertasRoute
+  '/dashiadmin/convites': typeof DashiadminConvitesRoute
+  '/dashiadmin/empresas': typeof DashiadminEmpresasRoute
+  '/dashiadmin/funcionarios': typeof DashiadminFuncionariosRoute
+  '/dashiadmin/leads': typeof DashiadminLeadsRoute
+  '/dashiadmin/licencas': typeof DashiadminLicencasRoute
+  '/dashiadmin/metricas': typeof DashiadminMetricasRoute
+  '/dashiadmin/relatorios': typeof DashiadminRelatoriosRoute
+  '/dashiadmin/sentimentos': typeof DashiadminSentimentosRoute
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/convites': typeof ManagerConvitesRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
   '/sobre/$slug': typeof SobreSlugRoute
-  '/admin/': typeof AdminIndexRoute
+  '/dashiadmin/': typeof DashiadminIndexRoute
   '/dashitecnology/': typeof DashitecnologyIndexRoute
   '/manager/': typeof ManagerIndexRoute
   '/sobre/': typeof SobreIndexRoute
@@ -274,21 +281,22 @@ export interface FileRoutesByTo {
   '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/respiro': typeof RespiroRoute
-  '/admin/alertas': typeof AdminAlertasRoute
-  '/admin/empresas': typeof AdminEmpresasRoute
-  '/admin/funcionarios': typeof AdminFuncionariosRoute
-  '/admin/leads': typeof AdminLeadsRoute
-  '/admin/licencas': typeof AdminLicencasRoute
-  '/admin/metricas': typeof AdminMetricasRoute
-  '/admin/relatorios': typeof AdminRelatoriosRoute
-  '/admin/sentimentos': typeof AdminSentimentosRoute
+  '/dashiadmin/alertas': typeof DashiadminAlertasRoute
+  '/dashiadmin/convites': typeof DashiadminConvitesRoute
+  '/dashiadmin/empresas': typeof DashiadminEmpresasRoute
+  '/dashiadmin/funcionarios': typeof DashiadminFuncionariosRoute
+  '/dashiadmin/leads': typeof DashiadminLeadsRoute
+  '/dashiadmin/licencas': typeof DashiadminLicencasRoute
+  '/dashiadmin/metricas': typeof DashiadminMetricasRoute
+  '/dashiadmin/relatorios': typeof DashiadminRelatoriosRoute
+  '/dashiadmin/sentimentos': typeof DashiadminSentimentosRoute
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/convites': typeof ManagerConvitesRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
   '/sobre/$slug': typeof SobreSlugRoute
-  '/admin': typeof AdminIndexRoute
+  '/dashiadmin': typeof DashiadminIndexRoute
   '/dashitecnology': typeof DashitecnologyIndexRoute
   '/manager': typeof ManagerIndexRoute
   '/sobre': typeof SobreIndexRoute
@@ -312,21 +320,22 @@ export interface FileRoutesById {
   '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/respiro': typeof RespiroRoute
-  '/admin/alertas': typeof AdminAlertasRoute
-  '/admin/empresas': typeof AdminEmpresasRoute
-  '/admin/funcionarios': typeof AdminFuncionariosRoute
-  '/admin/leads': typeof AdminLeadsRoute
-  '/admin/licencas': typeof AdminLicencasRoute
-  '/admin/metricas': typeof AdminMetricasRoute
-  '/admin/relatorios': typeof AdminRelatoriosRoute
-  '/admin/sentimentos': typeof AdminSentimentosRoute
+  '/dashiadmin/alertas': typeof DashiadminAlertasRoute
+  '/dashiadmin/convites': typeof DashiadminConvitesRoute
+  '/dashiadmin/empresas': typeof DashiadminEmpresasRoute
+  '/dashiadmin/funcionarios': typeof DashiadminFuncionariosRoute
+  '/dashiadmin/leads': typeof DashiadminLeadsRoute
+  '/dashiadmin/licencas': typeof DashiadminLicencasRoute
+  '/dashiadmin/metricas': typeof DashiadminMetricasRoute
+  '/dashiadmin/relatorios': typeof DashiadminRelatoriosRoute
+  '/dashiadmin/sentimentos': typeof DashiadminSentimentosRoute
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/convites': typeof ManagerConvitesRoute
   '/manager/equipes': typeof ManagerEquipesRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
   '/sobre/$slug': typeof SobreSlugRoute
-  '/admin/': typeof AdminIndexRoute
+  '/dashiadmin/': typeof DashiadminIndexRoute
   '/dashitecnology/': typeof DashitecnologyIndexRoute
   '/manager/': typeof ManagerIndexRoute
   '/sobre/': typeof SobreIndexRoute
@@ -351,21 +360,22 @@ export interface FileRouteTypes {
     | '/plano-de-cuidado'
     | '/privacidade'
     | '/respiro'
-    | '/admin/alertas'
-    | '/admin/empresas'
-    | '/admin/funcionarios'
-    | '/admin/leads'
-    | '/admin/licencas'
-    | '/admin/metricas'
-    | '/admin/relatorios'
-    | '/admin/sentimentos'
+    | '/dashiadmin/alertas'
+    | '/dashiadmin/convites'
+    | '/dashiadmin/empresas'
+    | '/dashiadmin/funcionarios'
+    | '/dashiadmin/leads'
+    | '/dashiadmin/licencas'
+    | '/dashiadmin/metricas'
+    | '/dashiadmin/relatorios'
+    | '/dashiadmin/sentimentos'
     | '/dashitecnology/$painelDev'
     | '/manager/convites'
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
     | '/sobre/$slug'
-    | '/admin/'
+    | '/dashiadmin/'
     | '/dashitecnology/'
     | '/manager/'
     | '/sobre/'
@@ -387,21 +397,22 @@ export interface FileRouteTypes {
     | '/plano-de-cuidado'
     | '/privacidade'
     | '/respiro'
-    | '/admin/alertas'
-    | '/admin/empresas'
-    | '/admin/funcionarios'
-    | '/admin/leads'
-    | '/admin/licencas'
-    | '/admin/metricas'
-    | '/admin/relatorios'
-    | '/admin/sentimentos'
+    | '/dashiadmin/alertas'
+    | '/dashiadmin/convites'
+    | '/dashiadmin/empresas'
+    | '/dashiadmin/funcionarios'
+    | '/dashiadmin/leads'
+    | '/dashiadmin/licencas'
+    | '/dashiadmin/metricas'
+    | '/dashiadmin/relatorios'
+    | '/dashiadmin/sentimentos'
     | '/dashitecnology/$painelDev'
     | '/manager/convites'
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
     | '/sobre/$slug'
-    | '/admin'
+    | '/dashiadmin'
     | '/dashitecnology'
     | '/manager'
     | '/sobre'
@@ -424,21 +435,22 @@ export interface FileRouteTypes {
     | '/plano-de-cuidado'
     | '/privacidade'
     | '/respiro'
-    | '/admin/alertas'
-    | '/admin/empresas'
-    | '/admin/funcionarios'
-    | '/admin/leads'
-    | '/admin/licencas'
-    | '/admin/metricas'
-    | '/admin/relatorios'
-    | '/admin/sentimentos'
+    | '/dashiadmin/alertas'
+    | '/dashiadmin/convites'
+    | '/dashiadmin/empresas'
+    | '/dashiadmin/funcionarios'
+    | '/dashiadmin/leads'
+    | '/dashiadmin/licencas'
+    | '/dashiadmin/metricas'
+    | '/dashiadmin/relatorios'
+    | '/dashiadmin/sentimentos'
     | '/dashitecnology/$painelDev'
     | '/manager/convites'
     | '/manager/equipes'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
     | '/sobre/$slug'
-    | '/admin/'
+    | '/dashiadmin/'
     | '/dashitecnology/'
     | '/manager/'
     | '/sobre/'
@@ -462,20 +474,21 @@ export interface RootRouteChildren {
   PlanoDeCuidadoRoute: typeof PlanoDeCuidadoRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   RespiroRoute: typeof RespiroRoute
-  AdminAlertasRoute: typeof AdminAlertasRoute
-  AdminEmpresasRoute: typeof AdminEmpresasRoute
-  AdminFuncionariosRoute: typeof AdminFuncionariosRoute
-  AdminLeadsRoute: typeof AdminLeadsRoute
-  AdminLicencasRoute: typeof AdminLicencasRoute
-  AdminMetricasRoute: typeof AdminMetricasRoute
-  AdminRelatoriosRoute: typeof AdminRelatoriosRoute
-  AdminSentimentosRoute: typeof AdminSentimentosRoute
+  DashiadminAlertasRoute: typeof DashiadminAlertasRoute
+  DashiadminConvitesRoute: typeof DashiadminConvitesRoute
+  DashiadminEmpresasRoute: typeof DashiadminEmpresasRoute
+  DashiadminFuncionariosRoute: typeof DashiadminFuncionariosRoute
+  DashiadminLeadsRoute: typeof DashiadminLeadsRoute
+  DashiadminLicencasRoute: typeof DashiadminLicencasRoute
+  DashiadminMetricasRoute: typeof DashiadminMetricasRoute
+  DashiadminRelatoriosRoute: typeof DashiadminRelatoriosRoute
+  DashiadminSentimentosRoute: typeof DashiadminSentimentosRoute
   DashitecnologyPainelDevRoute: typeof DashitecnologyPainelDevRoute
   ManagerConvitesRoute: typeof ManagerConvitesRoute
   ManagerEquipesRoute: typeof ManagerEquipesRoute
   ManagerRelatoriosRoute: typeof ManagerRelatoriosRoute
   ManagerRhDashboardRoute: typeof ManagerRhDashboardRoute
-  AdminIndexRoute: typeof AdminIndexRoute
+  DashiadminIndexRoute: typeof DashiadminIndexRoute
   DashitecnologyIndexRoute: typeof DashitecnologyIndexRoute
   ManagerIndexRoute: typeof ManagerIndexRoute
   ManagerColaboradorProfileIdRoute: typeof ManagerColaboradorProfileIdRoute
@@ -589,67 +602,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SobreRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/': {
-      id: '/admin/'
-      path: '/admin'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
+    '/dashiadmin/': {
+      id: '/dashiadmin/'
+      path: '/dashiadmin'
+      fullPath: '/dashiadmin/'
+      preLoaderRoute: typeof DashiadminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/alertas': {
-      id: '/admin/alertas'
-      path: '/admin/alertas'
-      fullPath: '/admin/alertas'
-      preLoaderRoute: typeof AdminAlertasRouteImport
+    '/dashiadmin/alertas': {
+      id: '/dashiadmin/alertas'
+      path: '/dashiadmin/alertas'
+      fullPath: '/dashiadmin/alertas'
+      preLoaderRoute: typeof DashiadminAlertasRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/empresas': {
-      id: '/admin/empresas'
-      path: '/admin/empresas'
-      fullPath: '/admin/empresas'
-      preLoaderRoute: typeof AdminEmpresasRouteImport
+    '/dashiadmin/convites': {
+      id: '/dashiadmin/convites'
+      path: '/dashiadmin/convites'
+      fullPath: '/dashiadmin/convites'
+      preLoaderRoute: typeof DashiadminConvitesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/funcionarios': {
-      id: '/admin/funcionarios'
-      path: '/admin/funcionarios'
-      fullPath: '/admin/funcionarios'
-      preLoaderRoute: typeof AdminFuncionariosRouteImport
+    '/dashiadmin/empresas': {
+      id: '/dashiadmin/empresas'
+      path: '/dashiadmin/empresas'
+      fullPath: '/dashiadmin/empresas'
+      preLoaderRoute: typeof DashiadminEmpresasRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/leads': {
-      id: '/admin/leads'
-      path: '/admin/leads'
-      fullPath: '/admin/leads'
-      preLoaderRoute: typeof AdminLeadsRouteImport
+    '/dashiadmin/funcionarios': {
+      id: '/dashiadmin/funcionarios'
+      path: '/dashiadmin/funcionarios'
+      fullPath: '/dashiadmin/funcionarios'
+      preLoaderRoute: typeof DashiadminFuncionariosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/licencas': {
-      id: '/admin/licencas'
-      path: '/admin/licencas'
-      fullPath: '/admin/licencas'
-      preLoaderRoute: typeof AdminLicencasRouteImport
+    '/dashiadmin/leads': {
+      id: '/dashiadmin/leads'
+      path: '/dashiadmin/leads'
+      fullPath: '/dashiadmin/leads'
+      preLoaderRoute: typeof DashiadminLeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/metricas': {
-      id: '/admin/metricas'
-      path: '/admin/metricas'
-      fullPath: '/admin/metricas'
-      preLoaderRoute: typeof AdminMetricasRouteImport
+    '/dashiadmin/licencas': {
+      id: '/dashiadmin/licencas'
+      path: '/dashiadmin/licencas'
+      fullPath: '/dashiadmin/licencas'
+      preLoaderRoute: typeof DashiadminLicencasRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/relatorios': {
-      id: '/admin/relatorios'
-      path: '/admin/relatorios'
-      fullPath: '/admin/relatorios'
-      preLoaderRoute: typeof AdminRelatoriosRouteImport
+    '/dashiadmin/metricas': {
+      id: '/dashiadmin/metricas'
+      path: '/dashiadmin/metricas'
+      fullPath: '/dashiadmin/metricas'
+      preLoaderRoute: typeof DashiadminMetricasRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/sentimentos': {
-      id: '/admin/sentimentos'
-      path: '/admin/sentimentos'
-      fullPath: '/admin/sentimentos'
-      preLoaderRoute: typeof AdminSentimentosRouteImport
+    '/dashiadmin/relatorios': {
+      id: '/dashiadmin/relatorios'
+      path: '/dashiadmin/relatorios'
+      fullPath: '/dashiadmin/relatorios'
+      preLoaderRoute: typeof DashiadminRelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashiadmin/sentimentos': {
+      id: '/dashiadmin/sentimentos'
+      path: '/dashiadmin/sentimentos'
+      fullPath: '/dashiadmin/sentimentos'
+      preLoaderRoute: typeof DashiadminSentimentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashitecnology/': {
@@ -762,20 +782,21 @@ const rootRouteChildren: RootRouteChildren = {
   PlanoDeCuidadoRoute: PlanoDeCuidadoRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   RespiroRoute: RespiroRoute,
-  AdminAlertasRoute: AdminAlertasRoute,
-  AdminEmpresasRoute: AdminEmpresasRoute,
-  AdminFuncionariosRoute: AdminFuncionariosRoute,
-  AdminLeadsRoute: AdminLeadsRoute,
-  AdminLicencasRoute: AdminLicencasRoute,
-  AdminMetricasRoute: AdminMetricasRoute,
-  AdminRelatoriosRoute: AdminRelatoriosRoute,
-  AdminSentimentosRoute: AdminSentimentosRoute,
+  DashiadminAlertasRoute: DashiadminAlertasRoute,
+  DashiadminConvitesRoute: DashiadminConvitesRoute,
+  DashiadminEmpresasRoute: DashiadminEmpresasRoute,
+  DashiadminFuncionariosRoute: DashiadminFuncionariosRoute,
+  DashiadminLeadsRoute: DashiadminLeadsRoute,
+  DashiadminLicencasRoute: DashiadminLicencasRoute,
+  DashiadminMetricasRoute: DashiadminMetricasRoute,
+  DashiadminRelatoriosRoute: DashiadminRelatoriosRoute,
+  DashiadminSentimentosRoute: DashiadminSentimentosRoute,
   DashitecnologyPainelDevRoute: DashitecnologyPainelDevRoute,
   ManagerConvitesRoute: ManagerConvitesRoute,
   ManagerEquipesRoute: ManagerEquipesRoute,
   ManagerRelatoriosRoute: ManagerRelatoriosRoute,
   ManagerRhDashboardRoute: ManagerRhDashboardRoute,
-  AdminIndexRoute: AdminIndexRoute,
+  DashiadminIndexRoute: DashiadminIndexRoute,
   DashitecnologyIndexRoute: DashitecnologyIndexRoute,
   ManagerIndexRoute: ManagerIndexRoute,
   ManagerColaboradorProfileIdRoute: ManagerColaboradorProfileIdRoute,

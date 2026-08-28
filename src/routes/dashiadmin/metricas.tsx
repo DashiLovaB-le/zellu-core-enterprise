@@ -21,7 +21,7 @@ import {
   Bar,
 } from "recharts";
 
-export const Route = createFileRoute("/admin/metricas")({
+export const Route = createFileRoute("/dashiadmin/metricas")({
   head: () => ({
     meta: [
       { title: `Métricas — Admin ${BRANDING.shortName}` },

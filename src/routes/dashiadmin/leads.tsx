@@ -15,7 +15,7 @@ import {
   type LandingLeadStatus,
 } from "@/lib/services/admin-service";
 
-export const Route = createFileRoute("/admin/leads")({
+export const Route = createFileRoute("/dashiadmin/leads")({
   head: () => ({
     meta: [
       { title: `Leads — Admin ${BRANDING.shortName}` },

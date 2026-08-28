@@ -15,7 +15,7 @@ import {
 } from "@/lib/services/admin-service";
 import type { AdminAlertConfig, AdminCompany, AdminEvaluatedAlert } from "@/lib/api/admin.server";
 
-export const Route = createFileRoute("/admin/alertas")({
+export const Route = createFileRoute("/dashiadmin/alertas")({
   head: () => ({
     meta: [
       { title: `Alertas — Admin ${BRANDING.shortName}` },

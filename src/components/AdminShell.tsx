@@ -13,20 +13,25 @@ interface NavItem {
   short?: string;
 }
 
+const ADMIN_HOME = "/dashiadmin" as const;
+
 const NAV: NavItem[] = [
-  { to: "/admin", icon: "dashboard", label: "KPIs", short: "KPIs" },
-  { to: "/admin/leads", icon: "inbox", label: "Leads", short: "Leads" },
-  { to: "/admin/empresas", icon: "apartment", label: "Empresas", short: "Empresas" },
-  { to: "/admin/funcionarios", icon: "badge", label: "Funcionários", short: "Pessoas" },
-  { to: "/admin/licencas", icon: "verified", label: "Licenças", short: "Licenças" },
-  { to: "/admin/metricas", icon: "monitoring", label: "Métricas", short: "Uso" },
-  { to: "/admin/sentimentos", icon: "sentiment_satisfied", label: "Sentimentos", short: "Humor" },
-  { to: "/admin/alertas", icon: "notifications_active", label: "Alertas", short: "Alertas" },
-  { to: "/admin/relatorios", icon: "download", label: "Relatórios", short: "Export" },
+  { to: ADMIN_HOME, icon: "dashboard", label: "KPIs", short: "KPIs" },
+  { to: "/dashiadmin/leads", icon: "inbox", label: "Leads", short: "Leads" },
+  { to: "/dashiadmin/empresas", icon: "apartment", label: "Empresas", short: "Empresas" },
+  { to: "/dashiadmin/funcionarios", icon: "badge", label: "Funcionários", short: "Pessoas" },
+  { to: "/dashiadmin/licencas", icon: "verified", label: "Licenças", short: "Licenças" },
+  { to: "/dashiadmin/convites", icon: "mail", label: "Convites", short: "Convites" },
+  { to: "/dashiadmin/metricas", icon: "monitoring", label: "Métricas", short: "Uso" },
+  { to: "/dashiadmin/sentimentos", icon: "sentiment_satisfied", label: "Sentimentos", short: "Humor" },
+  { to: "/dashiadmin/alertas", icon: "notifications_active", label: "Alertas", short: "Alertas" },
+  { to: "/dashiadmin/relatorios", icon: "download", label: "Relatórios", short: "Export" },
 ];
 
 function isActive(pathname: string, to: string) {
-  if (to === "/admin") return pathname === "/admin" || pathname === "/admin/";
+  if (to === ADMIN_HOME) {
+    return pathname === ADMIN_HOME || pathname === `${ADMIN_HOME}/`;
+  }
   return pathname.startsWith(to);
 }
 
@@ -94,7 +99,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       <div className="hidden min-h-screen bg-slate-50 md:block">
         <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
           <div className="mx-auto flex h-14 max-w-[1400px] items-center justify-between px-6">
-            <Link to="/admin" className="flex items-center gap-2.5">
+            <Link to={ADMIN_HOME} className="flex items-center gap-2.5">
               <img src={logo} alt={BRANDING.appName} className="h-8 w-8" />
               <div className="leading-tight">
                 <span className="font-display text-sm text-slate-800">

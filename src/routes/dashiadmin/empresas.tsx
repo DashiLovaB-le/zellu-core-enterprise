@@ -15,7 +15,7 @@ import {
 } from "@/lib/services/admin-service";
 import type { AdminCompany } from "@/lib/api/admin.server";
 
-export const Route = createFileRoute("/admin/empresas")({
+export const Route = createFileRoute("/dashiadmin/empresas")({
   head: () => ({
     meta: [
       { title: `Empresas — Admin ${BRANDING.shortName}` },

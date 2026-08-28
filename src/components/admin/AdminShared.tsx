@@ -5,7 +5,7 @@ import { AdminShell } from "@/components/AdminShell";
 import { Icon } from "@/components/Icon";
 import { ClayLoader } from "@/components/ClayLoader";
 
-/** Gate de autenticação para rotas /admin/* (admin + dev). */
+/** Gate de autenticação para rotas /dashiadmin/* (admin + dev). */
 export function useAdminGate() {
   const { user, session, loading, role } = useAuth();
   const navigate = useNavigate();

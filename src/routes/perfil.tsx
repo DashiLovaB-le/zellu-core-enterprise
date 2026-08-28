@@ -81,17 +81,17 @@ function PerfilPage() {
   const switchMode = () => {
     if (role === "dev") {
       const currentPath = window.location.pathname;
-      if (currentPath.startsWith("/admin")) {
+      if (currentPath.startsWith("/dashiadmin")) {
         navigate({ to: "/dashitecnology", replace: true });
       } else if (currentPath.startsWith("/dashitecnology")) {
         navigate({ to: "/", replace: true });
       } else if (currentPath.startsWith("/manager")) {
-        navigate({ to: "/admin", replace: true });
+        navigate({ to: "/dashiadmin", replace: true });
       } else {
         navigate({ to: "/manager", replace: true });
       }
     } else if (role === "admin") {
-      navigate({ to: "/admin", replace: true });
+      navigate({ to: "/dashiadmin", replace: true });
     } else {
       const target = role === "manager" ? "/" : "/manager";
       navigate({ to: target, replace: true });
