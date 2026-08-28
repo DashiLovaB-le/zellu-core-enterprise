@@ -1,4 +1,11 @@
 import {
+  listLandingLeads,
+  updateLandingLead,
+  deleteLandingLead,
+  type LandingLead,
+  type LandingLeadStatus,
+} from "@/lib/api/leads.server";
+import {
   getAdminKpis,
   listCompanies,
   upsertCompany,
@@ -227,3 +234,26 @@ export async function downloadAdminPdf(
   const result = await exportAdminPdf({ data: { periodDays } });
   return result.pdfBase64 ?? "";
 }
+
+export async function loadLandingLeads(): Promise<LandingLead[]> {
+  try {
+    const result = await listLandingLeads();
+    return result.data ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function saveLandingLead(payload: {
+  id: string;
+  status?: LandingLeadStatus;
+  notes?: string | null;
+}) {
+  return updateLandingLead({ data: payload });
+}
+
+export async function removeLandingLead(id: string) {
+  return deleteLandingLead({ data: { id } });
+}
+
+export type { LandingLead, LandingLeadStatus };

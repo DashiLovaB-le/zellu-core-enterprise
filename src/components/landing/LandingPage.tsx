@@ -13,23 +13,19 @@ import { CLINICAL_DISCLAIMER } from "@/lib/privacy";
 import { submitLandingLead } from "@/lib/api/leads.server";
 import { CompanionMascot } from "@/components/CompanionMascot";
 import lockup from "@/assets/logo-zellu/lockup.svg";
+import shotCheckin from "@/assets/landing/checkin.png";
+import shotChat from "@/assets/landing/chat.png";
+import shotDashboard from "@/assets/landing/dashboard.png";
+import shotRh from "@/assets/landing/painel-rh.png";
 import "./landing.css";
 
 const ABSENCE = ["A", "u", "s", "ê", "n", "c", "i", "a"];
 
-const VISTA_A = [
-  { k: "Sono", v: "7 h" },
-  { k: "Água", v: "ok" },
-  { k: "Humor", v: "calmo" },
-];
-
-const VISTA_B = [
-  { lit: false, label: "—" },
-  { lit: false, label: "—" },
-  { lit: false, label: "—" },
-  { lit: true, label: "time" },
-  { lit: true, label: "time" },
-];
+const VISTA_A_SHOTS = [
+  { src: shotCheckin, caption: "Check-in matinal", alt: "Recorte do check-in matinal: horas de sono." },
+  { src: shotChat, caption: "Conversa com o companion", alt: "Recorte do chat com o companion Chico." },
+  { src: shotDashboard, caption: "Dashboard emocional", alt: "Recorte do dashboard emocional do colaborador." },
+] as const;
 
 export function LandingPage() {
   const [lit, setLit] = useState(0);
@@ -153,41 +149,35 @@ export function LandingPage() {
         </aside>
       </article>
 
-      <section className="mx-auto max-w-5xl px-6 pb-8 sm:px-10">
-        <div className="grid items-start gap-4 lg:grid-cols-2">
-          <div className="lp-sheet lp-sheet-a p-6 sm:p-8">
-            <p className="font-display text-5xl font-bold leading-none text-[var(--lp-terra)]">A</p>
-            <h2 className="mt-2 font-display text-2xl font-semibold text-[var(--lp-ink)]">A pessoa, no meio do expediente</h2>
-            <p className="mt-3 text-sm leading-relaxed text-[var(--lp-ink-soft)]">
-              Recorte sintético do check-in. O conteúdo real nunca atravessa para o RH.
-            </p>
-            <ul className="mt-6 space-y-3">
-              {VISTA_A.map((row) => (
-                <li key={row.k} className="lp-rule flex items-baseline justify-between pb-2">
-                  <span className="font-display text-lg font-semibold text-[var(--lp-ink)]">{row.k}</span>
-                  <span className="text-[var(--lp-terra-deep)]">{row.v}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="lp-sheet lp-sheet-b p-6 sm:p-8">
-            <p className="font-display text-5xl font-bold leading-none text-[var(--lp-sage-deep)]">B</p>
-            <h2 className="mt-2 font-display text-2xl font-semibold text-[var(--lp-ink)]">O RH, sem a pessoa</h2>
-            <p className="mt-3 text-sm leading-relaxed text-[var(--lp-ink-soft)]">
-              Recorte sintético. Com menos de cinco opt-ins, as células ficam apagadas de propósito.
-            </p>
-            <div className="mt-6 grid grid-cols-5 gap-2">
-              {VISTA_B.map((cell, i) => (
-                <div key={i} className={`lp-cell flex items-end p-1.5 ${cell.lit ? "is-lit" : ""}`}>
-                  <span className={`text-[10px] font-display font-semibold ${cell.lit ? "text-[var(--lp-cream)]" : "text-[var(--lp-sage-deep)]"}`}>
-                    {cell.label}
-                  </span>
-                </div>
-              ))}
-            </div>
+      <section className="lp-vistas px-6 pb-8 sm:px-10" aria-label="Vista A e Vista B">
+        <div className="lp-sheet lp-sheet-a p-6 sm:p-8">
+          <p className="font-display text-5xl font-bold leading-none text-[var(--lp-terra)]">A</p>
+          <h2 className="mt-2 font-display text-2xl font-semibold text-[var(--lp-ink)]">A pessoa, no meio do expediente</h2>
+          <p className="mt-3 max-w-[48ch] text-sm leading-relaxed text-[var(--lp-ink-soft)]">
+            Recortes da conta companion. O que a pessoa registra aqui — humor, conversa, números do dia — não atravessa para o RH.
+          </p>
+          <div className="lp-print-stack">
+            {VISTA_A_SHOTS.map((shot) => (
+              <figure key={shot.caption} className="lp-print">
+                <img src={shot.src} alt={shot.alt} width={1600} height={900} loading="lazy" decoding="async" />
+                <figcaption>{shot.caption}</figcaption>
+              </figure>
+            ))}
           </div>
         </div>
+
+        <div className="lp-sheet lp-sheet-b mt-10 p-6 sm:p-8 lg:mt-14">
+          <p className="font-display text-5xl font-bold leading-none text-[var(--lp-sage-deep)]">B</p>
+          <h2 className="mt-2 font-display text-2xl font-semibold text-[var(--lp-ink)]">O RH, sem a pessoa</h2>
+          <p className="mt-3 max-w-[48ch] text-sm leading-relaxed text-[var(--lp-ink-soft)]">
+            Recorte do painel. Adesão e tendência de equipe — nunca humor, diário ou chat individual. Números de demonstração.
+          </p>
+          <figure className="lp-print lp-print-rh">
+            <img src={shotRh} alt="Recorte do painel RH com indicadores agregados por equipe." width={1600} height={900} loading="lazy" decoding="async" />
+            <figcaption>Painel RH</figcaption>
+          </figure>
+        </div>
+
         <p className="mt-10 max-w-[48ch] text-sm leading-relaxed text-[var(--lp-ink-soft)]">
           As duas vistas não registam. O desalinhamento é a privacidade.
         </p>

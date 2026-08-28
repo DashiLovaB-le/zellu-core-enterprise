@@ -28,6 +28,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAlertasRouteImport } from './routes/admin/alertas'
 import { Route as AdminEmpresasRouteImport } from './routes/admin/empresas'
 import { Route as AdminFuncionariosRouteImport } from './routes/admin/funcionarios'
+import { Route as AdminLeadsRouteImport } from './routes/admin/leads'
 import { Route as AdminLicencasRouteImport } from './routes/admin/licencas'
 import { Route as AdminMetricasRouteImport } from './routes/admin/metricas'
 import { Route as AdminRelatoriosRouteImport } from './routes/admin/relatorios'
@@ -139,6 +140,11 @@ const AdminFuncionariosRoute = AdminFuncionariosRouteImport.update({
   path: '/admin/funcionarios',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLeadsRoute = AdminLeadsRouteImport.update({
+  id: '/admin/leads',
+  path: '/admin/leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminLicencasRoute = AdminLicencasRouteImport.update({
   id: '/admin/licencas',
   path: '/admin/licencas',
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/admin/alertas': typeof AdminAlertasRoute
   '/admin/empresas': typeof AdminEmpresasRoute
   '/admin/funcionarios': typeof AdminFuncionariosRoute
+  '/admin/leads': typeof AdminLeadsRoute
   '/admin/licencas': typeof AdminLicencasRoute
   '/admin/metricas': typeof AdminMetricasRoute
   '/admin/relatorios': typeof AdminRelatoriosRoute
@@ -270,6 +277,7 @@ export interface FileRoutesByTo {
   '/admin/alertas': typeof AdminAlertasRoute
   '/admin/empresas': typeof AdminEmpresasRoute
   '/admin/funcionarios': typeof AdminFuncionariosRoute
+  '/admin/leads': typeof AdminLeadsRoute
   '/admin/licencas': typeof AdminLicencasRoute
   '/admin/metricas': typeof AdminMetricasRoute
   '/admin/relatorios': typeof AdminRelatoriosRoute
@@ -307,6 +315,7 @@ export interface FileRoutesById {
   '/admin/alertas': typeof AdminAlertasRoute
   '/admin/empresas': typeof AdminEmpresasRoute
   '/admin/funcionarios': typeof AdminFuncionariosRoute
+  '/admin/leads': typeof AdminLeadsRoute
   '/admin/licencas': typeof AdminLicencasRoute
   '/admin/metricas': typeof AdminMetricasRoute
   '/admin/relatorios': typeof AdminRelatoriosRoute
@@ -345,6 +354,7 @@ export interface FileRouteTypes {
     | '/admin/alertas'
     | '/admin/empresas'
     | '/admin/funcionarios'
+    | '/admin/leads'
     | '/admin/licencas'
     | '/admin/metricas'
     | '/admin/relatorios'
@@ -380,6 +390,7 @@ export interface FileRouteTypes {
     | '/admin/alertas'
     | '/admin/empresas'
     | '/admin/funcionarios'
+    | '/admin/leads'
     | '/admin/licencas'
     | '/admin/metricas'
     | '/admin/relatorios'
@@ -416,6 +427,7 @@ export interface FileRouteTypes {
     | '/admin/alertas'
     | '/admin/empresas'
     | '/admin/funcionarios'
+    | '/admin/leads'
     | '/admin/licencas'
     | '/admin/metricas'
     | '/admin/relatorios'
@@ -453,6 +465,7 @@ export interface RootRouteChildren {
   AdminAlertasRoute: typeof AdminAlertasRoute
   AdminEmpresasRoute: typeof AdminEmpresasRoute
   AdminFuncionariosRoute: typeof AdminFuncionariosRoute
+  AdminLeadsRoute: typeof AdminLeadsRoute
   AdminLicencasRoute: typeof AdminLicencasRoute
   AdminMetricasRoute: typeof AdminMetricasRoute
   AdminRelatoriosRoute: typeof AdminRelatoriosRoute
@@ -604,6 +617,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFuncionariosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/leads': {
+      id: '/admin/leads'
+      path: '/admin/leads'
+      fullPath: '/admin/leads'
+      preLoaderRoute: typeof AdminLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/licencas': {
       id: '/admin/licencas'
       path: '/admin/licencas'
@@ -745,6 +765,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminAlertasRoute: AdminAlertasRoute,
   AdminEmpresasRoute: AdminEmpresasRoute,
   AdminFuncionariosRoute: AdminFuncionariosRoute,
+  AdminLeadsRoute: AdminLeadsRoute,
   AdminLicencasRoute: AdminLicencasRoute,
   AdminMetricasRoute: AdminMetricasRoute,
   AdminRelatoriosRoute: AdminRelatoriosRoute,

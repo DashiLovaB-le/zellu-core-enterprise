@@ -15,6 +15,7 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { to: "/admin", icon: "dashboard", label: "KPIs", short: "KPIs" },
+  { to: "/admin/leads", icon: "inbox", label: "Leads", short: "Leads" },
   { to: "/admin/empresas", icon: "apartment", label: "Empresas", short: "Empresas" },
   { to: "/admin/funcionarios", icon: "badge", label: "Funcionários", short: "Pessoas" },
   { to: "/admin/licencas", icon: "verified", label: "Licenças", short: "Licenças" },
