@@ -147,7 +147,7 @@ Empresa assina contrato
 ### 7.2 Viabilidade Financeira
 | Fator | Avaliação |
 |---|---|
-| Custo de desenvolvimento | Baixo (ferramentas open-source, Lovable.dev) |
+| Custo de desenvolvimento | Baixo (ferramentas open-source) |
 | Custo operacional mensal | Estimado R$ 500–2.000 (Supabase + OpenRouter) |
 | Break-even | 20–30 empresas clientes (plano Standard) |
 

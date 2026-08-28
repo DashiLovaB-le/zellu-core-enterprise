@@ -249,7 +249,9 @@ describe("LGPD", () => {
     expect(vercel.crons?.[0]?.path).toBe("/api/jobs/retention");
     const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
     expect(pkg.dependencies?.["lightningcss-win32-x64-msvc"]).toBeUndefined();
-    expect(pkg.devDependencies["@lovable.dev/vite-tanstack-config"]).toMatch(/2\.(6|7|8|9)/);
+    expect(vite).toMatch(/@tanstack\/react-start\/plugin\/vite/);
+    expect(vite).not.toMatch(/@lovable\.dev/);
+    expect(pkg.devDependencies["@lovable.dev/vite-tanstack-config"]).toBeUndefined();
   });
 });
 

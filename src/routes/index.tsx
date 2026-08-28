@@ -15,19 +15,34 @@ import { loadStreak } from "@/lib/services/streak-service";
 import type { StreakData } from "@/lib/api/streak-system.server";
 import { MilestoneBanner } from "@/components/MilestoneBanner";
 import { hasCheckinToday } from "@/lib/api/reminders.server";
+import { getAuthSnapshot } from "@/lib/api/auth.server";
 import { BRANDING } from "@/lib/branding";
+import { LandingPage } from "@/components/landing/LandingPage";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: BRANDING.shortName },
+      { title: `${BRANDING.shortName} — ${BRANDING.tagline}` },
       { name: "description", content: BRANDING.description },
     ],
   }),
+  loader: async () => {
+    const snapshot = await getAuthSnapshot();
+    return { guest: !snapshot };
+  },
   component: IndexPage,
 });
 
 function IndexPage() {
+  const { guest } = Route.useLoaderData();
+  const { user, loading } = useAuth();
+  if (guest && !user) return <LandingPage />;
+  if (loading && !user) return <PageLoader />;
+  if (!user) return <LandingPage />;
+  return <CompanionHome />;
+}
+
+function CompanionHome() {
   const { isAuthorized, loading: authLoading } = useRequireAuth("companion");
   const { session } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);

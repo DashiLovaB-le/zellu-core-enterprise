@@ -1,0 +1,187 @@
+{
+  "title": "Como a landing se organiza",
+  "question": "A identidade Zēllu já está decidida. Escolha a composição desta página — o dado sorteou a Carta ao RH.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Carta ao RH",
+      "kicker": "THE ROLL",
+      "lineage": "Carta pessoal do desenvolvedor, com o produto vivendo na margem",
+      "thesis": "A página é uma carta. O produto demonstra na calha. O formulário é o cartão de resposta.",
+      "palette": ["#FDF8F4", "#E5987D", "#92A085", "#4D332D"],
+      "materials": ["papel cream da marca", "urso de feltro", "tinta terracota"],
+      "viewport": "Uma palavra enorme (Ausência) ocupa o primeiro ecrã; o corpo da carta desce à esquerda; o mascote anda na margem; o formulário fecha como cartão de resposta.",
+      "risk": "Pode ler-se como manifesto e esconder o que o produto faz.",
+      "raised": [
+        { "from": "seven-segment", "raise": "A ausência é desenhada: células apagadas até haver gente suficiente — o RH lê o vazio como desenho, não como bug." },
+        { "from": "sewing-pattern", "raise": "Vista A (colaborador) e Vista B (RH) são vistas nomeadas, como num envelope de molde — nunca misturadas." },
+        { "from": "type-specimen", "raise": "Uma só palavra à escala do ecrã carrega o gancho; o resto da hierarquia é contraste de tamanho, não kicker." },
+        { "from": "toy-catalogue", "raise": "O formulário é um objeto real no fim da carta, não um CTA flutuante." },
+        { "from": "screenprint", "raise": "As duas camadas (pessoa e RH) nunca registam por completo — a privacidade é o desalinhamento." },
+        { "from": "deep-dive", "raise": "O scroll desce da ausência à rotina, como um perfil de profundidade, sem virar oceano." }
+      ],
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "Ausência", "x": 0, "y": 0, "w": 12, "h": 3, "accent": true },
+          { "label": "carta", "x": 0, "y": 3, "w": 8, "h": 5 },
+          { "label": "mascote", "x": 8, "y": 3, "w": 4, "h": 5 },
+          { "label": "formulário", "x": 2, "y": 8, "w": 8, "h": 2, "accent": true }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/assigned.webp"
+    },
+    {
+      "id": "structure-shift",
+      "label": "Troca de turno",
+      "lineage": "Um escritório vazio que só revela o painel RH depois do scroll",
+      "thesis": "Primeiro a ausência. Só depois o painel. Os dois nunca no mesmo ecrã — a privacidade é a coreografia.",
+      "palette": ["#FDF8F4", "#E5987D", "#92A085", "#4D332D"],
+      "materials": ["luz de manhã", "mesa vazia", "painel agregado"],
+      "viewport": "Primeiro ecrã: sala sem ferramenta, mascote à porta. Ao descer, o painel RH substitui a sala. O formulário é a placa da porta.",
+      "risk": "Se o segundo ecrã parecer um screenshot de SaaS, a tese cai.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "sala vazia", "x": 0, "y": 0, "w": 12, "h": 5, "accent": true },
+          { "label": "painel RH", "x": 0, "y": 5, "w": 12, "h": 3 },
+          { "label": "placa / form", "x": 3, "y": 8, "w": 6, "h": 2, "accent": true }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/structure-shift.webp"
+    },
+    {
+      "id": "structure-ledger",
+      "label": "Dois livros",
+      "lineage": "Livro-razão partido: vida privada à esquerda, tendência à direita",
+      "thesis": "Dois cadernos que nunca se misturam. A costura do meio é o produto. O formulário senta-se na dobradiça.",
+      "palette": ["#FDF8F4", "#E5987D", "#92A085", "#4D332D"],
+      "materials": ["caderno", "linha de costura sage", "check-in real"],
+      "viewport": "Coluna esquerda: check-in, chat, respiro. Coluna direita: agregados sem nome. Formulário na costura central.",
+      "risk": "Vira a grelha de duas colunas que toda landing de RH já usou.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "privado", "x": 0, "y": 0, "w": 5, "h": 8, "accent": true },
+          { "label": "costura", "x": 5, "y": 0, "w": 2, "h": 8 },
+          { "label": "RH", "x": 7, "y": 0, "w": 5, "h": 8 },
+          { "label": "formulário", "x": 3, "y": 8, "w": 6, "h": 2, "accent": true }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/structure-ledger.webp"
+    },
+    {
+      "id": "challenger-seven-segment",
+      "label": "Máscara de células",
+      "verdict": "competitive",
+      "lineage": "Relógio de segmentos: o apagado também é desenho",
+      "thesis": "O estado da equipe é uma máscara rígida. Células apagadas até o mínimo de pessoas. O vazio é intencional.",
+      "palette": ["#FDF8F4", "#E5987D", "#92A085", "#4D332D"],
+      "materials": ["células sage", "fantasmas de terracota", "dígitos do painel"],
+      "viewport": "Cinco células grandes. Menos de cinco, só o contorno. O formulário é o botão que se segura para ligar.",
+      "case": "Ganha em clareza do k-anonimato; perde no convite humano da validação.",
+      "risk": "Pode parecer um dashboard técnico, não um convite.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "células", "x": 1, "y": 1, "w": 10, "h": 6, "accent": true },
+          { "label": "ligar / form", "x": 3, "y": 8, "w": 6, "h": 2 }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/challenger-seven-segment.webp",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-seven-segment-alarm-clock-hero.webp"
+    },
+    {
+      "id": "challenger-screenprint",
+      "label": "Duas passagens",
+      "verdict": "competitive",
+      "lineage": "Serigrafia: duas tintas que nunca registam por completo",
+      "thesis": "Camada da pessoa e camada do RH. O desalinhamento é a privacidade. O formulário vive no overlap.",
+      "palette": ["#FDF8F4", "#E5987D", "#92A085", "#4D332D"],
+      "materials": ["tinta terracota", "tinta sage", "papel mulberry cream"],
+      "viewport": "Duas camadas translúcidas; marcas de registo nas margens; o form no laranja do overlap.",
+      "case": "Ganha no mecanismo de privacidade; perde na identificação do RH de escritório.",
+      "risk": "Pode ler-se como peça de arte, não como produto para testar.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "camada pessoa", "x": 0, "y": 1, "w": 7, "h": 6, "accent": true },
+          { "label": "camada RH", "x": 5, "y": 2, "w": 7, "h": 6 },
+          { "label": "overlap / form", "x": 3, "y": 8, "w": 6, "h": 2, "accent": true }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/challenger-screenprint.webp",
+      "hero": "https://impeccable.style/worlds/cards/ink-pigment-printmaking-screenprint-transparent-overlap-hero.webp"
+    },
+    {
+      "id": "challenger-specimen",
+      "label": "Espécime tipográfico",
+      "verdict": "declined",
+      "lineage": "Prova de tipo variável",
+      "thesis": "Uma letra gigante que muda de peso com o scroll.",
+      "palette": ["#FDF8F4", "#E5987D", "#92A085", "#4D332D"],
+      "materials": ["tinta", "papel"],
+      "viewport": "Uma letra a encher o ecrã; um slider de eixo.",
+      "case": "Não explica o produto nem convence o RH.",
+      "kept": "Contraste de escala: uma palavra no tamanho do primeiro ecrã.",
+      "risk": "Vira exercício de tipo.",
+      "hero": "https://impeccable.style/worlds/cards/variable-font-specimen-hero.webp"
+    },
+    {
+      "id": "challenger-sewing",
+      "label": "Envelope de molde",
+      "verdict": "declined",
+      "lineage": "Molde de costura, vistas A B C",
+      "thesis": "O produto como peças numeradas e vistas de corte.",
+      "palette": ["#FDF8F4", "#E5987D", "#92A085", "#4D332D"],
+      "materials": ["papel manila", "linha sage"],
+      "viewport": "Frente do envelope com vistas A e B.",
+      "case": "A metáfora da costura não é o mundo do RH brasileiro.",
+      "kept": "Vistas nomeadas: colaborador e RH nunca no mesmo corte.",
+      "risk": "Identificação fraca.",
+      "hero": "https://impeccable.style/worlds/cards/fashion-folded-worlds-sewing-pattern-envelope-hero.webp"
+    },
+    {
+      "id": "challenger-dive",
+      "label": "Perfil de profundidade",
+      "verdict": "declined",
+      "lineage": "Mergulho mesofótico",
+      "thesis": "Descer da superfície calma até onde o problema já chegou.",
+      "palette": ["#FDF8F4", "#E5987D", "#92A085", "#4D332D"],
+      "materials": ["eixo vertical", "luz que some"],
+      "viewport": "Uma coluna de profundidade com o form no retorno.",
+      "case": "A cena oceânica compete com a marca e com o RH.",
+      "kept": "O scroll como descida da ausência até o cuidado.",
+      "risk": "Atmosfera come o convite.",
+      "hero": "https://impeccable.style/worlds/cards/rivers-tides-ocean-depths-mesophotic-deep-dive-hero.webp"
+    },
+    {
+      "id": "challenger-catalogue",
+      "label": "Catálogo de encomenda",
+      "verdict": "declined",
+      "lineage": "Catálogo de brinquedos anos 80",
+      "thesis": "Campo denso com código de encomenda embaixo de cada peça.",
+      "palette": ["#FDF8F4", "#E5987D", "#92A085", "#4D332D"],
+      "materials": ["papel de catálogo", "flash de preço"],
+      "viewport": "Grelha edge-to-edge e um formulário de pedido.",
+      "case": "O tom de catálogo barato fere saúde mental e validação séria.",
+      "kept": "O formulário como objeto de encomenda, não um botão no ar.",
+      "risk": "Tom errado para o tema.",
+      "hero": "https://impeccable.style/worlds/cards/pop-culture-shelf-primary-toy-catalogue-spread-hero.webp"
+    }
+  ],
+  "reroll": {
+    "registers": ["safer", "bolder"]
+  },
+  "buildPath": {
+    "value": "code",
+    "toggle": true
+  },
+  "canon": false,
+  "steer": true
+}

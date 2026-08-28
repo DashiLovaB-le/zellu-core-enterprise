@@ -9,11 +9,12 @@ import type { ReactNode } from "react";
 export function PageTransition({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const reduceMotion = useReducedMotion();
+  const instant = reduceMotion || pathname === "/";
 
   return (
     <motion.div
       key={pathname}
-      initial={{ opacity: 0 }}
+      initial={instant ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{
         duration: reduceMotion ? 0.01 : 1,

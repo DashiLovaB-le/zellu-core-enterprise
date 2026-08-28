@@ -114,7 +114,7 @@ zellu/
 | TanStack Query | ^5.83.0 | Cache |
 | TanStack Start | ^1.168.20 | SSR + server functions |
 | Nitro | 3.0.260603-beta | Runtime — preset `vercel` |
-| @lovable.dev/vite-tanstack-config | 2.6.2 | Wrapper Vite (detectado pela Vercel) |
+| Vite + TanStack Start + Nitro | — | Build SSR (preset Vercel) |
 | Tailwind CSS | ^4.3.3 | Estilo |
 | Supabase JS / SSR | ^2.110.3 / ^0.12.1 | Auth + DB |
 | Zod | ^3.24.2 | Validação |
