@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Zēllu — One-pager para a EpicDigitais</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 0; }
+  :root{
+    --terra:#E5987D; --terra-d:#D48468; --terra-l:#F0B49A;
+    --sage:#92A085; --sage-d:#7E8E72; --sage-l:#A8B69C;
+    --ink:#4D332D; --ink-soft:#5B5248;
+    --cream:#FDF8F4; --cream-deep:#F3EEE1;
+    --display:'Quicksand', 'Nunito Sans', Arial, sans-serif;
+    --body:'Nunito Sans', Arial, sans-serif;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ background:#e9e4dc; }
+  body{ font-family:var(--body); color:var(--ink); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .page{
+    width:210mm; height:297mm; margin:0 auto; background:var(--cream);
+    padding:10mm 13mm 8mm; display:flex; flex-direction:column; gap:4mm; overflow:hidden;
+  }
+  @media screen{ .page{ margin:24px auto; box-shadow:0 10px 40px rgba(77,51,45,.15); } }
+
+  header{ display:flex; justify-content:space-between; align-items:flex-start; }
+  header svg{ height:12mm; width:auto; }
+  .tag{ font:700 8.5pt var(--body); letter-spacing:.14em; text-transform:uppercase; color:var(--sage-d); text-align:right; line-height:1.6; }
+  .tag b{ color:var(--terra-d); }
+
+  .hero h1{ font:700 20pt/1.12 var(--display); letter-spacing:-.01em; }
+  .hero h1 em{ font-style:normal; color:var(--terra-d); }
+  .hero p{ margin-top:2.6mm; font-size:10.5pt; line-height:1.5; color:var(--ink-soft); max-width:165mm; }
+
+  h2{ font:700 8.5pt var(--body); letter-spacing:.14em; text-transform:uppercase; color:var(--sage-d); margin-bottom:2.4mm; }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:4mm; }
+  .card{ background:#fff; border:1px solid var(--cream-deep); border-radius:4mm; padding:4mm 4.4mm; }
+  .card h3{ font:700 11.5pt/1.25 var(--display); margin-bottom:1.6mm; }
+  .card p, .card li{ font-size:9.3pt; line-height:1.45; color:var(--ink-soft); }
+  .card ul{ list-style:none; display:grid; gap:1.3mm; }
+  .card li{ padding-left:4mm; position:relative; }
+  .card li::before{ content:''; position:absolute; left:0; top:1.9mm; width:1.8mm; height:1.8mm; border-radius:50%; background:var(--terra); }
+  .card.sage li::before{ background:var(--sage); }
+
+  .steps{ display:grid; grid-template-columns:repeat(4,1fr); gap:3mm; }
+  .step{ background:var(--cream-deep); border-radius:4mm; padding:3.4mm 3.6mm; }
+  .step .n{ width:6.5mm; height:6.5mm; border-radius:50%; background:var(--terra); color:#fff; font:800 9pt/6.5mm var(--body); text-align:center; margin-bottom:1.8mm; }
+  .step h3{ font:700 10pt/1.25 var(--display); margin-bottom:1mm; }
+  .step p{ font-size:8.6pt; line-height:1.4; color:var(--ink-soft); }
+
+  .pillars{ display:grid; grid-template-columns:repeat(3,1fr); gap:3mm; }
+  .pillar{ border-left:1.2mm solid var(--sage); padding:.6mm 0 .6mm 3.2mm; }
+  .pillar.t{ border-color:var(--terra); }
+  .pillar b{ display:block; font:700 10pt/1.25 var(--display); margin-bottom:.8mm; }
+  .pillar span{ font-size:8.7pt; line-height:1.4; color:var(--ink-soft); }
+
+  .models{ display:grid; grid-template-columns:repeat(3,1fr); gap:3mm; }
+  .model{ background:#fff; border:1px solid var(--cream-deep); border-radius:4mm; padding:3.4mm 3.8mm; }
+  .model.pref{ border:1.4px solid var(--terra); }
+  .model .lbl{ font:800 7.5pt var(--body); letter-spacing:.12em; text-transform:uppercase; color:var(--terra-d); }
+  .model h3{ font:700 10.5pt/1.25 var(--display); margin:1mm 0; }
+  .model p{ font-size:8.7pt; line-height:1.4; color:var(--ink-soft); }
+
+  .cta{ margin-top:auto; background:var(--ink); color:var(--cream); border-radius:4mm; padding:4.4mm 5.4mm; display:flex; justify-content:space-between; align-items:center; gap:6mm; }
+  .cta h3{ font:700 12.5pt/1.25 var(--display); }
+  .cta p{ font-size:9pt; line-height:1.45; opacity:.85; margin-top:1mm; }
+  .cta .contact{ text-align:right; font-size:9pt; line-height:1.6; white-space:nowrap; }
+  .cta .contact b{ font:700 11pt var(--display); color:var(--terra-l); }
+
+  .foot{ font-size:7.5pt; color:var(--ink-soft); opacity:.8; text-align:center; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" role="img" aria-label="Zēllu">
+      <defs>
+        <linearGradient id="lt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0b49a"/><stop offset="0.45" stop-color="#e5987d"/><stop offset="1" stop-color="#d48468"/></linearGradient>
+        <linearGradient id="ls" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8b69c"/><stop offset="0.5" stop-color="#92a085"/><stop offset="1" stop-color="#7e8e72"/></linearGradient>
+        <radialGradient id="ld" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#5c433a"/><stop offset="1" stop-color="#4d332d"/></radialGradient>
+      </defs>
+      <g transform="translate(4,26) scale(1.05)">
+        <path d="M7.5,7.5h54l-30.4,26.75" fill="none" stroke="url(#lt)" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M10.79,50.14h53.29c4.91,0,8.88,3.13,8.88,7h0c0,3.87-3.98,7-8.88,7H10.79c-4.91,0-8.88-3.13-8.88-7h0c0-3.87,3.98-7,8.88-7Z" fill="url(#ls)"/>
+        <circle cx="61.5" cy="37" r="7.5" fill="url(#ld)"/>
+      </g>
+      <text x="100" y="78" fill="#2C2419" font-family="Quicksand, Nunito Sans, Arial, sans-serif" font-size="64" font-weight="700" letter-spacing="-0.02em">Z&#275;llu</text>
+    </svg>
+    <div class="tag">Cuidado emocional no ritmo do trabalho<br><b>Proposta de parceria · EpicDigitais</b></div>
+  </header>
+
+  <section class="hero">
+    <h1>A maioria das empresas só enxerga a saúde mental do time <em>quando o problema já chegou na mesa.</em></h1>
+    <p>O Zēllu é um companheiro digital de bem-estar emocional para empresas. Ele mantém o colaborador num cuidado leve e frequente e entrega ao RH sinais agregados por equipe, sem nunca expor a vida de ninguém. Está pronto, funcionando e com marca própria.</p>
+  </section>
+
+  <section>
+    <h2>Como funciona</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>O RH convida</h3><p>Cada pessoa recebe o convite por e-mail e cria a própria conta.</p></div>
+      <div class="step"><div class="n">2</div><h3>O colaborador escolhe</h3><p>Decide o que compartilha, se usa a IA e se quer lembretes.</p></div>
+      <div class="step"><div class="n">3</div><h3>O cuidado vira rotina</h3><p>Check-in de um minuto, conversa, diário, hábitos e respiração guiada.</p></div>
+      <div class="step"><div class="n">4</div><h3>O RH enxerga o clima</h3><p>Indicadores por equipe, tendências e alertas, sempre agregados.</p></div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <h3>Para o colaborador</h3>
+      <ul>
+        <li>Check-in diário de três perguntas, em um minuto</li>
+        <li>Companheiro com IA para conversar (opcional)</li>
+        <li>Diário, hábitos e plano de cuidado pessoal</li>
+        <li>Espaço do respiro e painel emocional próprio</li>
+      </ul>
+    </div>
+    <div class="card sage">
+      <h3>Para o RH e a gestão</h3>
+      <ul>
+        <li>Painel agregado com tendências por equipe</li>
+        <li>Mapa visual do clima da empresa</li>
+        <li>Alertas precoces e relatórios</li>
+        <li>Gestão de equipes e convites</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>O que torna o Zēllu confiável</h2>
+    <div class="pillars">
+      <div class="pillar"><b>Privacidade de verdade</b><span>O RH nunca vê diário, conversa ou humor individual. Equipes com menos de 5 participantes ficam ocultas.</span></div>
+      <div class="pillar t"><b>Responsável na crise</b><span>Se uma conversa indica situação de crise, o app orienta na hora a buscar ajuda e mostra o CVV (188).</span></div>
+      <div class="pillar"><b>Sem promessa clínica</b><span>Não substitui psicólogo nem terapia: aumenta o engajamento entre os atendimentos especializados.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Por que com a EpicDigitais</h2>
+    <div class="card" style="padding:3.6mm 4.4mm">
+      <p>A Epic já tem relacionamento com empresas que cuidam de pessoas, como a MundoMental, onde surgiu a inspiração para o Zēllu. Juntos, a Epic ganha um produto de saúde emocional corporativa pronto para o portfólio, e o Zēllu ganha um canal de chegada a clientes que já confiam na Epic.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Formatos de parceria que podemos discutir</h2>
+    <div class="models">
+      <div class="model pref"><div class="lbl">Ponto de partida</div><h3>Epic como canal</h3><p>A Epic apresenta o Zēllu aos clientes dela e recebe participação na receita de cada contrato.</p></div>
+      <div class="model"><div class="lbl">Alternativa</div><h3>Licença white-label</h3><p>A Epic oferece o produto com a própria marca, pagando uma licença recorrente.</p></div>
+      <div class="model"><div class="lbl">Longo prazo</div><h3>Sociedade no produto</h3><p>Construímos juntos uma operação dedicada, com participação definida entre as partes.</p></div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div>
+      <h3>Próximo passo sugerido</h3>
+      <p>Uma demonstração de 20 minutos e, se fizer sentido, um piloto com um cliente da Epic.</p>
+    </div>
+    <div class="contact">
+      <b>Gabriell</b><br>
+      Criador do Zēllu<br>
+      [seu e-mail] · [seu WhatsApp]
+    </div>
+  </section>
+
+  <div class="foot">Zēllu é um produto independente, desenvolvido e mantido pela Dashitecnology. Documento confidencial, preparado para a EpicDigitais.</div>
+</div>
+</body>
+</html>

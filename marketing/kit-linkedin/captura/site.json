@@ -1,0 +1,343 @@
+{
+  "url": "https://zellu-core-enterprise.vercel.app/",
+  "titulo": "Zēllu — Cuidado emocional no ritmo do trabalho",
+  "descricao": "Companion digital de bem-estar emocional corporativo — acompanha colaboradores no dia a dia e entrega sinais agregados para RH, com privacidade e isolamento por empresa.",
+  "idioma": "pt-BR",
+  "og": {
+    "titulo": "Zēllu",
+    "imagem": "https://zellu-core-enterprise.vercel.app/logo.svg",
+    "site": null
+  },
+  "alturaPagina": 5000,
+  "paleta": [
+    {
+      "cor": "#fdf8f4",
+      "participacao": 90.6
+    },
+    {
+      "cor": "#4d332d",
+      "participacao": 3.8
+    },
+    {
+      "cor": "#5b5248",
+      "participacao": 3.3
+    },
+    {
+      "cor": "#e5987d",
+      "participacao": 1.6
+    },
+    {
+      "cor": "#7e8e72",
+      "participacao": 0.7
+    }
+  ],
+  "destaques": [
+    {
+      "cor": "#4d332d",
+      "usos": 14
+    },
+    {
+      "cor": "#e5987d",
+      "usos": 10
+    }
+  ],
+  "variaveis": {
+    "--font-sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", \"Noto Sans\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+    "--font-mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+    "--color-red-50": "oklch(97.1% .013 17.38)",
+    "--color-red-100": "oklch(93.6% .032 17.717)",
+    "--color-red-400": "oklch(70.4% .191 22.216)",
+    "--color-red-500": "oklch(63.7% .237 25.331)",
+    "--color-red-600": "oklch(57.7% .245 27.325)",
+    "--color-red-700": "oklch(50.5% .213 27.518)",
+    "--color-red-800": "oklch(44.4% .177 26.899)",
+    "--color-orange-50": "oklch(98% .016 73.684)",
+    "--color-orange-700": "oklch(55.3% .195 38.402)",
+    "--color-orange-800": "oklch(47% .157 37.304)",
+    "--color-amber-50": "oklch(98.7% .022 95.277)",
+    "--color-amber-200": "oklch(92.4% .12 95.746)",
+    "--color-amber-500": "oklch(76.9% .188 70.08)",
+    "--color-amber-700": "oklch(55.5% .163 48.998)",
+    "--color-amber-900": "oklch(41.4% .112 45.904)",
+    "--color-yellow-50": "oklch(98.7% .026 102.212)",
+    "--color-yellow-100": "oklch(97.3% .071 103.193)",
+    "--color-yellow-400": "oklch(85.2% .199 91.936)",
+    "--color-yellow-800": "oklch(47.6% .114 61.907)",
+    "--color-green-50": "oklch(98.2% .018 155.826)",
+    "--color-green-100": "oklch(96.2% .044 156.743)",
+    "--color-green-600": "oklch(62.7% .194 149.214)",
+    "--color-green-700": "oklch(52.7% .154 150.069)",
+    "--color-green-800": "oklch(44.8% .119 151.328)",
+    "--color-emerald-50": "oklch(97.9% .021 166.113)",
+    "--color-emerald-600": "oklch(59.6% .145 163.225)",
+    "--color-emerald-700": "oklch(50.8% .118 165.612)",
+    "--color-sky-50": "oklch(97.7% .013 236.62)",
+    "--color-sky-100": "oklch(95.1% .026 236.824)",
+    "--color-sky-200": "oklch(90.1% .058 230.902)",
+    "--color-sky-500": "oklch(68.5% .169 237.323)",
+    "--color-sky-700": "oklch(50% .134 242.749)",
+    "--color-blue-50": "oklch(97% .014 254.604)",
+    "--color-blue-400": "oklch(70.7% .165 254.624)",
+    "--color-blue-700": "oklch(48.8% .243 264.376)",
+    "--color-violet-50": "oklch(96.9% .016 293.756)",
+    "--color-violet-700": "oklch(49.1% .27 292.581)",
+    "--color-rose-50": "oklch(96.9% .015 12.422)",
+    "--color-rose-200": "oklch(89.2% .058 10.001)",
+    "--color-rose-500": "oklch(64.5% .246 16.439)",
+    "--color-rose-600": "oklch(58.6% .253 17.585)",
+    "--color-rose-700": "oklch(51.4% .222 16.935)",
+    "--color-slate-50": "oklch(98.4% .003 247.858)",
+    "--color-slate-100": "oklch(96.8% .007 247.896)",
+    "--color-slate-200": "oklch(92.9% .013 255.508)",
+    "--color-slate-300": "oklch(86.9% .022 252.894)",
+    "--color-slate-400": "oklch(70.4% .04 256.788)",
+    "--color-slate-500": "oklch(55.4% .046 257.417)",
+    "--color-slate-600": "oklch(44.6% .043 257.281)",
+    "--color-slate-700": "oklch(37.2% .044 257.287)",
+    "--color-slate-800": "oklch(27.9% .041 260.031)",
+    "--color-slate-900": "oklch(20.8% .042 265.755)",
+    "--color-gray-100": "oklch(96.7% .003 264.542)",
+    "--color-gray-600": "oklch(44.6% .03 256.802)",
+    "--color-black": "#000",
+    "--color-white": "#fff",
+    "--font-weight-normal": "400",
+    "--font-weight-medium": "500",
+    "--font-weight-semibold": "600",
+    "--font-weight-bold": "700",
+    "--default-font-family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", \"Noto Sans\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+    "--default-mono-font-family": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+    "--color-background": "oklch(94.5% .022 84)",
+    "--color-foreground": "oklch(38% .025 260)",
+    "--color-border": "oklch(88% .02 80)",
+    "--font-display": "\"Quicksand\", system-ui, sans-serif",
+    "--font-body": "\"Nunito Sans\", system-ui, sans-serif",
+    "--radius": "1rem",
+    "--primary": "oklch(78% .045 250)",
+    "--primary-foreground": "oklch(25% .04 254)",
+    "--accent": "oklch(85% .03 250)",
+    "--accent-foreground": "oklch(25% .04 254)",
+    "--icon-accent": "#d7cbe8"
+  },
+  "tipografia": {
+    "corpo": {
+      "exemplo": "Já tenho acessoAusênciaA empresa ainda não acompanha o que o colaborador sente n",
+      "fonte": "\"Nunito Sans\", system-ui, sans-serif",
+      "tamanho": "16px",
+      "peso": "400",
+      "entrelinha": "24px",
+      "espacamento": "normal",
+      "caixa": "none",
+      "cor": null,
+      "fundo": null,
+      "raio": "0px",
+      "sombra": null
+    },
+    "h1": {
+      "exemplo": "Ausência",
+      "fonte": "Quicksand, system-ui, sans-serif",
+      "tamanho": "168px",
+      "peso": "700",
+      "entrelinha": "137.76px",
+      "espacamento": "-7.56px",
+      "caixa": "none",
+      "cor": "#e5987d",
+      "fundo": null,
+      "raio": "0px",
+      "sombra": null
+    },
+    "h2": {
+      "exemplo": "A pessoa, no meio do expediente",
+      "fonte": "Quicksand, system-ui, sans-serif",
+      "tamanho": "24px",
+      "peso": "600",
+      "entrelinha": "32px",
+      "espacamento": "-0.48px",
+      "caixa": "none",
+      "cor": "#4d332d",
+      "fundo": null,
+      "raio": "0px",
+      "sombra": null
+    },
+    "h3": null,
+    "botao": {
+      "exemplo": "Quero testar",
+      "fonte": "Quicksand, system-ui, sans-serif",
+      "tamanho": "16px",
+      "peso": "700",
+      "entrelinha": "24px",
+      "espacamento": "-0.32px",
+      "caixa": "none",
+      "cor": "#fdf8f4",
+      "fundo": "#e5987d",
+      "raio": "0px",
+      "sombra": null
+    },
+    "link": {
+      "exemplo": "",
+      "fonte": "\"Nunito Sans\", system-ui, sans-serif",
+      "tamanho": "16px",
+      "peso": "400",
+      "entrelinha": "24px",
+      "espacamento": "normal",
+      "caixa": "none",
+      "cor": "#4d332d",
+      "fundo": null,
+      "raio": "0px",
+      "sombra": null
+    }
+  },
+  "fontes": [
+    "Nunito Sans",
+    "Quicksand"
+  ],
+  "linksFontes": [
+    "https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito%20Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap",
+    "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap",
+    "https://fonts.googleapis.com/"
+  ],
+  "conteudo": {
+    "titulos": [
+      "A u s ê n c i a",
+      "A pessoa, no meio do expediente",
+      "O RH, sem a pessoa",
+      "Resposta"
+    ],
+    "paragrafos": [
+      "A empresa ainda não acompanha o que o colaborador sente no meio da semana.",
+      "Eu sou desenvolvedor. Não sou de RH e não sou terapeuta. Tem uma coisa que eu via de perto e que não saía da cabeça.",
+      "Tem vale, tem ginástica, tem o ramal do RH. Ferramenta para acompanhar o que a pessoa está sentindo no dia a dia — quase nunca. Saúde mental, quando aparece, aparece tarde: atestado, pedido de ajuda, alguém que já não está bem. Até lá, a pessoa carrega sozinha. E o RH só fica sabendo quando o problema já chegou na mesa.",
+      "Foi essa ausência que me fez construir o Zēllu: um companion no ritmo do trabalho. Check-in, conversa, respiro — sem fingir que isso substitui terapia. Do outro lado, tendência de equipe, nunca o diário de ninguém.",
+      "Passei mais tempo pensando em privacidade do que em feature. Se a pessoa não confia, ela não usa. Se o RH vê demais, o produto deixa de fazer sentido.",
+      "Agora estamos em validação. Validar isso sem quem vive o RH no dia a dia não faz sentido. Se a carta te encontrou, o cartão ao lado é o lugar de responder.",
+      "Recortes da conta companion. O que a pessoa registra aqui — humor, conversa, números do dia — não atravessa para o RH.",
+      "Recorte do painel. Adesão e tendência de equipe — nunca humor, diário ou chat individual. Números de demonstração.",
+      "As duas vistas não registam. O desalinhamento é a privacidade.",
+      "Se você é de RH, topa validar isso com a gente? Sem pitch. A gente lê e chama.",
+      "Este aplicativo não substitui atendimento psicológico, psiquiátrico, terapia nem diagnóstico. É um companion de bem-estar e autocuidado, não um serviço clínico. Privacidade · Sobre"
+    ],
+    "chamadas": [
+      "Já tenho acesso",
+      "Responder a carta",
+      "Quero testar",
+      "Privacidade",
+      "Sobre"
+    ],
+    "precos": [],
+    "numeros": []
+  },
+  "contato": {
+    "emails": [],
+    "telefones": [],
+    "whatsapp": [],
+    "redes": []
+  },
+  "navegacao": [
+    {
+      "texto": "Já tenho acesso",
+      "url": "https://zellu-core-enterprise.vercel.app/login"
+    },
+    {
+      "texto": "Privacidade",
+      "url": "https://zellu-core-enterprise.vercel.app/privacidade"
+    },
+    {
+      "texto": "Sobre",
+      "url": "https://zellu-core-enterprise.vercel.app/sobre"
+    }
+  ],
+  "secoes": [
+    {
+      "y": 80,
+      "altura": 828,
+      "tag": "section",
+      "id": null,
+      "titulo": "A u s ê n c i a",
+      "arquivo": "secoes/secao-01.png"
+    },
+    {
+      "y": 4865,
+      "altura": 135,
+      "tag": "footer",
+      "id": null,
+      "titulo": "Este aplicativo não substitui atendimento psicológico, psiqu",
+      "arquivo": "secoes/secao-02.png"
+    }
+  ],
+  "ativos": {
+    "logo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MjAgMTIwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IlplbGx1IGxvY2t1cCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImxvY2t1cC10ZXJyYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmMGI0OWEiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQ1IiBzdG9wLWNvbG9yPSIjZTU5ODdkIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2Q0ODQ2OCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ibG9ja3VwLXNhZ2UiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYThiNjljIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC41IiBzdG9wLWNvbG9yPSIjOTJhMDg1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzdlOGU3MiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibG9ja3VwLWRvdCIgY3g9IjM1JSIgY3k9IjMwJSIgcj0iNzAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNWM0MzNhIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzRkMzMyZCIvPgogICAgPC9yYWRpYWxHcmFkaWVudD4KICA8L2RlZnM+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNCwyNikgc2NhbGUoMS4wNSkiPgogICAgPHBhdGggZD0iTTcuNSw3LjVoNTRsLTMwLjQsMjYuNzUiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNsb2NrdXAtdGVycmEpIiBzdHJva2Utd2lkdGg9IjE1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0xMC43OSw1MC4xNGg1My4yOWM0LjkxLDAsOC44OCwzLjEzLDguODgsN2gwYzAsMy44Ny0zLjk4LDctOC44OCw3SDEwLjc5Yy00LjkxLDAtOC44OC0zLjEzLTguODgtN2gwYzAtMy44NywzLjk4LTcsOC44OC03WiIgZmlsbD0idXJsKCNsb2NrdXAtc2FnZSkiLz4KICAgIDxjaXJjbGUgY3g9IjYxLjUiIGN5PSIzNyIgcj0iNy41IiBmaWxsPSJ1cmwoI2xvY2t1cC1kb3QpIi8+CiAgPC9nPgogIDx0ZXh0IHg9IjEwMCIgeT0iNzgiIGZpbGw9IiMyQzI0MTkiIGZvbnQtZmFtaWx5PSJRdWlja3NhbmQsIE51bml0byBTYW5zLCBBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI2NCIgZm9udC13ZWlnaHQ9IjcwMCIgbGV0dGVyLXNwYWNpbmc9Ii0wLjAyZW0iPlomIzI3NTtsbHU8L3RleHQ+Cjwvc3ZnPgo=",
+    "logoSvg": null,
+    "ogImage": "https://zellu-core-enterprise.vercel.app/logo.svg",
+    "icones": [
+      {
+        "url": "https://zellu-core-enterprise.vercel.app/favicon.svg",
+        "tamanhos": null
+      },
+      {
+        "url": "https://zellu-core-enterprise.vercel.app/logo.svg",
+        "tamanhos": null
+      },
+      {
+        "url": "https://zellu-core-enterprise.vercel.app/favicon.svg",
+        "tamanhos": null
+      }
+    ]
+  },
+  "imagens": [
+    {
+      "url": "https://zellu-core-enterprise.vercel.app/assets/wave-lg-DMlXILAv.png",
+      "alt": "",
+      "largura": 1145,
+      "altura": 1374,
+      "y": 604
+    },
+    {
+      "url": "https://zellu-core-enterprise.vercel.app/assets/idlecalm-md-CVL3_gxB.png",
+      "alt": "",
+      "largura": 1086,
+      "altura": 1448,
+      "y": 988
+    },
+    {
+      "url": "https://zellu-core-enterprise.vercel.app/assets/checkin-D7fEwcRO.png",
+      "alt": "Recorte do check-in matinal: horas de sono.",
+      "largura": 1024,
+      "altura": 482,
+      "y": 1870
+    },
+    {
+      "url": "https://zellu-core-enterprise.vercel.app/assets/chat-BKKU-mSd.png",
+      "alt": "Recorte do chat com o companion Chico.",
+      "largura": 1024,
+      "altura": 478,
+      "y": 2359
+    },
+    {
+      "url": "https://zellu-core-enterprise.vercel.app/assets/dashboard-B6RwMvUO.png",
+      "alt": "Recorte do dashboard emocional do colaborador.",
+      "largura": 1024,
+      "altura": 482,
+      "y": 2829
+    },
+    {
+      "url": "https://zellu-core-enterprise.vercel.app/assets/painel-rh-YF3hFurf.png",
+      "alt": "Recorte do painel RH com indicadores agregados por equipe.",
+      "largura": 1024,
+      "altura": 486,
+      "y": 3556
+    }
+  ],
+  "ativosBaixados": [
+    {
+      "arquivo": "ativos/logo.svg",
+      "origem": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MjAgMTIwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IlplbGx1IGxvY2t1cCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImxvY2t1cC10ZXJyYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmMGI0OWEiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQ1IiBzdG9wLWNvbG9yPSIjZTU5ODdkIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2Q0ODQ2OCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ibG9ja3VwLXNhZ2UiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYThiNjljIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC41IiBzdG9wLWNvbG9yPSIjOTJhMDg1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzdlOGU3MiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibG9ja3VwLWRvdCIgY3g9IjM1JSIgY3k9IjMwJSIgcj0iNzAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNWM0MzNhIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzRkMzMyZCIvPgogICAgPC9yYWRpYWxHcmFkaWVudD4KICA8L2RlZnM+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNCwyNikgc2NhbGUoMS4wNSkiPgogICAgPHBhdGggZD0iTTcuNSw3LjVoNTRsLTMwLjQsMjYuNzUiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNsb2NrdXAtdGVycmEpIiBzdHJva2Utd2lkdGg9IjE1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0xMC43OSw1MC4xNGg1My4yOWM0LjkxLDAsOC44OCwzLjEzLDguODgsN2gwYzAsMy44Ny0zLjk4LDctOC44OCw3SDEwLjc5Yy00LjkxLDAtOC44OC0zLjEzLTguODgtN2gwYzAtMy44NywzLjk4LTcsOC44OC03WiIgZmlsbD0idXJsKCNsb2NrdXAtc2FnZSkiLz4KICAgIDxjaXJjbGUgY3g9IjYxLjUiIGN5PSIzNyIgcj0iNy41IiBmaWxsPSJ1cmwoI2xvY2t1cC1kb3QpIi8+CiAgPC9nPgogIDx0ZXh0IHg9IjEwMCIgeT0iNzgiIGZpbGw9IiMyQzI0MTkiIGZvbnQtZmFtaWx5PSJRdWlja3NhbmQsIE51bml0byBTYW5zLCBBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI2NCIgZm9udC13ZWlnaHQ9IjcwMCIgbGV0dGVyLXNwYWNpbmc9Ii0wLjAyZW0iPlomIzI3NTtsbHU8L3RleHQ+Cjwvc3ZnPgo="
+    },
+    {
+      "arquivo": "ativos/og.svg",
+      "origem": "https://zellu-core-enterprise.vercel.app/logo.svg"
+    },
+    {
+      "arquivo": "ativos/icone.svg",
+      "origem": "https://zellu-core-enterprise.vercel.app/favicon.svg"
+    }
+  ]
+}

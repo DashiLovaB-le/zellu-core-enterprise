@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Zellu app icon">
+  <defs>
+    <linearGradient id="app-terra" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f0b49a"/>
+      <stop offset="0.45" stop-color="#e5987d"/>
+      <stop offset="1" stop-color="#d48468"/>
+    </linearGradient>
+    <linearGradient id="app-sage" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a8b69c"/>
+      <stop offset="0.5" stop-color="#92a085"/>
+      <stop offset="1" stop-color="#7e8e72"/>
+    </linearGradient>
+    <radialGradient id="app-dot" cx="35%" cy="30%" r="70%">
+      <stop offset="0" stop-color="#5c433a"/>
+      <stop offset="1" stop-color="#4d332d"/>
+    </radialGradient>
+    <linearGradient id="app-cream" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDF8F4"/>
+      <stop offset="100%" stop-color="#F3EEE1"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#app-cream)"/>
+  <g transform="translate(24,28) scale(1.1)">
+    <path d="M7.5,7.5h54l-30.4,26.75" fill="none" stroke="url(#app-terra)" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M10.79,50.14h53.29c4.91,0,8.88,3.13,8.88,7h0c0,3.87-3.98,7-8.88,7H10.79c-4.91,0-8.88-3.13-8.88-7h0c0-3.87,3.98-7,8.88-7Z" fill="url(#app-sage)"/>
+    <circle cx="61.5" cy="37" r="7.5" fill="url(#app-dot)"/>
+  </g>
+</svg>

@@ -137,7 +137,7 @@ export const submitLandingLead = createServerFn({ method: "POST" })
       `,
     });
 
-    if (result.skipped) {
+    if (!result.sent && result.skipped) {
       await markLeadEmail(saved.id, "skipped", null);
       return { ok: true, delivered: false };
     }

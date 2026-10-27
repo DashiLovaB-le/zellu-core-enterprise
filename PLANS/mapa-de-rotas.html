@@ -159,6 +159,33 @@
     .badge.dev { background: var(--dev); }
     .badge.redirect { background: var(--redirect); }
 
+    .open-route {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      color: #fff;
+      background: var(--ink);
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 0.78rem;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .open-route:hover {
+      background: #334155;
+      transform: translateY(-1px);
+    }
+
+    .open-route:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
     .route h3 {
       margin: 0;
       font-size: 1.05rem;
@@ -194,11 +221,13 @@
         Inventário das rotas atuais do <strong>Zēllu</strong> (TanStack Router),
         agrupadas por público: colaborador (Companion), RH (Manager), super-admin e ferramentas internas.
         Entrada B2B é por <strong>convite</strong> — não há cadastro aberto com escolha de papel.
+        Cada card abre a rota em <code>http://localhost:3000</code> numa nova aba.
       </p>
       <div class="meta">
-        <span class="chip">31 rotas mapeadas</span>
-        <span class="chip">Atualizado em 26/08/2026</span>
+        <span class="chip">37 rotas mapeadas</span>
+        <span class="chip">Atualizado em 04/10/2026</span>
         <span class="chip">Fonte: <code>src/routes/</code></span>
+        <span class="chip">Preview: <code>localhost:3000</code></span>
       </div>
     </header>
 
@@ -217,14 +246,29 @@
       <div class="routes">
         <article class="route">
           <div class="route-top">
+            <span class="path">/</span>
+            <span class="badge public">Público</span>
+            <h3>Landing de validação</h3>
+            <a class="open-route" href="http://localhost:3000/" target="_blank" rel="noopener noreferrer">Abrir rota</a>
+          </div>
+          <p>
+            Visitante não autenticado vê a carta ao RH e o formulário de interesse.
+            Colaborador autenticado nesta mesma URL cai no dashboard emocional.
+          </p>
+          <div class="file">src/routes/index.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
             <span class="path">/login</span>
             <span class="badge public">Público</span>
             <h3>Login</h3>
+            <a class="open-route" href="http://localhost:3000/login" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Autenticação por e-mail e senha. Sem cadastro aberto. Exibe disclaimer clínico e
             links para convite e política de privacidade. Após login, redireciona por role:
-            Admin → <code>/admin</code>, Manager → <code>/manager/rh-dashboard</code>, Companion → <code>/</code>.
+            Admin → <code>/dashiadmin</code>, Manager → <code>/manager/rh-dashboard</code>, Companion → <code>/</code>.
           </p>
           <div class="file">src/routes/login.tsx</div>
         </article>
@@ -234,6 +278,7 @@
             <span class="path">/aceitar-convite?token=…</span>
             <span class="badge public">Público</span>
             <h3>Aceitar convite</h3>
+            <a class="open-route" href="http://localhost:3000/aceitar-convite" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Ativa a conta com o token do convite da empresa: cria usuário Auth, vincula
@@ -248,12 +293,39 @@
             <span class="path">/privacidade</span>
             <span class="badge public">Público</span>
             <h3>Política de privacidade (LGPD)</h3>
+            <a class="open-route" href="http://localhost:3000/privacidade" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Termo LGPD v3.0: tratamento de dados, IA (ZDR), retenção, opt-ins de RH/e-mail,
             direitos do titular e canais de contato (DPO / incidentes).
           </p>
           <div class="file">src/routes/privacidade.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/sobre</span>
+            <span class="badge public">Público</span>
+            <h3>Sobre o Zēllu</h3>
+            <a class="open-route" href="http://localhost:3000/sobre" target="_blank" rel="noopener noreferrer">Abrir rota</a>
+          </div>
+          <p>
+            Páginas institucionais (layout próprio): o que é o produto, colaborador, RH e privacidade.
+          </p>
+          <div class="file">src/routes/sobre/index.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/sobre/$slug</span>
+            <span class="badge public">Público</span>
+            <h3>Artigo institucional</h3>
+            <a class="open-route" href="http://localhost:3000/sobre/o-que-e" target="_blank" rel="noopener noreferrer">Abrir rota</a>
+          </div>
+          <p>
+            Artigo por slug. Exemplo aberto pelo botão: <code>/sobre/o-que-e</code>.
+          </p>
+          <div class="file">src/routes/sobre/$slug.tsx</div>
         </article>
       </div>
     </section>
@@ -271,6 +343,7 @@
             <span class="path">/onboarding</span>
             <span class="badge companion">Companion</span>
             <h3>Onboarding / consentimento</h3>
+            <a class="open-route" href="http://localhost:3000/onboarding" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Fluxo pós-convite: termo LGPD + maioridade + opt-ins (IA, RH agregado, e-mail),
@@ -285,10 +358,11 @@
             <span class="path">/</span>
             <span class="badge companion">Companion</span>
             <h3>Dashboard Emocional (Home)</h3>
+            <a class="open-route" href="http://localhost:3000/" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
-            Página inicial do colaborador. Mostra evolução emocional, insights, alertas
-            preventivos e marcos de sequência (streak). Ponto central de acompanhamento.
+            Página inicial do colaborador autenticado. Mostra evolução emocional, insights, alertas
+            preventivos e marcos de sequência (streak). Sem sessão, a mesma URL é a landing.
           </p>
           <div class="file">src/routes/index.tsx</div>
         </article>
@@ -298,6 +372,7 @@
             <span class="path">/chat</span>
             <span class="badge companion">Companion</span>
             <h3>Chat com IA</h3>
+            <a class="open-route" href="http://localhost:3000/chat" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Companion digital com histórico confiável do servidor, memória curada,
@@ -312,6 +387,7 @@
             <span class="path">/checkin</span>
             <span class="badge companion">Companion</span>
             <h3>Check-in matinal</h3>
+            <a class="open-route" href="http://localhost:3000/checkin" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Registro do dia em 3 etapas (sono → água → humor). Um check-in por dia.
@@ -325,6 +401,7 @@
             <span class="path">/diario</span>
             <span class="badge companion">Companion</span>
             <h3>Meu Diário / Timeline</h3>
+            <a class="open-route" href="http://localhost:3000/diario" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Timeline de registros emocionais: entradas, humor, insight da jornada e
@@ -338,6 +415,7 @@
             <span class="path">/meu-bem-estar</span>
             <span class="badge companion">Companion</span>
             <h3>Meu Bem-estar</h3>
+            <a class="open-route" href="http://localhost:3000/meu-bem-estar" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Visão consolidada do dia: água, sono, humor, movimento, respiração, energia
@@ -351,6 +429,7 @@
             <span class="path">/respiro</span>
             <span class="badge companion">Companion</span>
             <h3>Espaço do Respiro</h3>
+            <a class="open-route" href="http://localhost:3000/respiro" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Exercício de respiração guiada para pausas curtas. Acessível direto ou via
@@ -364,6 +443,7 @@
             <span class="path">/plano-de-cuidado</span>
             <span class="badge companion">Companion</span>
             <h3>Plano de Cuidado</h3>
+            <a class="open-route" href="http://localhost:3000/plano-de-cuidado" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Objetivo pessoal + checklist diário (água, caminhada, respirar, conversar),
@@ -377,6 +457,7 @@
             <span class="path">/perfil</span>
             <span class="badge companion">Companion</span>
             <h3>Perfil</h3>
+            <a class="open-route" href="http://localhost:3000/perfil" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Conta, avatar, tema, opt-ins de privacidade, exportar dados, excluir conta e
@@ -391,8 +472,7 @@
       <h2>Manager / RH</h2>
       <p class="section-desc">
         Painel B2B para gestores. Role <code>manager</code>. KPIs agregados com opt-in RH
-        e k-anonimato; diário/chat/humor individual não são expostos. Nav: Dashboard RH ·
-        Equipes · Relatórios · Pessoas · Perfil.
+        e k-anonimato; diário/chat/humor individual não são expostos.
       </p>
       <div class="routes">
         <article class="route">
@@ -400,6 +480,7 @@
             <span class="path">/manager/rh-dashboard</span>
             <span class="badge manager">Manager</span>
             <h3>Dashboard RH</h3>
+            <a class="open-route" href="http://localhost:3000/manager/rh-dashboard" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Home operacional do RH: KPIs agregados da própria empresa via RPC
@@ -410,9 +491,23 @@
 
         <article class="route">
           <div class="route-top">
+            <span class="path">/manager/mapa</span>
+            <span class="badge manager">Manager</span>
+            <h3>Mapa da empresa</h3>
+            <a class="open-route" href="http://localhost:3000/manager/mapa" target="_blank" rel="noopener noreferrer">Abrir rota</a>
+          </div>
+          <p>
+            Visão espacial das equipes com indicadores agregados de bem-estar.
+          </p>
+          <div class="file">src/routes/manager/mapa.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
             <span class="path">/manager/equipes</span>
             <span class="badge manager">Manager</span>
             <h3>Equipes</h3>
+            <a class="open-route" href="http://localhost:3000/manager/equipes" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Lista de times da empresa com status agregado (Estável / Monitorar / Atenção)
@@ -426,10 +521,12 @@
             <span class="path">/manager/equipe/$teamId</span>
             <span class="badge manager">Manager</span>
             <h3>Detalhe da equipe</h3>
+            <a class="open-route" href="http://localhost:3000/manager/equipe/$teamId" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Roster do time, edição de nome, inclusão/remoção de membros e sinais de
             bem-estar agregados/sinais operacionais por colaborador (sem conteúdo clínico).
+            O botão usa o padrão da rota; substitua <code>$teamId</code> por um UUID real.
           </p>
           <div class="file">src/routes/manager/equipe/$teamId.tsx</div>
         </article>
@@ -439,10 +536,12 @@
             <span class="path">/manager/colaborador/$profileId</span>
             <span class="badge manager">Manager</span>
             <h3>Resumo do colaborador</h3>
+            <a class="open-route" href="http://localhost:3000/manager/colaborador/$profileId" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Ficha operacional: participação, tendência, sono e status de bem-estar
             resumidos + edição de cargo. Não exibe diário, chat nem humor bruto.
+            O botão usa o padrão da rota; substitua <code>$profileId</code> por um UUID real.
           </p>
           <div class="file">src/routes/manager/colaborador/$profileId.tsx</div>
         </article>
@@ -452,6 +551,7 @@
             <span class="path">/manager/relatorios</span>
             <span class="badge manager">Manager</span>
             <h3>Relatórios</h3>
+            <a class="open-route" href="http://localhost:3000/manager/relatorios" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Exportação CSV de indicadores agregados da organização para acompanhamento
@@ -465,6 +565,7 @@
             <span class="path">/manager/convites</span>
             <span class="badge manager">Manager</span>
             <h3>Pessoas e convites</h3>
+            <a class="open-route" href="http://localhost:3000/manager/convites" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Diretório da empresa, criação/cancelamento de convites (companion ou manager),
@@ -479,104 +580,138 @@
       <h2>Portal Administrativo</h2>
       <p class="section-desc">
         Painel super-admin multiempresa. Rotas protegidas por role <code>admin</code>
-        (ou <code>dev</code>).
+        (ou <code>dev</code>). Prefixo atual: <code>/dashiadmin</code>.
       </p>
       <div class="routes">
         <article class="route">
           <div class="route-top">
-            <span class="path">/admin/</span>
+            <span class="path">/dashiadmin/</span>
             <span class="badge admin">Admin</span>
             <h3>KPIs globais</h3>
+            <a class="open-route" href="http://localhost:3000/dashiadmin/" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Home do portal com indicadores globais do ecossistema (adoção, alertas ativos
             e resumo operacional).
           </p>
-          <div class="file">src/routes/admin/index.tsx</div>
+          <div class="file">src/routes/dashiadmin/index.tsx</div>
         </article>
 
         <article class="route">
           <div class="route-top">
-            <span class="path">/admin/empresas</span>
+            <span class="path">/dashiadmin/leads</span>
+            <span class="badge admin">Admin</span>
+            <h3>Leads da landing</h3>
+            <a class="open-route" href="http://localhost:3000/dashiadmin/leads" target="_blank" rel="noopener noreferrer">Abrir rota</a>
+          </div>
+          <p>
+            Pedidos de teste do formulário público: status, notas internas e tratamento comercial.
+          </p>
+          <div class="file">src/routes/dashiadmin/leads.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/dashiadmin/empresas</span>
             <span class="badge admin">Admin</span>
             <h3>Empresas / clientes</h3>
+            <a class="open-route" href="http://localhost:3000/dashiadmin/empresas" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             CRUD de empresas cliente e organização da base B2B.
           </p>
-          <div class="file">src/routes/admin/empresas.tsx</div>
+          <div class="file">src/routes/dashiadmin/empresas.tsx</div>
         </article>
 
         <article class="route">
           <div class="route-top">
-            <span class="path">/admin/funcionarios</span>
+            <span class="path">/dashiadmin/funcionarios</span>
             <span class="badge admin">Admin</span>
             <h3>Funcionários</h3>
+            <a class="open-route" href="http://localhost:3000/dashiadmin/funcionarios" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Gerenciamento de funcionários e vínculos com empresas/equipes (cargo e status).
           </p>
-          <div class="file">src/routes/admin/funcionarios.tsx</div>
+          <div class="file">src/routes/dashiadmin/funcionarios.tsx</div>
         </article>
 
         <article class="route">
           <div class="route-top">
-            <span class="path">/admin/licencas</span>
+            <span class="path">/dashiadmin/convites</span>
+            <span class="badge admin">Admin</span>
+            <h3>Convites</h3>
+            <a class="open-route" href="http://localhost:3000/dashiadmin/convites" target="_blank" rel="noopener noreferrer">Abrir rota</a>
+          </div>
+          <p>
+            Envio de convites de acesso para gestores RH e colaboradores, por empresa.
+          </p>
+          <div class="file">src/routes/dashiadmin/convites.tsx</div>
+        </article>
+
+        <article class="route">
+          <div class="route-top">
+            <span class="path">/dashiadmin/licencas</span>
             <span class="badge admin">Admin</span>
             <h3>Licenças e contratos</h3>
+            <a class="open-route" href="http://localhost:3000/dashiadmin/licencas" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Controle de planos, vigência, valores e status comercial/operacional.
           </p>
-          <div class="file">src/routes/admin/licencas.tsx</div>
+          <div class="file">src/routes/dashiadmin/licencas.tsx</div>
         </article>
 
         <article class="route">
           <div class="route-top">
-            <span class="path">/admin/metricas</span>
+            <span class="path">/dashiadmin/metricas</span>
             <span class="badge admin">Admin</span>
             <h3>Métricas de uso</h3>
+            <a class="open-route" href="http://localhost:3000/dashiadmin/metricas" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             DAU, WAU, MAU e taxa de adesão por empresa / ecossistema.
           </p>
-          <div class="file">src/routes/admin/metricas.tsx</div>
+          <div class="file">src/routes/dashiadmin/metricas.tsx</div>
         </article>
 
         <article class="route">
           <div class="route-top">
-            <span class="path">/admin/sentimentos</span>
+            <span class="path">/dashiadmin/sentimentos</span>
             <span class="badge admin">Admin</span>
             <h3>Sentimentos agregados</h3>
+            <a class="open-route" href="http://localhost:3000/dashiadmin/sentimentos" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Leitura qualitativa agregada de clima emocional, sem expor indivíduos.
           </p>
-          <div class="file">src/routes/admin/sentimentos.tsx</div>
+          <div class="file">src/routes/dashiadmin/sentimentos.tsx</div>
         </article>
 
         <article class="route">
           <div class="route-top">
-            <span class="path">/admin/alertas</span>
+            <span class="path">/dashiadmin/alertas</span>
             <span class="badge admin">Admin</span>
             <h3>Alertas configuráveis</h3>
+            <a class="open-route" href="http://localhost:3000/dashiadmin/alertas" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Thresholds e regras de alerta preventivo por empresa.
           </p>
-          <div class="file">src/routes/admin/alertas.tsx</div>
+          <div class="file">src/routes/dashiadmin/alertas.tsx</div>
         </article>
 
         <article class="route">
           <div class="route-top">
-            <span class="path">/admin/relatorios</span>
+            <span class="path">/dashiadmin/relatorios</span>
             <span class="badge admin">Admin</span>
             <h3>Relatórios exportáveis</h3>
+            <a class="open-route" href="http://localhost:3000/dashiadmin/relatorios" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Exportação PDF/CSV para acompanhamento executivo.
           </p>
-          <div class="file">src/routes/admin/relatorios.tsx</div>
+          <div class="file">src/routes/dashiadmin/relatorios.tsx</div>
         </article>
       </div>
     </section>
@@ -593,6 +728,7 @@
             <span class="path">/dashitecnology/</span>
             <span class="badge dev">Dev</span>
             <h3>Índice de ferramentas</h3>
+            <a class="open-route" href="http://localhost:3000/dashitecnology/" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Hub com atalhos para configuração de LLM e system logs.
@@ -605,11 +741,12 @@
             <span class="path">/dashitecnology/$painelDev</span>
             <span class="badge dev">Dev</span>
             <h3>Painel dinâmico de desenvolvimento</h3>
+            <a class="open-route" href="http://localhost:3000/dashitecnology/llm-config" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
-            Rota parametrizada. Exemplos: <code>llm-config</code> (modelo, temperatura,
-            prompt — chave só em <code>OPENROUTER_API_KEY</code>) e
-            <code>system-logs</code> (erros, warnings e eventos).
+            Rota parametrizada. O botão abre o exemplo <code>llm-config</code>
+            (modelo, temperatura, prompt — chave só em <code>OPENROUTER_API_KEY</code>).
+            Outro painel: <code>/dashitecnology/system-logs</code>.
           </p>
           <div class="file">src/routes/dashitecnology/$painelDev.tsx</div>
         </article>
@@ -627,6 +764,7 @@
             <span class="path">/manager/</span>
             <span class="badge redirect">Redirect</span>
             <h3>Manager home → Dashboard RH</h3>
+            <a class="open-route" href="http://localhost:3000/manager/" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Redireciona automaticamente para <code>/manager/rh-dashboard</code>.
@@ -639,6 +777,7 @@
             <span class="path">/habitos</span>
             <span class="badge redirect">Redirect</span>
             <h3>Legado → Meu Bem-estar</h3>
+            <a class="open-route" href="http://localhost:3000/habitos" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Redireciona automaticamente para <code>/meu-bem-estar</code>.
@@ -651,6 +790,7 @@
             <span class="path">/dashboard-emocional</span>
             <span class="badge redirect">Redirect</span>
             <h3>Legado → Home</h3>
+            <a class="open-route" href="http://localhost:3000/dashboard-emocional" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
             Redireciona automaticamente para <code>/</code>.
@@ -661,9 +801,10 @@
     </section>
 
     <footer>
-      Documento de referência do Zēllu · atualizado em 26/08/2026.<br />
+      Documento de referência do Zēllu · atualizado em 04/10/2026.<br />
       Layout raiz: <code>src/routes/__root.tsx</code> · árvore gerada: <code>src/routeTree.gen.ts</code>.<br />
-      Sessão: cookies httpOnly <code>mmc-at</code> / <code>mmc-rt</code> (JWT não vai no body das server functions).
+      Sessão: cookies httpOnly <code>mmc-at</code> / <code>mmc-rt</code> (JWT não vai no body das server functions).<br />
+      Botão <strong>Abrir rota</strong> aponta para <code>http://localhost:3000</code> em nova aba — o app local precisa estar rodando nessa porta.
     </footer>
   </div>
 </body>
