@@ -46,11 +46,11 @@
 
 Mostre o mecanismo, não uma lista de funcionalidades. Siga esta ordem:
 
-1. **Check-in diário (lado do colaborador):** três perguntas, um minuto. *"É isso que o colaborador faz todo dia."*
+1. **Check-in diário (lado do colaborador):** quatro perguntas, um minuto, incluindo uma sobre o trabalho. *"É isso que o colaborador faz todo dia."*
 2. **Companheiro com IA:** uma troca rápida de mensagens. Destaque que o uso é opcional.
 3. **Plano de cuidado ou espaço do respiro:** mostre só de relance.
 4. **Painel do RH:** tendências por equipe e alertas. *"O mesmo hábito diário vira um sinal coletivo."*
-5. **Mapa do clima:** é o momento de impacto visual. Deixe na tela alguns segundos.
+5. **Fatores de trabalho:** mostre o Atendimento em risco em carga e apoio da liderança. *"Aqui o RH vê onde o trabalho está pesando, não só como as pessoas estão."*
 
 **Frase-chave durante a demonstração:**
 
