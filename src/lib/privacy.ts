@@ -14,7 +14,7 @@ export const CLINICAL_DISCLAIMER =
 export const PRIVACY_SUMMARY = {
   title: "Como usamos seus dados",
   collected: [
-    "Check-ins (sono, hidratação, humor)",
+    "Check-ins (sono, hidratação, humor e uma pergunta sobre o trabalho)",
     "Hábitos e plano de cuidado",
     "Diário e conversas com o companion (se você usar)",
     "Resumos curtos do companion (memória de médio/longo prazo, se a IA estiver autorizada)",
@@ -22,11 +22,12 @@ export const PRIVACY_SUMMARY = {
   rhSees: [
     "Só indicadores agregados por equipe, e somente se você autorizar o compartilhamento com o RH",
     "Alertas de tendência quando o time tem pelo menos 5 pessoas que autorizaram",
+    "Médias dos fatores de trabalho por equipe, só com 5 ou mais respostas autorizadas",
   ],
   rhNeverSees: [
     "Texto do diário",
     "Mensagens do chat",
-    "Seu humor, sono ou hidratação identificados",
+    "Seu humor, sono, hidratação ou resposta sobre o trabalho identificados",
   ],
 };
 

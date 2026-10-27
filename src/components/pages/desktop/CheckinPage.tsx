@@ -5,6 +5,8 @@ import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth-context";
 import { getSleepLabel, MAIN_MOODS, EXTRA_MOODS, MOOD_MAP } from "@/data";
 import { Mascot } from "@/components/Mascot";
+import { WorkFactorQuestion, WorkFactorRecap } from "@/components/checkin/WorkFactorQuestion";
+import type { WorkFactor, WorkFactorScore } from "@/lib/work-factors";
 
 interface CheckinData {
   id: string;
@@ -14,6 +16,8 @@ interface CheckinData {
   water_ml: number;
   mood: string;
   created_at: string;
+  work_factor_id: string | null;
+  work_factor_score: number | null;
 }
 
 interface CheckinPageProps {
@@ -22,22 +26,36 @@ interface CheckinPageProps {
     sleepLabel: string;
     waterMl: number;
     mood: string;
+    workFactorId: WorkFactor["id"];
+    workFactorScore: number;
   }) => Promise<void>;
-  saved: boolean;
   saving: boolean;
+  saveError: string | null;
   todaysCheckin: CheckinData | null;
+  workFactor: WorkFactor | null;
+  startAtWorkFactor: boolean;
 }
 
 const sleepHoursPresets = [5, 6, 7, 8, 9];
 const waterPresets = [500, 1000, 1500, 2000, 2500];
 
-export function DesktopCheckinPage({ onSave, saved, saving, todaysCheckin }: CheckinPageProps) {
+const lastStep = 3;
+
+export function DesktopCheckinPage({
+  onSave,
+  saving,
+  saveError,
+  todaysCheckin,
+  workFactor,
+  startAtWorkFactor,
+}: CheckinPageProps) {
   const { user } = useAuth();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(startAtWorkFactor ? lastStep : 0);
   const [sleepHours, setSleepHours] = useState(7);
   const [waterMl, setWaterMl] = useState(1000);
   const [mood, setMood] = useState("");
   const [moodExpanded, setMoodExpanded] = useState(false);
+  const [workScore, setWorkScore] = useState<WorkFactorScore | null>(null);
 
   const sleepLabel = getSleepLabel((sleepHours / 12) * 100);
   const visibleMoods = moodExpanded ? [...MAIN_MOODS, ...EXTRA_MOODS] : MAIN_MOODS;
@@ -47,15 +65,23 @@ export function DesktopCheckinPage({ onSave, saved, saving, todaysCheckin }: Che
     if (step === 0) return true;
     if (step === 1) return true;
     if (step === 2) return mood !== "";
-    return true;
+    return workScore !== null && workFactor !== null;
   };
 
   const handleNext = () => {
-    if (step < 2) {
+    if (step < lastStep) {
       setStep(step + 1);
-    } else {
-      onSave({ sleepHours, sleepLabel, waterMl, mood });
+      return;
     }
+    if (!workFactor || workScore === null) return;
+    void onSave({
+      sleepHours,
+      sleepLabel,
+      waterMl,
+      mood,
+      workFactorId: workFactor.id,
+      workFactorScore: workScore,
+    });
   };
 
   if (todaysCheckin) {
@@ -116,6 +142,10 @@ export function DesktopCheckinPage({ onSave, saved, saving, todaysCheckin }: Che
                 <span className="text-xs text-[var(--clay-text)]/60">Humor</span>
               </div>
             </div>
+            <WorkFactorRecap
+              factorId={todaysCheckin.work_factor_id}
+              score={todaysCheckin.work_factor_score}
+            />
           </div>
 
           <div className="mt-6 text-center">
@@ -144,7 +174,7 @@ export function DesktopCheckinPage({ onSave, saved, saving, todaysCheckin }: Che
         </header>
 
         <div className="mb-6 flex gap-2">
-          {[0, 1, 2].map((i) => (
+          {[0, 1, 2, 3].map((i) => (
             <div
               key={i}
               className={`h-1.5 flex-1 rounded-full transition-colors ${
@@ -260,8 +290,27 @@ export function DesktopCheckinPage({ onSave, saved, saving, todaysCheckin }: Che
           </section>
         )}
 
+        {step === 3 && workFactor && (
+          <WorkFactorQuestion
+            variant="desktop"
+            factor={workFactor}
+            score={workScore}
+            onScore={setWorkScore}
+            note={
+              startAtWorkFactor
+                ? "Seu check-in de hoje já está salvo. Falta esta pergunta."
+                : undefined
+            }
+          />
+        )}
+
+        {saveError ? (
+          <p className="mt-4 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            {saveError}
+          </p>
+        ) : null}
         <div className="mt-6 flex items-center gap-3">
-          {step > 0 && (
+          {step > 0 && !startAtWorkFactor && (
             <button
               onClick={() => setStep(step - 1)}
               disabled={saving}
@@ -275,7 +324,7 @@ export function DesktopCheckinPage({ onSave, saved, saving, todaysCheckin }: Che
             disabled={!canProceed() || saving}
             className="flex-1 rounded-xl bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] py-2.5 text-sm font-bold text-[oklch(0.25_0.04_254)] shadow-sm active:translate-y-px disabled:opacity-50"
           >
-            {saving ? "Salvando..." : step < 2 ? "Próximo" : "Finalizar check-in"}
+            {saving ? "Salvando..." : step < lastStep ? "Próximo" : "Finalizar check-in"}
           </button>
         </div>
       </div>

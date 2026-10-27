@@ -16,6 +16,11 @@ import {
   type RhMemberSummary,
   type RhWellnessSignals,
 } from "@/lib/rh-member-summary";
+import {
+  WORK_FACTOR_PERIOD_DAYS,
+  shapeRhWorkFactors,
+  type RhWorkFactorReport,
+} from "@/lib/work-factors";
 
 export type TeamMetrics = {
   name: string;
@@ -547,6 +552,73 @@ export const getRhMoodDistribution = createServerFn({ method: "POST" })
     if ("error" in scope) return { data: {} as Record<string, number>, error: scope.error };
     return { data: scope.dashboard.moodDistribution, error: null };
   });
+
+const workFactorRpcSchema = z.object({
+  periodDays: z.coerce.number(),
+  teams: z.array(
+    z.object({
+      teamName: z.string(),
+      metricsHidden: z.boolean(),
+      factors: z.array(
+        z.object({
+          factorId: z.string(),
+          respondents: z.union([z.number(), z.null()]),
+          average: z.union([z.number(), z.string(), z.null()]).transform((value) => {
+            if (value === null) return null;
+            const numeric = typeof value === "number" ? value : Number(value);
+            return Number.isFinite(numeric) ? numeric : null;
+          }),
+        }),
+      ),
+    }),
+  ),
+});
+
+export const getRhWorkFactors = createServerFn({ method: "POST" }).handler(
+  async (): Promise<{ data: RhWorkFactorReport | null; error: string | null }> => {
+    const auth = await requireManager();
+    if ("error" in auth) return { data: null, error: auth.error };
+    if (!auth.companyId) {
+      return { data: null, error: "Não foi possível carregar os fatores de trabalho." };
+    }
+
+    const { data, error } = await auth.supabase.rpc("get_rh_work_factors", {
+      p_period_days: WORK_FACTOR_PERIOD_DAYS,
+    });
+    if (error || data == null) {
+      void logEvent(
+        "error",
+        "manager.getRhWorkFactors",
+        "Falha ao ler fatores de trabalho",
+        { error: error?.message ?? "vazio" },
+        auth.userId,
+      );
+      return { data: null, error: "Não foi possível carregar os fatores de trabalho." };
+    }
+
+    const payload = typeof data === "string" ? JSON.parse(data) : data;
+    const parsed = workFactorRpcSchema.safeParse(payload);
+    if (!parsed.success) {
+      return { data: null, error: "Não foi possível carregar os fatores de trabalho." };
+    }
+
+    return {
+      data: shapeRhWorkFactors({
+        periodDays: parsed.data.periodDays,
+        teams: parsed.data.teams.map((team) => ({
+          teamName: team.teamName,
+          metricsHidden: team.metricsHidden,
+          factors: team.factors.map((factor) => ({
+            factorId: factor.factorId,
+            respondents: factor.respondents === null ? null : Math.round(factor.respondents),
+            average: factor.average,
+          })),
+        })),
+      }),
+      error: null,
+    };
+  },
+);
 
 export const listManagerTeams = createServerFn({ method: "POST" })
 

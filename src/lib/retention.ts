@@ -29,6 +29,7 @@ export async function executeRetentionPurge(actorUserId?: string | null): Promis
       admin.from("diary_entries").delete().lt("created_at", cut(RETENTION_DAYS.diary)),
       admin.from("preventive_notifications").delete().lt("created_at", cut(RETENTION_DAYS.preventive)),
       admin.from("companion_memories").delete().lt("created_at", cut(RETENTION_DAYS.chat)),
+      admin.from("work_factor_responses").delete().lt("created_at", cut(RETENTION_DAYS.checkins)),
       admin.from("checkins").delete().lt("created_at", cut(RETENTION_DAYS.checkins)),
       admin.from("system_logs").delete().lt("created_at", cut(RETENTION_DAYS.logs)),
     ]);

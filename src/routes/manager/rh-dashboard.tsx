@@ -5,7 +5,13 @@ import { ClayLoader } from "@/components/ClayLoader";
 import { useAuth } from "@/lib/auth-context";
 import { BRANDING } from "@/lib/branding";
 import { useState, useEffect } from "react";
-import { loadRhDashboard, loadRhMoodDistribution } from "@/lib/services/rh-dashboard-service";
+import {
+  loadRhDashboard,
+  loadRhMoodDistribution,
+  loadRhWorkFactors,
+} from "@/lib/services/rh-dashboard-service";
+import type { RhWorkFactorReport } from "@/lib/work-factors";
+import { RhWorkFactorsSection } from "@/components/manager/RhWorkFactorsSection";
 import type { RhDashboardData, RhAlert } from "@/lib/api/manager.server";
 import {
   XAxis,
@@ -39,6 +45,8 @@ function RhDashboard() {
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const [exportOk, setExportOk] = useState<string | null>(null);
+  const [workFactors, setWorkFactors] = useState<RhWorkFactorReport | null>(null);
+  const [workFactorsError, setWorkFactorsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -54,11 +62,13 @@ function RhDashboard() {
   useEffect(() => {
     if (!session || loaded) return;
     (async () => {
-      const d = await loadRhDashboard();
+      const [d, factors] = await Promise.all([loadRhDashboard(), loadRhWorkFactors()]);
       if (d) {
         setData(d);
         setMoodPeriodDist(d.moodDistribution ?? {});
       }
+      setWorkFactors(factors.data);
+      setWorkFactorsError(factors.error);
       setLoaded(true);
     })();
   }, [session, loaded]);
@@ -192,6 +202,8 @@ function RhDashboard() {
           ))}
         </div>
       </section>
+
+      {loaded ? <RhWorkFactorsSection report={workFactors} error={workFactorsError} /> : null}
 
       <section className="mt-8">
         <h2 className="mb-3 font-display text-sm font-semibold text-[var(--clay-title)]">
