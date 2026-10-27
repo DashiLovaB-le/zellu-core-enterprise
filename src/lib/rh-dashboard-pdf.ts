@@ -1,7 +1,16 @@
 import type { Content, TDocumentDefinitions } from "pdfmake/interfaces";
 import type { RhDashboardData } from "@/lib/api/manager.server";
 import { BRANDING } from "@/lib/branding";
-import logoUrl from "@/assets/logo-zellu/icone-app.svg";
+import {
+  PDF_COLORS as BRAND,
+  PDF_PAGE_MARGINS,
+  ZELLU_PDF_STYLES,
+  zelluPdfBackground,
+  zelluPdfFooter,
+  zelluPdfHeader,
+  zelluTableLayout,
+  zelluTitleBlock,
+} from "@/lib/pdf/zellu-pdf-theme";
 
 export type RhDashboardPdfInput = {
   data: RhDashboardData;
@@ -10,15 +19,7 @@ export type RhDashboardPdfInput = {
   exportedBy?: string | null;
 };
 
-const BRAND = {
-  title: "#2F4A66",
-  muted: "#6B7C8F",
-  line: "#C5D9F1",
-  accent: "#99BEE5",
-  soft: "#F3EEE1",
-  white: "#FFFFFF",
-  danger: "#B45309",
-};
+const REPORT_TITLE = "Relatório executivo · Painel RH";
 
 function statusLabel(status: string): string {
   if (status === "attention") return "Atenção";
@@ -55,28 +56,7 @@ function moodRows(dist: Record<string, number>): Array<[string, string, string]>
   ]);
 }
 
-async function loadLogoDataUrl(): Promise<string | null> {
-  try {
-    const res = await fetch(logoUrl);
-    if (!res.ok) return null;
-    const blob = await res.blob();
-    // pdfmake só renderiza raster (PNG/JPEG); SVG do brand kit fica de fora.
-    if (blob.type.includes("svg")) return null;
-    return await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(blob);
-    });
-  } catch {
-    return null;
-  }
-}
-
-export function buildRhDashboardPdfDefinition(
-  input: RhDashboardPdfInput,
-  logoDataUrl: string | null,
-): TDocumentDefinitions {
+export function buildRhDashboardPdfDefinition(input: RhDashboardPdfInput): TDocumentDefinitions {
   const { data, moodPeriodDays, moodPeriodDistribution, exportedBy } = input;
   const generatedAt = new Date().toLocaleString("pt-BR", {
     dateStyle: "long",
@@ -155,44 +135,11 @@ export function buildRhDashboardPdfDefinition(
   const moodPeriod = moodRows(moodPeriodDistribution);
 
   const content: Content[] = [
-    {
-      columns: [
-        logoDataUrl
-          ? { image: "logo", width: 42, margin: [0, 0, 12, 0] }
-          : { width: 42, text: "" },
-        {
-          width: "*",
-          stack: [
-            { text: BRANDING.appName, style: "brandTitle" },
-            { text: "Relatório executivo — Painel RH", style: "brandSubtitle" },
-            { text: BRANDING.tagline, style: "muted", margin: [0, 2, 0, 0] },
-          ],
-        },
-        {
-          width: "auto",
-          alignment: "right",
-          stack: [
-            { text: "CONFIDENCIAL", style: "confidential" },
-            { text: generatedAt, style: "muted", margin: [0, 4, 0, 0] },
-          ],
-        },
-      ],
-      columnGap: 8,
-      margin: [0, 0, 0, 12],
-    },
-    {
-      canvas: [
-        {
-          type: "rect",
-          x: 0,
-          y: 0,
-          w: 515,
-          h: 3,
-          color: BRAND.accent,
-        },
-      ],
-      margin: [0, 0, 0, 16],
-    },
+    zelluTitleBlock({
+      eyebrow: "Painel RH · Relatório confidencial",
+      title: "Bem-estar agregado da empresa",
+      meta: [`Gerado em ${generatedAt}`, exportedBy ? `Exportado por ${exportedBy}` : null],
+    }),
     {
       text: "1. Indicadores gerais",
       style: "h2",
@@ -210,15 +157,7 @@ export function buildRhDashboardPdfDefinition(
           { text: value, style: "cellValue", alignment: "right" },
         ]),
       },
-      layout: {
-        fillColor: (row) => (row % 2 === 0 ? BRAND.soft : BRAND.white),
-        hLineColor: () => BRAND.line,
-        vLineColor: () => BRAND.line,
-        paddingLeft: () => 8,
-        paddingRight: () => 8,
-        paddingTop: () => 6,
-        paddingBottom: () => 6,
-      },
+      layout: zelluTableLayout({ header: false, padding: 7 }),
       margin: [0, 0, 0, 16],
     },
   ];
@@ -240,9 +179,7 @@ export function buildRhDashboardPdfDefinition(
     });
   } else {
     content.push({
-      ul: data.alerts.map(
-        (a) => `${a.team} · ${severityLabel(a.severity)} · ${a.message}`,
-      ),
+      ul: data.alerts.map((a) => `${a.team} · ${severityLabel(a.severity)} · ${a.message}`),
       style: "body",
       margin: [0, 0, 0, 14],
     });
@@ -255,15 +192,7 @@ export function buildRhDashboardPdfDefinition(
       widths: ["*", 42, 70, 40, 40, 45, 50],
       body: teamBody,
     },
-    layout: {
-      fillColor: (row) => (row === 0 ? BRAND.accent : row % 2 === 0 ? BRAND.soft : BRAND.white),
-      hLineColor: () => BRAND.line,
-      vLineColor: () => BRAND.line,
-      paddingLeft: () => 6,
-      paddingRight: () => 6,
-      paddingTop: () => 5,
-      paddingBottom: () => 5,
-    },
+    layout: zelluTableLayout(),
     margin: [0, 0, 0, 16],
   });
 
@@ -277,15 +206,7 @@ export function buildRhDashboardPdfDefinition(
       widths: ["*", 70, 60, 60, 55],
       body: trendBody,
     },
-    layout: {
-      fillColor: (row) => (row === 0 ? BRAND.accent : row % 2 === 0 ? BRAND.soft : BRAND.white),
-      hLineColor: () => BRAND.line,
-      vLineColor: () => BRAND.line,
-      paddingLeft: () => 6,
-      paddingRight: () => 6,
-      paddingTop: () => 5,
-      paddingBottom: () => 5,
-    },
+    layout: zelluTableLayout(),
     margin: [0, 0, 0, 16],
   });
 
@@ -309,15 +230,7 @@ export function buildRhDashboardPdfDefinition(
                 ...mood7.map((row) => row.map((cell) => ({ text: cell, style: "cell" }))),
               ],
             },
-            layout: {
-              fillColor: (row) => (row === 0 ? BRAND.accent : null),
-              hLineColor: () => BRAND.line,
-              vLineColor: () => BRAND.line,
-              paddingLeft: () => 5,
-              paddingRight: () => 5,
-              paddingTop: () => 4,
-              paddingBottom: () => 4,
-            },
+            layout: zelluTableLayout({ zebra: false, padding: 5 }),
           },
         ],
       },
@@ -343,15 +256,7 @@ export function buildRhDashboardPdfDefinition(
                 ...moodPeriod.map((row) => row.map((cell) => ({ text: cell, style: "cell" }))),
               ],
             },
-            layout: {
-              fillColor: (row) => (row === 0 ? BRAND.accent : null),
-              hLineColor: () => BRAND.line,
-              vLineColor: () => BRAND.line,
-              paddingLeft: () => 5,
-              paddingRight: () => 5,
-              paddingTop: () => 4,
-              paddingBottom: () => 4,
-            },
+            layout: zelluTableLayout({ zebra: false, padding: 5 }),
           },
         ],
       },
@@ -373,14 +278,6 @@ export function buildRhDashboardPdfDefinition(
     margin: [0, 0, 0, 8],
   });
 
-  if (exportedBy) {
-    content.push({
-      text: `Exportado por: ${exportedBy}`,
-      style: "muted",
-      margin: [0, 8, 0, 0],
-    });
-  }
-
   const doc: TDocumentDefinitions = {
     info: {
       title: `Relatório RH — ${BRANDING.shortName}`,
@@ -390,67 +287,13 @@ export function buildRhDashboardPdfDefinition(
       creator: BRANDING.appName,
     },
     pageSize: "A4",
-    pageMargins: [40, 56, 40, 56],
-    watermark: {
-      text: BRANDING.shortName.toUpperCase(),
-      color: BRAND.accent,
-      opacity: 0.07,
-      bold: true,
-      italics: false,
-      angle: -28,
-      fontSize: 42,
-    },
-    header: (currentPage) => ({
-      margin: [40, 16, 40, 0],
-      columns: [
-        {
-          text: currentPage === 1 ? "" : BRANDING.shortName,
-          style: "headerLeft",
-        },
-        {
-          text: currentPage === 1 ? "" : "Relatório Painel RH",
-          alignment: "right",
-          style: "headerRight",
-        },
-      ],
-    }),
-    footer: (currentPage, pageCount) => ({
-      margin: [40, 0, 40, 20],
-      stack: [
-        {
-          canvas: [
-            {
-              type: "line",
-              x1: 0,
-              y1: 0,
-              x2: 515,
-              y2: 0,
-              lineWidth: 0.8,
-              lineColor: BRAND.line,
-            },
-          ],
-          margin: [0, 0, 0, 8],
-        },
-        {
-          columns: [
-            {
-              text: `${BRANDING.poweredBy} · Uso interno e confidencial`,
-              style: "footer",
-            },
-            {
-              text: `Página ${currentPage} de ${pageCount}`,
-              alignment: "right",
-              style: "footer",
-            },
-          ],
-        },
-      ],
-    }),
+    pageMargins: PDF_PAGE_MARGINS,
+    background: zelluPdfBackground,
+    header: zelluPdfHeader(REPORT_TITLE),
+    footer: zelluPdfFooter,
     content,
     styles: {
-      brandTitle: { fontSize: 16, bold: true, color: BRAND.title },
-      brandSubtitle: { fontSize: 12, bold: true, color: BRAND.title, margin: [0, 2, 0, 0] },
-      confidential: { fontSize: 9, bold: true, color: BRAND.danger, characterSpacing: 1 },
+      ...ZELLU_PDF_STYLES,
       h2: { fontSize: 13, bold: true, color: BRAND.title, margin: [0, 4, 0, 8] },
       h3: { fontSize: 10, bold: true, color: BRAND.title },
       body: { fontSize: 9, color: BRAND.title, lineHeight: 1.3 },
@@ -463,16 +306,12 @@ export function buildRhDashboardPdfDefinition(
       th: { fontSize: 8, bold: true, color: BRAND.title },
       cell: { fontSize: 8, color: BRAND.title },
       cellValue: { fontSize: 9, bold: true, color: BRAND.title },
-      headerLeft: { fontSize: 8, color: BRAND.muted },
-      headerRight: { fontSize: 8, color: BRAND.muted },
-      footer: { fontSize: 7.5, color: BRAND.muted },
     },
     defaultStyle: {
       font: "Roboto",
       fontSize: 9,
       color: BRAND.title,
     },
-    images: logoDataUrl ? { logo: logoDataUrl } : {},
   };
 
   return doc;
@@ -488,8 +327,7 @@ export async function downloadRhDashboardPdf(input: RhDashboardPdfInput): Promis
   const fonts = pdfFontsMod.default ?? pdfFontsMod;
   pdfMake.addVirtualFileSystem(fonts);
 
-  const logoDataUrl = await loadLogoDataUrl();
-  const definition = buildRhDashboardPdfDefinition(input, logoDataUrl);
+  const definition = buildRhDashboardPdfDefinition(input);
   const fileName = `relatorio-rh-${new Date().toISOString().slice(0, 10)}.pdf`;
   pdfMake.createPdf(definition).download(fileName);
 }

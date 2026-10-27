@@ -38,18 +38,15 @@ const sample: RhDashboardData = {
 
 describe("buildRhDashboardPdfDefinition", () => {
   it("monta documento com seções do painel e privacidade", () => {
-    const doc = buildRhDashboardPdfDefinition(
-      {
-        data: sample,
-        moodPeriodDays: 30,
-        moodPeriodDistribution: sample.moodDistribution,
-        exportedBy: "rh@empresa.com",
-      },
-      null,
-    );
+    const doc = buildRhDashboardPdfDefinition({
+      data: sample,
+      moodPeriodDays: 30,
+      moodPeriodDistribution: sample.moodDistribution,
+      exportedBy: "rh@empresa.com",
+    });
 
     expect(doc.info?.title).toMatch(/Relatório RH/);
-    expect(doc.watermark).toBeTruthy();
+    expect(doc.background).toBeTypeOf("function");
     expect(doc.header).toBeTypeOf("function");
     expect(doc.footer).toBeTypeOf("function");
 

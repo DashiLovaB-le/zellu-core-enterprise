@@ -1,7 +1,16 @@
 import type { Content, TDocumentDefinitions } from "pdfmake/interfaces";
 import type { RhDashboardData } from "@/lib/api/manager.server";
 import { BRANDING } from "@/lib/branding";
-import logoUrl from "@/assets/logo-zellu/icone-app.svg";
+import {
+  PDF_COLORS as BRAND,
+  PDF_PAGE_MARGINS,
+  ZELLU_PDF_STYLES,
+  zelluPdfBackground,
+  zelluPdfFooter,
+  zelluPdfHeader,
+  zelluTableLayout,
+  zelluTitleBlock,
+} from "@/lib/pdf/zellu-pdf-theme";
 import {
   buildReportPreview,
   reportTypeLabel,
@@ -18,37 +27,7 @@ export type RhReportPdfInput = {
   exportedBy?: string | null;
 };
 
-const BRAND = {
-  title: "#2F4A66",
-  muted: "#6B7C8F",
-  line: "#C5D9F1",
-  accent: "#99BEE5",
-  soft: "#F3EEE1",
-  white: "#FFFFFF",
-  danger: "#B45309",
-};
-
-async function loadLogoDataUrl(): Promise<string | null> {
-  try {
-    const res = await fetch(logoUrl);
-    if (!res.ok) return null;
-    const blob = await res.blob();
-    if (blob.type.includes("svg")) return null;
-    return await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(blob);
-    });
-  } catch {
-    return null;
-  }
-}
-
-export function buildRhReportPdfDefinition(
-  input: RhReportPdfInput,
-  logoDataUrl: string | null,
-): TDocumentDefinitions {
+export function buildRhReportPdfDefinition(input: RhReportPdfInput): TDocumentDefinitions {
   const preview = buildReportPreview(input);
   const generatedAt = new Date().toLocaleString("pt-BR", {
     dateStyle: "long",
@@ -57,31 +36,14 @@ export function buildRhReportPdfDefinition(
   const title = reportTypeLabel(input.reportType);
 
   const content: Content[] = [
-    {
-      columns: [
-        logoDataUrl
-          ? { image: "logo", width: 42, margin: [0, 0, 12, 0] }
-          : { text: "", width: 0 },
-        {
-          stack: [
-            { text: BRANDING.shortName, style: "brandTitle" },
-            { text: title, style: "brandSubtitle" },
-            { text: "CONFIDENCIAL — uso interno", style: "confidential" },
-          ],
-        },
+    zelluTitleBlock({
+      eyebrow: "Relatórios RH · Confidencial",
+      title,
+      meta: [
+        `Período: últimos ${input.periodDays} dias · ${input.teamName ? `Equipe: ${input.teamName}` : "Todas as equipes"}`,
+        `Gerado em ${generatedAt}${input.exportedBy ? ` · Exportado por ${input.exportedBy}` : ""}`,
       ],
-      margin: [0, 0, 0, 16],
-    },
-    {
-      text: `Gerado em ${generatedAt}${input.exportedBy ? ` · ${input.exportedBy}` : ""}`,
-      style: "muted",
-      margin: [0, 0, 0, 4],
-    },
-    {
-      text: `Período: últimos ${input.periodDays} dias · ${input.teamName ? `Equipe: ${input.teamName}` : "Todas as equipes"}`,
-      style: "muted",
-      margin: [0, 0, 0, 12],
-    },
+    }),
     { text: "Indicadores", style: "h2" },
   ];
 
@@ -105,21 +67,12 @@ export function buildRhReportPdfDefinition(
       widths: ["*", 80, "*"],
       body: kpiBody,
     },
-    layout: {
-      hLineColor: () => BRAND.line,
-      vLineColor: () => BRAND.line,
-      paddingLeft: () => 6,
-      paddingRight: () => 6,
-      paddingTop: () => 5,
-      paddingBottom: () => 5,
-    },
+    layout: zelluTableLayout(),
     margin: [0, 0, 0, 14],
   });
 
   content.push({ text: "Detalhamento", style: "h2" });
-  const tableBody: Content[][] = [
-    preview.table.headers.map((h) => ({ text: h, style: "th" })),
-  ];
+  const tableBody: Content[][] = [preview.table.headers.map((h) => ({ text: h, style: "th" }))];
   for (const row of preview.table.rows) {
     tableBody.push(row.map((cell) => ({ text: cell, style: "cell" })));
   }
@@ -130,14 +83,7 @@ export function buildRhReportPdfDefinition(
       widths: Array.from({ length: colCount }, () => "*"),
       body: tableBody,
     },
-    layout: {
-      hLineColor: () => BRAND.line,
-      vLineColor: () => BRAND.line,
-      paddingLeft: () => 5,
-      paddingRight: () => 5,
-      paddingTop: () => 4,
-      paddingBottom: () => 4,
-    },
+    layout: zelluTableLayout({ padding: 5 }),
     margin: [0, 0, 0, 14],
   });
 
@@ -157,41 +103,14 @@ export function buildRhReportPdfDefinition(
       author: BRANDING.shortName,
       subject: "Relatório RH agregado",
     },
-    pageMargins: [40, 48, 40, 48],
-    watermark: {
-      text: "CONFIDENCIAL",
-      color: BRAND.line,
-      opacity: 0.12,
-      bold: true,
-      angle: -30,
-    },
-    header: (currentPage) => ({
-      margin: [40, 16, 40, 0],
-      columns: [
-        { text: currentPage === 1 ? "" : BRANDING.shortName, style: "headerLeft" },
-        {
-          text: currentPage === 1 ? "" : title,
-          alignment: "right",
-          style: "headerRight",
-        },
-      ],
-    }),
-    footer: (currentPage, pageCount) => ({
-      margin: [40, 0, 40, 20],
-      columns: [
-        { text: `${BRANDING.poweredBy} · Uso interno`, style: "footer" },
-        {
-          text: `Página ${currentPage} de ${pageCount}`,
-          alignment: "right",
-          style: "footer",
-        },
-      ],
-    }),
+    pageSize: "A4",
+    pageMargins: PDF_PAGE_MARGINS,
+    background: zelluPdfBackground,
+    header: zelluPdfHeader(`${title} · Relatórios RH`),
+    footer: zelluPdfFooter,
     content,
     styles: {
-      brandTitle: { fontSize: 16, bold: true, color: BRAND.title },
-      brandSubtitle: { fontSize: 12, bold: true, color: BRAND.title, margin: [0, 2, 0, 0] },
-      confidential: { fontSize: 9, bold: true, color: BRAND.danger, characterSpacing: 1 },
+      ...ZELLU_PDF_STYLES,
       h2: { fontSize: 13, bold: true, color: BRAND.title, margin: [0, 4, 0, 8] },
       body: { fontSize: 9, color: BRAND.title, lineHeight: 1.3 },
       muted: { fontSize: 8, color: BRAND.muted },
@@ -199,12 +118,8 @@ export function buildRhReportPdfDefinition(
       th: { fontSize: 8, bold: true, color: BRAND.title },
       cell: { fontSize: 8, color: BRAND.title },
       cellValue: { fontSize: 9, bold: true, color: BRAND.title },
-      headerLeft: { fontSize: 8, color: BRAND.muted },
-      headerRight: { fontSize: 8, color: BRAND.muted },
-      footer: { fontSize: 7.5, color: BRAND.muted },
     },
     defaultStyle: { font: "Roboto", fontSize: 9, color: BRAND.title },
-    images: logoDataUrl ? { logo: logoDataUrl } : {},
   };
 }
 
@@ -218,8 +133,7 @@ export async function downloadRhReportPdf(input: RhReportPdfInput): Promise<void
   const fonts = pdfFontsMod.default ?? pdfFontsMod;
   pdfMake.addVirtualFileSystem(fonts);
 
-  const logoDataUrl = await loadLogoDataUrl();
-  const definition = buildRhReportPdfDefinition(input, logoDataUrl);
+  const definition = buildRhReportPdfDefinition(input);
   const slug = input.reportType;
   const fileName = `relatorio-rh-${slug}-${new Date().toISOString().slice(0, 10)}.pdf`;
   pdfMake.createPdf(definition).download(fileName);

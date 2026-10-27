@@ -117,17 +117,14 @@ describe("rh-reports", () => {
 
 describe("buildRhReportPdfDefinition", () => {
   it("gera PDF focado no tipo sem dados privados", () => {
-    const doc = buildRhReportPdfDefinition(
-      {
-        reportType: "teams",
-        periodDays: 30,
-        teamName: null,
-        current: sample,
-        previous: null,
-        exportedBy: "rh@empresa.com",
-      },
-      null,
-    );
+    const doc = buildRhReportPdfDefinition({
+      reportType: "teams",
+      periodDays: 30,
+      teamName: null,
+      current: sample,
+      previous: null,
+      exportedBy: "rh@empresa.com",
+    });
     const flat = JSON.stringify(doc.content);
     expect(doc.info?.title).toMatch(/Status por equipe/);
     expect(flat).toMatch(/Equipe A/);
