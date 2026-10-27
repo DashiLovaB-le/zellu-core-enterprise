@@ -224,8 +224,8 @@
         Cada card abre a rota em <code>http://localhost:3000</code> numa nova aba.
       </p>
       <div class="meta">
-        <span class="chip">37 rotas mapeadas</span>
-        <span class="chip">Atualizado em 04/10/2026</span>
+        <span class="chip">36 rotas mapeadas</span>
+        <span class="chip">Atualizado em 27/10/2026</span>
         <span class="chip">Fonte: <code>src/routes/</code></span>
         <span class="chip">Preview: <code>localhost:3000</code></span>
       </div>
@@ -297,6 +297,7 @@
           </div>
           <p>
             Termo LGPD v3.0: tratamento de dados, IA (ZDR), retenção, opt-ins de RH/e-mail,
+            respostas de fatores de trabalho (RH só vê médias por equipe com 5+ pessoas),
             direitos do titular e canais de contato (DPO / incidentes).
           </p>
           <div class="file">src/routes/privacidade.tsx</div>
@@ -390,8 +391,10 @@
             <a class="open-route" href="http://localhost:3000/checkin" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
-            Registro do dia em 3 etapas (sono → água → humor). Um check-in por dia.
-            Alimenta chat, dashboard e IA preventiva.
+            Registro do dia em 4 etapas (sono → água → humor → fator de trabalho). Um check-in por dia.
+            A última etapa é uma pergunta sobre o trabalho em rodízio fixo (carga, autonomia,
+            apoio da liderança e relações), com nota de 1 a 5; a resposta individual não sai do banco.
+            Alimenta chat, dashboard, IA preventiva e os fatores de trabalho do painel RH.
           </p>
           <div class="file">src/routes/checkin.tsx</div>
         </article>
@@ -484,7 +487,10 @@
           </div>
           <p>
             Home operacional do RH: KPIs agregados da própria empresa via RPC
-            <code>get_rh_dashboard</code> (sem service role no painel).
+            <code>get_rh_dashboard</code> (sem service role no painel) e cartões de alerta.
+            Seção de fatores de trabalho com a média por equipe nos últimos 28 dias
+            (RPC <code>get_rh_work_factors</code>, só com 5+ pessoas que autorizaram) e guia de ações
+            por fator para o RH. Exporta relatório em PDF com a identidade visual do Zēllu.
           </p>
           <div class="file">src/routes/manager/rh-dashboard.tsx</div>
         </article>
@@ -541,8 +547,8 @@
             <a class="open-route" href="http://localhost:3000/manager/relatorios" target="_blank" rel="noopener noreferrer">Abrir rota</a>
           </div>
           <p>
-            Exportação CSV de indicadores agregados da organização para acompanhamento
-            de uso e adoção.
+            Filtro por período, prévia e exportação em CSV ou PDF (com cabeçalho, rodapé e
+            marca d'água do Zēllu) de indicadores agregados da organização, só com opt-in RH.
           </p>
           <div class="file">src/routes/manager/relatorios.tsx</div>
         </article>
@@ -788,7 +794,7 @@
     </section>
 
     <footer>
-      Documento de referência do Zēllu · atualizado em 04/10/2026.<br />
+      Documento de referência do Zēllu · atualizado em 27/10/2026.<br />
       Layout raiz: <code>src/routes/__root.tsx</code> · árvore gerada: <code>src/routeTree.gen.ts</code>.<br />
       Sessão: cookies httpOnly <code>mmc-at</code> / <code>mmc-rt</code> (JWT não vai no body das server functions).<br />
       Botão <strong>Abrir rota</strong> aponta para <code>http://localhost:3000</code> em nova aba — o app local precisa estar rodando nessa porta.
