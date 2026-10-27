@@ -21,6 +21,8 @@ bun.lockb
 .env.*
 !.env.example
 *.local
+scripts/.seed-uso-mes/
+scripts/.seed-fatores-trabalho/
 
 # Wrangler / Cloudflare
 .wrangler/

@@ -442,7 +442,6 @@ async function seed(dry) {
   }
   const minVolume = Math.max(3, Math.ceil(profiles.length * 0.08));
   const observedUntil = Object.keys(perDay).map(Number).filter((d) => perDay[d] >= minVolume).reduce((mx, d) => Math.max(mx, d), 0);
-
   const all = { checkins: [], habits: [], diary_entries: [], chat_messages: [], wellness_checklist: [], wellness_plans: [] };
   const summary = [];
   for (const p of profiles) {
