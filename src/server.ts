@@ -46,6 +46,10 @@ export default {
         const { handleRetentionCronRequest } = await import("./lib/retention");
         return handleRetentionCronRequest(request);
       }
+      if (url.pathname === "/api/jobs/monthly-report") {
+        const { handleMonthlyReportCronRequest } = await import("./lib/monthly-report.server");
+        return handleMonthlyReportCronRequest(request);
+      }
 
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

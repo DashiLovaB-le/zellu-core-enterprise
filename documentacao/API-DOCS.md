@@ -20,6 +20,8 @@ Não há API REST pública. As rotas de produto chamam `createServerFn` em `src/
 
 **Job de retenção (exceção):** `POST /api/jobs/retention` com `Authorization: Bearer CRON_SECRET`.
 
+**Job do resumo mensal (exceção):** `GET|POST /api/jobs/monthly-report` com `Authorization: Bearer CRON_SECRET`. Parâmetros opcionais: `month=AAAA-MM` (padrão: mês anterior em São Paulo) e `dry=1` (devolve as prévias sem enviar).
+
 ---
 
 ## 2. Autenticação (`auth.server.ts` + `auth-context.tsx`)

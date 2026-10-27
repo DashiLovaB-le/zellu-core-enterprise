@@ -10,6 +10,7 @@ import { ResponsivePages } from "@/components/pages/ResponsivePages";
 import { getProfile, updateProfile, updateEmail, updatePassword } from "@/lib/api/auth.server";
 import { withdrawPrivacyConsent, deleteMyAccount } from "@/lib/api/privacy.server";
 import { PrivacyPreferencesSection } from "@/components/PrivacyPreferencesSection";
+import { MonthlyReportPreferenceSection } from "@/components/manager/MonthlyReportPreferenceSection";
 import { CrisisHelp } from "@/components/CrisisHelp";
 
 export const Route = createFileRoute("/perfil")({
@@ -73,9 +74,7 @@ function PerfilPage() {
   }, [session, user, profileLoaded]);
 
   if (loading || !isAuthorized) {
-    return (
-      <PageLoader />
-    );
+    return <PageLoader />;
   }
 
   const switchMode = () => {
@@ -101,8 +100,7 @@ function PerfilPage() {
   const handleSaveName = async () => {
     setNameSuccess("");
     if (!session || !editName.trim()) return;
-    const { error } = await updateProfile({ data: { displayName: editName.trim() },
-    });
+    const { error } = await updateProfile({ data: { displayName: editName.trim() } });
     if (!error) {
       setDisplayName(editName.trim());
       setEditing(false);
@@ -128,8 +126,7 @@ function PerfilPage() {
     setEmailError("");
     setEmailSuccess("");
     if (!session || !newEmail.trim()) return;
-    const { error } = await updateEmail({ data: { email: newEmail.trim() },
-    });
+    const { error } = await updateEmail({ data: { email: newEmail.trim() } });
     if (error) {
       setEmailError(error);
     } else {
@@ -151,10 +148,8 @@ function PerfilPage() {
       setPasswordError("Nova senha deve ter no mínimo 8 caracteres");
       return;
     }
-    const { error } = await updatePassword({ data: { email: user.email,
-        currentPassword,
-        newPassword,
-      },
+    const { error } = await updatePassword({
+      data: { email: user.email, currentPassword, newPassword },
     });
     if (error) {
       setPasswordError(error);
@@ -246,16 +241,19 @@ function PerfilPage() {
     extraSections: (
       <div className="mb-5 space-y-4">
         <CrisisHelp />
+        {role === "manager" || role === "dev" ? <MonthlyReportPreferenceSection /> : null}
         <PrivacyPreferencesSection
           onWithdraw={async () => {
             if (!session) return;
-            if (!window.confirm("Revogar o consentimento? Você será levado ao termo de novo.")) return;
+            if (!window.confirm("Revogar o consentimento? Você será levado ao termo de novo."))
+              return;
             const result = await withdrawPrivacyConsent();
             if (!result.error) navigate({ to: "/onboarding", replace: true });
           }}
           onDeleteAccount={async () => {
             if (!session) return;
-            if (!window.confirm("Excluir sua conta e dados? Esta ação não pode ser desfeita.")) return;
+            if (!window.confirm("Excluir sua conta e dados? Esta ação não pode ser desfeita."))
+              return;
             const result = await deleteMyAccount();
             if (!result.error) await signOut();
           }}

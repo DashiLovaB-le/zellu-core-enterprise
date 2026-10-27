@@ -117,6 +117,12 @@ Se usar domínio próprio, aponte-o em Vercel → Settings → Domains e atualiz
 
 É preciso ter `CRON_SECRET` definido; sem ele o job responde 401.
 
+### 3.5 Resumo mensal do RH por e-mail
+
+`vercel.json` agenda `GET /api/jobs/monthly-report` no dia 1 de cada mês às 12:00 UTC (9h em Brasília). A GitHub Action `.github/workflows/monthly-report.yml` dispara o mesmo endpoint por `POST`; a tabela `rh_monthly_report_sends` impede envio duplicado por gestor e mês.
+
+Precisa de `CRON_SECRET`, `RESEND_API_KEY`, remetente verificado (`REMINDER_FROM_EMAIL` ou `INVITE_FROM_EMAIL`) e `APP_BASE_URL` para os links. Para conferir sem enviar: `GET /api/jobs/monthly-report?dry=1&month=AAAA-MM` com o mesmo `Authorization`.
+
 ---
 
 ## 4. Migrations

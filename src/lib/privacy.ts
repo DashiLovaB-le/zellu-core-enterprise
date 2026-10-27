@@ -23,6 +23,7 @@ export const PRIVACY_SUMMARY = {
     "Só indicadores agregados por equipe, e somente se você autorizar o compartilhamento com o RH",
     "Alertas de tendência quando o time tem pelo menos 5 pessoas que autorizaram",
     "Médias dos fatores de trabalho por equipe, só com 5 ou mais respostas autorizadas",
+    "Um resumo mensal por e-mail com esses mesmos indicadores agregados",
   ],
   rhNeverSees: [
     "Texto do diário",
