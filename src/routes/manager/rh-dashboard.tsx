@@ -363,19 +363,19 @@ function MiniMetric({ label, value, unit }: { label: string; value: string; unit
 }
 
 function AlertCard({ alert }: { alert: RhAlert }) {
-  const severityColors: Record<string, { bg: string; border: string; icon: string }> = {
-    high: { bg: "bg-red-50", border: "border-l-red-400", icon: "error" },
-    medium: { bg: "bg-yellow-50", border: "border-l-yellow-400", icon: "warning" },
-    low: { bg: "bg-blue-50", border: "border-l-blue-400", icon: "info" },
+  const severityStyles: Record<string, { pill: string; icon: string }> = {
+    high: { pill: "bg-[var(--clay-anxiety)] text-[#9A4B2E]", icon: "error" },
+    medium: { pill: "bg-[var(--clay-stress)] text-[#7A5A12]", icon: "warning" },
+    low: { pill: "bg-[var(--clay-cta-2)] text-[#2F4F72]", icon: "info" },
   };
-  const s = severityColors[alert.severity] ?? severityColors.low;
+  const s = severityStyles[alert.severity] ?? severityStyles.low;
 
   return (
-    <div className={`rounded-xl ${s.bg} border-l-4 ${s.border} p-3 shadow-sm`}>
-      <div className="flex items-start gap-2">
-        <Icon name={s.icon} filled className="mt-0.5 shrink-0 text-base" />
-        <p className="text-xs text-[var(--clay-text)]/80">{alert.message}</p>
+    <div className="flex items-center gap-3 rounded-2xl bg-white/60 p-3 shadow-sm">
+      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${s.pill}`}>
+        <Icon name={s.icon} filled className="text-base" />
       </div>
+      <p className="text-xs text-[var(--clay-text)]/80">{alert.message}</p>
     </div>
   );
 }
