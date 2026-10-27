@@ -28,22 +28,9 @@ function isNavActive(pathname: string, to: string) {
   return pathname.startsWith(to);
 }
 
-export function ManagerShell({
-  children,
-  layout = "default",
-  navCollapsed = false,
-  onNavCollapsedChange,
-}: {
-  children: ReactNode;
-  layout?: "default" | "wide";
-  navCollapsed?: boolean;
-  onNavCollapsedChange?: (collapsed: boolean) => void;
-}) {
+export function ManagerShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user } = useAuth();
-  const wide = layout === "wide";
-  const collapsible = Boolean(onNavCollapsedChange);
-  const collapsed = collapsible && navCollapsed;
 
   return (
     <>
@@ -107,7 +94,7 @@ export function ManagerShell({
       {/* Desktop layout */}
       <div className="hidden min-h-screen bg-background md:block">
         <header className="sticky top-0 z-50 border-b border-border/30 bg-background/70 backdrop-blur-lg">
-          <div className={`mx-auto flex h-14 items-center justify-between px-6 ${wide ? "max-w-none" : "max-w-7xl"}`}>
+          <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
             <Link to="/manager" className="flex items-center gap-2">
               <img src={logo} alt={BRANDING.appName} className="h-8 w-8" />
               <span className="font-display text-base text-[var(--clay-title)]">
@@ -121,23 +108,8 @@ export function ManagerShell({
           </div>
         </header>
 
-        <div className={`mx-auto flex px-6 ${wide ? "max-w-none gap-4 py-4" : "max-w-7xl gap-6 py-6"}`}>
-          <aside
-            className={`sticky top-20 h-fit shrink-0 rounded-2xl bg-white/70 p-3 shadow-sm backdrop-blur-md ${
-              collapsed ? "w-[4.25rem]" : "w-56"
-            }`}
-          >
-            {collapsible && (
-              <button
-                type="button"
-                onClick={() => onNavCollapsedChange?.(!navCollapsed)}
-                aria-expanded={!collapsed}
-                aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
-                className="mb-2 flex w-full items-center justify-center rounded-xl px-2 py-2 text-[var(--icon-stroke)]/60 hover:bg-white/40"
-              >
-                <Icon name={collapsed ? "chevron_right" : "chevron_left"} className="text-lg" />
-              </button>
-            )}
+        <div className="mx-auto flex max-w-7xl gap-6 px-6 py-6">
+          <aside className="sticky top-20 h-fit w-56 shrink-0 rounded-2xl bg-white/70 p-3 shadow-sm backdrop-blur-md">
             <nav className="flex flex-col gap-1">
               {NAV.map((item) => {
                 const active = isNavActive(pathname, item.to as string);
@@ -145,17 +117,14 @@ export function ManagerShell({
                   <Link
                     key={item.to}
                     to={item.to}
-                    title={item.label}
-                    className={`flex items-center rounded-xl py-2.5 text-sm font-medium transition-all ${
-                      collapsed ? "justify-center px-2" : "gap-3 px-3"
-                    } ${
+                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
                       active
                         ? "bg-gradient-to-br from-[#99BEE5]/30 to-[#C5D9F1]/30 text-[var(--icon-stroke)] shadow-sm"
                         : "text-[var(--icon-stroke)]/60 hover:bg-white/40"
                     }`}
                   >
                     <Icon name={item.icon} filled={active} className="text-lg" />
-                    {!collapsed && item.label}
+                    {item.label}
                   </Link>
                 );
               })}
@@ -163,13 +132,10 @@ export function ManagerShell({
             <div className="mt-4 border-t border-border/20 pt-3">
               <Link
                 to="/"
-                title="Modo Colaborador"
-                className={`flex items-center rounded-xl py-2.5 text-sm font-medium text-[var(--icon-stroke)]/50 transition-all hover:bg-white/40 ${
-                  collapsed ? "justify-center px-2" : "gap-3 px-3"
-                }`}
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--icon-stroke)]/50 transition-all hover:bg-white/40"
               >
                 <Icon name="arrow_back" className="text-lg" />
-                {!collapsed && "Modo Colaborador"}
+                Modo Colaborador
               </Link>
             </div>
           </aside>

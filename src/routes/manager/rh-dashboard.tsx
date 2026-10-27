@@ -130,13 +130,6 @@ function RhDashboard() {
             {exporting ? "Gerando PDF…" : "Exportar Relatório"}
           </button>
           <Link
-            to="/manager/mapa"
-            className="flex items-center gap-2 rounded-xl bg-white/60 px-4 py-2 text-xs font-semibold text-[var(--clay-title)] shadow-sm hover:bg-white/80"
-          >
-            <Icon name="view_in_ar" className="text-base" />
-            Mapa da empresa
-          </Link>
-          <Link
             to="/manager/equipes"
             className="flex items-center gap-2 rounded-xl bg-white/60 px-4 py-2 text-xs font-semibold text-[var(--clay-title)] shadow-sm hover:bg-white/80"
           >

@@ -39,7 +39,6 @@ import { Route as DashitecnologyPainelDevRouteImport } from './routes/dashitecno
 import { Route as ManagerIndexRouteImport } from './routes/manager/index'
 import { Route as ManagerConvitesRouteImport } from './routes/manager/convites'
 import { Route as ManagerEquipesRouteImport } from './routes/manager/equipes'
-import { Route as ManagerMapaRouteImport } from './routes/manager/mapa'
 import { Route as ManagerRelatoriosRouteImport } from './routes/manager/relatorios'
 import { Route as ManagerRhDashboardRouteImport } from './routes/manager/rh-dashboard'
 import { Route as SobreIndexRouteImport } from './routes/sobre/index'
@@ -197,11 +196,6 @@ const ManagerEquipesRoute = ManagerEquipesRouteImport.update({
   path: '/manager/equipes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ManagerMapaRoute = ManagerMapaRouteImport.update({
-  id: '/manager/mapa',
-  path: '/manager/mapa',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ManagerRelatoriosRoute = ManagerRelatoriosRouteImport.update({
   id: '/manager/relatorios',
   path: '/manager/relatorios',
@@ -262,7 +256,6 @@ export interface FileRoutesByFullPath {
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/convites': typeof ManagerConvitesRoute
   '/manager/equipes': typeof ManagerEquipesRoute
-  '/manager/mapa': typeof ManagerMapaRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
   '/sobre/$slug': typeof SobreSlugRoute
@@ -300,7 +293,6 @@ export interface FileRoutesByTo {
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/convites': typeof ManagerConvitesRoute
   '/manager/equipes': typeof ManagerEquipesRoute
-  '/manager/mapa': typeof ManagerMapaRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
   '/sobre/$slug': typeof SobreSlugRoute
@@ -340,7 +332,6 @@ export interface FileRoutesById {
   '/dashitecnology/$painelDev': typeof DashitecnologyPainelDevRoute
   '/manager/convites': typeof ManagerConvitesRoute
   '/manager/equipes': typeof ManagerEquipesRoute
-  '/manager/mapa': typeof ManagerMapaRoute
   '/manager/relatorios': typeof ManagerRelatoriosRoute
   '/manager/rh-dashboard': typeof ManagerRhDashboardRoute
   '/sobre/$slug': typeof SobreSlugRoute
@@ -381,7 +372,6 @@ export interface FileRouteTypes {
     | '/dashitecnology/$painelDev'
     | '/manager/convites'
     | '/manager/equipes'
-    | '/manager/mapa'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
     | '/sobre/$slug'
@@ -419,7 +409,6 @@ export interface FileRouteTypes {
     | '/dashitecnology/$painelDev'
     | '/manager/convites'
     | '/manager/equipes'
-    | '/manager/mapa'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
     | '/sobre/$slug'
@@ -458,7 +447,6 @@ export interface FileRouteTypes {
     | '/dashitecnology/$painelDev'
     | '/manager/convites'
     | '/manager/equipes'
-    | '/manager/mapa'
     | '/manager/relatorios'
     | '/manager/rh-dashboard'
     | '/sobre/$slug'
@@ -498,7 +486,6 @@ export interface RootRouteChildren {
   DashitecnologyPainelDevRoute: typeof DashitecnologyPainelDevRoute
   ManagerConvitesRoute: typeof ManagerConvitesRoute
   ManagerEquipesRoute: typeof ManagerEquipesRoute
-  ManagerMapaRoute: typeof ManagerMapaRoute
   ManagerRelatoriosRoute: typeof ManagerRelatoriosRoute
   ManagerRhDashboardRoute: typeof ManagerRhDashboardRoute
   DashiadminIndexRoute: typeof DashiadminIndexRoute
@@ -720,13 +707,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerEquipesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/manager/mapa': {
-      id: '/manager/mapa'
-      path: '/manager/mapa'
-      fullPath: '/manager/mapa'
-      preLoaderRoute: typeof ManagerMapaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/manager/relatorios': {
       id: '/manager/relatorios'
       path: '/manager/relatorios'
@@ -814,7 +794,6 @@ const rootRouteChildren: RootRouteChildren = {
   DashitecnologyPainelDevRoute: DashitecnologyPainelDevRoute,
   ManagerConvitesRoute: ManagerConvitesRoute,
   ManagerEquipesRoute: ManagerEquipesRoute,
-  ManagerMapaRoute: ManagerMapaRoute,
   ManagerRelatoriosRoute: ManagerRelatoriosRoute,
   ManagerRhDashboardRoute: ManagerRhDashboardRoute,
   DashiadminIndexRoute: DashiadminIndexRoute,
