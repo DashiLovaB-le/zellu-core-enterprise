@@ -15,6 +15,8 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CheckinRouteImport } from './routes/checkin'
 import { Route as DashboardEmocionalRouteImport } from './routes/dashboard-emocional'
 import { Route as DiarioRouteImport } from './routes/diario'
+import { Route as DpaRouteImport } from './routes/dpa'
+import { Route as GovernancaRouteImport } from './routes/governanca'
 import { Route as HabitosRouteImport } from './routes/habitos'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MeuBemEstarRouteImport } from './routes/meu-bem-estar'
@@ -24,6 +26,7 @@ import { Route as PlanoDeCuidadoRouteImport } from './routes/plano-de-cuidado'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RespiroRouteImport } from './routes/respiro'
 import { Route as SobreRouteRouteImport } from './routes/sobre/route'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as DashiadminIndexRouteImport } from './routes/dashiadmin/index'
 import { Route as DashiadminAlertasRouteImport } from './routes/dashiadmin/alertas'
 import { Route as DashiadminConvitesRouteImport } from './routes/dashiadmin/convites'
@@ -76,6 +79,16 @@ const DiarioRoute = DiarioRouteImport.update({
   path: '/diario',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DpaRoute = DpaRouteImport.update({
+  id: '/dpa',
+  path: '/dpa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GovernancaRoute = GovernancaRouteImport.update({
+  id: '/governanca',
+  path: '/governanca',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HabitosRoute = HabitosRouteImport.update({
   id: '/habitos',
   path: '/habitos',
@@ -119,6 +132,11 @@ const RespiroRoute = RespiroRouteImport.update({
 const SobreRouteRoute = SobreRouteRouteImport.update({
   id: '/sobre',
   path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashiadminIndexRoute = DashiadminIndexRouteImport.update({
@@ -236,6 +254,8 @@ export interface FileRoutesByFullPath {
   '/checkin': typeof CheckinRoute
   '/dashboard-emocional': typeof DashboardEmocionalRoute
   '/diario': typeof DiarioRoute
+  '/dpa': typeof DpaRoute
+  '/governanca': typeof GovernancaRoute
   '/habitos': typeof HabitosRoute
   '/login': typeof LoginRoute
   '/meu-bem-estar': typeof MeuBemEstarRoute
@@ -244,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/respiro': typeof RespiroRoute
+  '/termos': typeof TermosRoute
   '/dashiadmin/alertas': typeof DashiadminAlertasRoute
   '/dashiadmin/convites': typeof DashiadminConvitesRoute
   '/dashiadmin/empresas': typeof DashiadminEmpresasRoute
@@ -273,6 +294,8 @@ export interface FileRoutesByTo {
   '/checkin': typeof CheckinRoute
   '/dashboard-emocional': typeof DashboardEmocionalRoute
   '/diario': typeof DiarioRoute
+  '/dpa': typeof DpaRoute
+  '/governanca': typeof GovernancaRoute
   '/habitos': typeof HabitosRoute
   '/login': typeof LoginRoute
   '/meu-bem-estar': typeof MeuBemEstarRoute
@@ -281,6 +304,7 @@ export interface FileRoutesByTo {
   '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/respiro': typeof RespiroRoute
+  '/termos': typeof TermosRoute
   '/dashiadmin/alertas': typeof DashiadminAlertasRoute
   '/dashiadmin/convites': typeof DashiadminConvitesRoute
   '/dashiadmin/empresas': typeof DashiadminEmpresasRoute
@@ -312,6 +336,8 @@ export interface FileRoutesById {
   '/checkin': typeof CheckinRoute
   '/dashboard-emocional': typeof DashboardEmocionalRoute
   '/diario': typeof DiarioRoute
+  '/dpa': typeof DpaRoute
+  '/governanca': typeof GovernancaRoute
   '/habitos': typeof HabitosRoute
   '/login': typeof LoginRoute
   '/meu-bem-estar': typeof MeuBemEstarRoute
@@ -320,6 +346,7 @@ export interface FileRoutesById {
   '/plano-de-cuidado': typeof PlanoDeCuidadoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/respiro': typeof RespiroRoute
+  '/termos': typeof TermosRoute
   '/dashiadmin/alertas': typeof DashiadminAlertasRoute
   '/dashiadmin/convites': typeof DashiadminConvitesRoute
   '/dashiadmin/empresas': typeof DashiadminEmpresasRoute
@@ -352,6 +379,8 @@ export interface FileRouteTypes {
     | '/checkin'
     | '/dashboard-emocional'
     | '/diario'
+    | '/dpa'
+    | '/governanca'
     | '/habitos'
     | '/login'
     | '/meu-bem-estar'
@@ -360,6 +389,7 @@ export interface FileRouteTypes {
     | '/plano-de-cuidado'
     | '/privacidade'
     | '/respiro'
+    | '/termos'
     | '/dashiadmin/alertas'
     | '/dashiadmin/convites'
     | '/dashiadmin/empresas'
@@ -389,6 +419,8 @@ export interface FileRouteTypes {
     | '/checkin'
     | '/dashboard-emocional'
     | '/diario'
+    | '/dpa'
+    | '/governanca'
     | '/habitos'
     | '/login'
     | '/meu-bem-estar'
@@ -397,6 +429,7 @@ export interface FileRouteTypes {
     | '/plano-de-cuidado'
     | '/privacidade'
     | '/respiro'
+    | '/termos'
     | '/dashiadmin/alertas'
     | '/dashiadmin/convites'
     | '/dashiadmin/empresas'
@@ -427,6 +460,8 @@ export interface FileRouteTypes {
     | '/checkin'
     | '/dashboard-emocional'
     | '/diario'
+    | '/dpa'
+    | '/governanca'
     | '/habitos'
     | '/login'
     | '/meu-bem-estar'
@@ -435,6 +470,7 @@ export interface FileRouteTypes {
     | '/plano-de-cuidado'
     | '/privacidade'
     | '/respiro'
+    | '/termos'
     | '/dashiadmin/alertas'
     | '/dashiadmin/convites'
     | '/dashiadmin/empresas'
@@ -466,6 +502,8 @@ export interface RootRouteChildren {
   CheckinRoute: typeof CheckinRoute
   DashboardEmocionalRoute: typeof DashboardEmocionalRoute
   DiarioRoute: typeof DiarioRoute
+  DpaRoute: typeof DpaRoute
+  GovernancaRoute: typeof GovernancaRoute
   HabitosRoute: typeof HabitosRoute
   LoginRoute: typeof LoginRoute
   MeuBemEstarRoute: typeof MeuBemEstarRoute
@@ -474,6 +512,7 @@ export interface RootRouteChildren {
   PlanoDeCuidadoRoute: typeof PlanoDeCuidadoRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   RespiroRoute: typeof RespiroRoute
+  TermosRoute: typeof TermosRoute
   DashiadminAlertasRoute: typeof DashiadminAlertasRoute
   DashiadminConvitesRoute: typeof DashiadminConvitesRoute
   DashiadminEmpresasRoute: typeof DashiadminEmpresasRoute
@@ -539,6 +578,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiarioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dpa': {
+      id: '/dpa'
+      path: '/dpa'
+      fullPath: '/dpa'
+      preLoaderRoute: typeof DpaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/governanca': {
+      id: '/governanca'
+      path: '/governanca'
+      fullPath: '/governanca'
+      preLoaderRoute: typeof GovernancaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/habitos': {
       id: '/habitos'
       path: '/habitos'
@@ -600,6 +653,13 @@ declare module '@tanstack/react-router' {
       path: '/sobre'
       fullPath: '/sobre'
       preLoaderRoute: typeof SobreRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashiadmin/': {
@@ -774,6 +834,8 @@ const rootRouteChildren: RootRouteChildren = {
   CheckinRoute: CheckinRoute,
   DashboardEmocionalRoute: DashboardEmocionalRoute,
   DiarioRoute: DiarioRoute,
+  DpaRoute: DpaRoute,
+  GovernancaRoute: GovernancaRoute,
   HabitosRoute: HabitosRoute,
   LoginRoute: LoginRoute,
   MeuBemEstarRoute: MeuBemEstarRoute,
@@ -782,6 +844,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlanoDeCuidadoRoute: PlanoDeCuidadoRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   RespiroRoute: RespiroRoute,
+  TermosRoute: TermosRoute,
   DashiadminAlertasRoute: DashiadminAlertasRoute,
   DashiadminConvitesRoute: DashiadminConvitesRoute,
   DashiadminEmpresasRoute: DashiadminEmpresasRoute,

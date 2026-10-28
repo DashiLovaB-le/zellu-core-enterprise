@@ -73,11 +73,23 @@ export function SobreLayout({ children }: { children?: ReactNode }) {
 
       <footer className="border-t border-white/40 py-6 text-center text-[11px] text-[var(--clay-title)]/45">
         <p>{BRANDING.poweredBy}</p>
-        <p className="mt-2">
+        <p className="mt-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
           <Link to="/privacidade" className="underline hover:text-[var(--clay-title)]">
-            Política de privacidade
+            Privacidade
           </Link>
-          {" · "}
+          <span aria-hidden>·</span>
+          <Link to="/termos" className="underline hover:text-[var(--clay-title)]">
+            Termos de Uso
+          </Link>
+          <span aria-hidden>·</span>
+          <Link to="/governanca" className="underline hover:text-[var(--clay-title)]">
+            Política de Governança
+          </Link>
+          <span aria-hidden>·</span>
+          <Link to="/dpa" className="underline hover:text-[var(--clay-title)]">
+            DPA
+          </Link>
+          <span aria-hidden>·</span>
           <Link to="/login" className="underline hover:text-[var(--clay-title)]">
             Login
           </Link>

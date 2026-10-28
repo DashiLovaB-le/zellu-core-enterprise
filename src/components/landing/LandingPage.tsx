@@ -669,9 +669,21 @@ export function LandingPage() {
             <img src={lockup} alt={BRANDING.appName} className="h-8 w-auto" />
             <p className="mt-3 text-sm text-[var(--lp-ink-soft)]">{BRANDING.tagline}</p>
           </div>
-          <nav className="flex gap-6 text-sm font-semibold" aria-label="Rodapé">
+          <nav
+            className="flex max-w-xl flex-wrap justify-start gap-x-6 gap-y-3 text-sm font-semibold md:justify-end"
+            aria-label="Rodapé"
+          >
             <Link to="/privacidade" className="lp-navlink">
               Privacidade
+            </Link>
+            <Link to="/termos" className="lp-navlink">
+              Termos de Uso
+            </Link>
+            <Link to="/governanca" className="lp-navlink">
+              Política de Governança
+            </Link>
+            <Link to="/dpa" className="lp-navlink">
+              DPA
             </Link>
             <Link to="/sobre" className="lp-navlink">
               Sobre

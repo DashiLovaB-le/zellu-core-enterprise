@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { LegalPage, LegalSection } from "@/components/legal/LegalPage";
 import {
   PRIVACY_CONTACTS,
   PRIVACY_OPERATORS,
@@ -26,110 +27,129 @@ export const Route = createFileRoute("/privacidade")({
 
 function PrivacidadePage() {
   return (
-    <div className="mx-auto max-w-2xl px-6 py-10 text-sm text-[var(--clay-text)]">
-      <p className="text-xs">
-        <Link to="/login" className="underline">
-          Voltar ao login
-        </Link>
-      </p>
-      <h1 className="mt-4 font-display text-2xl text-[var(--clay-title)]">Política de privacidade</h1>
-      <p className="mt-2 text-xs text-[var(--clay-title)]/60">
-        Versão {PRIVACY_CONSENT_VERSION} · Lei 13.709/2018 (LGPD)
-      </p>
-      <p className="mt-4 rounded-xl bg-white/70 p-3 text-xs font-medium text-[var(--clay-title)]">
-        {CLINICAL_DISCLAIMER}
-      </p>
+    <LegalPage
+      title="Política de privacidade"
+      versionNote={`Versão ${PRIVACY_CONSENT_VERSION} · Lei 13.709/2018 (LGPD)`}
+      lead={CLINICAL_DISCLAIMER}
+    >
+      <LegalSection title="Quem trata os dados">
+        <p>{PRIVACY_CONTACTS.controllerNote}</p>
+        <p>
+          Operadora: {PRIVACY_CONTACTS.operatorName}. Encarregado:{" "}
+          <a className="underline" href={`mailto:${PRIVACY_CONTACTS.dpoEmail}`}>
+            {PRIVACY_CONTACTS.dpoEmail}
+          </a>
+          . Incidentes de segurança:{" "}
+          <a className="underline" href={`mailto:${PRIVACY_CONTACTS.incidentEmail}`}>
+            {PRIVACY_CONTACTS.incidentEmail}
+          </a>
+          .
+        </p>
+      </LegalSection>
 
-      <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">Quem trata os dados</h2>
-      <p className="mt-2">{PRIVACY_CONTACTS.controllerNote}</p>
-      <p className="mt-2">
-        Operadora: {PRIVACY_CONTACTS.operatorName}. Encarregado:{" "}
-        <a className="underline" href={`mailto:${PRIVACY_CONTACTS.dpoEmail}`}>
-          {PRIVACY_CONTACTS.dpoEmail}
-        </a>
-        . Incidentes de segurança:{" "}
-        <a className="underline" href={`mailto:${PRIVACY_CONTACTS.incidentEmail}`}>
-          {PRIVACY_CONTACTS.incidentEmail}
-        </a>
-        .
-      </p>
+      <LegalSection title="Finalidades">
+        <ul className="list-disc pl-5">
+          <li>Companion de bem-estar: check-in, hábitos, diário e plano de cuidado.</li>
+          <li>IA generativa só com opt-in (OpenRouter, transferência internacional).</li>
+          <li>Painel de RH só com opt-in, em agregados com k-anonimato (mínimo 5 pessoas).</li>
+          <li>Lembretes por e-mail só com opt-in.</li>
+        </ul>
+      </LegalSection>
 
-      <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">Finalidades</h2>
-      <ul className="mt-2 list-disc pl-5">
-        <li>Companion de bem-estar: check-in, hábitos, diário e plano de cuidado.</li>
-        <li>IA generativa só com opt-in (OpenRouter, transferência internacional).</li>
-        <li>Painel de RH só com opt-in, em agregados com k-anonimato (mínimo 5 pessoas).</li>
-        <li>Lembretes por e-mail só com opt-in.</li>
-      </ul>
+      <LegalSection title="O que coletamos">
+        <ul className="list-disc pl-5">
+          {PRIVACY_SUMMARY.collected.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+          <li>Nome, e-mail e vínculo com empresa/equipe para o acesso B2B.</li>
+        </ul>
+      </LegalSection>
 
-      <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">O que coletamos</h2>
-      <ul className="mt-2 list-disc pl-5">
-        {PRIVACY_SUMMARY.collected.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-        <li>Nome, e-mail e vínculo com empresa/equipe para o acesso B2B.</li>
-      </ul>
+      <LegalSection title="O que o RH não vê">
+        <ul className="list-disc pl-5">
+          {PRIVACY_SUMMARY.rhNeverSees.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </LegalSection>
 
-      <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">O que o RH não vê</h2>
-      <ul className="mt-2 list-disc pl-5">
-        {PRIVACY_SUMMARY.rhNeverSees.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
+      <LegalSection title="Como a IA trata seus dados">
+        <p>{PRIVACY_AI_PROCESSING.routing}</p>
+        <p>{PRIVACY_AI_PROCESSING.localFallback}</p>
+        <p>{PRIVACY_AI_PROCESSING.transfer}</p>
+        <p className="font-semibold">O que pode ser enviado (só com opt-in)</p>
+        <ul className="list-disc pl-5">
+          {PRIVACY_AI_PROCESSING.sent.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+        <p className="font-semibold">O que nunca é enviado à IA</p>
+        <ul className="list-disc pl-5">
+          {PRIVACY_AI_PROCESSING.neverSent.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+        <p>{PRIVACY_AI_PROCESSING.ourRetention}</p>
+      </LegalSection>
 
-      <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">Como a IA trata seus dados</h2>
-      <p className="mt-2">{PRIVACY_AI_PROCESSING.routing}</p>
-      <p className="mt-2">{PRIVACY_AI_PROCESSING.localFallback}</p>
-      <p className="mt-2">{PRIVACY_AI_PROCESSING.transfer}</p>
-      <p className="mt-2 font-semibold">O que pode ser enviado (só com opt-in)</p>
-      <ul className="mt-1 list-disc pl-5">
-        {PRIVACY_AI_PROCESSING.sent.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
-      <p className="mt-2 font-semibold">O que nunca é enviado à IA</p>
-      <ul className="mt-1 list-disc pl-5">
-        {PRIVACY_AI_PROCESSING.neverSent.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
-      <p className="mt-2">{PRIVACY_AI_PROCESSING.ourRetention}</p>
+      <LegalSection title="Operadores">
+        <ul className="list-disc pl-5">
+          {PRIVACY_OPERATORS.map((op) => (
+            <li key={op.name}>
+              <strong>{op.name}</strong> — {op.purpose}. Local: {op.location}.
+            </li>
+          ))}
+        </ul>
+      </LegalSection>
 
-      <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">Operadores</h2>
-      <ul className="mt-2 list-disc pl-5">
-        {PRIVACY_OPERATORS.map((op) => (
-          <li key={op.name}>
-            <strong>{op.name}</strong> — {op.purpose}. Local: {op.location}.
-          </li>
-        ))}
-      </ul>
+      <LegalSection title="Retenção">
+        <p>
+          Chat e diário: {RETENTION_DAYS.chat} dias. Check-ins numéricos: {RETENTION_DAYS.checkins}{" "}
+          dias. Logs de sistema (sem conteúdo de saúde): {RETENTION_DAYS.logs} dias. A exclusão roda
+          automaticamente todo dia (e também junto ao job de lembretes). Você pode excluir a conta a
+          qualquer momento no Perfil.
+        </p>
+      </LegalSection>
 
-      <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">Retenção</h2>
-      <p className="mt-2">
-        Chat e diário: {RETENTION_DAYS.chat} dias. Check-ins numéricos: {RETENTION_DAYS.checkins}{" "}
-        dias. Logs de sistema (sem conteúdo de saúde): {RETENTION_DAYS.logs} dias. A exclusão roda
-        automaticamente todo dia (e também junto ao job de lembretes). Você pode excluir a conta a
-        qualquer momento no Perfil.
-      </p>
+      <LegalSection title="Seus direitos">
+        <ul className="list-disc pl-5">
+          {PRIVACY_RIGHTS.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </LegalSection>
 
-      <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">Seus direitos</h2>
-      <ul className="mt-2 list-disc pl-5">
-        {PRIVACY_RIGHTS.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
+      <LegalSection title="Incidentes">
+        <p>
+          Se houver incidente relevante (acesso indevido, vazamento ou perda), a operadora comunica o
+          encarregado, a controladora (sua empresa) e, quando exigido pelo art. 48, a ANPD e os
+          titulares, pelo canal {PRIVACY_CONTACTS.incidentEmail}.
+        </p>
+      </LegalSection>
 
-      <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">Incidentes</h2>
-      <p className="mt-2">
-        Se houver incidente relevante (acesso indevido, vazamento ou perda), a operadora comunica o
-        encarregado, a controladora (sua empresa) e, quando exigido pelo art. 48, a ANPD e os
-        titulares, pelo canal {PRIVACY_CONTACTS.incidentEmail}.
-      </p>
+      <LegalSection title="Menores">
+        <p>
+          O companion é destinado a pessoas com 18 anos ou mais. Não cadastre menores de idade.
+        </p>
+      </LegalSection>
 
-      <h2 className="mt-6 font-display text-lg text-[var(--clay-title)]">Menores</h2>
-      <p className="mt-2">
-        O companion é destinado a pessoas com 18 anos ou mais. Não cadastre menores de idade.
-      </p>
-    </div>
+      <LegalSection title="Documentos complementares">
+        <p>
+          Para condições de uso, governança e processamento em nome da empresa, veja também os{" "}
+          <Link to="/termos" className="underline">
+            Termos de Uso
+          </Link>
+          , a{" "}
+          <Link to="/governanca" className="underline">
+            Política de Governança
+          </Link>{" "}
+          e o{" "}
+          <Link to="/dpa" className="underline">
+            DPA
+          </Link>
+          .
+        </p>
+      </LegalSection>
+    </LegalPage>
   );
 }
