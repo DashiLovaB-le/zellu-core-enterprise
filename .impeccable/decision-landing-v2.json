@@ -1,0 +1,107 @@
+{
+  "title": "Estrutura da nova landing do Zēllu",
+  "question": "O sorteio trouxe três estruturas para a landing comercial. Todas usam a marca atual e as telas reais do app. Escolha uma, ajuste ou sorteie de novo.",
+  "seed": "ce65901c (concept-seed --scope surface --mode persuade; cartas 5, 4, 3; escolha: perguntas-do-rh; build code)",
+  "options": [
+    {
+      "id": "perguntas-do-rh",
+      "label": "Perguntas do RH",
+      "kicker": "THE ROLL",
+      "lineage": "o roteiro de perguntas de uma compra de RH",
+      "thesis": "A página responde, na ordem, às perguntas que um RH faz antes de comprar, cada resposta com a tela real do Zēllu.",
+      "palette": ["#FDF8F4", "#4D332D", "#E5987D", "#92A085", "#99BEE5"],
+      "materials": ["componentes reais do app", "creme e terracota da marca", "mascote urso"],
+      "viewport": "Título comercial e botão Agendar demonstração à esquerda; à direita o painel de fatores de trabalho real; embaixo, o índice das cinco perguntas.",
+      "risk": "Vira FAQ se as respostas ficarem em texto em vez de tela.",
+      "raised": [
+        {
+          "from": "câmara escura (desafiante)",
+          "raise": "Na pergunta da privacidade, o sinal da equipe só se revela quando o contador chega a 5 pessoas."
+        }
+      ],
+      "comp": ".impeccable/mocks/decision/perguntas-do-rh.webp",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "marca + Agendar demonstração", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "título comercial + botão", "x": 0, "y": 1, "w": 5, "h": 3, "accent": true },
+          { "label": "painel real: fatores de trabalho", "x": 5, "y": 1, "w": 7, "h": 3 },
+          { "label": "índice: 5 perguntas do RH", "x": 0, "y": 4, "w": 12, "h": 1 },
+          { "label": "O que o colaborador faz?", "x": 0, "y": 5, "w": 5, "h": 1 },
+          { "label": "check-in real", "x": 5, "y": 5, "w": 7, "h": 1 },
+          { "label": "O que eu vejo? / E a privacidade?", "x": 0, "y": 6, "w": 5, "h": 1 },
+          { "label": "revelação com 5 pessoas", "x": 5, "y": 6, "w": 7, "h": 1, "accent": true },
+          { "label": "Como eu ajo? / E a NR-01?", "x": 0, "y": 7, "w": 12, "h": 1 },
+          { "label": "formulário de demonstração", "x": 2, "y": 8, "w": 8, "h": 2, "accent": true }
+        ]
+      }
+    },
+    {
+      "id": "tour-moldura-fixa",
+      "label": "Tour com moldura fixa",
+      "lineage": "demonstração de produto guiada",
+      "thesis": "Uma moldura do Zēllu fica parada enquanto o texto rola, e cada passo troca a tela real dentro dela.",
+      "palette": ["#FDF8F4", "#4D332D", "#E5987D", "#92A085", "#99BEE5"],
+      "materials": ["componentes reais do app", "moldura de dispositivo", "creme da marca"],
+      "viewport": "Moldura do app ocupando 60% à direita com o check-in real; à esquerda título, promessa e botão; o tour começa ao rolar.",
+      "risk": "Rolagem presa cansa no celular; lá ela vira uma sequência simples de telas.",
+      "raised": [
+        {
+          "from": "câmara escura (desafiante)",
+          "raise": "As trocas seguem estações em ordem fixa: check-in, painel, Como agir, resumo mensal, com um marcador de etapa visível."
+        }
+      ],
+      "comp": ".impeccable/mocks/decision/tour-moldura-fixa.webp",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "marca + Agendar demonstração", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "título + botão", "x": 0, "y": 1, "w": 5, "h": 2, "accent": true },
+          { "label": "moldura fixa do app (troca de tela)", "x": 5, "y": 1, "w": 7, "h": 6, "accent": true },
+          { "label": "passo 1: check-in", "x": 0, "y": 3, "w": 5, "h": 1 },
+          { "label": "passo 2: painel do RH", "x": 0, "y": 4, "w": 5, "h": 1 },
+          { "label": "passo 3: Como agir", "x": 0, "y": 5, "w": 5, "h": 1 },
+          { "label": "passo 4: resumo mensal", "x": 0, "y": 6, "w": 5, "h": 1 },
+          { "label": "privacidade e NR-01", "x": 0, "y": 7, "w": 12, "h": 1 },
+          { "label": "formulário de demonstração", "x": 2, "y": 8, "w": 8, "h": 2 }
+        ]
+      }
+    },
+    {
+      "id": "um-mes-no-zellu",
+      "label": "Um mês no Zēllu",
+      "lineage": "o calendário de um mês de trabalho",
+      "thesis": "A página é um mês do calendário, do primeiro check-in ao resumo que chega no dia 1.",
+      "palette": ["#FDF8F4", "#4D332D", "#E5987D", "#92A085", "#99BEE5"],
+      "materials": ["componentes reais do app", "grade de calendário", "creme da marca"],
+      "viewport": "Uma faixa de 30 dias atravessa a tela; o dia 1 do mês seguinte acende o e-mail real do resumo; botão Agendar demonstração no topo.",
+      "risk": "Exige mais rolagem até o painel do RH, que é o que o comprador quer ver.",
+      "raised": [
+        {
+          "from": "fita de procedência (desafiante)",
+          "raise": "Uma linha contínua liga cada check-in ao sinal da equipe e ao e-mail do mês."
+        }
+      ],
+      "comp": ".impeccable/mocks/decision/um-mes-no-zellu.webp",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "marca + Agendar demonstração", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "título + botão", "x": 0, "y": 1, "w": 6, "h": 2, "accent": true },
+          { "label": "faixa de 30 dias", "x": 0, "y": 3, "w": 12, "h": 1, "accent": true },
+          { "label": "semana 1: check-in", "x": 0, "y": 4, "w": 4, "h": 2 },
+          { "label": "semana 2-3: painel", "x": 4, "y": 4, "w": 4, "h": 2 },
+          { "label": "semana 4: Como agir", "x": 8, "y": 4, "w": 4, "h": 2 },
+          { "label": "dia 1: e-mail do resumo", "x": 2, "y": 6, "w": 8, "h": 2 },
+          { "label": "formulário de demonstração", "x": 2, "y": 8, "w": 8, "h": 2 }
+        ]
+      }
+    }
+  ],
+  "reroll": true,
+  "steer": true,
+  "buildPath": { "value": "code", "toggle": true }
+}

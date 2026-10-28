@@ -3,13 +3,20 @@ import { z } from "zod";
 import { sendTransactionalEmail } from "@/lib/email.server";
 import { createAdminClient } from "@/lib/supabase/admin.server";
 import { requireAdmin } from "@/lib/require-user";
+import { COMPANY_SIZES, companySizeLabel, type CompanySize } from "@/lib/landing-leads";
 
 const LeadInput = z.object({
   name: z.string().trim().min(2, "Informe seu nome.").max(80),
   email: z.string().trim().email("Informe um e-mail válido."),
   company: z.string().trim().min(2, "Informe a empresa.").max(120),
+  companySize: z.enum(COMPANY_SIZES, {
+    errorMap: () => ({ message: "Escolha o número de colaboradores." }),
+  }),
   website: z.string().max(200).optional(),
 });
+
+const LEAD_COLUMNS =
+  "id, name, email, company, company_size, status, notes, email_status, email_error, contacted_at, created_at, updated_at";
 
 export const LANDING_LEAD_STATUSES = [
   "new",
@@ -29,6 +36,7 @@ export type LandingLead = {
   name: string;
   email: string;
   company: string;
+  company_size: CompanySize | null;
   status: LandingLeadStatus;
   notes: string | null;
   email_status: LandingLeadEmailStatus;
@@ -59,6 +67,7 @@ async function persistLead(row: {
   name: string;
   email: string;
   company: string;
+  companySize: CompanySize;
 }): Promise<{ id: string } | { error: string }> {
   try {
     const admin = createAdminClient();
@@ -68,6 +77,7 @@ async function persistLead(row: {
         name: row.name,
         email: row.email,
         company: row.company,
+        company_size: row.companySize,
         status: "new",
         email_status: "pending",
       })
@@ -113,27 +123,31 @@ export const submitLandingLead = createServerFn({ method: "POST" })
       name: data.name,
       email: data.email,
       company: data.company,
+      companySize: data.companySize,
     });
     if ("error" in saved) {
       return { ok: false, error: saved.error };
     }
 
+    const size = companySizeLabel(data.companySize) ?? data.companySize;
     const to = leadsInbox();
     const result = await sendTransactionalEmail({
       to,
-      subject: `Zēllu · pedido de teste — ${data.company}`,
+      subject: `Zēllu · pedido de demonstração — ${data.company}`,
       text: [
-        "Pedido de teste (landing / validação RH)",
+        "Pedido de demonstração (landing)",
         "",
         `Nome: ${data.name}`,
         `E-mail: ${data.email}`,
         `Empresa: ${data.company}`,
+        `Tamanho: ${size}`,
       ].join("\n"),
       html: `
-        <p>Pedido de teste (landing / validação RH)</p>
+        <p>Pedido de demonstração (landing)</p>
         <p><strong>Nome:</strong> ${escapeHtml(data.name)}<br/>
         <strong>E-mail:</strong> ${escapeHtml(data.email)}<br/>
-        <strong>Empresa:</strong> ${escapeHtml(data.company)}</p>
+        <strong>Empresa:</strong> ${escapeHtml(data.company)}<br/>
+        <strong>Tamanho:</strong> ${escapeHtml(size)}</p>
       `,
     });
 
@@ -150,23 +164,20 @@ export const submitLandingLead = createServerFn({ method: "POST" })
     return { ok: true, delivered: true };
   });
 
-export const listLandingLeads = createServerFn({ method: "POST" })
-  .handler(async () => {
-    const auth = await requireAdmin();
-    if ("error" in auth) return { data: [] as LandingLead[], error: auth.error };
+export const listLandingLeads = createServerFn({ method: "POST" }).handler(async () => {
+  const auth = await requireAdmin();
+  if ("error" in auth) return { data: [] as LandingLead[], error: auth.error };
 
-    const admin = createAdminClient();
-    const { data, error } = await admin
-      .from("landing_leads")
-      .select(
-        "id, name, email, company, status, notes, email_status, email_error, contacted_at, created_at, updated_at",
-      )
-      .order("created_at", { ascending: false })
-      .limit(500);
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("landing_leads")
+    .select(LEAD_COLUMNS)
+    .order("created_at", { ascending: false })
+    .limit(500);
 
-    if (error) return { data: [] as LandingLead[], error: error.message };
-    return { data: (data ?? []) as LandingLead[], error: null };
-  });
+  if (error) return { data: [] as LandingLead[], error: error.message };
+  return { data: (data ?? []) as LandingLead[], error: null };
+});
 
 export const updateLandingLead = createServerFn({ method: "POST" })
   .inputValidator(
@@ -203,9 +214,7 @@ export const updateLandingLead = createServerFn({ method: "POST" })
       .from("landing_leads")
       .update(payload)
       .eq("id", data.id)
-      .select(
-        "id, name, email, company, status, notes, email_status, email_error, contacted_at, created_at, updated_at",
-      )
+      .select(LEAD_COLUMNS)
       .single();
 
     return { data: (row as LandingLead | null) ?? null, error: error?.message ?? null };

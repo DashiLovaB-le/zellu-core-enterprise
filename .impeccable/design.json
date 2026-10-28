@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-28T00:40:00.000Z",
+  "title": "Design System: Zēllu",
+  "extensions": {
+    "colorMeta": {
+      "terracotta": { "role": "primary", "displayName": "Terracotta Clay", "canonical": "#e5987d", "tonalRamp": ["#1b0300", "#490700", "#6a280f", "#8c472f", "#b36a51", "#db8f74", "#ffb499", "#ffe4d6"] },
+      "terracotta-deep": { "role": "primary", "displayName": "Fired Terracotta", "canonical": "#d48468", "tonalRamp": ["#1c0200", "#4b0300", "#6c2609", "#8f462b", "#b6694d", "#de8d71", "#ffb395", "#ffe3d4"] },
+      "ink": { "role": "secondary", "displayName": "Cacao Ink", "canonical": "#4d332d", "tonalRamp": ["#130806", "#351d17", "#533832", "#72564f", "#967871", "#bc9c95", "#e3c2ba", "#fbeae6"] },
+      "ink-soft": { "role": "secondary", "displayName": "Warm Graphite", "canonical": "#5b5248", "tonalRamp": ["#0e0a07", "#2a221a", "#473e34", "#655c52", "#887e74", "#ada398", "#d3c9bd", "#f3ede7"] },
+      "sage": { "role": "tertiary", "displayName": "Field Sage", "canonical": "#92a085", "tonalRamp": ["#080d05", "#1d2812", "#38442d", "#56634a", "#78866b", "#9caa8f", "#c2d0b4", "#eaf2e3"] },
+      "sage-deep": { "role": "tertiary", "displayName": "Moss", "canonical": "#66745b", "tonalRamp": ["#080d05", "#1d2812", "#38442d", "#55634a", "#77866c", "#9baa90", "#c1d1b5", "#e9f2e3"] },
+      "sage-field": { "role": "tertiary", "displayName": "Sage Wash", "canonical": "#e3e8dc", "tonalRamp": ["#0a0c08", "#22261d", "#3e4138", "#5b5f55", "#7e8277", "#a2a79b", "#c8cdc1", "#edefe9"] },
+      "cream": { "role": "neutral", "displayName": "Brand Cream", "canonical": "#fdf8f4", "tonalRamp": ["#0c0b0a", "#272320", "#433f3c", "#615d59", "#847f7c", "#a8a4a0", "#cec9c6", "#f0eeec"] },
+      "cream-deep": { "role": "neutral", "displayName": "Linen", "canonical": "#f3eee1", "tonalRamp": ["#0d0b07", "#27241a", "#433f35", "#625d52", "#848074", "#a9a498", "#cfcabe", "#f1eee8"] },
+      "hairline": { "role": "neutral", "displayName": "Thread", "canonical": "#e3d8cc", "tonalRamp": ["#0e0a07", "#2a2219", "#473e34", "#655c51", "#887e73", "#ada397", "#d3c9bd", "#f3ede7"] },
+      "clay-cream": { "role": "neutral", "displayName": "Clay Cream (product)", "canonical": "oklch(0.945 0.022 84)", "approxHex": "#f3eee1", "tonalRamp": ["#0d0b07", "#27241a", "#433f35", "#625d52", "#848074", "#a9a498", "#cfcabe", "#f1eee8"] },
+      "clay-title": { "role": "product", "displayName": "Slate Title (product)", "canonical": "oklch(0.55 0.04 254)", "approxHex": "#4a6a8a", "tonalRamp": ["#020c18", "#062541", "#234260", "#416180", "#6384a5", "#86a8cb", "#abcff3", "#dff1ff"] },
+      "clay-text": { "role": "product", "displayName": "Slate Text (product)", "canonical": "oklch(0.38 0.025 260)", "approxHex": "#3d4a5c", "tonalRamp": ["#070b12", "#192535", "#344152", "#515f71", "#738195", "#97a6bb", "#bccce2", "#e7effa"] },
+      "clay-cta": { "role": "product", "displayName": "Sky CTA (product)", "canonical": "oklch(0.78 0.045 250)", "approxHex": "#99bee5", "tonalRamp": ["#020c19", "#032544", "#214263", "#3f6083", "#6184a8", "#84a8cf", "#a9cff6", "#def1ff"] },
+      "clay-cta-2": { "role": "product", "displayName": "Mist CTA (product)", "canonical": "oklch(0.85 0.03 250)", "approxHex": "#c5d9f1", "tonalRamp": ["#060c13", "#162537", "#314154", "#4e5f74", "#708298", "#94a7bd", "#b9cde4", "#e5f0fc"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The single page headline; max 18ch, balanced." },
+      "headline": { "displayName": "Headline", "purpose": "One per section, phrased as the visitor's question; max 20ch." },
+      "title": { "displayName": "Title", "purpose": "Sub-column headings inside a section." },
+      "body": { "displayName": "Body", "purpose": "Section lead paragraphs, 48-60ch, in ink-soft." },
+      "body-list": { "displayName": "Body List", "purpose": "Bulleted answers with an ink 700 lead phrase; tight variant 0.98rem." },
+      "label": { "displayName": "Label", "purpose": "Form labels, buttons, ruler links, app-frame titles (Quicksand 700)." }
+    },
+    "shadows": [
+      { "name": "proof-lift", "value": "0 30px 60px -20px color-mix(in srgb, #4d332d 30%, transparent), 0 2px 6px color-mix(in srgb, #4d332d 10%, transparent)", "purpose": "App frames holding real product components." },
+      { "name": "device-lift", "value": "0 40px 70px -25px color-mix(in srgb, #4d332d 55%, transparent), 0 2px 4px color-mix(in srgb, #4d332d 20%, transparent)", "purpose": "The phone frame around the real check-in." },
+      { "name": "form-lift", "value": "0 30px 60px -24px color-mix(in srgb, #4d332d 45%, transparent)", "purpose": "Demo form card on the terracotta field." },
+      { "name": "seat-terra", "value": "0 6px 16px color-mix(in srgb, #d48468 35%, transparent)", "purpose": "Terracotta button seat." },
+      { "name": "seat-ink", "value": "0 8px 20px color-mix(in srgb, #4d332d 30%, transparent)", "purpose": "Ink button seat." },
+      { "name": "focus-ring", "value": "outline: 2px solid #4d332d; outline-offset: 3px", "purpose": "Global :focus-visible treatment on brand surfaces." }
+    ],
+    "motion": [
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "The only easing on brand surfaces; every transition and the develop animation." },
+      { "name": "state", "value": "0.2s", "purpose": "Button, link underline, and input border transitions." },
+      { "name": "dot-fill", "value": "0.45s", "purpose": "Respondent dot fill and 1.06 scale in the privacy reveal." },
+      { "name": "develop", "value": "0.9s; from blur(8px) saturate(0.4) opacity 0.4 to sharp", "purpose": "The one authored moment: the factor panel develops at 5 answers. Disabled under prefers-reduced-motion; the end state is still reached." },
+      { "name": "reveal-step", "value": "650ms interval, starts at 45% visibility", "purpose": "Auto-advance of respondent dots when the reveal scrolls into view; jumps to 5 under reduced motion." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px", "purpose": "Side gutters grow to 2rem; form fields pair up." },
+      { "name": "md", "value": "768px", "purpose": "Header section links appear." },
+      { "name": "lg", "value": "1024px", "purpose": "Sections become two-column; frame tilts and hero zoom apply." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Terracotta Button",
+      "kind": "button",
+      "refersTo": "button-terra",
+      "description": "Primary CTA on cream: 'Agendar demonstração'.",
+      "html": "<button class=\"ds-btn-terra\">Agendar demonstração</button>",
+      "css": ".ds-btn-terra { display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: 0 1.25rem; border: 0; border-radius: 999px; background: #e5987d; color: #4d332d; font-family: Quicksand, system-ui, sans-serif; font-weight: 700; font-size: 0.95rem; line-height: 1; white-space: nowrap; cursor: pointer; box-shadow: 0 6px 16px color-mix(in srgb, #d48468 35%, transparent); transition: background-color 0.2s cubic-bezier(0.16,1,0.3,1), transform 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-btn-terra:hover { background: #d48468; } .ds-btn-terra:active { transform: translateY(1px); } .ds-btn-terra:focus-visible { outline: 2px solid #4d332d; outline-offset: 3px; }"
+    },
+    {
+      "name": "Ink Button",
+      "kind": "button",
+      "refersTo": "button-ink",
+      "description": "Submit on the terracotta field, large size.",
+      "html": "<button class=\"ds-btn-ink\">Agendar demonstração</button>",
+      "css": ".ds-btn-ink { display: inline-flex; align-items: center; justify-content: center; min-height: 3.25rem; padding: 0 1.75rem; border: 0; border-radius: 999px; background: #4d332d; color: #fdf8f4; font-family: Quicksand, system-ui, sans-serif; font-weight: 700; font-size: 1.05rem; line-height: 1; cursor: pointer; box-shadow: 0 8px 20px color-mix(in srgb, #4d332d 30%, transparent); transition: background-color 0.2s cubic-bezier(0.16,1,0.3,1), transform 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-btn-ink:hover { background: #3a2622; } .ds-btn-ink:active { transform: translateY(1px); } .ds-btn-ink:focus-visible { outline: 2px solid #4d332d; outline-offset: 3px; } .ds-btn-ink:disabled { opacity: 0.55; cursor: not-allowed; }"
+    },
+    {
+      "name": "Cream and Line Buttons (on ink)",
+      "kind": "button",
+      "refersTo": "button-cream",
+      "description": "Primary and secondary actions on the ink field.",
+      "html": "<div class=\"ds-ink-field\"><button class=\"ds-btn-cream\">Adicionar uma resposta</button><button class=\"ds-btn-line\">Recomeçar</button></div>",
+      "css": ".ds-ink-field { display: flex; gap: 0.75rem; flex-wrap: wrap; padding: 1.5rem; background: #4d332d; } .ds-btn-cream, .ds-btn-line { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 1.25rem; border: 0; border-radius: 999px; font-family: Quicksand, system-ui, sans-serif; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: background-color 0.2s cubic-bezier(0.16,1,0.3,1), box-shadow 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-btn-cream { background: #fdf8f4; color: #4d332d; } .ds-btn-cream:hover { background: #fff; } .ds-btn-line { background: transparent; color: #fdf8f4; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, #fdf8f4 55%, transparent); } .ds-btn-line:hover { box-shadow: inset 0 0 0 1.5px #fdf8f4; } .ds-btn-cream:focus-visible, .ds-btn-line:focus-visible { outline: 2px solid #fdf8f4; outline-offset: 3px; }"
+    },
+    {
+      "name": "Labeled Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Demo form field with stacked Quicksand label.",
+      "html": "<label class=\"ds-label\">E-mail corporativo<input class=\"ds-input\" type=\"email\" placeholder=\"\"></label>",
+      "css": ".ds-label { display: grid; gap: 0.4rem; font-family: Quicksand, system-ui, sans-serif; font-weight: 700; font-size: 0.9rem; color: #4d332d; } .ds-input { width: 100%; min-height: 3rem; padding: 0 0.95rem; border-radius: 12px; border: 1.5px solid #e3d8cc; background: #fff; font-family: 'Nunito Sans', system-ui, sans-serif; font-weight: 400; font-size: 1rem; color: #4d332d; caret-color: #d48468; transition: border-color 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-input:focus { outline: none; border-color: #4d332d; }"
+    },
+    {
+      "name": "Header Navigation",
+      "kind": "nav",
+      "refersTo": "header",
+      "description": "Sticky blurred cream header with underline-on-hover links and the terracotta CTA.",
+      "html": "<header class=\"ds-header\"><strong class=\"ds-logo\">Zēllu</strong><nav class=\"ds-nav\"><a href=\"#\">Como funciona</a><a href=\"#\">Privacidade</a><a href=\"#\">NR-01</a></nav><a class=\"ds-header-cta\" href=\"#\">Agendar demonstração</a></header>",
+      "css": ".ds-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 2rem; background: color-mix(in srgb, #fdf8f4 92%, transparent); backdrop-filter: saturate(1.2) blur(10px); border-bottom: 1px solid #e3d8cc; } .ds-logo { font-family: Quicksand, system-ui, sans-serif; font-weight: 700; font-size: 1.4rem; color: #4d332d; } .ds-nav { display: flex; gap: 1.75rem; font-family: 'Nunito Sans', system-ui, sans-serif; font-weight: 600; font-size: 0.875rem; } .ds-nav a { color: #4d332d; text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 2px; text-underline-offset: 4px; transition: text-decoration-color 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-nav a:hover { text-decoration-color: #e5987d; } .ds-nav a:focus-visible, .ds-header-cta:focus-visible { outline: 2px solid #4d332d; outline-offset: 3px; border-radius: 6px; } .ds-header-cta { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 1.25rem; border-radius: 999px; background: #e5987d; color: #4d332d; font-family: Quicksand, system-ui, sans-serif; font-weight: 700; font-size: 0.95rem; text-decoration: none; box-shadow: 0 6px 16px color-mix(in srgb, #d48468 35%, transparent); } .ds-header-cta:hover { background: #d48468; }"
+    },
+    {
+      "name": "Question Ruler",
+      "kind": "nav",
+      "refersTo": "question-ruler",
+      "description": "Linen band of the section questions as anchor links, under the hero.",
+      "html": "<nav class=\"ds-ruler\"><a href=\"#\">O que o colaborador faz?</a><a href=\"#\">O RH vê o que cada pessoa respondeu?</a><a href=\"#\">E a NR-01?</a><a href=\"#\">Como começamos?</a></nav>",
+      "css": ".ds-ruler { display: flex; flex-wrap: wrap; gap: 0.75rem 2rem; padding: 1.25rem 2rem; background: #f3eee1; border-block: 1px solid #e3d8cc; } .ds-ruler a { font-family: Quicksand, system-ui, sans-serif; font-weight: 700; font-size: 0.98rem; color: #4d332d; text-decoration: underline; text-decoration-color: color-mix(in srgb, #e5987d 60%, transparent); text-decoration-thickness: 2px; text-underline-offset: 4px; } .ds-ruler a:hover { text-decoration-color: #4d332d; } .ds-ruler a:focus-visible { outline: 2px solid #4d332d; outline-offset: 3px; border-radius: 6px; }"
+    },
+    {
+      "name": "App Frame",
+      "kind": "card",
+      "refersTo": "app-frame",
+      "description": "Signature container for real product components, always labeled 'Dados de exemplo'.",
+      "html": "<figure class=\"ds-frame\"><div class=\"ds-frame-bar\"><span class=\"ds-frame-title\">Painel RH · Fatores de trabalho</span><span class=\"ds-frame-demo\">Dados de exemplo</span></div><div class=\"ds-frame-body\"><div class=\"ds-frame-placeholder\">Componente real do app</div></div></figure>",
+      "css": ".ds-frame { margin: 0; max-width: 32rem; border-radius: 22px; background: #fff; overflow: hidden; box-shadow: 0 30px 60px -20px color-mix(in srgb, #4d332d 30%, transparent), 0 2px 6px color-mix(in srgb, #4d332d 10%, transparent); } .ds-frame-bar { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1rem; background: #fff; border-bottom: 1px solid #ece4d8; font-size: 0.75rem; } .ds-frame-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: Quicksand, system-ui, sans-serif; font-weight: 700; color: #4a6a8a; } .ds-frame-demo { margin-left: auto; padding: 0.2rem 0.55rem; border-radius: 999px; background: #f3eee1; color: #5b5248; font-family: 'Nunito Sans', system-ui, sans-serif; font-weight: 600; white-space: nowrap; } .ds-frame-body { padding: 1.1rem; background-color: #f3eee1; background-image: radial-gradient(at 20% 0%, oklch(0.96 0.03 60 / 0.4) 0px, transparent 50%), radial-gradient(at 80% 100%, oklch(0.9 0.04 250 / 0.25) 0px, transparent 50%); } .ds-frame-placeholder { padding: 2rem; border-radius: 1.25rem; background: rgba(255,255,255,0.78); color: #3d4a5c; font-family: 'Nunito Sans', system-ui, sans-serif; text-align: center; }"
+    },
+    {
+      "name": "Answer List and Steps",
+      "kind": "custom",
+      "refersTo": "list",
+      "description": "Terracotta-dot answer list and ink-disc numbered steps.",
+      "html": "<ul class=\"ds-list\"><li><strong>Relatório em PDF</strong> do painel, pronto para a reunião.</li><li><strong>Nada disso chega ao RH.</strong> Diário e conversas ficam com a pessoa.</li></ul><ol class=\"ds-steps\"><li>Você preenche o formulário.</li><li>A gente responde por e-mail.</li></ol>",
+      "css": ".ds-list { display: grid; gap: 0.9rem; margin: 0 0 1.5rem; padding: 0; list-style: none; color: #5b5248; font-family: 'Nunito Sans', system-ui, sans-serif; font-size: 1.02rem; line-height: 1.55; } .ds-list li { position: relative; padding-left: 1.4rem; } .ds-list li::before { content: ''; position: absolute; left: 0; top: 0.62em; width: 0.55rem; height: 0.55rem; border-radius: 999px; background: #e5987d; } .ds-list strong { color: #4d332d; font-weight: 700; } .ds-steps { counter-reset: s; display: grid; gap: 1rem; margin: 0; padding: 0; list-style: none; font-family: 'Nunito Sans', system-ui, sans-serif; font-size: 1.05rem; line-height: 1.5; color: #4d332d; } .ds-steps li { counter-increment: s; display: grid; grid-template-columns: 2.2rem 1fr; align-items: center; gap: 0.75rem; } .ds-steps li::before { content: counter(s); display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border-radius: 999px; background: #4d332d; color: #fdf8f4; font-family: Quicksand, system-ui, sans-serif; font-weight: 700; }"
+    },
+    {
+      "name": "Privacy Reveal Dots",
+      "kind": "custom",
+      "refersTo": "privacy-reveal",
+      "description": "Five respondent dots on ink; the fifth marks the threshold; filled dots turn terracotta.",
+      "html": "<div class=\"ds-dots-field\"><div class=\"ds-dots\"><span class=\"is-on\"></span><span class=\"is-on\"></span><span class=\"is-on\"></span><span></span><span data-limit></span></div></div>",
+      "css": ".ds-dots-field { padding: 1.5rem; background: #4d332d; } .ds-dots { display: flex; gap: 0.6rem; } .ds-dots span { width: 2.1rem; height: 2.1rem; border-radius: 999px; box-shadow: inset 0 0 0 2px color-mix(in srgb, #fdf8f4 40%, transparent); transition: background-color 0.45s cubic-bezier(0.16,1,0.3,1), box-shadow 0.45s cubic-bezier(0.16,1,0.3,1), transform 0.45s cubic-bezier(0.16,1,0.3,1); } .ds-dots span[data-limit] { box-shadow: inset 0 0 0 2px color-mix(in srgb, #fdf8f4 40%, transparent), 0 0 0 4px color-mix(in srgb, #e5987d 45%, transparent); } .ds-dots span.is-on { background: #e5987d; box-shadow: inset 0 0 0 2px #e5987d; transform: scale(1.06); } .ds-dots span:hover { transform: scale(1.06); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Product, Shown Working",
+    "overview": "Zēllu has two layers. The brand layer is warm and editorial: brand cream paper, whole fields of ink and terracotta, a light sage field, Quicksand headlines set tight and heavy. The product layer is the app itself, the companion and the RH panel, in its own clay palette (clay cream ground, slate-blue titles, soft blue CTAs). The brand layer never imitates the product; it frames it. Every claim on a brand surface is backed by a real app component running inside a frame, fed with example data and labeled as such.\n\nDensity is calm and sectional. Each section is one question with one answer and one piece of working proof, separated by a change of color field rather than by cards, dividers, or icons. Ornament is minimal: terracotta dots for lists, numbered ink discs for steps, a tilt of under one degree on two proof frames. The bear mascot appears only where the product speaks to the person (the check-in, the closing invitation), never as decoration on HR-facing argument.",
+    "keyCharacteristics": [
+      "Brand cream ground; sections change by full-width color field (ink, sage field, terracotta), not by boxed cards.",
+      "Real product components inside app frames, always carrying the \"Dados de exemplo\" pill.",
+      "Quicksand 700 for every headline, label, and button; Nunito Sans for reading text.",
+      "Pill buttons; generous rounded frames (22px) and a device frame for the phone.",
+      "One authored motion moment (the develop reveal); everything else is short state transitions."
+    ],
+    "rules": [
+      { "name": "The Two Palettes Rule", "body": "Brand colors (cream, ink, terracotta, sage) live outside the frame; clay colors live inside it. A brand surface never paints its own UI in clay blue, and the product is never recolored to match the brand.", "section": "colors" },
+      { "name": "The Ink-On-Terracotta Rule", "body": "Text and controls on terracotta are ink. Cream on terracotta fails legibility and is not used.", "section": "colors" },
+      { "name": "The Whole Field Rule", "body": "Ink, sage field, and terracotta are used as full-bleed section grounds, one per section, with cream sections between them. They are not used as card fills or badges.", "section": "colors" },
+      { "name": "The Quicksand Speaks Rule", "body": "Anything that names or commands (headings, labels, buttons, ruler links, frame titles) is Quicksand 700. Anything to be read at length is Nunito Sans 400; header and footer nav links are Nunito Sans 600.", "section": "typography" },
+      { "name": "The Question Heading Rule", "body": "Section headlines are the visitor's question, verbatim, and the ruler repeats them as anchors. No eyebrow or kicker line sits above a heading.", "section": "typography" },
+      { "name": "The Only-Proof-Floats Rule", "body": "If it is not the product (or the form that books it), it sits flat on its field.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do render product proof from the real app components (the work-factor panel, the check-in question, the monthly email builder) fed with example data, inside an App Frame that shows the \"Dados de exemplo\" pill.",
+      "Do generate any raster of the product from the product's own code (the PDF preview comes from the real PDF builder) and ship it with a provenance sidecar next to the file.",
+      "Do keep clay colors inside frames and brand colors outside them (The Two Palettes Rule).",
+      "Do separate sections by full-bleed field color (ink, sage field, terracotta) with cream between, one field per section.",
+      "Do use ink text on terracotta and cream text on ink.",
+      "Do use the shared ease `cubic-bezier(0.16, 1, 0.3, 1)` for every transition, keep state transitions at 0.2s, and give `prefers-reduced-motion` a no-animation path that still reaches the end state.",
+      "Do tint every shadow with ink or terracotta-deep via `color-mix`."
+    ],
+    "donts": [
+      "Don't paste screenshots of the app as proof; screenshots drift from the product and carry real data.",
+      "Don't show product UI without the example-data label, or with real customer data.",
+      "Don't add a second authored motion moment; the develop reveal is the one.",
+      "Don't put the bear mascot beside HR-facing claims; it appears only where the product speaks to the person.",
+      "Don't set cream or white text on terracotta.",
+      "Don't add eyebrow or kicker lines above headings; the heading is the question.",
+      "Don't use neutral gray or black shadows on brand surfaces, or shadows on flat brand fields; shadows inside frames belong to the product."
+    ]
+  }
+}

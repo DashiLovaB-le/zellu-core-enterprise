@@ -1,0 +1,4 @@
+{
+  "prompt": "Origem: primeira página do relatório PDF real do Painel RH, gerada por buildRhDashboardPdfDefinition (src/lib/rh-dashboard-pdf.ts) com os dados de exemplo de src/components/landing/landing-assets.test.ts; convertida com pdf-to-img (scale 1.6) e ffmpeg (webp q84). Sem dados de cliente real.",
+  "createdAt": "2026-10-28T00:22:15.348Z"
+}

@@ -1,11 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { BRANDING } from "@/lib/branding";
-import {
-  AdminPageFrame,
-  AdminSection,
-  useAdminGate,
-} from "@/components/admin/AdminShared";
+import { companySizeLabel } from "@/lib/landing-leads";
+import { AdminPageFrame, AdminSection, useAdminGate } from "@/components/admin/AdminShared";
 import { Icon } from "@/components/Icon";
 import {
   loadLandingLeads,
@@ -168,7 +165,10 @@ function AdminLeadsPage() {
 
       {error && <p className="mt-3 text-xs text-rose-500">{error}</p>}
 
-      <AdminSection title="Pedidos" subtitle="Tratamento comercial — nome, e-mail e empresa informados no formulário">
+      <AdminSection
+        title="Pedidos"
+        subtitle="Tratamento comercial — nome, e-mail e empresa informados no formulário"
+      >
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
@@ -199,7 +199,14 @@ function AdminLeadsPage() {
                         {formatWhen(lead.created_at)}
                       </td>
                       <td className="px-4 py-3 font-medium text-slate-800">{lead.name}</td>
-                      <td className="px-4 py-3 text-slate-600">{lead.company}</td>
+                      <td className="px-4 py-3 text-slate-600">
+                        {lead.company}
+                        {companySizeLabel(lead.company_size) ? (
+                          <span className="block text-[11px] text-slate-400">
+                            {companySizeLabel(lead.company_size)}
+                          </span>
+                        ) : null}
+                      </td>
                       <td className="px-4 py-3">
                         <a
                           href={`mailto:${lead.email}`}
@@ -255,11 +262,13 @@ function AdminLeadsPage() {
                                 }
                                 className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none"
                               >
-                                {(Object.keys(STATUS_LABEL) as LandingLeadStatus[]).map((status) => (
-                                  <option key={status} value={status}>
-                                    {STATUS_LABEL[status]}
-                                  </option>
-                                ))}
+                                {(Object.keys(STATUS_LABEL) as LandingLeadStatus[]).map(
+                                  (status) => (
+                                    <option key={status} value={status}>
+                                      {STATUS_LABEL[status]}
+                                    </option>
+                                  ),
+                                )}
                               </select>
                               {lead.email_error ? (
                                 <p className="mt-2 text-[11px] text-rose-500">{lead.email_error}</p>

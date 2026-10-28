@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
 import { Icon } from "@/components/Icon";
-import type { RhWorkFactorReport, RhWorkFactorSignal } from "@/lib/work-factors";
+import type { RhWorkFactorReport, RhWorkFactorSignal, WorkFactorId } from "@/lib/work-factors";
 import { workFactorLevelLabel } from "@/lib/work-factors";
 import {
   WORK_FACTOR_GUIDE_PRIVACY_NOTE,
@@ -42,8 +42,14 @@ function FactorGuide({
   );
 }
 
-function FactorLine({ factor }: { factor: RhWorkFactorSignal }) {
-  const [open, setOpen] = useState(false);
+function FactorLine({
+  factor,
+  initiallyOpen = false,
+}: {
+  factor: RhWorkFactorSignal;
+  initiallyOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(initiallyOpen);
   const guideId = useId();
 
   if (!factor.available || factor.level == null || factor.average == null) {
@@ -94,21 +100,31 @@ function FactorLine({ factor }: { factor: RhWorkFactorSignal }) {
 export function RhWorkFactorsSection({
   report,
   error,
+  defaultOpen,
+  stacked = false,
+  hideIntro = false,
+  className = "mt-8",
 }: {
   report: RhWorkFactorReport | null;
   error: string | null;
+  defaultOpen?: { teamName: string; factorId: WorkFactorId };
+  stacked?: boolean;
+  hideIntro?: boolean;
+  className?: string;
 }) {
   return (
-    <section className="mt-8">
+    <section className={className}>
       <h2 className="font-display text-sm font-semibold text-[var(--clay-title)]">
         Fatores de trabalho
         {report ? ` (últimos ${report.periodDays} dias)` : ""}
       </h2>
-      <p className="mt-1 text-xs text-[var(--clay-text)]/70">
-        Cada dia o check-in pergunta um fator. A média só aparece com 5 ou mais pessoas que
-        autorizaram o compartilhamento. A nota individual não entra aqui. Em fatores com atenção ou
-        risco, abra "Como agir" para ver ações sugeridas para a liderança.
-      </p>
+      {hideIntro ? null : (
+        <p className="mt-1 text-xs text-[var(--clay-text)]/70">
+          Cada dia o check-in pergunta um fator. A média só aparece com 5 ou mais pessoas que
+          autorizaram o compartilhamento. A nota individual não entra aqui. Em fatores com atenção
+          ou risco, abra "Como agir" para ver ações sugeridas para a liderança.
+        </p>
+      )}
 
       {error ? (
         <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-900">{error}</p>
@@ -121,7 +137,9 @@ export function RhWorkFactorsSection({
       ) : null}
 
       {!error && report && report.teams.length > 0 ? (
-        <div className="mt-3 grid grid-cols-1 items-start gap-3 lg:grid-cols-2">
+        <div
+          className={`mt-3 grid grid-cols-1 items-start gap-3 ${stacked ? "" : "lg:grid-cols-2"}`}
+        >
           {report.teams.map((team) => (
             <div key={team.teamName} className="rounded-2xl bg-white/60 p-4 shadow-sm">
               <h3 className="font-display text-sm font-semibold text-[var(--clay-title)]">
@@ -135,7 +153,14 @@ export function RhWorkFactorsSection({
               ) : (
                 <div className="mt-3 space-y-2">
                   {team.factors.map((factor) => (
-                    <FactorLine key={factor.factorId} factor={factor} />
+                    <FactorLine
+                      key={factor.factorId}
+                      factor={factor}
+                      initiallyOpen={
+                        defaultOpen?.teamName === team.teamName &&
+                        defaultOpen.factorId === factor.factorId
+                      }
+                    />
                   ))}
                 </div>
               )}
