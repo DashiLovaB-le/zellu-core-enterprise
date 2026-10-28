@@ -82,58 +82,88 @@ function CheckinDemo() {
   const factor = useMemo(() => factorForDayKey(calendarDayKey(new Date())), []);
   const [score, setScore] = useState<WorkFactorScore | null>(null);
   const [done, setDone] = useState(false);
+  const reduce = useReducedMotion();
+  const swap = {
+    duration: reduce ? 0.01 : 0.24,
+    ease: LP_EASE,
+  };
 
   return (
     <div className="lp-phone" aria-label="Demonstração do check-in do colaborador">
       <div className="lp-phone-screen">
-        {done ? (
-          <div className="flex h-full flex-col items-center justify-center gap-3 px-5 text-center">
-            <Mascot pose="cheer" size="md" />
-            <p className="font-display text-lg font-semibold text-[var(--clay-title)]">
-              Check-in completo!
-            </p>
-            <WorkFactorRecap factorId={factor.id} score={score} />
-            <button
-              type="button"
-              onClick={() => {
-                setDone(false);
-                setScore(null);
-              }}
-              className="mt-2 text-xs font-semibold text-[var(--clay-title)] underline underline-offset-4"
+        <AnimatePresence mode="wait" initial={false}>
+          {done ? (
+            <motion.div
+              key="done"
+              initial={reduce ? false : { opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={reduce ? undefined : { opacity: 0, scale: 0.98 }}
+              transition={swap}
+              className="flex h-full flex-col items-center justify-center gap-3 px-5 text-center"
             >
-              Responder de novo
-            </button>
-          </div>
-        ) : (
-          <>
-            <div className="mb-3 flex items-center gap-3">
-              <Mascot pose="encourage" size="sm" />
-              <div>
-                <p className="font-display text-base font-semibold text-[var(--clay-title)]">
-                  Check-in Matinal
-                </p>
-                <p className="text-[11px] text-[var(--clay-text)]/70">Como você está hoje?</p>
+              <motion.div
+                initial={reduce ? false : { opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: reduce ? 0 : 0.05,
+                  duration: reduce ? 0.01 : 0.22,
+                  ease: LP_EASE,
+                }}
+              >
+                <Mascot pose="cheer" size="md" />
+              </motion.div>
+              <p className="font-display text-lg font-semibold text-[var(--clay-title)]">
+                Check-in completo!
+              </p>
+              <WorkFactorRecap factorId={factor.id} score={score} />
+              <button
+                type="button"
+                onClick={() => {
+                  setDone(false);
+                  setScore(null);
+                }}
+                className="mt-2 text-xs font-semibold text-[var(--clay-title)] underline underline-offset-4"
+              >
+                Responder de novo
+              </button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="ask"
+              initial={reduce ? false : { opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={reduce ? undefined : { opacity: 0, scale: 0.98 }}
+              transition={swap}
+            >
+              <div className="mb-3 flex items-center gap-3">
+                <Mascot pose="encourage" size="sm" />
+                <div>
+                  <p className="font-display text-base font-semibold text-[var(--clay-title)]">
+                    Check-in Matinal
+                  </p>
+                  <p className="text-[11px] text-[var(--clay-text)]/70">Como você está hoje?</p>
+                </div>
               </div>
-            </div>
-            <div className="mb-3 flex gap-1.5" aria-hidden>
-              {[0, 1, 2, 3].map((i) => (
-                <span
-                  key={i}
-                  className="h-1 flex-1 rounded-full bg-gradient-to-r from-[#99BEE5] to-[#C5D9F1]"
-                />
-              ))}
-            </div>
-            <WorkFactorQuestion variant="mobile" factor={factor} score={score} onScore={setScore} />
-            <button
-              type="button"
-              disabled={score === null}
-              onClick={() => setDone(true)}
-              className="mt-3 w-full rounded-xl bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] py-2.5 text-sm font-bold text-[oklch(0.25_0.04_254)] shadow-sm disabled:opacity-50"
-            >
-              Finalizar check-in
-            </button>
-          </>
-        )}
+              <div className="mb-3 flex gap-1.5" aria-hidden>
+                {[0, 1, 2, 3].map((i) => (
+                  <span
+                    key={i}
+                    className="h-1 flex-1 rounded-full bg-gradient-to-r from-[#99BEE5] to-[#C5D9F1]"
+                  />
+                ))}
+              </div>
+              <WorkFactorQuestion variant="mobile" factor={factor} score={score} onScore={setScore} />
+              <button
+                type="button"
+                disabled={score === null}
+                onClick={() => setDone(true)}
+                className="mt-3 w-full rounded-xl bg-gradient-to-br from-[#99BEE5] to-[#C5D9F1] py-2.5 text-sm font-bold text-[oklch(0.25_0.04_254)] shadow-sm disabled:opacity-50"
+              >
+                Finalizar check-in
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -271,6 +301,7 @@ export function LandingPage() {
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">("idle");
   const [error, setError] = useState<string | null>(null);
+  const reduceMotion = useReducedMotion();
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -395,9 +426,9 @@ export function LandingPage() {
                 </li>
               </ul>
             </div>
-            <div className="flex items-end justify-center gap-4">
+            <ScrollIn className="flex items-end justify-center gap-4">
               <CheckinDemo />
-            </div>
+            </ScrollIn>
           </div>
         </section>
 
@@ -436,7 +467,9 @@ export function LandingPage() {
                 </li>
               </ul>
             </div>
-            <MonthlyEmailPreview />
+            <ScrollIn>
+              <MonthlyEmailPreview />
+            </ScrollIn>
           </div>
         </section>
 
@@ -469,17 +502,19 @@ export function LandingPage() {
                 </div>
               </div>
             </div>
-            <AppFrame title="Relatório em PDF · Painel RH" flush className="lp-frame-pdf">
-              <img
-                src={pdfPreview}
-                alt="Primeira página do relatório em PDF do Painel RH, com indicadores gerais, alertas e status por equipe, em dados de exemplo"
-                width={952}
-                height={1347}
-                loading="lazy"
-                decoding="async"
-                className="block h-auto w-full"
-              />
-            </AppFrame>
+            <ScrollIn>
+              <AppFrame title="Relatório em PDF · Painel RH" flush className="lp-frame-pdf">
+                <img
+                  src={pdfPreview}
+                  alt="Primeira página do relatório em PDF do Painel RH, com indicadores gerais, alertas e status por equipe, em dados de exemplo"
+                  width={952}
+                  height={1347}
+                  loading="lazy"
+                  decoding="async"
+                  className="block h-auto w-full"
+                />
+              </AppFrame>
+            </ScrollIn>
           </div>
         </section>
 
@@ -505,104 +540,124 @@ export function LandingPage() {
             </div>
 
             <form className="lp-form" onSubmit={onSubmit} noValidate>
-              {status === "ok" ? (
-                <div role="status" className="py-6">
-                  <p className="font-display text-2xl font-bold text-[var(--lp-ink)]">
-                    Pedido recebido.
-                  </p>
-                  <p className="mt-3 text-[var(--lp-ink-soft)]">
-                    Vamos escrever para {email} para marcar a demonstração.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <label className="sr-only" htmlFor="lp-website">
-                    Website
-                  </label>
-                  <input
-                    id="lp-website"
-                    name="website"
-                    value={website}
-                    onChange={(e) => setWebsite(e.target.value)}
-                    tabIndex={-1}
-                    autoComplete="off"
-                    className="absolute left-[-9999px] h-0 w-0 opacity-0"
-                  />
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <label className="lp-label sm:col-span-2">
-                      Nome
-                      <input
-                        className="lp-input"
-                        name="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        autoComplete="name"
-                        required
-                      />
-                    </label>
-                    <label className="lp-label sm:col-span-2">
-                      E-mail corporativo
-                      <input
-                        className="lp-input"
-                        name="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        autoComplete="email"
-                        required
-                      />
-                    </label>
-                    <label className="lp-label">
-                      Empresa
-                      <input
-                        className="lp-input"
-                        name="company"
-                        value={company}
-                        onChange={(e) => setCompany(e.target.value)}
-                        autoComplete="organization"
-                        required
-                      />
-                    </label>
-                    <label className="lp-label">
-                      Número de colaboradores
-                      <select
-                        className="lp-input"
-                        name="companySize"
-                        value={companySize}
-                        onChange={(e) => setCompanySize(e.target.value as CompanySize)}
-                        required
-                      >
-                        <option value="" disabled>
-                          Escolha
-                        </option>
-                        {COMPANY_SIZES.map((size) => (
-                          <option key={size} value={size}>
-                            {COMPANY_SIZE_LABEL[size]}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={status === "sending"}
-                    className="lp-btn lp-btn-ink lp-btn-lg mt-7 w-full"
+              <AnimatePresence mode="wait" initial={false}>
+                {status === "ok" ? (
+                  <motion.div
+                    key="ok"
+                    role="status"
+                    className="py-6"
+                    initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: reduceMotion ? 0.01 : 0.28,
+                      ease: LP_EASE,
+                    }}
                   >
-                    {status === "sending" ? "Enviando…" : "Agendar demonstração"}
-                  </button>
-                  {error ? (
-                    <p className="mt-4 text-sm font-semibold text-[#8A3A22]" role="alert">
-                      {error}
+                    <p className="font-display text-2xl font-bold text-[var(--lp-ink)]">
+                      Pedido recebido.
                     </p>
-                  ) : null}
-                  <p className="mt-4 text-xs leading-relaxed text-[var(--lp-ink-soft)]">
-                    Usamos esses dados só para responder ao seu pedido.{" "}
-                    <Link to="/privacidade" className="underline underline-offset-2">
-                      Privacidade
-                    </Link>
-                  </p>
-                </>
-              )}
+                    <p className="mt-3 text-[var(--lp-ink-soft)]">
+                      Vamos escrever para {email} para marcar a demonstração.
+                    </p>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="fields"
+                    initial={false}
+                    exit={
+                      reduceMotion
+                        ? undefined
+                        : { opacity: 0, transition: { duration: 0.18, ease: LP_EASE } }
+                    }
+                  >
+                    <label className="sr-only" htmlFor="lp-website">
+                      Website
+                    </label>
+                    <input
+                      id="lp-website"
+                      name="website"
+                      value={website}
+                      onChange={(e) => setWebsite(e.target.value)}
+                      tabIndex={-1}
+                      autoComplete="off"
+                      className="absolute left-[-9999px] h-0 w-0 opacity-0"
+                    />
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <label className="lp-label sm:col-span-2">
+                        Nome
+                        <input
+                          className="lp-input"
+                          name="name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          autoComplete="name"
+                          required
+                        />
+                      </label>
+                      <label className="lp-label sm:col-span-2">
+                        E-mail corporativo
+                        <input
+                          className="lp-input"
+                          name="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          autoComplete="email"
+                          required
+                        />
+                      </label>
+                      <label className="lp-label">
+                        Empresa
+                        <input
+                          className="lp-input"
+                          name="company"
+                          value={company}
+                          onChange={(e) => setCompany(e.target.value)}
+                          autoComplete="organization"
+                          required
+                        />
+                      </label>
+                      <label className="lp-label">
+                        Número de colaboradores
+                        <select
+                          className="lp-input"
+                          name="companySize"
+                          value={companySize}
+                          onChange={(e) => setCompanySize(e.target.value as CompanySize)}
+                          required
+                        >
+                          <option value="" disabled>
+                            Escolha
+                          </option>
+                          {COMPANY_SIZES.map((size) => (
+                            <option key={size} value={size}>
+                              {COMPANY_SIZE_LABEL[size]}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={status === "sending"}
+                      className="lp-btn lp-btn-ink lp-btn-lg mt-7 w-full"
+                    >
+                      {status === "sending" ? "Enviando…" : "Agendar demonstração"}
+                    </button>
+                    {error ? (
+                      <p className="mt-4 text-sm font-semibold text-[#8A3A22]" role="alert">
+                        {error}
+                      </p>
+                    ) : null}
+                    <p className="mt-4 text-xs leading-relaxed text-[var(--lp-ink-soft)]">
+                      Usamos esses dados só para responder ao seu pedido.{" "}
+                      <Link to="/privacidade" className="underline underline-offset-2">
+                        Privacidade
+                      </Link>
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </form>
           </div>
         </section>
